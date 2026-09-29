@@ -1,0 +1,36 @@
+# Dedicated live/production Shopify app configuration.
+# Replace the placeholder client_id and host only with the live app identity.
+# Keep this configuration isolated from local/dev and staging credentials.
+
+client_id = "__SHOPIFY_PRODUCTION_CLIENT_ID__"
+application_url = "https://vsn-stock-down-sort.example.invalid"
+embedded = true
+name = "VSN Stock Down Sort"
+
+[access_scopes]
+scopes = "read_products,write_products,read_inventory"
+
+[webhooks]
+api_version = "2026-10"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "inventory_levels/update" ]
+  uri = "/webhooks/inventory-levels-update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "products/update" ]
+  uri = "/webhooks/products-update"
+
+[auth]
+redirect_urls = [
+  "https://vsn-stock-down-sort.example.invalid/auth/callback",
+  "https://vsn-stock-down-sort.example.invalid/auth/shopify/callback",
+  "https://vsn-stock-down-sort.example.invalid/api/auth/callback"
+]
+
+[build]
+automatically_update_urls_on_dev = false
