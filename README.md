@@ -31,7 +31,8 @@ The hosted runtime is built for Cloudflare Workers.
 - `@prisma/adapter-pg`
 - request-scoped Prisma clients
 - request-scoped Shopify session storage
-- Cloudflare `waitUntil` for webhook-triggered sorting work
+- Cloudflare Queues for hosted webhook and bulk sorting work
+- local direct fallback when no Queue binding is present
 - Shopify asynchronous collection reorder jobs are awaited before a sort is marked successful
 
 The active Prisma schema is:
@@ -163,6 +164,25 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
 
 `DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
+
+## Sort job queues
+
+Hosted Staging and Production Workers use Cloudflare Queues so webhook-triggered
+sorting and **Enable all** do not keep heavy sorting work inside the incoming
+HTTP request.
+
+- Staging: `vsn-stock-down-sort-staging-sort-jobs`
+- Production: `vsn-stock-down-sort-production-sort-jobs`
+- Binding: `STOCK_SORT_QUEUE`
+- Consumer batch size: 1 for deterministic collection processing
+- Failed messages retry and can move to the environment-specific DLQ
+
+The deploy workflows create the Queue and DLQ when they do not already exist.
+Local `npm run dev` has no Queue binding and uses the direct deterministic
+fallback.
+
+Shopify connection pagination uses the API maximum of 250 nodes per page to
+reduce Admin API subrequests.
 
 ## Shopify webhooks
 
