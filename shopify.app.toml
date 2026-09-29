@@ -1,9 +1,13 @@
+# Dedicated local/development Shopify app configuration.
+# This Shopify app identity must never be reused by staging or production.
+# Shopify CLI may update the temporary application URL during local development.
+
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "2d152d80cd0b6c50adbc96ad9b343e5a"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
-name = "VSN Stock Down Sort"
+name = "VSN Stock Down Sort Dev"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
