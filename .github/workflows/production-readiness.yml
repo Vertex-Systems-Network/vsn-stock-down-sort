@@ -1,0 +1,105 @@
+name: Production Readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type VALIDATE_PRODUCTION to validate the live runtime without deploying"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-production-readiness
+  cancel-in-progress: true
+
+jobs:
+  validate-production:
+    if: github.event.inputs.confirm == 'VALIDATE_PRODUCTION'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      APP_ENV: production
+      SHOPIFY_BILLING_TEST_MODE: "false"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SCOPES: ${{ secrets.SCOPES }}
+
+    steps:
+      - name: Checkout protected source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+          cache: npm
+
+      - name: Require isolated production secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for name in DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL SCOPES
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing production secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          case "$SHOPIFY_APP_URL" in
+            https://*) ;;
+            *)
+              echo "SHOPIFY_APP_URL must use HTTPS in production." >&2
+              exit 1
+              ;;
+          esac
+
+          if grep -q "__SHOPIFY_PRODUCTION_CLIENT_ID__" shopify.app.production.toml; then
+            echo "shopify.app.production.toml still contains the production client ID placeholder." >&2
+            exit 1
+          fi
+
+          if grep -q "example.invalid" shopify.app.production.toml; then
+            echo "shopify.app.production.toml still contains the production URL placeholder." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate cloud Prisma schema
+        run: npx prisma validate --schema prisma/cloud/schema.prisma
+
+      - name: Generate cloud Prisma client
+        run: npx prisma generate --schema prisma/cloud/schema.prisma
+
+      - name: Check production migration status
+        run: npx prisma migrate status --schema prisma/cloud/schema.prisma
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build production runtime
+        run: npm run build:cloud
+
+      - name: Validate production billing contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
+          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
+          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
+          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
+          echo "production_billing_contract=5_days_usd_55"
+          echo "production_billing_test_mode=false"
