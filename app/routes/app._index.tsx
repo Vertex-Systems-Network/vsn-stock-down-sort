@@ -135,24 +135,22 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
 
     if (intent === "disableAll") {
-      const settings = await withPrismaClient((db) =>
-        db.collectionSetting.findMany({
+      const result = await withPrismaClient((db) =>
+        db.collectionSetting.updateMany({
           where: { shop: session.shop, enabled: true },
+          data: {
+            enabled: false,
+            lastError: null,
+          },
         }),
       );
 
-      for (const setting of settings) {
-        await disableCollection(
-          admin,
-          session.shop,
-          setting.collectionId,
-          false,
-        );
-      }
-
       return {
         ok: true,
-        message: "Auto-sort disabled for all collections.",
+        message:
+          result.count === 0
+            ? "No enabled collections needed to be disabled."
+            : `Auto-sort disabled for ${result.count} collection${result.count === 1 ? "" : "s"}.`,
       };
     }
 
