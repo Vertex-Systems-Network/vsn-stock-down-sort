@@ -1,9 +1,14 @@
 import { spawnSync } from "node:child_process";
 
 const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
-const appEnv = String(
-  process.env.APP_ENV || (process.env.NODE_ENV === "production" ? "production" : "development"),
-).toLowerCase();
+const configuredAppEnv = process.env.APP_ENV?.trim();
+
+if (!configuredAppEnv && process.env.NODE_ENV === "production") {
+  console.error("[runtime-setup] APP_ENV is required for hosted runtimes.");
+  process.exit(1);
+}
+
+const appEnv = String(configuredAppEnv || "development").toLowerCase();
 
 const cloudEnvironment = appEnv === "staging" || appEnv === "production";
 const schema = cloudEnvironment
