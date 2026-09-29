@@ -1,5 +1,5 @@
 export const PRO_PLAN = Object.freeze({
-  id: "pro-plan",
+  id: "unlimited",
   name: "VSN Stock Down Sort Pro",
   amount: 55,
   currencyCode: "USD" as const,
