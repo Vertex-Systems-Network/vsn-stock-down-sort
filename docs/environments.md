@@ -72,6 +72,8 @@ Cloudflare configuration:
 The Worker runs the React Router server bundle, uses Web Streams SSR, and reads
 runtime bindings through `process.env`.
 
+Staging Worker URL: `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`.
+
 Before staging deployment:
 
 1. configure the GitHub `staging` environment;
