@@ -202,3 +202,34 @@ test("three Shopify app identities stay isolated", () => {
   assert.notEqual(localClientId, productionClientId);
   assert.notEqual(stagingClientId, productionClientId);
 });
+
+
+test("Shopify CLI scripts target three configs explicitly", () => {
+  const pkg = JSON.parse(read("package.json"));
+
+  assert.equal(
+    pkg.scripts["shopify:use:local"],
+    "shopify app config use shopify.app.toml",
+  );
+  assert.equal(
+    pkg.scripts["shopify:use:staging"],
+    "shopify app config use staging",
+  );
+  assert.equal(
+    pkg.scripts["shopify:use:live"],
+    "shopify app config use production",
+  );
+  assert.equal(
+    pkg.scripts["shopify:dev:local"],
+    "npm run shopify:use:local && shopify app dev",
+  );
+  assert.equal(
+    pkg.scripts["shopify:validate:staging"],
+    "shopify app config validate --config staging",
+  );
+  assert.equal(
+    pkg.scripts["shopify:validate:live"],
+    "shopify app config validate --config production",
+  );
+  assert.ok(!Object.keys(pkg.scripts).some((name) => name === "shopify:deploy:live"));
+});
