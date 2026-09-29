@@ -3,6 +3,7 @@ import { authenticate } from "../shopify.server";
 import {
   cancelSubscription,
   createProSubscription,
+  getAnyActiveSubscription,
   getCurrentSubscription,
 } from "../services/billing.server";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
@@ -49,10 +50,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const actionType = String(formData.get("actionType") || "");
 
   try {
-    const currentSubscription = await getCurrentSubscription(admin);
+    const activeSubscription = await getAnyActiveSubscription(admin);
 
     if (actionType === "create") {
-      if (currentSubscription) {
+      if (activeSubscription) {
         return Response.json(
           {
             ok: false,
@@ -98,9 +99,9 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       if (
-        !currentSubscription ||
-        currentSubscription.id !== subscriptionId ||
-        currentSubscription.status !== "ACTIVE"
+        !activeSubscription ||
+        activeSubscription.id !== subscriptionId ||
+        activeSubscription.status !== "ACTIVE"
       ) {
         return Response.json(
           { ok: false, error: "Active subscription not found." },

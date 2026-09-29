@@ -315,3 +315,23 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.equal(policy.billing.amount, 55);
   assert.equal(policy.billing.trial_days, 5);
 });
+
+
+test("billing entitlement requires the exact current plan", () => {
+  const billing = read("app/services/billing.server.ts");
+  const api = read("app/routes/app.api.subscription.tsx");
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.match(billing, /export async function getAnyActiveSubscription/);
+  assert.match(billing, /subscription\.status === "ACTIVE"/);
+  assert.match(billing, /subscription\.name === PRO_PLAN\.name/);
+
+  assert.match(api, /getAnyActiveSubscription/);
+  assert.match(api, /if \(activeSubscription\)/);
+  assert.match(api, /activeSubscription\.id !== subscriptionId/);
+
+  assert.match(plans, /getAnyActiveSubscription/);
+  assert.match(plans, /Legacy subscription detected/);
+  assert.match(plans, /Cancel existing subscription/);
+  assert.match(plans, /Boolean\(activeSubscription\)/);
+});

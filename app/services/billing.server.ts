@@ -79,13 +79,26 @@ export async function getActiveSubscriptions(admin: AdminClient) {
     : subscriptions;
 }
 
-export async function getCurrentSubscription(admin: AdminClient) {
+export async function getAnyActiveSubscription(admin: AdminClient) {
   const subscriptions = await getActiveSubscriptions(admin);
 
   return (
     subscriptions.find((subscription) => subscription.status === "ACTIVE") ??
     null
   );
+}
+
+export function isCurrentPlanSubscription(subscription: AppSubscription) {
+  return (
+    subscription.status === "ACTIVE" &&
+    subscription.name === PRO_PLAN.name
+  );
+}
+
+export async function getCurrentSubscription(admin: AdminClient) {
+  const subscriptions = await getActiveSubscriptions(admin);
+
+  return subscriptions.find(isCurrentPlanSubscription) ?? null;
 }
 
 export async function createProSubscription(

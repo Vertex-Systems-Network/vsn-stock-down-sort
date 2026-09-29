@@ -4,7 +4,10 @@ import { useFetcher, useLoaderData } from "react-router";
 import { PRO_PLAN, PRO_PLAN_FEATURES } from "../billing-config";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
-import { getCurrentSubscription } from "../services/billing.server";
+import {
+  getAnyActiveSubscription,
+  getCurrentSubscription,
+} from "../services/billing.server";
 
 type SubscriptionActionResult = {
   ok?: boolean;
@@ -15,22 +18,26 @@ type SubscriptionActionResult = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  const subscription = await getCurrentSubscription(admin);
+  const [subscription, activeSubscription] = await Promise.all([
+    getCurrentSubscription(admin),
+    getAnyActiveSubscription(admin),
+  ]);
 
   return {
     subscription,
+    activeSubscription,
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
   };
 }
 
 export default function PlansPage() {
-  const { subscription, environment, billingTestMode } =
+  const { subscription, activeSubscription, environment, billingTestMode } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<SubscriptionActionResult>();
   const isLoading = fetcher.state !== "idle";
-  const isProActive =
-    subscription?.status === "ACTIVE" && subscription.name === PRO_PLAN.name;
+  const isProActive = subscription?.status === "ACTIVE";
+  const displayedSubscription = subscription ?? activeSubscription;
 
   useEffect(() => {
     if (!fetcher.data?.confirmationUrl) return;
@@ -59,8 +66,8 @@ export default function PlansPage() {
       formData.set("host", host);
     }
 
-    if (actionType === "cancel" && subscription?.id) {
-      formData.set("id", subscription.id);
+    if (actionType === "cancel" && displayedSubscription?.id) {
+      formData.set("id", displayedSubscription.id);
     }
 
     fetcher.submit(formData, {
@@ -120,10 +127,10 @@ export default function PlansPage() {
                   ))}
                 </s-stack>
 
-                {subscription?.currentPeriodEnd ? (
+                {displayedSubscription?.currentPeriodEnd ? (
                   <s-text>
                     Current billing period ends:{" "}
-                    {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                    {new Date(displayedSubscription.currentPeriodEnd).toLocaleDateString()}
                   </s-text>
                 ) : null}
 
@@ -145,18 +152,31 @@ export default function PlansPage() {
                   <s-button
                     variant="primary"
                     loading={isLoading}
-                    disabled={isLoading || Boolean(subscription)}
+                    disabled={isLoading || Boolean(activeSubscription)}
                     onClick={() => submitSubscriptionAction("create")}
                   >
                     Start {PRO_PLAN.trialDays}-day free trial
                   </s-button>
                 )}
 
-                {subscription && !isProActive ? (
-                  <s-banner tone="warning">
-                    Another active subscription is attached to this app. Cancel
-                    it before starting the Pro plan.
+                {activeSubscription && !isProActive ? (
+                  <s-banner tone="warning" heading="Legacy subscription detected">
+                    An active subscription named &quot;{activeSubscription.name}&quot; is
+                    attached to this app, but it does not grant access to the
+                    current Unlimited plan. Cancel it before starting the
+                    current plan.
                   </s-banner>
+                ) : null}
+
+                {activeSubscription && !isProActive ? (
+                  <s-button
+                    tone="critical"
+                    loading={isLoading}
+                    disabled={isLoading}
+                    onClick={() => submitSubscriptionAction("cancel")}
+                  >
+                    Cancel existing subscription
+                  </s-button>
                 ) : null}
               </s-stack>
             </s-box>
