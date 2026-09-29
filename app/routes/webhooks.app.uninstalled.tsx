@@ -1,15 +1,13 @@
 import type { ActionFunctionArgs } from "react-router";
-import { withPrismaClient } from "../db.server";
+import { purgeShopData } from "../services/shop-data.server";
 import { authenticate } from "../shopify.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { shop } = await authenticate.webhook(request);
 
   if (shop) {
-    await withPrismaClient((db) =>
-      db.collectionSetting.deleteMany({ where: { shop } }),
-    );
+    await purgeShopData(shop);
   }
 
-  return new Response();
+  return new Response(null, { status: 200 });
 }
