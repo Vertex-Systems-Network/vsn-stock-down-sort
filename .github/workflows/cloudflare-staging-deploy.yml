@@ -7,6 +7,11 @@ on:
         description: "Type DEPLOY_DEVELOPMENT_TO_STAGING"
         required: true
         type: string
+      staging_shop:
+        description: "Optional myshopify.com shop to run signed Shopify acceptance checks after deploy"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -32,6 +37,7 @@ jobs:
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
+      STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
 
     steps:
       - name: Checkout development
@@ -62,6 +68,11 @@ jobs:
             exit 1
           fi
 
+          if [ -n "$STAGING_SHOP_DOMAIN" ] && ! [[ "$STAGING_SHOP_DOMAIN" =~ ^[a-z0-9][a-z0-9-]*\.myshopify\.com$ ]]; then
+            echo "staging_shop must be a valid *.myshopify.com domain." >&2
+            exit 1
+          fi
+
       - name: Install dependencies
         run: npm ci
 
@@ -84,12 +95,155 @@ jobs:
             "SHOPIFY_API_KEY",
             "SHOPIFY_API_SECRET",
           ];
-          const payload = Object.fromEntries(required.map((key) => [key, process.env[key]]));
+          const payload = Object.fromEntries(
+            required.map((key) => [key, process.env[key]]),
+          );
           fs.writeFileSync(".worker-secrets.json", JSON.stringify(payload));
           NODE
+          chmod 600 .worker-secrets.json
 
       - name: Deploy staging Worker with secrets
         run: npx wrangler@4.141.0 deploy --config wrangler.staging.jsonc --secrets-file .worker-secrets.json
+
+      - name: Verify deployed health and billing contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
+          expected_plan = {
+              "id": "pro-plan",
+              "amount": 55,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 5,
+          }
+
+          last_error = None
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-stock-down-sort-staging-smoke/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      if response.status != 200:
+                          raise RuntimeError(f"unexpected HTTP status: {response.status}")
+                      payload = json.loads(response.read().decode("utf-8"))
+
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("health ok flag is not true")
+                  if payload.get("service") != "vsn-stock-down-sort":
+                      raise RuntimeError("unexpected service identity")
+                  if payload.get("environment") != "staging":
+                      raise RuntimeError("unexpected environment")
+                  if payload.get("billingTestMode") is not True:
+                      raise RuntimeError("staging billing is not in test mode")
+                  if payload.get("database") != "postgresql":
+                      raise RuntimeError("unexpected database mode")
+                  if payload.get("plan") != expected_plan:
+                      raise RuntimeError(
+                          f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
+                      )
+
+                  print("staging_runtime_health=pass")
+                  print("staging_billing_contract=5_days_usd_55")
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          if last_error and attempt == 6:
+              raise last_error
+          PY
+
+      - name: Verify Shopify session and subscription reads
+        if: ${{ github.event.inputs.staging_shop != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import hmac
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
+
+          shop = os.environ["STAGING_SHOP_DOMAIN"].strip().lower()
+          path = "/internal/staging-acceptance"
+          timestamp = str(int(time.time()))
+          message = f"{timestamp}\n{shop}\n{path}".encode("utf-8")
+          signature = hmac.new(
+              os.environ["SHOPIFY_API_SECRET"].encode("utf-8"),
+              message,
+              hashlib.sha256,
+          ).hexdigest()
+
+          url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + path
+          request = urllib.request.Request(
+              url,
+              headers={
+                  "User-Agent": "vsn-stock-down-sort-staging-acceptance/1.0",
+                  "X-VSN-Shop": shop,
+                  "X-VSN-Timestamp": timestamp,
+                  "X-VSN-Signature": signature,
+              },
+          )
+
+          payload = None
+          last_error = None
+          for attempt in range(1, 4):
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  break
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", errors="replace")
+                  last_error = RuntimeError(
+                      f"staging acceptance HTTP {exc.code}: {body[:500]}"
+                  )
+                  if attempt == 3:
+                      raise last_error
+                  time.sleep(attempt * 2)
+
+          if payload is None:
+              raise last_error or RuntimeError("staging acceptance returned no payload")
+          if payload.get("ok") is not True:
+              raise RuntimeError("staging acceptance returned ok=false")
+
+          session = payload.get("session") or {}
+          if session.get("offlineSessionAvailable") is not True:
+              raise RuntimeError("offline Shopify session is unavailable")
+          if int(session.get("storedSessionCount", 0)) < 1:
+              raise RuntimeError("no stored Shopify sessions were found")
+
+          admin = payload.get("adminGraphql") or {}
+          if admin.get("ok") is not True:
+              raise RuntimeError("Shopify Admin GraphQL read did not pass")
+
+          subscriptions = payload.get("subscriptions") or {}
+          if subscriptions.get("readOk") is not True:
+              raise RuntimeError("activeSubscriptions read did not return an array")
+
+          print("staging_offline_session=pass")
+          print("staging_admin_graphql=pass")
+          print("staging_subscription_read=pass")
+          print(f"staging_stored_sessions={session.get('storedSessionCount')}")
+          print(f"staging_active_subscriptions={subscriptions.get('activeCount')}")
+          PY
+
+      - name: Report deferred Shopify acceptance
+        if: ${{ github.event.inputs.staging_shop == '' }}
+        run: echo "staging_shopify_acceptance=deferred_until_app_install"
 
       - name: Remove temporary Worker secrets
         if: always()
