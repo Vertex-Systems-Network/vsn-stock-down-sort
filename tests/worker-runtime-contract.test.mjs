@@ -370,3 +370,53 @@ test("Shopify update webhooks defer sorter work with Cloudflare waitUntil", () =
     assert.match(route, /await sortEnabledCollections/);
   }
 });
+
+
+test("Shopify configs use the latest stable API and mandatory compliance webhooks", () => {
+  const configs = [
+    read("shopify.app.toml"),
+    read("shopify.app.staging.toml"),
+    read("shopify.app.production.toml"),
+  ];
+
+  for (const config of configs) {
+    assert.match(config, /api_version = "2026-07"/);
+    assert.doesNotMatch(config, /api_version = "2026-10"/);
+    assert.match(config, /topics = \[ "app\/scopes_update" \]/);
+    assert.match(
+      config,
+      /compliance_topics = \[ "customers\/data_request" \]/,
+    );
+    assert.match(
+      config,
+      /compliance_topics = \[ "customers\/redact" \]/,
+    );
+    assert.match(config, /compliance_topics = \[ "shop\/redact" \]/);
+    assert.match(config, /uri = "\/webhooks\/customers\/data_request"/);
+    assert.match(config, /uri = "\/webhooks\/customers\/redact"/);
+    assert.match(config, /uri = "\/webhooks\/shop\/redact"/);
+  }
+});
+
+test("privacy lifecycle purges all shop-scoped persisted data", () => {
+  const purge = read("app/services/shop-data.server.ts");
+  const uninstall = read("app/routes/webhooks.app.uninstalled.tsx");
+  const shopRedact = read("app/routes/webhooks.shop.redact.tsx");
+  const dataRequest = read("app/routes/webhooks.customers.data_request.tsx");
+  const customerRedact = read("app/routes/webhooks.customers.redact.tsx");
+
+  assert.match(purge, /collectionSetting\.deleteMany/);
+  assert.match(purge, /session\.deleteMany/);
+  assert.match(purge, /db\.\$transaction/);
+
+  for (const route of [uninstall, shopRedact]) {
+    assert.match(route, /authenticate\.webhook\(request\)/);
+    assert.match(route, /purgeShopData\(shop\)/);
+  }
+
+  for (const route of [dataRequest, customerRedact]) {
+    assert.match(route, /authenticate\.webhook\(request\)/);
+    assert.doesNotMatch(route, /payload/);
+    assert.doesNotMatch(route, /customer/i);
+  }
+});
