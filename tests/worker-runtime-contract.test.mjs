@@ -572,3 +572,32 @@ test("webhook queue delivery is durable before HTTP acknowledgement", () => {
     assert.match(route, /if \(!queued\)/);
   }
 });
+
+
+test("health requires the sort queue only in hosted environments", () => {
+  const health = read("app/routes/healthz.tsx");
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const production = read(
+    ".github/workflows/cloudflare-production-prepare.yml",
+  );
+
+  assert.match(health, /environment !== "development"/);
+  assert.match(health, /STOCK_SORT_QUEUE/);
+  assert.match(health, /sortQueueConfigured/);
+  assert.match(health, /sortQueueRequired/);
+  assert.match(health, /queueReady/);
+  assert.match(health, /status: ok \? 200 : 503/);
+  assert.match(health, /mode: sortQueueConfigured \? "cloudflare-queue" : "local-fallback"/);
+
+  assert.match(staging, /staging_sort_queue=pass/);
+  assert.match(staging, /sort_queue\.get\("required"\) is not True/);
+  assert.match(staging, /sort_queue\.get\("configured"\) is not True/);
+  assert.match(staging, /sort_queue\.get\("ready"\) is not True/);
+  assert.match(staging, /cloudflare-queue/);
+
+  assert.match(production, /production_sort_queue=pass/);
+  assert.match(production, /sort_queue\.get\("required"\) is not True/);
+  assert.match(production, /sort_queue\.get\("configured"\) is not True/);
+  assert.match(production, /sort_queue\.get\("ready"\) is not True/);
+  assert.match(production, /cloudflare-queue/);
+});
