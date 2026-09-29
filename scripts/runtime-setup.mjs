@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 const appEnv = String(
   process.env.APP_ENV || (process.env.NODE_ENV === "production" ? "production" : "development"),
 ).toLowerCase();
@@ -26,8 +26,8 @@ function boolEnv(name) {
 
 function runPrisma(args) {
   const result = spawnSync(
-    npmCommand,
-    ["exec", "prisma", "--", ...args, "--schema", schema],
+    npxCommand,
+    ["prisma", ...args, "--schema", schema],
     {
       stdio: "inherit",
       env: process.env,
