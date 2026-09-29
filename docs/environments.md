@@ -4,6 +4,16 @@ The app uses the same PostgreSQL-backed, engine-less Prisma runtime in all
 tiers. Credentials, Shopify identities, billing mode, and database instances
 remain isolated by environment.
 
+VSN Stock Down Sort uses **three separate Shopify app registrations**:
+
+- Local / Development: `VSN Stock Down Sort Dev` → `shopify.app.toml`
+- Staging: `VSN Stock Down Sort Staging` → `shopify.app.staging.toml`
+- Live / Production: `VSN Stock Down Sort` → `shopify.app.production.toml`
+
+The three apps must have different Shopify client IDs and secrets. A client ID,
+secret, install, subscription, or session from one tier must never be reused in
+another tier.
+
 | Tier | Source flow | Shopify config | Database | Billing |
 | --- | --- | --- | --- | --- |
 | Development | local / `development` | `shopify.app.toml` | development PostgreSQL | test |

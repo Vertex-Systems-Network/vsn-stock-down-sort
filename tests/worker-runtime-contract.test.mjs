@@ -177,3 +177,28 @@ test("billing plan id stays unlimited across runtime contracts", () => {
   assert.match(staging, /"id": "unlimited"/);
   assert.match(production, /"id": "unlimited"/);
 });
+
+
+test("three Shopify app identities stay isolated", () => {
+  const local = read("shopify.app.toml");
+  const staging = read("shopify.app.staging.toml");
+  const production = read("shopify.app.production.toml");
+
+  assert.match(local, /name = "VSN Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN Stock Down Sort"/);
+
+  const clientId = (source) =>
+    source.match(/client_id\s*=\s*"([^"]+)"/)?.[1] ?? "";
+
+  const localClientId = clientId(local);
+  const stagingClientId = clientId(staging);
+  const productionClientId = clientId(production);
+
+  assert.ok(localClientId);
+  assert.ok(stagingClientId);
+  assert.ok(productionClientId);
+  assert.notEqual(localClientId, stagingClientId);
+  assert.notEqual(localClientId, productionClientId);
+  assert.notEqual(stagingClientId, productionClientId);
+});
