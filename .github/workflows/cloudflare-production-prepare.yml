@@ -176,12 +176,24 @@ jobs:
                       raise RuntimeError("production billing test mode is not false")
                   if payload.get("database") != "postgresql":
                       raise RuntimeError("unexpected database mode")
+
+                  sort_queue = payload.get("sortQueue") or {}
+                  if sort_queue.get("required") is not True:
+                      raise RuntimeError("production sort queue is not marked required")
+                  if sort_queue.get("configured") is not True:
+                      raise RuntimeError("production sort queue binding is missing")
+                  if sort_queue.get("ready") is not True:
+                      raise RuntimeError("production sort queue is not ready")
+                  if sort_queue.get("mode") != "cloudflare-queue":
+                      raise RuntimeError("unexpected production sort queue mode")
+
                   if payload.get("plan") != expected_plan:
                       raise RuntimeError(
                           f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
                       )
 
                   print("production_worker_prepare=pass")
+                  print("production_sort_queue=pass")
                   print("production_billing_contract=5_days_usd_55")
                   print("production_shopify_cutover_performed=false")
                   break
