@@ -117,7 +117,7 @@ jobs:
 
           url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
           expected_plan = {
-              "id": "pro-plan",
+              "id": "unlimited",
               "amount": 55,
               "currencyCode": "USD",
               "interval": "EVERY_30_DAYS",
