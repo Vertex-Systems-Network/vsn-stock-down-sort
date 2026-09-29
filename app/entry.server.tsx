@@ -18,7 +18,7 @@ export default async function handleRequest(
     <ServerRouter context={reactRouterContext} url={request.url} />,
     {
       signal: request.signal,
-      onError(error) {
+      onError(error: unknown) {
         didError = true;
         console.error(error);
       },
