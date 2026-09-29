@@ -1,5 +1,9 @@
 import { PRO_PLAN } from "../billing-config";
-import { getAppEnvironment, isBillingTestMode } from "../environment.server";
+import {
+  getAppEnvironment,
+  getDatabaseMode,
+  isBillingTestMode,
+} from "../environment.server";
 
 export function loader() {
   return Response.json({
@@ -7,6 +11,7 @@ export function loader() {
     service: "vsn-stock-down-sort",
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
+    database: getDatabaseMode(),
     plan: {
       id: PRO_PLAN.id,
       amount: PRO_PLAN.amount,

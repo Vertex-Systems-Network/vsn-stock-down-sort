@@ -48,5 +48,23 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build
+      - name: Build local runtime
+        run: npm run build
+
+      - name: Validate cloud PostgreSQL schema
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+          DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+        run: npm run prisma:validate:cloud
+
+      - name: Generate cloud Prisma client
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+          DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+        run: npm run prisma:generate:cloud
+
+      - name: Build cloud runtime
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+          DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
         run: npm run build

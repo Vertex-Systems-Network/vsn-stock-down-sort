@@ -1,0 +1,107 @@
+name: Staging Readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type VALIDATE_STAGING to validate the isolated staging runtime"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-staging-readiness
+  cancel-in-progress: true
+
+jobs:
+  validate-staging:
+    if: github.event.inputs.confirm == 'VALIDATE_STAGING'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      APP_ENV: staging
+      SHOPIFY_BILLING_TEST_MODE: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SCOPES: ${{ secrets.SCOPES }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+          cache: npm
+
+      - name: Require isolated staging secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for name in DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL SCOPES
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing staging secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          case "$SHOPIFY_APP_URL" in
+            https://*) ;;
+            *)
+              echo "SHOPIFY_APP_URL must use HTTPS in staging." >&2
+              exit 1
+              ;;
+          esac
+
+          if grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
+            echo "shopify.app.staging.toml still contains the staging client ID placeholder." >&2
+            exit 1
+          fi
+
+          if grep -q "example.invalid" shopify.app.staging.toml; then
+            echo "shopify.app.staging.toml still contains the staging URL placeholder." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate cloud Prisma schema
+        run: npx prisma validate --schema prisma/cloud/schema.prisma
+
+      - name: Generate cloud Prisma client
+        run: npx prisma generate --schema prisma/cloud/schema.prisma
+
+      - name: Apply PostgreSQL staging migrations
+        run: npx prisma migrate deploy --schema prisma/cloud/schema.prisma
+
+      - name: Verify PostgreSQL migration status
+        run: npx prisma migrate status --schema prisma/cloud/schema.prisma
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build staging runtime
+        run: npm run build:cloud
+
+      - name: Validate staging billing contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
+          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
+          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
+          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
+          echo "staging_billing_contract=5_days_usd_55"

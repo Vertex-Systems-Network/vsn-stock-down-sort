@@ -11,6 +11,7 @@ billing behavior.
 - Billing: `SHOPIFY_BILLING_TEST_MODE=true`
 - URL behavior: Shopify CLI may update development URLs automatically.
 - Use a development store only.
+- Database: local SQLite via `prisma/schema.prisma`.
 - Do not use live merchant credentials.
 
 ## Staging
@@ -19,6 +20,7 @@ billing behavior.
 - Runtime: `APP_ENV=staging`
 - Billing: `SHOPIFY_BILLING_TEST_MODE=true`
 - Use a dedicated staging Shopify app/client ID and a staging store.
+- Database: isolated PostgreSQL via `prisma/cloud/schema.prisma`.
 - Replace the `.example.invalid` host only when a staging deployment URL exists.
 - Staging can run with `NODE_ENV=production`; `APP_ENV=staging` is what keeps
   billing in test mode.
@@ -29,6 +31,7 @@ billing behavior.
 - Runtime: `APP_ENV=production`
 - Billing: `SHOPIFY_BILLING_TEST_MODE=false`
 - Use the live Shopify app/client ID and production deployment URL only.
+- Database: a production PostgreSQL database isolated from staging.
 - This is the only tier allowed to create real recurring merchant charges.
 
 ## Billing contract
@@ -58,6 +61,8 @@ variables/secrets in staging and production:
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_URL`
 - `SCOPES`
+- `DATABASE_URL` (staging/production)
+- `DIRECT_URL` (staging/production migrations)
 
 Never copy production API secrets into development or staging.
 
@@ -70,6 +75,7 @@ Before staging or production deployment:
    `55 USD / EVERY_30_DAYS / 5 trial days`.
 3. Confirm staging reports `billingTestMode: true`.
 4. Confirm production reports `billingTestMode: false`.
-5. Use separate runtime storage/databases for staging and production. The current
-   repository uses SQLite, so the deployment platform must provide persistent,
-   environment-isolated storage until a managed database migration is performed.
+5. Use separate PostgreSQL databases for staging and production. Local
+   development remains on SQLite.
+6. Hosted startup runs `scripts/runtime-setup.mjs`, which selects the correct
+   Prisma schema and refuses unsafe staging/production billing flags.
