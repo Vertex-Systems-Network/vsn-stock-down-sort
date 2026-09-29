@@ -57,14 +57,18 @@ The Staging and Production client IDs intentionally remain placeholders in git. 
 
 ## Local development
 
-Normal local development stays simple:
+Normal development happens from `development` or a short-lived feature branch based on it.
 
 ```bash
+git switch development
+git pull
 npm install
 npm run dev
 ```
 
 `npm run dev` is exactly `shopify app dev` and uses the default `shopify.app.toml`.
+
+Local development never deploys Staging or Production. Pushes to `development` run validation only.
 
 Do not manually switch the Local app to Staging or Production with `shopify app config use`.
 
@@ -92,7 +96,9 @@ npm run build:worker
 
 ## Staging promotion
 
-Staging promotion is GitHub Action driven.
+Staging promotion is **manual GitHub Action driven**, matching the VSN Metafields release model.
+
+A push to `development` does not deploy Staging. The staging deploy workflow always checks out `development` only after an explicit manual dispatch.
 
 Run in this order:
 
@@ -111,7 +117,9 @@ Staging Worker:
 
 `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
 
-The Staging deployment also verifies the deployed `/healthz` contract and can run signed, read-only Shopify session/subscription acceptance checks against an installed development store.
+The Staging deployment creates/verifies its Queue and DLQ, applies database migrations, verifies the deployed `/healthz` contract, and can run signed, read-only Shopify session/subscription acceptance checks against an installed development store.
+
+There is no separate required Cloudflare staging-bootstrap workflow.
 
 ## Production promotion
 
@@ -201,6 +209,7 @@ Shop-scoped persisted data is purged for uninstall / shop-redact lifecycle event
 
 ## Important docs
 
+- `docs/development-release-flow.md` — Local → manual Staging → reviewed main → manual Production flow
 - `docs/environments.md` — three-app environment architecture
 - `docs/staging-runbook.md` — Staging setup and promotion
 - `docs/production-runbook.md` — Production readiness and release gates

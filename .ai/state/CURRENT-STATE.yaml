@@ -22,13 +22,19 @@ current_baseline:
     - staging
     - production
   staging_worker: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
-current_focus: Cloudflare staging certification under ANPOS control
-active_task: INFRA-STAGING-001
+current_focus: Manual development to staging promotion under ANPOS control
+active_task: INFRA-STAGING-002
 completed:
   - ANPOS-ADOPT-001
+deployment_flow:
+  development_branch: development
+  staging_mode: manual_dispatch_from_development
+  staging_confirmation: DEPLOY_DEVELOPMENT_TO_STAGING
+  release_route: development -> pull request -> main
+  production_mode: manual_and_authorization_gated
 blockers:
-  - Cloudflare staging bootstrap still requires runtime verification using configured GitHub Environment credentials.
-  - Full staging deployment additionally requires database and Shopify staging credentials.
+  - Manual staging deployment requires the staging GitHub Environment values to be complete.
+  - Cloudflare token/account ID are configured by the owner; database and Shopify staging values still require runtime verification before deployment.
 rules:
   preserve_existing_application: true
   repository_evidence_over_chat_memory: true
