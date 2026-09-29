@@ -662,3 +662,22 @@ test("environment secrets audit checks required deployment credentials", () => {
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
+
+
+test("Cloudflare staging bootstrap requires only Cloudflare credentials and provisions queues", () => {
+  const workflow = read(".github/workflows/cloudflare-staging-bootstrap.yml");
+
+  assert.match(workflow, /name: Cloudflare Staging Bootstrap/);
+  assert.match(workflow, /BOOTSTRAP_CLOUDFLARE_STAGING/);
+  assert.match(workflow, /environment: staging/);
+  assert.match(workflow, /CLOUDFLARE_API_TOKEN/);
+  assert.match(workflow, /CLOUDFLARE_ACCOUNT_ID/);
+  assert.match(workflow, /wrangler@4\.141\.0 whoami/);
+  assert.match(workflow, /vsn-stock-down-sort-staging-sort-jobs/);
+  assert.match(workflow, /ensure_queue "\$SORT_QUEUE_NAME"/);
+  assert.match(workflow, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
+  assert.match(workflow, /message-retention-period-secs 86400/);
+  assert.doesNotMatch(workflow, /DATABASE_URL/);
+  assert.doesNotMatch(workflow, /SHOPIFY_API_SECRET/);
+  assert.doesNotMatch(workflow, /wrangler@4\.141\.0 deploy/);
+});
