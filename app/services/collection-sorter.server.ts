@@ -49,6 +49,8 @@ type ProductCollectionsResponse = {
 
 const PRODUCTS_PAGE_SIZE = 100;
 const MAX_REORDER_MOVES = 250;
+const JOB_POLL_INTERVAL_MS = 500;
+const MAX_JOB_POLL_ATTEMPTS = 40;
 
 /**
  * Inventory-first business rule.
@@ -249,13 +251,53 @@ async function setCollectionSortOrder(
   return data.collectionUpdate.collection;
 }
 
+async function waitForJob(admin: AdminClient, jobId: string) {
+  for (let attempt = 1; attempt <= MAX_JOB_POLL_ATTEMPTS; attempt += 1) {
+    const data = await gql<{
+      job: null | {
+        id: string;
+        done: boolean;
+      };
+    }>(
+      admin,
+      `#graphql
+        query ReorderJobStatus($id: ID!) {
+          job(id: $id) {
+            id
+            done
+          }
+        }
+      `,
+      { id: jobId },
+    );
+
+    if (!data.job) {
+      throw new Error(`Shopify reorder job not found: ${jobId}`);
+    }
+
+    if (data.job.done) return;
+
+    if (attempt < MAX_JOB_POLL_ATTEMPTS) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, JOB_POLL_INTERVAL_MS),
+      );
+    }
+  }
+
+  throw new Error(
+    `Shopify reorder job did not complete after ${MAX_JOB_POLL_ATTEMPTS} polls: ${jobId}`,
+  );
+}
+
 async function reorderChunk(
   admin: AdminClient,
   collectionId: string,
   productIds: string[],
   endPosition: number,
 ) {
-  if (!productIds.length) return null;
+  if (!productIds.length) {
+    throw new Error("Cannot reorder an empty product chunk.");
+  }
 
   const moves = productIds.map((id) => ({
     id,
@@ -297,7 +339,13 @@ async function reorderChunk(
     );
   }
 
-  return data.collectionReorderProducts.job?.id ?? null;
+  const jobId = data.collectionReorderProducts.job?.id;
+
+  if (!jobId) {
+    throw new Error("Shopify did not return a reorder job ID.");
+  }
+
+  return jobId;
 }
 
 /**
@@ -349,7 +397,8 @@ export async function sortCollection(
           chunk,
           products.length,
         );
-        if (jobId) jobIds.push(jobId);
+        jobIds.push(jobId);
+        await waitForJob(admin, jobId);
       }
     }
 
