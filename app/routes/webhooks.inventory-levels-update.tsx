@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { runWithWorkerLifetime } from "../cloudflare-context.server";
 import { authenticate } from "../shopify.server";
 import {
   collectionsForInventoryItem,
@@ -10,7 +11,7 @@ type InventoryLevelWebhookPayload = {
   inventoryItemId?: string | number;
 };
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
   const { admin, session, payload } = await authenticate.webhook(request);
 
   if (!admin || !session) {
@@ -25,19 +26,20 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response();
   }
 
-  try {
-    const collectionIds = await collectionsForInventoryItem(
-      admin,
-      inventoryItemId,
-    );
+  await runWithWorkerLifetime(context, async () => {
+    try {
+      const collectionIds = await collectionsForInventoryItem(
+        admin,
+        inventoryItemId,
+      );
 
-    if (collectionIds.length) {
-      await sortEnabledCollections(admin, session.shop, collectionIds);
+      if (collectionIds.length) {
+        await sortEnabledCollections(admin, session.shop, collectionIds);
+      }
+    } catch (error) {
+      console.error("inventory_levels/update sorter error", error);
     }
-  } catch (error) {
-    console.error("inventory_levels/update sorter error", error);
-    // Return 200 after logging to avoid a retry storm for a business-logic error.
-  }
+  });
 
   return new Response();
 }
