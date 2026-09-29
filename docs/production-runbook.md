@@ -101,3 +101,15 @@ Shopify version.
 
 It does not apply database migrations and does not trigger product or inventory
 webhooks during release.
+
+
+## Production sort queue
+
+Cloudflare Production Prepare ensures these resources exist before deploying
+the isolated production Worker:
+
+- `vsn-stock-down-sort-production-sort-jobs`
+- `vsn-stock-down-sort-production-sort-jobs-dlq`
+
+The queue is infrastructure-only and does not authorize or perform the Shopify
+production cutover. Shopify candidate/release gates remain separate.
