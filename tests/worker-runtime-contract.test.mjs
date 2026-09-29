@@ -450,3 +450,18 @@ test("direct deploy paths reject the Local Shopify identity", () => {
     /if \[ "\$SHOPIFY_API_KEY" = "\$LOCAL_CLIENT_ID" \]/,
   );
 });
+
+
+test("README reflects the active Stock Down Sort architecture", () => {
+  const readme = read("README.md");
+
+  assert.match(readme, /^# VSN Stock Down Sort/m);
+  assert.match(readme, /npm run dev/);
+  assert.match(readme, /Cloudflare Workers/);
+  assert.match(readme, /PostgreSQL/);
+  assert.match(readme, /Plan ID: `unlimited`/);
+  assert.match(readme, /Shopify Staging Version/);
+  assert.match(readme, /Shopify Production Candidate/);
+  assert.doesNotMatch(readme, /^# Shopify App Template/m);
+  assert.doesNotMatch(readme, /This template uses .*SQLite/);
+});
