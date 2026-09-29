@@ -24,5 +24,24 @@
     "SHOPIFY_BILLING_TEST_MODE": "false",
     "SHOPIFY_APP_URL": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
     "SCOPES": "read_products,write_products,read_inventory"
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "vsn-stock-down-sort-production-sort-jobs",
+        "binding": "STOCK_SORT_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "vsn-stock-down-sort-production-sort-jobs",
+        "max_batch_size": 1,
+        "max_batch_timeout": 1,
+        "max_retries": 5,
+        "dead_letter_queue": "vsn-stock-down-sort-production-sort-jobs-dlq",
+        "max_concurrency": 1,
+        "retry_delay": 10
+      }
+    ]
   }
 }

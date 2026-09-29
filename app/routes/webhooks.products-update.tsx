@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { runWithWorkerLifetime } from "../cloudflare-context.server";
+import { enqueueSortJobs } from "../sort-queue.server";
 import { authenticate } from "../shopify.server";
 import {
   collectionsForProduct,
@@ -26,7 +27,19 @@ export async function action({ request, context }: ActionFunctionArgs) {
       const collectionIds = await collectionsForProduct(admin, productId);
 
       if (collectionIds.length) {
-        await sortEnabledCollections(admin, session.shop, collectionIds);
+        const queued = await enqueueSortJobs(
+          context,
+          collectionIds.map((collectionId) => ({
+            kind: "sort" as const,
+            shop: session.shop,
+            collectionId,
+            reason: "product-update" as const,
+          })),
+        );
+
+        if (!queued) {
+          await sortEnabledCollections(admin, session.shop, collectionIds);
+        }
       }
     } catch (error) {
       console.error("products/update sorter error", error);

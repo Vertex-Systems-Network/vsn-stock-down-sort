@@ -47,7 +47,7 @@ type ProductCollectionsResponse = {
   };
 };
 
-const PRODUCTS_PAGE_SIZE = 100;
+const PRODUCTS_PAGE_SIZE = 250;
 const MAX_REORDER_MOVES = 250;
 const JOB_POLL_INTERVAL_MS = 500;
 const MAX_JOB_POLL_ATTEMPTS = 40;
@@ -147,7 +147,7 @@ export async function listAllCollections(admin: AdminClient) {
           }
         }
       `,
-      { first: 100, after },
+      { first: 250, after },
     );
 
     all.push(...data.collections.nodes);
@@ -584,7 +584,7 @@ export async function collectionsForProduct(
           }
         }
       `,
-      { id: productId, first: 100, after },
+      { id: productId, first: 250, after },
     );
 
     if (!data.product) return [];

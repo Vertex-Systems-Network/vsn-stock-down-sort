@@ -38,6 +38,7 @@ jobs:
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
       STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
+      SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
 
     steps:
       - name: Checkout development
@@ -84,6 +85,25 @@ jobs:
             echo "staging_shop must be a valid *.myshopify.com domain." >&2
             exit 1
           fi
+
+      - name: Ensure staging sort queues exist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ensure_queue() {
+            local queue_name="$1"
+            if npx wrangler@4.141.0 queues info "$queue_name" >/dev/null 2>&1; then
+              echo "queue_exists=$queue_name"
+              return
+            fi
+
+            npx wrangler@4.141.0 queues create "$queue_name"               --message-retention-period-secs 86400
+            echo "queue_created=$queue_name"
+          }
+
+          ensure_queue "$SORT_QUEUE_NAME"
+          ensure_queue "$SORT_QUEUE_NAME-dlq"
 
       - name: Install dependencies
         run: npm ci

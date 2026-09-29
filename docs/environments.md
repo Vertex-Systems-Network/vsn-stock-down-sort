@@ -149,3 +149,19 @@ committed.
 
 Local development and staging actions must never select or mutate the Live
 Shopify app identity.
+
+
+## Hosted sort queue
+
+Staging and Production Workers bind a dedicated Cloudflare Queue as
+`STOCK_SORT_QUEUE`.
+
+- Staging queue: `vsn-stock-down-sort-staging-sort-jobs`
+- Production queue: `vsn-stock-down-sort-production-sort-jobs`
+
+Each environment also uses a matching `-dlq` dead-letter queue. Deployment
+workflows create missing Queue resources before Worker deployment.
+
+Hosted inventory/product webhook sorts and bulk **Enable all** work are queued.
+Local development keeps the direct fallback because `npm run dev` does not
+require Cloudflare Queue resources.

@@ -133,3 +133,16 @@ After runtime readiness and Cloudflare staging deployment pass:
 
 This process does not modify `shopify.app.toml` or
 `shopify.app.production.toml`.
+
+
+## Staging sort queue
+
+Cloudflare Staging Deploy ensures these resources exist before deploying the
+Worker:
+
+- `vsn-stock-down-sort-staging-sort-jobs`
+- `vsn-stock-down-sort-staging-sort-jobs-dlq`
+
+The Worker both produces to and consumes from the main queue through the
+`STOCK_SORT_QUEUE` binding. Hosted webhook sorting and bulk enablement use the
+queue; local development retains the direct fallback.
