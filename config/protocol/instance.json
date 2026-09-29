@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "instance_status": "active_project",
+  "instance_id": "vsn-stock-down-sort",
+  "project_name": "VSN Stock Down Sort",
+  "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+  "repository_owner": "Vertex-Systems-Network",
+  "initialized_at": "2026-09-30T00:00:00+05:00",
+  "initialized_by": "ChatGPT/GitHub adoption workflow",
+  "source_protocol_version": "1.4.0",
+  "source_template_repository": "Vertex-Systems-Network/ai-native-project-operating-system",
+  "bootstrap_completed": true,
+  "adoption_mode": "existing_repository_adoption",
+  "notes": "ANPOS adopted non-destructively onto an existing Shopify app. Existing app code, billing, Cloudflare, PostgreSQL, Shopify app identities and CI/deployment workflows are project-owned and preserved."
+}
