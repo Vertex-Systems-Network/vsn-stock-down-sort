@@ -99,18 +99,9 @@ jobs:
       - name: Validate staging billing contract
         shell: bash
         run: |
-          node --input-type=module <<'NODE'
-          const billing = await import("./app/billing-config.ts").catch(() => null);
-          if (billing) {
-            const plan = billing.PRO_PLAN;
-            if (
-              plan.amount !== 55 ||
-              plan.currencyCode !== "USD" ||
-              plan.interval !== "EVERY_30_DAYS" ||
-              plan.trialDays !== 5
-            ) {
-              throw new Error("Unexpected billing contract.");
-            }
-          }
-          console.log("staging_billing_contract=5_days_usd_55");
-          NODE
+          set -euo pipefail
+          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
+          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
+          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
+          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
+          echo "staging_billing_contract=5_days_usd_55"
