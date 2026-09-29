@@ -165,3 +165,15 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
   assert.doesNotMatch(workflow, /shopify app deploy/);
   assert.doesNotMatch(workflow, /shopify app config push/);
 });
+
+
+test("billing plan id stays unlimited across runtime contracts", () => {
+  const billing = read("app/billing-config.ts");
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const production = read(".github/workflows/cloudflare-production-prepare.yml");
+
+  assert.match(billing, /id:\s*"unlimited"/);
+  assert.doesNotMatch(billing, /id:\s*"pro-plan"/);
+  assert.match(staging, /"id": "unlimited"/);
+  assert.match(production, /"id": "unlimited"/);
+});
