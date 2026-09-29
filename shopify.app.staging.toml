@@ -1,9 +1,9 @@
 # Dedicated staging Shopify app configuration.
-# Replace the placeholder client_id and host only with the staging app identity.
+# Replace only the placeholder client_id with the dedicated staging Shopify app identity.
 # Never reuse production credentials in this file.
 
 client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
-application_url = "https://vsn-stock-down-sort-staging.example.invalid"
+application_url = "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev"
 embedded = true
 name = "VSN Stock Down Sort Staging"
 
@@ -27,9 +27,9 @@ api_version = "2026-10"
 
 [auth]
 redirect_urls = [
-  "https://vsn-stock-down-sort-staging.example.invalid/auth/callback",
-  "https://vsn-stock-down-sort-staging.example.invalid/auth/shopify/callback",
-  "https://vsn-stock-down-sort-staging.example.invalid/api/auth/callback"
+  "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev/auth/callback",
+  "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev/auth/shopify/callback",
+  "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev/api/auth/callback"
 ]
 
 [build]
