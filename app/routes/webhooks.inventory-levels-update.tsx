@@ -5,6 +5,11 @@ import {
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
 
+type InventoryLevelWebhookPayload = {
+  inventory_item_id?: string | number;
+  inventoryItemId?: string | number;
+};
+
 export async function action({ request }: ActionFunctionArgs) {
   const { admin, session, payload } = await authenticate.webhook(request);
 
@@ -12,9 +17,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response();
   }
 
+  const inventoryPayload = payload as InventoryLevelWebhookPayload;
   const inventoryItemId =
-    (payload as any).inventory_item_id ??
-    (payload as any).inventoryItemId;
+    inventoryPayload.inventory_item_id ?? inventoryPayload.inventoryItemId;
 
   if (!inventoryItemId) {
     return new Response();
