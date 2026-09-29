@@ -1,6 +1,6 @@
 schema_version: 1
 project: VSN Stock Down Sort
-active_task: INFRA-STAGING-001
+active_task: INFRA-STAGING-002
 tasks:
   - id: ANPOS-ADOPT-001
     title: Adopt ANPOS 1.4.0 onto existing application
@@ -11,12 +11,18 @@ tasks:
       - ANPOS instance marked active_project
       - Current state, checkpoint, roadmap and assurance state initialized
   - id: INFRA-STAGING-001
-    title: Certify Cloudflare staging bootstrap
-    status: in_progress
+    title: Align Local Development Staging Live promotion flow
+    status: completed
     depends_on: ANPOS-ADOPT-001
+    evidence:
+      - development is the integration branch
+      - staging is manual dispatch only
+      - standalone staging bootstrap removed
+      - Queue and DLQ provisioning lives inside manual staging deploy
+      - main does not auto-deploy production
   - id: INFRA-STAGING-002
-    title: Run staging readiness and deploy Worker
-    status: pending
+    title: Run manual staging readiness and deploy Worker
+    status: in_progress
     depends_on: INFRA-STAGING-001
   - id: SHOPIFY-STAGING-001
     title: Certify staging Shopify version and test billing
