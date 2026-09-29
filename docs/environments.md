@@ -94,3 +94,35 @@ Before staging deployment:
 
 Production stays manual and requires a separate production readiness/cutover
 decision.
+
+
+## Safe Shopify CLI targeting
+
+Do not rely on whichever Shopify configuration was selected previously.
+
+Use the explicit commands below:
+
+- Local / Development:
+  - `npm run shopify:use:local`
+  - `npm run shopify:dev:local`
+- Staging:
+  - `npm run shopify:use:staging`
+  - `npm run shopify:validate:staging`
+  - `npm run shopify:info:staging`
+- Live / Production:
+  - `npm run shopify:use:live`
+  - `npm run shopify:validate:live`
+  - `npm run shopify:info:live`
+
+The repository intentionally does not provide a one-command Shopify production
+release/cutover script. Live Shopify configuration release remains a separate
+controlled step after staging acceptance.
+
+When the Staging and Live apps have been created in Shopify, link them to the
+existing named files rather than reusing the Local/Dev identity:
+
+- Staging config name: `staging`
+- Production config name: `production`
+
+The default `shopify.app.toml` stays dedicated to Local/Dev so ordinary
+`shopify app dev` activity cannot target the Live app by accident.
