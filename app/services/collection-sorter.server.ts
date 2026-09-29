@@ -34,13 +34,24 @@ async function gql<T>(
   variables?: Record<string, unknown>,
 ): Promise<T> {
   const response = await admin.graphql(query, { variables });
-  const json = await response.json();
+  const json = (await response.json()) as {
+    data?: T;
+    errors?: Array<{ message?: string }>;
+  };
 
   if (json.errors?.length) {
-    throw new Error(json.errors.map((e: any) => e.message).join("; "));
+    throw new Error(
+      json.errors
+        .map((error) => error.message ?? "Unknown GraphQL error")
+        .join("; "),
+    );
   }
 
-  return json.data as T;
+  if (json.data === undefined) {
+    throw new Error("GraphQL response did not include data.");
+  }
+
+  return json.data;
 }
 
 export async function getCollection(
