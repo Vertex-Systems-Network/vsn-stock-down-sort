@@ -7,6 +7,7 @@ import {
 } from "react-router";
 import { useMemo, useState } from "react";
 import { authenticate } from "../shopify.server";
+import { enqueueSortJobs } from "../sort-queue.server";
 import { withPrismaClient } from "../db.server";
 import { getCurrentSubscription } from "../services/billing.server";
 import {
@@ -38,7 +39,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
   const subscription = await getCurrentSubscription(admin);
 
@@ -87,6 +88,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (intent === "enableAll") {
       const collections = await listAllCollections(admin);
+      const queued = await enqueueSortJobs(
+        context,
+        collections.map((collection) => ({
+          kind: "enable" as const,
+          shop: session.shop,
+          collectionId: collection.id,
+          reason: "bulk-enable" as const,
+        })),
+      );
+
+      if (queued) {
+        return {
+          ok: true,
+          message: `Queued auto-sort enablement for ${collections.length} collection${collections.length === 1 ? "" : "s"}.`,
+        };
+      }
+
       const results = [];
 
       for (const collection of collections) {
