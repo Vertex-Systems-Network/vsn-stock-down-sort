@@ -20,18 +20,18 @@ Create a GitHub Environment named `staging` and add these secrets:
 - `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
 - `SHOPIFY_API_KEY` — staging Shopify app client ID.
 - `SHOPIFY_API_SECRET` — staging Shopify app secret.
-- `SHOPIFY_APP_URL` — final HTTPS staging deployment URL.
-- `SCOPES` — `read_products,write_products,read_inventory`.
 
 Do not copy production values into the staging environment.
 
 ## Shopify staging app
 
-Replace both placeholders in `shopify.app.staging.toml` only after a dedicated
-staging Shopify app and a final staging HTTPS URL exist:
+The staging Workers URL is fixed to:
+
+- `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
+
+Only the dedicated Shopify staging app client ID remains a placeholder:
 
 - `__SHOPIFY_STAGING_CLIENT_ID__`
-- `https://vsn-stock-down-sort-staging.example.invalid`
 
 The staging Shopify app must be installed only on a development/test store.
 
@@ -64,3 +64,13 @@ After **Staging Readiness** passes, run **Cloudflare Staging Deploy** and type
 The deployment always checks out the `development` branch, applies staging
 migrations, builds and dry-runs the Worker bundle, then deploys with runtime
 secrets. The temporary secrets file is deleted even if deployment fails.
+
+
+## Public staging runtime values
+
+These values are intentionally committed as non-secret staging configuration:
+
+- `SHOPIFY_APP_URL=https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
+- `SCOPES=read_products,write_products,read_inventory`
+
+They must not be duplicated as GitHub or Cloudflare secrets.
