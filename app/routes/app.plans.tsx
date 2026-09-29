@@ -96,7 +96,7 @@ export default function PlansPage() {
             >
               <s-stack gap="base">
                 <s-stack direction="inline" gap="base">
-                  <s-text variant="headingMd">Pro Plan</s-text>
+                  <s-heading>Pro Plan</s-heading>
                   {isProActive ? (
                     <s-badge tone="success">Active plan</s-badge>
                   ) : (
@@ -104,9 +104,9 @@ export default function PlansPage() {
                   )}
                 </s-stack>
 
-                <s-text variant="headingLg">
+                <s-heading>
                   ${PRO_PLAN.amount} USD every 30 days
-                </s-text>
+                </s-heading>
 
                 <s-text>
                   Start with a {PRO_PLAN.trialDays}-day free trial. Shopify
@@ -121,7 +121,7 @@ export default function PlansPage() {
                 </s-stack>
 
                 {subscription?.currentPeriodEnd ? (
-                  <s-text tone="subdued">
+                  <s-text>
                     Current billing period ends:{" "}
                     {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                   </s-text>
