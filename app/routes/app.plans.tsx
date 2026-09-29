@@ -161,7 +161,7 @@ export default function PlansPage() {
 
                 {activeSubscription && !isProActive ? (
                   <s-banner tone="warning" heading="Legacy subscription detected">
-                    An active subscription named "{activeSubscription.name}" is
+                    An active subscription named &quot;{activeSubscription.name}&quot; is
                     attached to this app, but it does not grant access to the
                     current Unlimited plan. Cancel it before starting the
                     current plan.
