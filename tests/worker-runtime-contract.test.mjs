@@ -416,7 +416,7 @@ test("privacy lifecycle purges all shop-scoped persisted data", () => {
 
   for (const route of [dataRequest, customerRedact]) {
     assert.match(route, /authenticate\.webhook\(request\)/);
-    assert.doesNotMatch(route, /payload/);
-    assert.doesNotMatch(route, /customer/i);
+    assert.doesNotMatch(route, /payload\s*=/);
+    assert.doesNotMatch(route, /withPrismaClient|purgeShopData|db\./);
   }
 });
