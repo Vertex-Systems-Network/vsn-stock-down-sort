@@ -8,6 +8,7 @@ import {
 import { useMemo, useState } from "react";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import { getCurrentSubscription } from "../services/billing.server";
 import {
   disableCollection,
   enableCollection,
@@ -37,6 +38,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
+  const subscription = await getCurrentSubscription(admin);
+
+  if (!subscription) {
+    return {
+      ok: false,
+      message: "An active Pro subscription is required to manage collection sorting.",
+    };
+  }
+
   const formData = await request.formData();
   const intent = String(formData.get("intent") || "");
   const collectionId = String(formData.get("collectionId") || "");
