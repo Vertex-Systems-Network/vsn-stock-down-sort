@@ -21,9 +21,8 @@ type CloudflareQueueContextLike = {
 
 const QUEUE_BATCH_SIZE = 100;
 
-function getQueue(context: unknown) {
-  return (context as CloudflareQueueContextLike | undefined)?.cloudflare?.env
-    ?.STOCK_SORT_QUEUE;
+function getCloudflareQueueContext(context: unknown) {
+  return (context as CloudflareQueueContextLike | undefined)?.cloudflare;
 }
 
 /**
@@ -36,8 +35,15 @@ export async function enqueueSortJobs(
 ): Promise<boolean> {
   if (!jobs.length) return true;
 
-  const queue = getQueue(context);
-  if (!queue) return false;
+  const cloudflare = getCloudflareQueueContext(context);
+  if (!cloudflare?.env) return false;
+
+  const queue = cloudflare.env.STOCK_SORT_QUEUE;
+  if (!queue) {
+    throw new Error(
+      "Hosted Worker is missing the required STOCK_SORT_QUEUE binding.",
+    );
+  }
 
   for (let index = 0; index < jobs.length; index += QUEUE_BATCH_SIZE) {
     const batch = jobs
