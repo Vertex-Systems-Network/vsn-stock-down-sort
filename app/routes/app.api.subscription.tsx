@@ -50,10 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const actionType = String(formData.get("actionType") || "");
 
   try {
-    const [currentSubscription, activeSubscription] = await Promise.all([
-      getCurrentSubscription(admin),
-      getAnyActiveSubscription(admin),
-    ]);
+    const activeSubscription = await getAnyActiveSubscription(admin);
 
     if (actionType === "create") {
       if (activeSubscription) {
