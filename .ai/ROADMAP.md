@@ -5,10 +5,11 @@
 - Initialize ANPOS 1.4.0 child-project state.
 - Establish repository-backed task, checkpoint, assurance, and roadmap state.
 
-## Phase 1 — Staging Certification
-- Verify Cloudflare credentials and staging Queue/DLQ.
-- Run Staging Readiness.
-- Deploy the staging Worker.
+## Phase 1 — Manual Staging Certification
+- Develop on `development`; pushes run validation only.
+- Manually dispatch Staging Readiness / Staging deployment when promotion is intended.
+- Create/verify the staging Queue and DLQ inside the manual deploy workflow.
+- Deploy the staging Worker from `development` only.
 - Verify health, queue readiness, PostgreSQL migrations, and test billing mode.
 - Install/release the dedicated staging Shopify app and verify session/subscription reads.
 
