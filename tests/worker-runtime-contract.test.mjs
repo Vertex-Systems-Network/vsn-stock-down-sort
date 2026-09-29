@@ -58,8 +58,13 @@ test("Wrangler environments are isolated and declare required secrets", () => {
     assert.ok(config.compatibility_date >= "2026-08-04");
     assert.ok(config.secrets.required.includes("DATABASE_URL"));
     assert.ok(config.secrets.required.includes("SHOPIFY_API_SECRET"));
-    assert.ok(config.secrets.required.includes("APP_ENV"));
+    assert.ok(!config.secrets.required.includes("DIRECT_URL"));
   }
+
+  assert.equal(staging.vars.APP_ENV, "staging");
+  assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(production.vars.APP_ENV, "production");
+  assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
 });
 
 test("staging deployment is manual, development-sourced, and test-billed", () => {
