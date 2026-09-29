@@ -6,18 +6,25 @@ import {
 } from "../environment.server";
 
 export function loader() {
-  return Response.json({
-    ok: true,
-    service: "vsn-stock-down-sort",
-    environment: getAppEnvironment(),
-    billingTestMode: isBillingTestMode(),
-    database: getDatabaseMode(),
-    plan: {
-      id: PRO_PLAN.id,
-      amount: PRO_PLAN.amount,
-      currencyCode: PRO_PLAN.currencyCode,
-      interval: PRO_PLAN.interval,
-      trialDays: PRO_PLAN.trialDays,
+  return Response.json(
+    {
+      ok: true,
+      service: "vsn-stock-down-sort",
+      environment: getAppEnvironment(),
+      billingTestMode: isBillingTestMode(),
+      database: getDatabaseMode(),
+      plan: {
+        id: PRO_PLAN.id,
+        amount: PRO_PLAN.amount,
+        currencyCode: PRO_PLAN.currencyCode,
+        interval: PRO_PLAN.interval,
+        trialDays: PRO_PLAN.trialDays,
+      },
     },
-  });
+    {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    },
+  );
 }
