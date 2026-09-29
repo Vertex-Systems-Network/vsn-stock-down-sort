@@ -1,0 +1,96 @@
+name: Cloudflare Staging Bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type BOOTSTRAP_CLOUDFLARE_STAGING"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-cloudflare-staging-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: github.event.inputs.confirm == 'BOOTSTRAP_CLOUDFLARE_STAGING'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare staging credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "::error title=Missing staging Cloudflare secret::$name is not configured in the staging GitHub Environment."
+              exit 1
+            fi
+          done
+
+          if ! [[ "$CLOUDFLARE_ACCOUNT_ID" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error title=Invalid Cloudflare account ID::CLOUDFLARE_ACCOUNT_ID contains unexpected characters."
+            exit 1
+          fi
+
+      - name: Verify Cloudflare authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler@4.141.0 whoami --account "$CLOUDFLARE_ACCOUNT_ID"
+          echo "cloudflare_authentication=pass"
+
+      - name: Ensure staging sort queues exist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ensure_queue() {
+            local queue_name="$1"
+
+            if npx wrangler@4.141.0 queues info "$queue_name" >/dev/null 2>&1; then
+              echo "queue_exists=$queue_name"
+              return
+            fi
+
+            npx wrangler@4.141.0 queues create "$queue_name" \
+              --message-retention-period-secs 86400
+            echo "queue_created=$queue_name"
+          }
+
+          ensure_queue "$SORT_QUEUE_NAME"
+          ensure_queue "$SORT_QUEUE_NAME-dlq"
+
+      - name: Verify staging queues
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          npx wrangler@4.141.0 queues info "$SORT_QUEUE_NAME" >/dev/null
+          npx wrangler@4.141.0 queues info "$SORT_QUEUE_NAME-dlq" >/dev/null
+
+          {
+            echo "## Cloudflare staging bootstrap"
+            echo ""
+            echo "- Authentication: **pass**"
+            echo "- Main queue: **$SORT_QUEUE_NAME**"
+            echo "- Dead-letter queue: **$SORT_QUEUE_NAME-dlq**"
+            echo "- Queue retention: **86400 seconds**"
+            echo "- Worker deployment: **not performed**"
+            echo "- Database / Shopify credentials: **not required by this bootstrap**"
+          } >> "$GITHUB_STEP_SUMMARY"
