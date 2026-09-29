@@ -1,18 +1,18 @@
 schema_version: 1
 project: VSN Stock Down Sort
-active_task: ANPOS-ADOPT-001
+active_task: INFRA-STAGING-001
 tasks:
   - id: ANPOS-ADOPT-001
     title: Adopt ANPOS 1.4.0 onto existing application
-    status: in_progress
-    acceptance:
-      - Existing application code and workflows preserved
+    status: completed
+    evidence:
+      - PR 27 merged to main
+      - Existing application code preserved
       - ANPOS instance marked active_project
       - Current state, checkpoint, roadmap and assurance state initialized
-      - Existing CI passes
   - id: INFRA-STAGING-001
     title: Certify Cloudflare staging bootstrap
-    status: pending
+    status: in_progress
     depends_on: ANPOS-ADOPT-001
   - id: INFRA-STAGING-002
     title: Run staging readiness and deploy Worker
