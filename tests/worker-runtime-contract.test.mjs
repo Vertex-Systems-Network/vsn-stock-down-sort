@@ -335,3 +335,38 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(plans, /Cancel existing subscription/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
 });
+
+
+test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
+  const sorter = read("app/services/collection-sorter.server.ts");
+
+  assert.match(sorter, /MAX_REORDER_MOVES = 250/);
+  assert.match(sorter, /query ReorderJobStatus/);
+  assert.match(sorter, /job\(id: \$id\)/);
+  assert.match(sorter, /done/);
+  assert.match(sorter, /await waitForJob\(admin, jobId\)/);
+  assert.match(sorter, /Shopify did not return a reorder job ID/);
+
+  const waitIndex = sorter.indexOf("await waitForJob(admin, jobId)");
+  const successTimestampIndex = sorter.indexOf("lastSortedAt: new Date()");
+
+  assert.ok(waitIndex >= 0);
+  assert.ok(successTimestampIndex > waitIndex);
+});
+
+test("Shopify update webhooks defer sorter work with Cloudflare waitUntil", () => {
+  const helper = read("app/cloudflare-context.server.ts");
+  const inventory = read(
+    "app/routes/webhooks.inventory-levels-update.tsx",
+  );
+  const product = read("app/routes/webhooks.products-update.tsx");
+
+  assert.match(helper, /waitUntil\(promise\)/);
+  assert.match(helper, /await promise/);
+
+  for (const route of [inventory, product]) {
+    assert.match(route, /context.*ActionFunctionArgs/);
+    assert.match(route, /runWithWorkerLifetime\(context/);
+    assert.match(route, /await sortEnabledCollections/);
+  }
+});
