@@ -10,16 +10,21 @@ Create a GitHub Environment named `production` with these secrets:
 - `DIRECT_URL`
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
-- `SHOPIFY_APP_URL`
-- `SCOPES`
+- `SHOPIFY_APP_AUTOMATION_TOKEN` — used only by Shopify candidate/release Actions
 
 The production values must not be reused by staging.
 
 ## Required Shopify config
 
-Before any live cutover, replace the placeholders in
-`shopify.app.production.toml` with the verified production Shopify client ID
-and final HTTPS production URL.
+The committed `shopify.app.production.toml` intentionally keeps
+`__SHOPIFY_PRODUCTION_CLIENT_ID__`. Do **not** commit the Live Client ID.
+
+The production URL is fixed to:
+
+`https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
+
+GitHub Actions inject the real Live Client ID from the `production`
+Environment only into a disposable runner.
 
 ## Billing safety
 
@@ -44,9 +49,9 @@ tests.
 
 ## Cloudflare production target
 
-The production Worker contract is `wrangler.production.jsonc`. Current work
-only certifies it with a dry-run. No automatic production Worker deployment or
-Shopify production cutover is enabled by this phase.
+The production Worker contract is `wrangler.production.jsonc`. Worker
+preparation and Shopify release are deliberately separate operations. A
+successful Worker deployment does not release or mutate the Live Shopify app.
 
 
 ## Cloudflare production Worker preparation
@@ -68,3 +73,31 @@ This workflow:
 - does **not** update or release Shopify production URLs/configuration.
 
 A successful Worker preparation therefore does not authorize Shopify cutover.
+
+
+## Shopify production promotion
+
+Production follows an action-driven candidate → authorization → release flow.
+
+1. Run **Production Readiness** with `VALIDATE_PRODUCTION`.
+2. Run **Cloudflare Production Prepare** with
+   `PREPARE_PRODUCTION_WORKER_ONLY`.
+3. After the production Worker health check passes, run
+   **Shopify Production Candidate** with
+   `CREATE_PRODUCTION_SHOPIFY_VERSION`.
+4. The Action checks out protected `main`, injects the Live Client ID only in
+   the disposable runner, and creates an **unreleased** version named like:
+   `stock-down-sort-production-<source-sha>-<run-number>`.
+5. Review the exact candidate and source SHA. Production release remains blocked
+   while `config/shopify/production-release.json` has
+   `release_authorized=false`.
+6. Only after explicit repository authorization records the exact version and
+   40-character source SHA may **Shopify Production Release** run with
+   `RELEASE_PRODUCTION_SHOPIFY_VERSION`.
+
+The release Action re-checks the production Worker health and exact
+`unlimited` / USD 55 / 5-day billing contract before releasing the authorized
+Shopify version.
+
+It does not apply database migrations and does not trigger product or inventory
+webhooks during release.
