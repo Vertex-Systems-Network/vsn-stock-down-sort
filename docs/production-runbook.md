@@ -40,3 +40,10 @@ the migration status but does not apply migrations and does not deploy the app.
 A production migration/deployment should only be introduced after staging has
 passed end-to-end Shopify installation, billing approval, webhook, and sorting
 tests.
+
+
+## Cloudflare production target
+
+The production Worker contract is `wrangler.production.jsonc`. Current work
+only certifies it with a dry-run. No automatic production Worker deployment or
+Shopify production cutover is enabled by this phase.
