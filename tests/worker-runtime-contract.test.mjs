@@ -664,20 +664,42 @@ test("environment secrets audit checks required deployment credentials", () => {
 });
 
 
-test("Cloudflare staging bootstrap requires only Cloudflare credentials and provisions queues", () => {
-  const workflow = read(".github/workflows/cloudflare-staging-bootstrap.yml");
+test("manual development flow keeps development pushes away from staging and production", () => {
+  const flow = JSON.parse(read("config/development-flow.json"));
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const production = read(".github/workflows/cloudflare-production-prepare.yml");
 
-  assert.match(workflow, /name: Cloudflare Staging Bootstrap/);
-  assert.match(workflow, /BOOTSTRAP_CLOUDFLARE_STAGING/);
-  assert.match(workflow, /environment: staging/);
-  assert.match(workflow, /CLOUDFLARE_API_TOKEN/);
-  assert.match(workflow, /CLOUDFLARE_ACCOUNT_ID/);
-  assert.match(workflow, /wrangler@4\.141\.0 whoami/);
-  assert.match(workflow, /vsn-stock-down-sort-staging-sort-jobs/);
-  assert.match(workflow, /ensure_queue "\$SORT_QUEUE_NAME"/);
-  assert.match(workflow, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
-  assert.match(workflow, /message-retention-period-secs 86400/);
-  assert.doesNotMatch(workflow, /DATABASE_URL/);
-  assert.doesNotMatch(workflow, /SHOPIFY_API_SECRET/);
-  assert.doesNotMatch(workflow, /wrangler@4\.141\.0 deploy/);
+  assert.equal(flow.development_branch, "development");
+  assert.equal(flow.release_branch, "main");
+  assert.equal(flow.local.command, "npm run dev");
+  assert.equal(flow.staging.source_branch, "development");
+  assert.equal(flow.staging.auto_deploy_runtime_changes, false);
+  assert.equal(flow.staging.deploy_mode, "manual_dispatch_from_development");
+  assert.equal(flow.staging.confirmation, "DEPLOY_DEVELOPMENT_TO_STAGING");
+  assert.equal(flow.live.source_branch, "main");
+  assert.equal(flow.live.auto_deploy, false);
+  assert.equal(flow.invariants.development_push_cannot_deploy_staging, true);
+  assert.equal(flow.invariants.development_push_cannot_deploy_production, true);
+  assert.equal(flow.invariants.main_push_cannot_deploy_production, true);
+
+  assert.match(staging, /workflow_dispatch:/);
+  assert.doesNotMatch(staging, /\npush:/);
+  assert.match(staging, /DEPLOY_DEVELOPMENT_TO_STAGING/);
+  assert.match(staging, /ref: development/);
+  assert.match(staging, /persist-credentials: false/);
+
+  assert.match(production, /workflow_dispatch:/);
+  assert.doesNotMatch(production, /\npush:/);
+  assert.match(production, /ref: main/);
+});
+
+test("manual staging deploy owns queue bootstrap", () => {
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(staging, /Ensure staging sort queues exist/);
+  assert.match(staging, /wrangler@4\.141\.0 queues info/);
+  assert.match(staging, /wrangler@4\.141\.0 queues create/);
+  assert.match(staging, /ensure_queue "\$SORT_QUEUE_NAME"/);
+  assert.match(staging, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
+  assert.equal(fs.existsSync(path.join(root, ".github/workflows/cloudflare-staging-bootstrap.yml")), false);
 });
