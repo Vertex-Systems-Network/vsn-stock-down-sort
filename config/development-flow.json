@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+  "development_branch": "development",
+  "release_branch": "main",
+  "local": {
+    "command": "npm run dev",
+    "shopify_app": "VSN Stock Down Sort Dev",
+    "shopify_config": "shopify.app.toml",
+    "committed_secrets": false,
+    "direct_staging_deploy": false,
+    "direct_live_deploy": false
+  },
+  "staging": {
+    "github_environment": "staging",
+    "shopify_app": "VSN Stock Down Sort Staging",
+    "shopify_config": "shopify.app.staging.toml",
+    "worker": "vsn-stock-down-sort-staging",
+    "source_branch": "development",
+    "auto_deploy_runtime_changes": false,
+    "deploy_mode": "manual_dispatch_from_development",
+    "confirmation": "DEPLOY_DEVELOPMENT_TO_STAGING",
+    "billing_test_mode": true,
+    "production_identity_allowed": false
+  },
+  "release": {
+    "route": "development -> pull request -> main",
+    "automatic_merge": false,
+    "validation_required": true
+  },
+  "live": {
+    "github_environment": "production",
+    "shopify_app": "VSN Stock Down Sort",
+    "shopify_config": "shopify.app.production.toml",
+    "worker": "vsn-stock-down-sort-production",
+    "source_branch": "main",
+    "auto_deploy": false,
+    "deploy_mode": "manual_dispatch",
+    "shopify_release_mode": "explicit_authorization_only",
+    "billing_test_mode": false
+  },
+  "invariants": {
+    "development_push_cannot_deploy_staging": true,
+    "development_push_cannot_deploy_production": true,
+    "main_push_cannot_deploy_production": true,
+    "staging_cannot_change_live_shopify_identity": true,
+    "production_release_requires_explicit_authorization": true
+  },
+  "development_ci": {
+    "automatic_on_push": true,
+    "deploys_staging": false,
+    "deploys_production": false,
+    "checks": [
+      "App Validation"
+    ]
+  }
+}

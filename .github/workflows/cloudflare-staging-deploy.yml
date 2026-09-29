@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Type DEPLOY_DEVELOPMENT_TO_STAGING"
+        description: "Type DEPLOY_DEVELOPMENT_TO_STAGING to deploy the development branch to isolated staging"
         required: true
         type: string
       staging_shop:
@@ -41,10 +41,11 @@ jobs:
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
 
     steps:
-      - name: Checkout development
+      - name: Checkout development source
         uses: actions/checkout@v4
         with:
           ref: development
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
