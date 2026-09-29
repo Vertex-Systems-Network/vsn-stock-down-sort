@@ -23,7 +23,15 @@
     "prisma:generate:cloud": "prisma generate --schema prisma/cloud/schema.prisma",
     "prisma:migrate:cloud": "prisma migrate deploy --schema prisma/cloud/schema.prisma",
     "build:worker": "prisma generate --schema prisma/cloud/schema.prisma && react-router build",
-    "worker:dry-run": "npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc"
+    "worker:dry-run": "npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc",
+    "shopify:use:local": "shopify app config use shopify.app.toml",
+    "shopify:use:staging": "shopify app config use staging",
+    "shopify:use:live": "shopify app config use production",
+    "shopify:dev:local": "npm run shopify:use:local && shopify app dev",
+    "shopify:validate:staging": "shopify app config validate --config staging",
+    "shopify:validate:live": "shopify app config validate --config production",
+    "shopify:info:staging": "shopify app info --config staging",
+    "shopify:info:live": "shopify app info --config production"
   },
   "type": "module",
   "engines": {
