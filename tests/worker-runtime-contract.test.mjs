@@ -325,6 +325,17 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(billing, /export async function getAnyActiveSubscription/);
   assert.match(billing, /subscription\.status === "ACTIVE"/);
   assert.match(billing, /subscription\.name === PRO_PLAN\.name/);
+  assert.match(billing, /subscription\.test === isBillingTestMode\(\)/);
+  assert.match(billing, /subscription\.trialDays === PRO_PLAN\.trialDays/);
+  assert.match(billing, /pricingDetails/);
+  assert.match(billing, /\.\.\. on AppRecurringPricing/);
+  assert.match(billing, /Number\(pricing\.price\.amount\) === PRO_PLAN\.amount/);
+  assert.match(
+    billing,
+    /pricing\.price\.currencyCode === PRO_PLAN\.currencyCode/,
+  );
+  assert.match(billing, /pricing\.interval === PRO_PLAN\.interval/);
+  assert.match(billing, /subscription\.lineItems\?\.length !== 1/);
 
   assert.match(api, /getAnyActiveSubscription/);
   assert.match(api, /if \(activeSubscription\)/);
