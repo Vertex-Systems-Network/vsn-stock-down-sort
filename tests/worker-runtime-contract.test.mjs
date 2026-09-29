@@ -465,3 +465,84 @@ test("README reflects the active Stock Down Sort architecture", () => {
   assert.doesNotMatch(readme, /^# Shopify App Template/m);
   assert.doesNotMatch(readme, /This template uses .*SQLite/);
 });
+
+
+test("hosted sorting uses Cloudflare Queues with local fallback", () => {
+  const worker = read("workers/app.js");
+  const queueHelper = read("app/sort-queue.server.ts");
+  const queueRoute = read("app/routes/internal.queue-sort.tsx");
+  const inventory = read("app/routes/webhooks.inventory-levels-update.tsx");
+  const product = read("app/routes/webhooks.products-update.tsx");
+  const index = read("app/routes/app._index.tsx");
+  const staging = JSON.parse(read("wrangler.staging.jsonc"));
+  const production = JSON.parse(read("wrangler.production.jsonc"));
+
+  assert.match(worker, /async queue\(batch, env, ctx\)/);
+  assert.match(worker, /queueConsumer: true/);
+  assert.match(worker, /\/internal\/queue-sort/);
+
+  assert.match(queueHelper, /STOCK_SORT_QUEUE/);
+  assert.match(queueHelper, /sendBatch/);
+  assert.match(queueHelper, /QUEUE_BATCH_SIZE = 100/);
+  assert.match(queueHelper, /return false/);
+
+  assert.match(queueRoute, /queueConsumer.*=== true/s);
+  assert.match(queueRoute, /unauthenticated\.admin\(payload\.shop\)/);
+  assert.match(queueRoute, /enableCollection/);
+  assert.match(queueRoute, /sortEnabledCollections/);
+  assert.match(queueRoute, /status: 404/);
+
+  for (const route of [inventory, product]) {
+    assert.match(route, /enqueueSortJobs/);
+    assert.match(route, /if \(!queued\)/);
+    assert.match(route, /sortEnabledCollections/);
+  }
+
+  assert.match(index, /enqueueSortJobs/);
+  assert.match(index, /reason: "bulk-enable"/);
+  assert.match(index, /if \(queued\)/);
+
+  assert.equal(
+    staging.queues.producers[0].queue,
+    "vsn-stock-down-sort-staging-sort-jobs",
+  );
+  assert.equal(staging.queues.producers[0].binding, "STOCK_SORT_QUEUE");
+  assert.equal(staging.queues.consumers[0].max_batch_size, 1);
+  assert.equal(staging.queues.consumers[0].max_concurrency, 1);
+
+  assert.equal(
+    production.queues.producers[0].queue,
+    "vsn-stock-down-sort-production-sort-jobs",
+  );
+  assert.equal(production.queues.producers[0].binding, "STOCK_SORT_QUEUE");
+  assert.equal(production.queues.consumers[0].max_batch_size, 1);
+  assert.equal(production.queues.consumers[0].max_concurrency, 1);
+});
+
+test("Shopify pagination uses the 250-node maximum", () => {
+  const sorter = read("app/services/collection-sorter.server.ts");
+
+  assert.match(sorter, /PRODUCTS_PAGE_SIZE = 250/);
+  assert.match(sorter, /\{ first: 250, after \}/);
+  assert.match(sorter, /\{ id: productId, first: 250, after \}/);
+});
+
+test("Cloudflare deploy workflows provision sort queues idempotently", () => {
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const production = read(
+    ".github/workflows/cloudflare-production-prepare.yml",
+  );
+
+  assert.match(staging, /SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs/);
+  assert.match(staging, /wrangler@4\.141\.0 queues info/);
+  assert.match(staging, /wrangler@4\.141\.0 queues create/);
+  assert.match(staging, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
+
+  assert.match(
+    production,
+    /SORT_QUEUE_NAME: vsn-stock-down-sort-production-sort-jobs/,
+  );
+  assert.match(production, /wrangler@4\.141\.0 queues info/);
+  assert.match(production, /wrangler@4\.141\.0 queues create/);
+  assert.match(production, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
+});
