@@ -6,19 +6,18 @@ VSN Stock Down Sort keeps local development isolated from hosted environments.
 
 | Tier | Shopify config | Database | Billing |
 | --- | --- | --- | --- |
-| Local / dev | `shopify.app.toml` | SQLite | Test |
+| Local / dev | `shopify.app.toml` | PostgreSQL | Test |
 | Staging | `shopify.app.staging.toml` | PostgreSQL | Test |
 | Production | `shopify.app.production.toml` | PostgreSQL | Real |
 
-The hosted Prisma schema is `prisma/cloud/schema.prisma`. Local development
-continues to use `prisma/schema.prisma`.
+The active Prisma schema for local, staging, and production is `prisma/cloud/schema.prisma`.
 
 ## GitHub staging environment
 
 Create a GitHub Environment named `staging` and add these secrets:
 
 - `DATABASE_URL` — pooled/runtime PostgreSQL connection string.
-- `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations.
+- `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
 - `SHOPIFY_API_KEY` — staging Shopify app client ID.
 - `SHOPIFY_API_SECRET` — staging Shopify app secret.
 - `SHOPIFY_APP_URL` — final HTTPS staging deployment URL.
@@ -55,3 +54,13 @@ Staging always requires `SHOPIFY_BILLING_TEST_MODE=true`.
 Production must use a separate database and separate Shopify app credentials.
 Runtime startup refuses production when
 `SHOPIFY_BILLING_TEST_MODE` is not explicitly `false`.
+
+
+## Worker deployment
+
+After **Staging Readiness** passes, run **Cloudflare Staging Deploy** and type
+`DEPLOY_DEVELOPMENT_TO_STAGING`.
+
+The deployment always checks out the `development` branch, applies staging
+migrations, builds and dry-runs the Worker bundle, then deploys with runtime
+secrets. The temporary secrets file is deleted even if deployment fails.

@@ -1,4 +1,4 @@
-import db from "../db.server";
+import { withPrismaClient } from "../db.server";
 
 type AdminClient = {
   graphql: (
@@ -353,18 +353,20 @@ export async function sortCollection(
       }
     }
 
-    await db.collectionSetting.update({
-      where: {
-        shop_collectionId: {
-          shop,
-          collectionId,
+    await withPrismaClient((db) =>
+      db.collectionSetting.update({
+        where: {
+          shop_collectionId: {
+            shop,
+            collectionId,
+          },
         },
-      },
-      data: {
-        lastSortedAt: new Date(),
-        lastError: null,
-      },
-    });
+        data: {
+          lastSortedAt: new Date(),
+          lastError: null,
+        },
+      }),
+    );
 
     return {
       collectionId,
@@ -377,8 +379,8 @@ export async function sortCollection(
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
 
-    await db.collectionSetting
-      .update({
+    await withPrismaClient((db) =>
+      db.collectionSetting.update({
         where: {
           shop_collectionId: {
             shop,
@@ -386,8 +388,8 @@ export async function sortCollection(
           },
         },
         data: { lastError: message },
-      })
-      .catch(() => undefined);
+      }),
+    ).catch(() => undefined);
 
     throw error;
   }
@@ -401,29 +403,33 @@ export async function enableCollection(
   const collection = await getCollection(admin, collectionId);
   if (!collection) throw new Error("Collection not found");
 
-  const existing = await db.collectionSetting.findUnique({
-    where: { shop_collectionId: { shop, collectionId } },
-  });
+  const existing = await withPrismaClient((db) =>
+    db.collectionSetting.findUnique({
+      where: { shop_collectionId: { shop, collectionId } },
+    }),
+  );
 
   // Preserve the original non-manual sort only once.
   const previousSortOrder =
     existing?.previousSortOrder ??
     (collection.sortOrder === "MANUAL" ? null : collection.sortOrder);
 
-  await db.collectionSetting.upsert({
-    where: { shop_collectionId: { shop, collectionId } },
-    create: {
-      shop,
-      collectionId,
-      enabled: true,
-      previousSortOrder,
-    },
-    update: {
-      enabled: true,
-      previousSortOrder,
-      lastError: null,
-    },
-  });
+  await withPrismaClient((db) =>
+    db.collectionSetting.upsert({
+      where: { shop_collectionId: { shop, collectionId } },
+      create: {
+        shop,
+        collectionId,
+        enabled: true,
+        previousSortOrder,
+      },
+      update: {
+        enabled: true,
+        previousSortOrder,
+        lastError: null,
+      },
+    }),
+  );
 
   if (collection.sortOrder !== "MANUAL") {
     await setCollectionSortOrder(admin, collectionId, "MANUAL");
@@ -438,19 +444,23 @@ export async function disableCollection(
   collectionId: string,
   restorePreviousSort = false,
 ) {
-  const setting = await db.collectionSetting.findUnique({
-    where: { shop_collectionId: { shop, collectionId } },
-  });
+  const setting = await withPrismaClient((db) =>
+    db.collectionSetting.findUnique({
+      where: { shop_collectionId: { shop, collectionId } },
+    }),
+  );
 
   if (!setting) return;
 
-  await db.collectionSetting.update({
-    where: { shop_collectionId: { shop, collectionId } },
-    data: {
-      enabled: false,
-      lastError: null,
-    },
-  });
+  await withPrismaClient((db) =>
+    db.collectionSetting.update({
+      where: { shop_collectionId: { shop, collectionId } },
+      data: {
+        enabled: false,
+        lastError: null,
+      },
+    }),
+  );
 
   if (restorePreviousSort && setting.previousSortOrder) {
     await setCollectionSortOrder(
@@ -466,15 +476,17 @@ export async function sortEnabledCollections(
   shop: string,
   collectionIds?: string[],
 ) {
-  const settings = await db.collectionSetting.findMany({
-    where: {
-      shop,
-      enabled: true,
-      ...(collectionIds?.length
-        ? { collectionId: { in: collectionIds } }
-        : {}),
-    },
-  });
+  const settings = await withPrismaClient((db) =>
+    db.collectionSetting.findMany({
+      where: {
+        shop,
+        enabled: true,
+        ...(collectionIds?.length
+          ? { collectionId: { in: collectionIds } }
+          : {}),
+      },
+    }),
+  );
 
   const results = [];
   for (const setting of settings) {

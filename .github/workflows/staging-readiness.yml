@@ -94,7 +94,10 @@ jobs:
         run: npm run typecheck
 
       - name: Build staging runtime
-        run: npm run build:cloud
+        run: npm run build:worker
+
+      - name: Cloudflare Worker dry-run
+        run: npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc
 
       - name: Validate staging billing contract
         shell: bash

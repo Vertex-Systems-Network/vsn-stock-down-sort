@@ -31,5 +31,5 @@ export function isBillingTestMode() {
 }
 
 export function getDatabaseMode() {
-  return getAppEnvironment() === "development" ? "sqlite" : "postgresql";
+  return "postgresql";
 }

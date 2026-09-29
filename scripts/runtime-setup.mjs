@@ -9,11 +9,7 @@ if (!configuredAppEnv && process.env.NODE_ENV === "production") {
 }
 
 const appEnv = String(configuredAppEnv || "development").toLowerCase();
-
-const cloudEnvironment = appEnv === "staging" || appEnv === "production";
-const schema = cloudEnvironment
-  ? "prisma/cloud/schema.prisma"
-  : "prisma/schema.prisma";
+const schema = "prisma/cloud/schema.prisma";
 
 function fail(message) {
   console.error(`[runtime-setup] ${message}`);
@@ -48,18 +44,16 @@ if (!["development", "staging", "production"].includes(appEnv)) {
   fail(`Unsupported APP_ENV: ${appEnv}`);
 }
 
-if (cloudEnvironment) {
-  for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
-    if (!process.env[name]) {
-      fail(`${name} is required for ${appEnv}.`);
-    }
+for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
+  if (!process.env[name]) {
+    fail(`${name} is required for ${appEnv}.`);
   }
 }
 
 const billingTestMode = boolEnv("SHOPIFY_BILLING_TEST_MODE");
 
-if (appEnv === "staging" && billingTestMode !== true) {
-  fail("Staging must use SHOPIFY_BILLING_TEST_MODE=true.");
+if (appEnv !== "production" && billingTestMode !== true) {
+  fail(`${appEnv} must use SHOPIFY_BILLING_TEST_MODE=true.`);
 }
 
 if (appEnv === "production" && billingTestMode !== false) {
@@ -67,7 +61,7 @@ if (appEnv === "production" && billingTestMode !== false) {
 }
 
 console.log(
-  `[runtime-setup] environment=${appEnv} database=${cloudEnvironment ? "postgresql" : "sqlite"}`,
+  `[runtime-setup] environment=${appEnv} database=postgresql prisma=engine-less`,
 );
 
 runPrisma(["generate"]);

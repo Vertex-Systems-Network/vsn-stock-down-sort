@@ -15,6 +15,6 @@ RUN npm ci && npm cache clean --force
 
 COPY . .
 
-RUN npx prisma generate --schema prisma/schema.prisma && npm run build
+RUN npx prisma generate --schema prisma/cloud/schema.prisma && npm run build
 
 CMD ["npm", "run", "docker-start"]
