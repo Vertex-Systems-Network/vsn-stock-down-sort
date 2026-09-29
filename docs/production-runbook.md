@@ -47,3 +47,24 @@ tests.
 The production Worker contract is `wrangler.production.jsonc`. Current work
 only certifies it with a dry-run. No automatic production Worker deployment or
 Shopify production cutover is enabled by this phase.
+
+
+## Cloudflare production Worker preparation
+
+The isolated production Worker target is:
+
+`https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
+
+Run **Cloudflare Production Prepare** and type
+`PREPARE_PRODUCTION_WORKER_ONLY`.
+
+This workflow:
+
+- checks the production database migration status without applying migrations;
+- builds and dry-runs the Cloudflare Worker bundle;
+- deploys only the isolated production Worker;
+- verifies `/healthz` reports production, PostgreSQL, real billing mode, and the
+  5-day / USD 55 billing contract;
+- does **not** update or release Shopify production URLs/configuration.
+
+A successful Worker preparation therefore does not authorize Shopify cutover.
