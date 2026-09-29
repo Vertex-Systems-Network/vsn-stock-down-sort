@@ -1,9 +1,9 @@
 # Dedicated live/production Shopify app configuration.
-# Replace the placeholder client_id and host only with the live app identity.
-# Keep this configuration isolated from local/dev and staging credentials.
+# Keep the client_id placeholder committed; GitHub Actions inject the Live app identity only in a disposable runner.
+# The production Worker URL is fixed and must not be changed by local development.
 
 client_id = "__SHOPIFY_PRODUCTION_CLIENT_ID__"
-application_url = "https://vsn-stock-down-sort.example.invalid"
+application_url = "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
 embedded = true
 name = "VSN Stock Down Sort"
 
@@ -27,9 +27,9 @@ api_version = "2026-10"
 
 [auth]
 redirect_urls = [
-  "https://vsn-stock-down-sort.example.invalid/auth/callback",
-  "https://vsn-stock-down-sort.example.invalid/auth/shopify/callback",
-  "https://vsn-stock-down-sort.example.invalid/api/auth/callback"
+  "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev/auth/callback",
+  "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev/auth/shopify/callback",
+  "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev/api/auth/callback"
 ]
 
 [build]

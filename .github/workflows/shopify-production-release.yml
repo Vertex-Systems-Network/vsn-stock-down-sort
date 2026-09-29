@@ -1,0 +1,204 @@
+name: Shopify Production Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE_PRODUCTION_SHOPIFY_VERSION"
+        required: true
+        type: string
+      version:
+        description: "Exact authorized unreleased production Shopify version"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-shopify-production-release
+  cancel-in-progress: false
+
+jobs:
+  release-production-version:
+    if: github.event.inputs.confirm == 'RELEASE_PRODUCTION_SHOPIFY_VERSION'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      CI: "true"
+      TARGET_VERSION: ${{ github.event.inputs.version }}
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_APP_URL: https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+
+      - name: Require repository release authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/shopify/production-release.json").read_text(encoding="utf-8")
+          )
+          target = os.environ["TARGET_VERSION"]
+
+          if policy.get("release_authorized") is not True:
+              raise SystemExit("Production Shopify release is not authorized in repository policy.")
+
+          authorized_version = policy.get("authorized_version")
+          source_ref = policy.get("authorized_source_ref")
+          record = policy.get("authorization_record")
+
+          if authorized_version != target:
+              raise SystemExit("Requested version is not the repository-authorized version.")
+
+          match = re.fullmatch(
+              r"stock-down-sort-production-([0-9a-f]{12})-([0-9]+)",
+              target,
+          )
+          if match is None:
+              raise SystemExit("Production candidate version does not match the certified format.")
+
+          if not isinstance(source_ref, str) or len(source_ref) != 40:
+              raise SystemExit("Authorized source ref is missing or invalid.")
+          if source_ref[:12] != match.group(1):
+              raise SystemExit("Authorized source ref does not match the candidate version.")
+          if not isinstance(record, str) or not record.strip():
+              raise SystemExit("Production authorization record is missing.")
+
+          print(f"authorized_production_version={authorized_version}")
+          print(f"authorized_production_source_ref={source_ref}")
+          PY
+
+      - name: Require isolated Live Shopify identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY TARGET_VERSION
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing production Shopify value: $name" >&2
+              exit 1
+            fi
+          done
+
+          LOCAL_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$LOCAL_CLIENT_ID" ]; then
+            echo "Refusing production release with the Local/Dev Shopify client ID." >&2
+            exit 1
+          fi
+
+          if ! grep -q "__SHOPIFY_PRODUCTION_CLIENT_ID__" shopify.app.production.toml; then
+            echo "Production client ID placeholder must remain committed." >&2
+            exit 1
+          fi
+
+      - name: Verify production Worker health before Shopify release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          url = "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev/healthz"
+          request = urllib.request.Request(
+              url,
+              headers={"User-Agent": "vsn-stock-down-sort-production-release/1.0"},
+          )
+          with urllib.request.urlopen(request, timeout=20) as response:
+              payload = json.loads(response.read().decode("utf-8"))
+
+          expected_plan = {
+              "id": "unlimited",
+              "amount": 55,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 5,
+          }
+
+          if payload.get("ok") is not True:
+              raise SystemExit("Production Worker health check failed")
+          if payload.get("environment") != "production":
+              raise SystemExit("Production Worker reports the wrong environment")
+          if payload.get("billingTestMode") is not False:
+              raise SystemExit("Production Worker is not in real billing mode")
+          if payload.get("plan") != expected_plan:
+              raise SystemExit("Production billing contract mismatch")
+          PY
+
+      - name: Inject Live client ID into disposable checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("shopify.app.production.toml")
+          content = path.read_text(encoding="utf-8")
+          placeholder = "__SHOPIFY_PRODUCTION_CLIENT_ID__"
+          if placeholder not in content:
+              raise SystemExit("production client ID placeholder missing")
+          path.write_text(
+              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Verify authorized Shopify version exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list \
+            --config production \
+            --json > /tmp/shopify-production-versions.json
+          grep -F "$TARGET_VERSION" /tmp/shopify-production-versions.json >/dev/null
+
+      - name: Release exact authorized Shopify production version
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app release \
+            --config production \
+            --version "$TARGET_VERSION" \
+            --allow-updates
+
+      - name: Verify released version remains visible
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list \
+            --config production \
+            --json > /tmp/shopify-production-versions-after.json
+          grep -F "$TARGET_VERSION" /tmp/shopify-production-versions-after.json >/dev/null
+
+      - name: Confirm Local and Staging configs remain untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- shopify.app.toml shopify.app.staging.toml

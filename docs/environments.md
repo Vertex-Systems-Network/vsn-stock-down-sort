@@ -88,7 +88,7 @@ Before staging deployment:
 
 1. configure the GitHub `staging` environment;
 2. supply staging PostgreSQL and Shopify credentials;
-3. replace the placeholders in `shopify.app.staging.toml`;
+3. keep the committed staging Client ID placeholder intact;
 4. run **Staging Readiness**;
 5. run **Cloudflare Staging Deploy** only after readiness passes.
 
@@ -130,5 +130,22 @@ Environment secret and must not be committed.
 
 ### Live / Production
 
-Live remains a separately controlled promotion. Local development and staging
-actions must never select or mutate the Live Shopify app identity.
+Live is also Action-driven; there is no normal manual config switch.
+
+1. **Production Readiness** validates the Live environment and separate Live
+   Shopify identity.
+2. **Cloudflare Production Prepare** deploys and certifies the isolated
+   production Worker without Shopify cutover.
+3. **Shopify Production Candidate** injects the Live Client ID from the GitHub
+   `production` Environment only in the disposable runner and creates an
+   unreleased candidate from protected `main`.
+4. `config/shopify/production-release.json` must explicitly authorize that
+   exact candidate and source SHA.
+5. **Shopify Production Release** releases only that exact authorized version.
+
+The committed `shopify.app.production.toml` keeps
+`__SHOPIFY_PRODUCTION_CLIENT_ID__`; the real Live Client ID must not be
+committed.
+
+Local development and staging actions must never select or mutate the Live
+Shopify app identity.

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "prepared_not_authorized",
+  "release_authorized": false,
+  "production_worker": {
+    "name": "vsn-stock-down-sort-production",
+    "url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
+  },
+  "shopify": {
+    "config": "shopify.app.production.toml",
+    "client_id_source": "github_environment_secret",
+    "target_url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
+    "separate_live_app_identity": true,
+    "merchant_reinstall_allowed": false
+  },
+  "billing": {
+    "plan_id": "unlimited",
+    "amount": 55,
+    "currency": "USD",
+    "interval": "EVERY_30_DAYS",
+    "trial_days": 5,
+    "mutate_during_release": false
+  },
+  "database": {
+    "provider": "postgresql",
+    "migrate_during_shopify_release": false,
+    "require_migration_status_clean": true
+  },
+  "authorized_version": null,
+  "authorized_source_ref": null,
+  "authorization_record": null
+}
