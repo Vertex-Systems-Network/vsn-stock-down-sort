@@ -620,3 +620,34 @@ test("bulk disable uses one database update", () => {
   assert.doesNotMatch(block, /collectionSetting\.findMany/);
   assert.doesNotMatch(block, /disableCollection\(/);
 });
+
+
+test("environment secrets audit checks required deployment credentials", () => {
+  const workflow = read(".github/workflows/environment-secrets-audit.yml");
+
+  assert.match(workflow, /name: Environment Secrets Audit/);
+  assert.match(workflow, /AUDIT_ENVIRONMENT_SECRETS/);
+  assert.match(workflow, /environment: staging/);
+  assert.match(workflow, /environment: production/);
+
+  for (const name of [
+    "DATABASE_URL",
+    "DIRECT_URL",
+    "SHOPIFY_API_KEY",
+    "SHOPIFY_API_SECRET",
+    "SHOPIFY_APP_AUTOMATION_TOKEN",
+    "CLOUDFLARE_API_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+  ]) {
+    assert.match(workflow, new RegExp(name));
+  }
+
+  assert.match(
+    workflow,
+    /SHOPIFY_API_KEY matches the Local\/Dev Shopify client ID/,
+  );
+  assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
+  assert.match(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
+  assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
+});
