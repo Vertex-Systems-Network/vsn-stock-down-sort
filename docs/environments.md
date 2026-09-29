@@ -1,59 +1,33 @@
 # VSN Stock Down Sort environments
 
-This repository uses three isolated runtime tiers so local development, staging
-validation, and live merchant traffic do not share Shopify credentials or
-billing behavior.
+The app uses the same PostgreSQL-backed, engine-less Prisma runtime in all
+tiers. Credentials, Shopify identities, billing mode, and database instances
+remain isolated by environment.
 
-## Local / development
+| Tier | Source flow | Shopify config | Database | Billing |
+| --- | --- | --- | --- | --- |
+| Development | local / `development` | `shopify.app.toml` | development PostgreSQL | test |
+| Staging | `development` → manual deploy | `shopify.app.staging.toml` | staging PostgreSQL | test |
+| Production | protected `main` | `shopify.app.production.toml` | production PostgreSQL | real |
 
-- Shopify config: `shopify.app.toml`
-- Runtime: `APP_ENV=development`
-- Billing: `SHOPIFY_BILLING_TEST_MODE=true`
-- URL behavior: Shopify CLI may update development URLs automatically.
-- Use a development store only.
-- Database: local SQLite via `prisma/schema.prisma`.
-- Do not use live merchant credentials.
+## Runtime database
 
-## Staging
+The active schema is `prisma/cloud/schema.prisma`.
 
-- Shopify config: `shopify.app.staging.toml`
-- Runtime: `APP_ENV=staging`
-- Billing: `SHOPIFY_BILLING_TEST_MODE=true`
-- Use a dedicated staging Shopify app/client ID and a staging store.
-- Database: isolated PostgreSQL via `prisma/cloud/schema.prisma`.
-- Replace the `.example.invalid` host only when a staging deployment URL exists.
-- Staging can run with `NODE_ENV=production`; `APP_ENV=staging` is what keeps
-  billing in test mode.
+It uses:
 
-## Live / production
+- PostgreSQL;
+- Prisma engine-less client;
+- `@prisma/adapter-pg`;
+- request-scoped Prisma clients;
+- request-scoped Shopify Prisma session storage.
 
-- Shopify config: `shopify.app.production.toml`
-- Runtime: `APP_ENV=production`
-- Billing: `SHOPIFY_BILLING_TEST_MODE=false`
-- Use the live Shopify app/client ID and production deployment URL only.
-- Database: a production PostgreSQL database isolated from staging.
-- This is the only tier allowed to create real recurring merchant charges.
+The original SQLite schema/migrations remain repository history only and are not
+used by the active runtime.
 
-## Billing contract
+## Required runtime values
 
-The app exposes one Pro plan:
-
-- USD 55 every 30 days
-- 5-day free trial
-- Unlimited products
-- Unlimited collections
-- Automatic sold-out product sorting
-- Automatic re-sorting after inventory/product updates
-- Manual and bulk collection controls
-- Previous Shopify sort-order restore support
-- 24/7 support
-
-The authoritative code contract is `app/billing-config.ts`.
-
-## Required runtime variables
-
-Copy `.env.example` for local development and configure equivalent protected
-variables/secrets in staging and production:
+Every environment requires:
 
 - `APP_ENV`
 - `SHOPIFY_BILLING_TEST_MODE`
@@ -61,21 +35,50 @@ variables/secrets in staging and production:
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_URL`
 - `SCOPES`
-- `DATABASE_URL` (staging/production)
-- `DIRECT_URL` (staging/production migrations)
+- `DATABASE_URL`
 
-Never copy production API secrets into development or staging.
+Migration commands additionally require:
 
-## Deployment safety
+- `DIRECT_URL`
 
-Before staging or production deployment:
+`DIRECT_URL` is not uploaded to the Cloudflare Worker. It remains restricted to
+migration/readiness jobs.
 
-1. Replace the placeholder Shopify client ID and host in the matching TOML file.
-2. Verify `/healthz` reports the expected environment and the billing contract
-   `55 USD / EVERY_30_DAYS / 5 trial days`.
-3. Confirm staging reports `billingTestMode: true`.
-4. Confirm production reports `billingTestMode: false`.
-5. Use separate PostgreSQL databases for staging and production. Local
-   development remains on SQLite.
-6. Hosted startup runs `scripts/runtime-setup.mjs`, which selects the correct
-   Prisma schema and refuses unsafe staging/production billing flags.
+## Billing contract
+
+The Pro plan remains:
+
+- USD 55 every 30 days;
+- 5-day free trial;
+- unlimited products;
+- unlimited collections;
+- automatic sold-out sorting;
+- automatic inventory/product re-sorting;
+- manual and bulk controls;
+- previous Shopify sort-order restore;
+- 24/7 support.
+
+Development and staging must use test billing. Production startup requires real
+billing mode explicitly.
+
+## Worker runtime
+
+Cloudflare configuration:
+
+- `workers/app.js`
+- `wrangler.staging.jsonc`
+- `wrangler.production.jsonc`
+
+The Worker runs the React Router server bundle, uses Web Streams SSR, and reads
+runtime bindings through `process.env`.
+
+Before staging deployment:
+
+1. configure the GitHub `staging` environment;
+2. supply staging PostgreSQL and Shopify credentials;
+3. replace the placeholders in `shopify.app.staging.toml`;
+4. run **Staging Readiness**;
+5. run **Cloudflare Staging Deploy** only after readiness passes.
+
+Production stays manual and requires a separate production readiness/cutover
+decision.
