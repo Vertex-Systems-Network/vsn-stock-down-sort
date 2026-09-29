@@ -1,0 +1,19 @@
+schema_version: 1
+protocol_version: 1.4.0
+project: VSN Stock Down Sort
+rule: Policy presence is not pass evidence.
+requirements:
+  REQ-83: {applicability: not_applicable, status: pending_review, rationale: "Current product is not an AI/ML/LLM product."}
+  REQ-84: {applicability: applicable, status: pending_evidence, rationale: "Merchant-facing Shopify app requires UX/problem validation."}
+  REQ-85: {applicability: applicable, status: pending_evidence, rationale: "Product outcomes and operational KPIs are measurable."}
+  REQ-86: {applicability: optional, status: pending_review, rationale: "Experiments may help but are not required for every change."}
+  REQ-87: {applicability: applicable, status: partial, rationale: "Staging/production separation exists; progressive delivery evidence needs audit."}
+  REQ-88: {applicability: applicable, status: pending_evidence, rationale: "AI-assisted engineering requires maintainability review."}
+  REQ-89: {applicability: not_applicable, status: pending_review, rationale: "No high-impact AI decision system is currently present."}
+  REQ-90: {applicability: applicable, status: pending_evidence, rationale: "Shopify app processes merchant/shop data and privacy webhooks."}
+  REQ-91: {applicability: applicable, status: pending_evidence, rationale: "Material architecture and deployment decisions need durable records."}
+  REQ-92: {applicability: not_applicable, status: pending_review, rationale: "No behavior-producing AI assets are currently part of the product."}
+  REQ-93: {applicability: applicable, status: pending_evidence, rationale: "Shopify API/runtime/dependency versions require compatibility management."}
+  REQ-94: {applicability: applicable, status: pending_evidence, rationale: "Production app needs deploy, queue, database and provider recovery runbooks."}
+  REQ-95: {applicability: applicable, status: pending_evidence, rationale: "Privileged deployment and release actions need durable audit evidence."}
+  REQ-96: {applicability: applicable, status: pending_evidence, rationale: "Operational, security and architecture risks require tracked lifecycle."}
