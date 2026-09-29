@@ -546,3 +546,29 @@ test("Cloudflare deploy workflows provision sort queues idempotently", () => {
   assert.match(production, /wrangler@4\.141\.0 queues create/);
   assert.match(production, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
 });
+
+
+test("webhook queue delivery is durable before HTTP acknowledgement", () => {
+  const queueHelper = read("app/sort-queue.server.ts");
+  const inventory = read(
+    "app/routes/webhooks.inventory-levels-update.tsx",
+  );
+  const product = read("app/routes/webhooks.products-update.tsx");
+
+  assert.match(
+    queueHelper,
+    /Hosted Worker is missing the required STOCK_SORT_QUEUE binding/,
+  );
+  assert.match(queueHelper, /if \(!cloudflare\?\.env\) return false/);
+
+  for (const route of [inventory, product]) {
+    const enqueueIndex = route.indexOf("await enqueueSortJobs");
+    const fallbackIndex = route.indexOf("await runWithWorkerLifetime");
+
+    assert.ok(enqueueIndex >= 0);
+    assert.ok(fallbackIndex > enqueueIndex);
+    assert.match(route, /Webhook processing failed/);
+    assert.match(route, /status: 500/);
+    assert.match(route, /if \(!queued\)/);
+  }
+});
