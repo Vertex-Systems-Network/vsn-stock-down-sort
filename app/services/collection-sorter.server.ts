@@ -14,6 +14,39 @@ type CollectionProduct = {
   tracksInventory: boolean;
 };
 
+type CollectionListItem = {
+  id: string;
+  title: string;
+  handle: string;
+  sortOrder: string;
+  productsCount: { count: number };
+};
+
+type CollectionListResponse = {
+  collections: {
+    nodes: CollectionListItem[];
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  };
+};
+
+type CollectionProductsResponse = {
+  collection: null | {
+    products: {
+      nodes: CollectionProduct[];
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
+  };
+};
+
+type ProductCollectionsResponse = {
+  product: null | {
+    collections: {
+      nodes: Array<{ id: string }>;
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
+  };
+};
+
 const PRODUCTS_PAGE_SIZE = 100;
 const MAX_REORDER_MOVES = 250;
 
@@ -86,23 +119,12 @@ export async function getCollection(
 }
 
 export async function listAllCollections(admin: AdminClient) {
-  const all: Array<{
-    id: string;
-    title: string;
-    handle: string;
-    sortOrder: string;
-    productsCount: { count: number };
-  }> = [];
+  const all: CollectionListItem[] = [];
 
   let after: string | null = null;
 
   do {
-    const data = await gql<{
-      collections: {
-        nodes: typeof all;
-        pageInfo: { hasNextPage: boolean; endCursor: string | null };
-      };
-    }>(
+    const data: CollectionListResponse = await gql<CollectionListResponse>(
       admin,
       `#graphql
         query CollectionsForStockSorter($first: Int!, $after: String) {
@@ -143,14 +165,8 @@ async function listCollectionProducts(
   let after: string | null = null;
 
   do {
-    const data = await gql<{
-      collection: null | {
-        products: {
-          nodes: CollectionProduct[];
-          pageInfo: { hasNextPage: boolean; endCursor: string | null };
-        };
-      };
-    }>(
+    const data: CollectionProductsResponse =
+      await gql<CollectionProductsResponse>(
       admin,
       `#graphql
         query CollectionProductsForStockSorter(
@@ -485,14 +501,8 @@ export async function collectionsForProduct(
   let after: string | null = null;
 
   do {
-    const data = await gql<{
-      product: null | {
-        collections: {
-          nodes: Array<{ id: string }>;
-          pageInfo: { hasNextPage: boolean; endCursor: string | null };
-        };
-      };
-    }>(
+    const data: ProductCollectionsResponse =
+      await gql<ProductCollectionsResponse>(
       admin,
       `#graphql
         query ProductCollections(
