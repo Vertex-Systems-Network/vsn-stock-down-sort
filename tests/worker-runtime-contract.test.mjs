@@ -92,3 +92,44 @@ test("staging deployment is manual, development-sourced, and test-billed", () =>
   assert.match(workflow, /--secrets-file \.worker-secrets\.json/);
   assert.match(workflow, /rm -f \.worker-secrets\.json/);
 });
+
+
+test("staging acceptance probe is signed, staging-only, and read-only", () => {
+  const diagnostic = read("app/routes/internal.staging-acceptance.tsx");
+
+  assert.match(
+    diagnostic,
+    /https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
+  );
+  assert.match(diagnostic, /SIGNATURE_MAX_AGE_SECONDS = 300/);
+  assert.match(diagnostic, /crypto\.subtle\.verify/);
+  assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
+  assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
+  assert.match(diagnostic, /currentAppInstallation/);
+  assert.match(diagnostic, /activeSubscriptions/);
+  assert.match(diagnostic, /process\.env\.APP_ENV !== "staging"/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
+  assert.doesNotMatch(diagnostic, /accessToken\s*:/);
+  assert.doesNotMatch(diagnostic, /DATABASE_URL/);
+});
+
+test("health and staging deployment produce post-deploy evidence", () => {
+  const health = read("app/routes/healthz.tsx");
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(health, /"Cache-Control": "no-store"/);
+  assert.match(health, /service: "vsn-stock-down-sort"/);
+  assert.match(health, /amount: PRO_PLAN\.amount/);
+  assert.match(health, /trialDays: PRO_PLAN\.trialDays/);
+
+  assert.match(workflow, /Verify deployed health and billing contract/);
+  assert.match(workflow, /staging_runtime_health=pass/);
+  assert.match(workflow, /staging_billing_contract=5_days_usd_55/);
+  assert.match(workflow, /staging_shop:/);
+  assert.match(workflow, /Verify Shopify session and subscription reads/);
+  assert.match(workflow, /staging_offline_session=pass/);
+  assert.match(workflow, /staging_admin_graphql=pass/);
+  assert.match(workflow, /staging_subscription_read=pass/);
+  assert.match(workflow, /deferred_until_app_install/);
+});

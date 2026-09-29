@@ -74,3 +74,30 @@ These values are intentionally committed as non-secret staging configuration:
 - `SCOPES=read_products,write_products,read_inventory`
 
 They must not be duplicated as GitHub or Cloudflare secrets.
+
+
+## Post-deploy acceptance
+
+Every staging deployment verifies `/healthz` and requires the deployed runtime
+to report:
+
+- service `vsn-stock-down-sort`;
+- environment `staging`;
+- PostgreSQL runtime;
+- Shopify test billing enabled;
+- the 5-day / USD 55 plan contract.
+
+The deployment form also accepts an optional `staging_shop` value such as a
+`*.myshopify.com` development-store domain. After the staging Shopify app has
+been installed on that shop, provide this value to run the signed, read-only
+`/internal/staging-acceptance` probe.
+
+That probe proves:
+
+- an offline Shopify session is stored;
+- Shopify Admin GraphQL is readable;
+- `activeSubscriptions` can be read.
+
+The request is HMAC-signed with the staging Shopify API secret, expires after
+five minutes, and the endpoint is unavailable outside the fixed staging
+runtime. It never creates or cancels subscriptions.
