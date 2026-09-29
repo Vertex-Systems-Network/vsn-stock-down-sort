@@ -204,32 +204,50 @@ test("three Shopify app identities stay isolated", () => {
 });
 
 
-test("Shopify CLI scripts target three configs explicitly", () => {
+test("local Shopify flow stays npm run dev with the default config", () => {
   const pkg = JSON.parse(read("package.json"));
 
-  assert.equal(
-    pkg.scripts["shopify:use:local"],
-    "shopify app config use shopify.app.toml",
+  assert.equal(pkg.scripts.dev, "shopify app dev");
+  assert.ok(!pkg.scripts["shopify:use:local"]);
+  assert.ok(!pkg.scripts["shopify:use:staging"]);
+  assert.ok(!pkg.scripts["shopify:use:live"]);
+  assert.ok(!pkg.scripts["shopify:dev:local"]);
+});
+
+test("staging Shopify promotion is GitHub Action driven", () => {
+  const versionWorkflow = read(
+    ".github/workflows/shopify-staging-version.yml",
   );
-  assert.equal(
-    pkg.scripts["shopify:use:staging"],
-    "shopify app config use staging",
+  const releaseWorkflow = read(
+    ".github/workflows/shopify-staging-release.yml",
   );
-  assert.equal(
-    pkg.scripts["shopify:use:live"],
-    "shopify app config use production",
+  const readinessWorkflow = read(".github/workflows/staging-readiness.yml");
+
+  assert.match(versionWorkflow, /workflow_dispatch:/);
+  assert.match(versionWorkflow, /ref: development/);
+  assert.match(versionWorkflow, /SHOPIFY_APP_AUTOMATION_TOKEN/);
+  assert.match(versionWorkflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
+  assert.match(versionWorkflow, /--config staging/);
+  assert.match(versionWorkflow, /--no-release/);
+  assert.match(
+    versionWorkflow,
+    /stock-down-sort-staging-\$\{SOURCE_PREFIX\}-\$\{GITHUB_RUN_NUMBER\}/,
   );
-  assert.equal(
-    pkg.scripts["shopify:dev:local"],
-    "npm run shopify:use:local && shopify app dev",
+
+  assert.match(releaseWorkflow, /workflow_dispatch:/);
+  assert.match(releaseWorkflow, /TARGET_VERSION/);
+  assert.match(releaseWorkflow, /app versions list/);
+  assert.match(releaseWorkflow, /app release/);
+  assert.match(releaseWorkflow, /--config staging/);
+  assert.match(releaseWorkflow, /RELEASE_STAGING_SHOPIFY_VERSION/);
+
+  assert.match(readinessWorkflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
+  assert.match(
+    readinessWorkflow,
+    /Refusing staging readiness with the Local\/Dev Shopify client ID/,
   );
-  assert.equal(
-    pkg.scripts["shopify:validate:staging"],
-    "shopify app config validate --config staging",
+  assert.doesNotMatch(
+    readinessWorkflow,
+    /still contains the staging client ID placeholder/,
   );
-  assert.equal(
-    pkg.scripts["shopify:validate:live"],
-    "shopify app config validate --config production",
-  );
-  assert.ok(!Object.keys(pkg.scripts).some((name) => name === "shopify:deploy:live"));
 });

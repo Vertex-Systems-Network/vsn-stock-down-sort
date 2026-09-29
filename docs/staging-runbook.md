@@ -20,6 +20,8 @@ Create a GitHub Environment named `staging` and add these secrets:
 - `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
 - `SHOPIFY_API_KEY` — staging Shopify app client ID.
 - `SHOPIFY_API_SECRET` — staging Shopify app secret.
+- `SHOPIFY_APP_AUTOMATION_TOKEN` — Shopify CLI automation token used only by
+  the staging version/release Actions.
 
 Do not copy production values into the staging environment.
 
@@ -29,9 +31,14 @@ The staging Workers URL is fixed to:
 
 - `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
 
-Only the dedicated Shopify staging app client ID remains a placeholder:
+The dedicated Shopify staging app Client ID intentionally remains a placeholder
+in git:
 
 - `__SHOPIFY_STAGING_CLIENT_ID__`
+
+Do **not** replace or commit it. GitHub Actions inject the real
+`SHOPIFY_API_KEY` into a disposable checkout when creating or releasing a
+staging Shopify version.
 
 The staging Shopify app must be installed only on a development/test store.
 
@@ -43,7 +50,8 @@ It refuses to proceed when:
 
 - a required staging secret is missing;
 - the staging URL is not HTTPS;
-- the Shopify staging config still contains placeholders;
+- the staging Shopify secret identity matches the Local/Dev app;
+- the committed staging config no longer contains the expected safe placeholder;
 - the PostgreSQL schema or migrations are invalid;
 - lint, typecheck, or build fails.
 
@@ -101,3 +109,27 @@ That probe proves:
 The request is HMAC-signed with the staging Shopify API secret, expires after
 five minutes, and the endpoint is unavailable outside the fixed staging
 runtime. It never creates or cancels subscriptions.
+
+
+## Shopify staging promotion
+
+Local development stays simple:
+
+`npm run dev`
+
+No manual Shopify config switching is required.
+
+After runtime readiness and Cloudflare staging deployment pass:
+
+1. Run **Shopify Staging Version** and enter
+   `CREATE_STAGING_SHOPIFY_VERSION`.
+2. The Action checks out `development`, injects the staging Client ID from
+   GitHub secrets only in that disposable runner, and creates an unreleased
+   version named like
+   `stock-down-sort-staging-<source-sha>-<run-number>`.
+3. Copy the exact candidate version name from the Action summary.
+4. Run **Shopify Staging Release**, enter
+   `RELEASE_STAGING_SHOPIFY_VERSION`, and provide that exact version name.
+
+This process does not modify `shopify.app.toml` or
+`shopify.app.production.toml`.

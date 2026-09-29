@@ -96,33 +96,39 @@ Production stays manual and requires a separate production readiness/cutover
 decision.
 
 
-## Safe Shopify CLI targeting
+## Action-driven Shopify environment flow
 
-Do not rely on whichever Shopify configuration was selected previously.
+Local development does not switch configs manually.
 
-Use the explicit commands below:
+Run:
 
-- Local / Development:
-  - `npm run shopify:use:local`
-  - `npm run shopify:dev:local`
-- Staging:
-  - `npm run shopify:use:staging`
-  - `npm run shopify:validate:staging`
-  - `npm run shopify:info:staging`
-- Live / Production:
-  - `npm run shopify:use:live`
-  - `npm run shopify:validate:live`
-  - `npm run shopify:info:live`
+`npm run dev`
 
-The repository intentionally does not provide a one-command Shopify production
-release/cutover script. Live Shopify configuration release remains a separate
-controlled step after staging acceptance.
+That command is exactly `shopify app dev` and uses the default
+`shopify.app.toml`, which is dedicated to **VSN Stock Down Sort Dev**.
 
-When the Staging and Live apps have been created in Shopify, link them to the
-existing named files rather than reusing the Local/Dev identity:
+Do not run `shopify app config use` as part of the normal Local → Staging →
+Live flow.
 
-- Staging config name: `staging`
-- Production config name: `production`
+### Move Development to Staging
 
-The default `shopify.app.toml` stays dedicated to Local/Dev so ordinary
-`shopify app dev` activity cannot target the Live app by accident.
+Staging promotion is controlled by GitHub Actions, following the same pattern
+used by VSN Metafields:
+
+1. `Staging Readiness` validates the isolated staging runtime and database.
+2. `Cloudflare Staging Deploy` deploys the `development` branch to the
+   staging Worker.
+3. `Shopify Staging Version` reads the staging Shopify Client ID from the
+   GitHub `staging` environment, injects it only into the disposable Actions
+   checkout, and creates an **unreleased** Shopify app version.
+4. `Shopify Staging Release` releases only the exact staging version supplied
+   to the workflow.
+
+The committed `shopify.app.staging.toml` intentionally keeps
+`__SHOPIFY_STAGING_CLIENT_ID__`. The real staging Client ID is a GitHub
+Environment secret and must not be committed.
+
+### Live / Production
+
+Live remains a separately controlled promotion. Local development and staging
+actions must never select or mutate the Live Shopify app identity.

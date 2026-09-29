@@ -59,8 +59,20 @@ jobs:
             exit 1
           fi
 
-          if grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
-            echo "shopify.app.staging.toml still contains the staging client ID placeholder." >&2
+          if ! grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
+            echo "Staging config must keep the client ID placeholder in git; the action injects the secret at runtime." >&2
+            exit 1
+          fi
+
+          LOCAL_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$LOCAL_CLIENT_ID" ]; then
+            echo "Refusing staging readiness with the Local/Dev Shopify client ID." >&2
             exit 1
           fi
 
