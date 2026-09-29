@@ -1,0 +1,152 @@
+name: Shopify Staging Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE_STAGING_SHOPIFY_VERSION"
+        required: true
+        type: string
+      version:
+        description: "Exact unreleased staging Shopify version to release"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-shopify-staging-release
+  cancel-in-progress: false
+
+jobs:
+  release-staging-version:
+    if: github.event.inputs.confirm == 'RELEASE_STAGING_SHOPIFY_VERSION'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      CI: "true"
+      TARGET_VERSION: ${{ github.event.inputs.version }}
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+
+      - name: Require isolated staging Shopify identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY TARGET_VERSION
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing staging Shopify value: $name" >&2
+              exit 1
+            fi
+          done
+
+          if ! [[ "$TARGET_VERSION" =~ ^stock-down-sort-staging-[0-9a-f]{12}-[0-9]+$ ]]; then
+            echo "Refusing to release a version outside the certified staging naming contract." >&2
+            exit 1
+          fi
+
+          LOCAL_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$LOCAL_CLIENT_ID" ]; then
+            echo "Refusing to release staging with the Local/Dev Shopify client ID." >&2
+            exit 1
+          fi
+
+          if ! grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
+            echo "Staging client ID placeholder must remain committed." >&2
+            exit 1
+          fi
+
+      - name: Inject staging client ID into disposable checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("shopify.app.staging.toml")
+          content = path.read_text(encoding="utf-8")
+          placeholder = "__SHOPIFY_STAGING_CLIENT_ID__"
+          if placeholder not in content:
+              raise SystemExit("staging client ID placeholder missing")
+          path.write_text(
+              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Verify unreleased staging version exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list \
+            --config staging \
+            --json > /tmp/shopify-staging-versions.json
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_VERSION"]
+          payload = json.loads(
+              Path("/tmp/shopify-staging-versions.json").read_text(encoding="utf-8")
+          )
+
+          def contains(value):
+              if isinstance(value, dict):
+                  return any(contains(v) for v in value.values())
+              if isinstance(value, list):
+                  return any(contains(v) for v in value)
+              return value == target
+
+          if not contains(payload):
+              raise SystemExit(f"Target staging version not found: {target}")
+          print(f"verified_staging_version={target}")
+          PY
+
+      - name: Release exact verified staging version
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app release \
+            --config staging \
+            --version "$TARGET_VERSION" \
+            --allow-updates
+
+      - name: Verify staging version remains visible after release
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list \
+            --config staging \
+            --json > /tmp/shopify-staging-versions-after.json
+          grep -F "$TARGET_VERSION" /tmp/shopify-staging-versions-after.json >/dev/null
+
+      - name: Confirm Local and Live configs remain untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- shopify.app.toml shopify.app.production.toml
