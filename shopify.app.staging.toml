@@ -1,0 +1,36 @@
+# Dedicated staging Shopify app configuration.
+# Replace the placeholder client_id and host only with the staging app identity.
+# Never reuse production credentials in this file.
+
+client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
+application_url = "https://vsn-stock-down-sort-staging.example.invalid"
+embedded = true
+name = "VSN Stock Down Sort Staging"
+
+[access_scopes]
+scopes = "read_products,write_products,read_inventory"
+
+[webhooks]
+api_version = "2026-10"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "inventory_levels/update" ]
+  uri = "/webhooks/inventory-levels-update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "products/update" ]
+  uri = "/webhooks/products-update"
+
+[auth]
+redirect_urls = [
+  "https://vsn-stock-down-sort-staging.example.invalid/auth/callback",
+  "https://vsn-stock-down-sort-staging.example.invalid/auth/shopify/callback",
+  "https://vsn-stock-down-sort-staging.example.invalid/api/auth/callback"
+]
+
+[build]
+automatically_update_urls_on_dev = false
