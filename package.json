@@ -11,13 +11,17 @@
     "env": "shopify app env",
     "start": "react-router-serve ./build/server/index.js",
     "docker-start": "npm run setup && npm run start",
-    "setup": "prisma generate && prisma migrate deploy",
+    "setup": "node scripts/runtime-setup.mjs",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "shopify": "shopify",
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
-    "typecheck": "react-router typegen && tsc --noEmit"
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "build:cloud": "prisma generate --schema prisma/cloud/schema.prisma && react-router build",
+    "prisma:validate:cloud": "prisma validate --schema prisma/cloud/schema.prisma",
+    "prisma:generate:cloud": "prisma generate --schema prisma/cloud/schema.prisma",
+    "prisma:migrate:cloud": "prisma migrate deploy --schema prisma/cloud/schema.prisma"
   },
   "type": "module",
   "engines": {
