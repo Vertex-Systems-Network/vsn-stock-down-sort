@@ -4,6 +4,21 @@ import { authenticate } from "../shopify.server";
 
 type AdminClient = Awaited<ReturnType<typeof authenticate.admin>>["admin"];
 
+type AppPricingDetails = {
+  __typename: string;
+  interval?: string;
+  price?: {
+    amount: string;
+    currencyCode: string;
+  };
+};
+
+type AppSubscriptionLineItem = {
+  plan: {
+    pricingDetails: AppPricingDetails;
+  };
+};
+
 export type AppSubscription = {
   id: string;
   name: string;
@@ -11,6 +26,7 @@ export type AppSubscription = {
   test: boolean;
   currentPeriodEnd?: string | null;
   trialDays?: number | null;
+  lineItems?: AppSubscriptionLineItem[];
 };
 
 type SubscriptionQueryPayload = {
@@ -59,6 +75,20 @@ export async function getActiveSubscriptions(admin: AdminClient) {
           test
           currentPeriodEnd
           trialDays
+          lineItems {
+            plan {
+              pricingDetails {
+                __typename
+                ... on AppRecurringPricing {
+                  interval
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -88,10 +118,35 @@ export async function getAnyActiveSubscription(admin: AdminClient) {
   );
 }
 
+function hasCurrentPlanPricing(subscription: AppSubscription) {
+  if (subscription.lineItems?.length !== 1) {
+    return false;
+  }
+
+  const pricing = subscription.lineItems[0]?.plan.pricingDetails;
+
+  if (
+    pricing?.__typename !== "AppRecurringPricing" ||
+    !pricing.price ||
+    !pricing.interval
+  ) {
+    return false;
+  }
+
+  return (
+    Number(pricing.price.amount) === PRO_PLAN.amount &&
+    pricing.price.currencyCode === PRO_PLAN.currencyCode &&
+    pricing.interval === PRO_PLAN.interval
+  );
+}
+
 export function isCurrentPlanSubscription(subscription: AppSubscription) {
   return (
     subscription.status === "ACTIVE" &&
-    subscription.name === PRO_PLAN.name
+    subscription.name === PRO_PLAN.name &&
+    subscription.test === isBillingTestMode() &&
+    subscription.trialDays === PRO_PLAN.trialDays &&
+    hasCurrentPlanPricing(subscription)
   );
 }
 
