@@ -68,6 +68,18 @@ jobs:
             exit 1
           fi
 
+          LOCAL_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$LOCAL_CLIENT_ID" ]; then
+            echo "Refusing staging deploy with the Local/Dev Shopify client ID." >&2
+            exit 1
+          fi
+
           if [ -n "$STAGING_SHOP_DOMAIN" ] && ! [[ "$STAGING_SHOP_DOMAIN" =~ ^[a-z0-9][a-z0-9-]*\.myshopify\.com$ ]]; then
             echo "staging_shop must be a valid *.myshopify.com domain." >&2
             exit 1

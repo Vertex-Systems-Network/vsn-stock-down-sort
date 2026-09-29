@@ -420,3 +420,33 @@ test("privacy lifecycle purges all shop-scoped persisted data", () => {
     assert.doesNotMatch(route, /withPrismaClient|purgeShopData|db\./);
   }
 });
+
+
+test("direct deploy paths reject the Local Shopify identity", () => {
+  const stagingDeploy = read(
+    ".github/workflows/cloudflare-staging-deploy.yml",
+  );
+  const productionPrepare = read(
+    ".github/workflows/cloudflare-production-prepare.yml",
+  );
+
+  assert.match(
+    stagingDeploy,
+    /Refusing staging deploy with the Local\/Dev Shopify client ID/,
+  );
+  assert.match(stagingDeploy, /with open\("shopify\.app\.toml", "rb"\)/);
+  assert.match(stagingDeploy, /if \[ "\$SHOPIFY_API_KEY" = "\$LOCAL_CLIENT_ID" \]/);
+
+  assert.match(
+    productionPrepare,
+    /Refusing production Worker preparation with the Local\/Dev Shopify client ID/,
+  );
+  assert.match(
+    productionPrepare,
+    /with open\("shopify\.app\.toml", "rb"\)/,
+  );
+  assert.match(
+    productionPrepare,
+    /if \[ "\$SHOPIFY_API_KEY" = "\$LOCAL_CLIENT_ID" \]/,
+  );
+});
