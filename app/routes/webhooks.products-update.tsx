@@ -5,6 +5,10 @@ import {
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
 
+type ProductUpdateWebhookPayload = {
+  id?: string | number;
+};
+
 export async function action({ request }: ActionFunctionArgs) {
   const { admin, session, payload } = await authenticate.webhook(request);
 
@@ -12,7 +16,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response();
   }
 
-  const numericId = (payload as any).id;
+  const numericId = (payload as ProductUpdateWebhookPayload).id;
   if (!numericId) return new Response();
 
   try {
