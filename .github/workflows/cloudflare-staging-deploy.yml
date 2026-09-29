@@ -1,0 +1,105 @@
+name: Cloudflare Staging Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY_DEVELOPMENT_TO_STAGING"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-cloudflare-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'DEPLOY_DEVELOPMENT_TO_STAGING'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      APP_ENV: staging
+      SHOPIFY_BILLING_TEST_MODE: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SCOPES: ${{ secrets.SCOPES }}
+
+    steps:
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+          cache: npm
+
+      - name: Require isolated staging values
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL SCOPES
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing staging value: $name" >&2
+              exit 1
+            fi
+          done
+
+          case "$SHOPIFY_APP_URL" in
+            https://*) ;;
+            *)
+              echo "SHOPIFY_APP_URL must use HTTPS." >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply staging database migrations
+        run: npx prisma migrate deploy --schema prisma/cloud/schema.prisma
+
+      - name: Build Worker
+        run: npm run build:worker
+
+      - name: Certify Worker bundle
+        run: npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc
+
+      - name: Prepare temporary Worker secrets
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const required = [
+            "APP_ENV",
+            "SHOPIFY_BILLING_TEST_MODE",
+            "DATABASE_URL",
+            "DIRECT_URL",
+            "SHOPIFY_API_KEY",
+            "SHOPIFY_API_SECRET",
+            "SHOPIFY_APP_URL",
+            "SCOPES",
+          ];
+          const payload = Object.fromEntries(required.map((key) => [key, process.env[key]]));
+          fs.writeFileSync(".worker-secrets.json", JSON.stringify(payload));
+          NODE
+
+      - name: Deploy staging Worker with secrets
+        run: npx wrangler@4.141.0 deploy --config wrangler.staging.jsonc --secrets-file .worker-secrets.json
+
+      - name: Remove temporary Worker secrets
+        if: always()
+        shell: bash
+        run: rm -f .worker-secrets.json
