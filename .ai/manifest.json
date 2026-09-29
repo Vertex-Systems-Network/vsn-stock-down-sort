@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "protocol": "ANPOS",
+  "project": "VSN Stock Down Sort",
+  "common": [
+    "AGENTS.md",
+    ".ai/state/CURRENT-STATE.yaml",
+    ".ai/state/LAST-CHECKPOINT.md",
+    ".ai/tasks/INDEX.yaml",
+    ".ai/ROADMAP.md",
+    "config/protocol/version.json",
+    "config/protocol/instance.json"
+  ],
+  "roles": {
+    "supervisor": [
+      "START-HERE.md",
+      "PROJECT-INITIALIZATION.md",
+      ".ai/assurance/ASSURANCE-83-96.yaml",
+      ".ai/ROADMAP.md"
+    ],
+    "planner": [
+      "START-HERE.md",
+      ".ai/ROADMAP.md",
+      ".ai/tasks/INDEX.yaml"
+    ],
+    "worker": [
+      "AGENTS.md",
+      ".ai/state/CURRENT-STATE.yaml",
+      ".ai/tasks/INDEX.yaml"
+    ],
+    "qa": [
+      "AGENTS.md",
+      ".ai/assurance/ASSURANCE-83-96.yaml"
+    ],
+    "release_ops": [
+      "AGENTS.md",
+      ".ai/state/CURRENT-STATE.yaml"
+    ]
+  },
+  "rule": "Repository reality is canonical. ANPOS controls must not erase or fabricate project state."
+}

@@ -1,0 +1,28 @@
+schema_version: 1
+project: VSN Stock Down Sort
+active_task: INFRA-STAGING-001
+tasks:
+  - id: ANPOS-ADOPT-001
+    title: Adopt ANPOS 1.4.0 onto existing application
+    status: completed
+    evidence:
+      - PR 27 merged to main
+      - Existing application code preserved
+      - ANPOS instance marked active_project
+      - Current state, checkpoint, roadmap and assurance state initialized
+  - id: INFRA-STAGING-001
+    title: Certify Cloudflare staging bootstrap
+    status: in_progress
+    depends_on: ANPOS-ADOPT-001
+  - id: INFRA-STAGING-002
+    title: Run staging readiness and deploy Worker
+    status: pending
+    depends_on: INFRA-STAGING-001
+  - id: SHOPIFY-STAGING-001
+    title: Certify staging Shopify version and test billing
+    status: pending
+    depends_on: INFRA-STAGING-002
+  - id: PRODUCT-AUDIT-001
+    title: Deep product and architecture audit under ANPOS
+    status: pending
+    depends_on: ANPOS-ADOPT-001

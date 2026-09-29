@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "protocol": "ANPOS",
+  "protocol_name": "AI Native Project Operating System",
+  "version": "1.4.0",
+  "compatibility": "1.x",
+  "upstream": {
+    "repository": "Vertex-Systems-Network/ai-native-project-operating-system",
+    "default_branch": "main"
+  },
+  "adoption_mode": "existing_repository_adoption",
+  "migration_policy": "Preserve project-specific application code, approved architecture, CI/deployment behavior and verified evidence. Reconcile control-plane changes explicitly."
+}

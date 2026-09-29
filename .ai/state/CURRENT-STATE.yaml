@@ -1,0 +1,36 @@
+schema_version: 1
+protocol: ANPOS
+protocol_version: 1.4.0
+project: VSN Stock Down Sort
+repository: Vertex-Systems-Network/vsn-stock-down-sort
+instance_status: active_project
+adoption_mode: existing_repository_adoption
+application_status: existing_application
+initialized_at: 2026-09-30T00:14:00+05:00
+current_baseline:
+  default_branch: main
+  application: Shopify embedded app
+  runtime: Cloudflare Workers
+  database: PostgreSQL via Prisma
+  billing:
+    plan_id: unlimited
+    amount_usd: 55
+    interval: EVERY_30_DAYS
+    trial_days: 5
+  environments:
+    - local
+    - staging
+    - production
+  staging_worker: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
+current_focus: Cloudflare staging certification under ANPOS control
+active_task: INFRA-STAGING-001
+completed:
+  - ANPOS-ADOPT-001
+blockers:
+  - Cloudflare staging bootstrap still requires runtime verification using configured GitHub Environment credentials.
+  - Full staging deployment additionally requires database and Shopify staging credentials.
+rules:
+  preserve_existing_application: true
+  repository_evidence_over_chat_memory: true
+  no_fake_completion: true
+  no_blind_protocol_overlay: true
