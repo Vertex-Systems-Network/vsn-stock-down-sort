@@ -28,8 +28,8 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
-      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
-      SCOPES: ${{ secrets.SCOPES }}
+      SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
+      SCOPES: read_products,write_products,read_inventory
 
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          for name in DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL SCOPES
+          for name in DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing staging secret: $name" >&2
@@ -54,21 +54,18 @@ jobs:
             fi
           done
 
-          case "$SHOPIFY_APP_URL" in
-            https://*) ;;
-            *)
-              echo "SHOPIFY_APP_URL must use HTTPS in staging." >&2
-              exit 1
-              ;;
-          esac
+          if [ "$SHOPIFY_APP_URL" != "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev" ]; then
+            echo "Unexpected staging SHOPIFY_APP_URL." >&2
+            exit 1
+          fi
 
           if grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
             echo "shopify.app.staging.toml still contains the staging client ID placeholder." >&2
             exit 1
           fi
 
-          if grep -q "example.invalid" shopify.app.staging.toml; then
-            echo "shopify.app.staging.toml still contains the staging URL placeholder." >&2
+          if ! grep -q 'https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev' shopify.app.staging.toml; then
+            echo "shopify.app.staging.toml does not match the expected Workers URL." >&2
             exit 1
           fi
 

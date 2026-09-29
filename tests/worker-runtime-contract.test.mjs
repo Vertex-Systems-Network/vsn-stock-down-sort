@@ -63,6 +63,16 @@ test("Wrangler environments are isolated and declare required secrets", () => {
 
   assert.equal(staging.vars.APP_ENV, "staging");
   assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(
+    staging.vars.SHOPIFY_APP_URL,
+    "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+  );
+  assert.equal(
+    staging.vars.SCOPES,
+    "read_products,write_products,read_inventory",
+  );
+  assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
+  assert.ok(!staging.secrets.required.includes("SCOPES"));
   assert.equal(production.vars.APP_ENV, "production");
   assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
 });
@@ -75,6 +85,10 @@ test("staging deployment is manual, development-sourced, and test-billed", () =>
   assert.match(workflow, /ref: development/);
   assert.match(workflow, /APP_ENV: staging/);
   assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "true"/);
+  assert.match(
+    workflow,
+    /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
+  );
   assert.match(workflow, /--secrets-file \.worker-secrets\.json/);
   assert.match(workflow, /rm -f \.worker-secrets\.json/);
 });
