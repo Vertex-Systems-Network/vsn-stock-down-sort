@@ -81,11 +81,11 @@ jobs:
       - name: Generate cloud Prisma client
         run: npx prisma generate --schema prisma/cloud/schema.prisma
 
-      - name: Check PostgreSQL migration status
-        run: npx prisma migrate status --schema prisma/cloud/schema.prisma
-
       - name: Apply PostgreSQL staging migrations
         run: npx prisma migrate deploy --schema prisma/cloud/schema.prisma
+
+      - name: Verify PostgreSQL migration status
+        run: npx prisma migrate status --schema prisma/cloud/schema.prisma
 
       - name: Lint
         run: npm run lint
