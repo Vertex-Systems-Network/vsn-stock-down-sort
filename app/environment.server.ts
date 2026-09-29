@@ -29,3 +29,7 @@ export function isBillingTestMode() {
 
   return getAppEnvironment() !== "production";
 }
+
+export function getDatabaseMode() {
+  return getAppEnvironment() === "development" ? "sqlite" : "postgresql";
+}
