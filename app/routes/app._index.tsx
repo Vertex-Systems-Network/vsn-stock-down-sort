@@ -7,7 +7,7 @@ import {
 } from "react-router";
 import { useMemo, useState } from "react";
 import { authenticate } from "../shopify.server";
-import db from "../db.server";
+import { withPrismaClient } from "../db.server";
 import { getCurrentSubscription } from "../services/billing.server";
 import {
   disableCollection,
@@ -20,9 +20,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
   const collections = await listAllCollections(admin);
 
-  const settings = await db.collectionSetting.findMany({
-    where: { shop: session.shop },
-  });
+  const settings = await withPrismaClient((db) =>
+    db.collectionSetting.findMany({
+      where: { shop: session.shop },
+    }),
+  );
 
   const settingsMap = Object.fromEntries(
     settings.map((setting) => [setting.collectionId, setting]),
@@ -115,9 +117,11 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (intent === "disableAll") {
-      const settings = await db.collectionSetting.findMany({
-        where: { shop: session.shop, enabled: true },
-      });
+      const settings = await withPrismaClient((db) =>
+        db.collectionSetting.findMany({
+          where: { shop: session.shop, enabled: true },
+        }),
+      );
 
       for (const setting of settings) {
         await disableCollection(
