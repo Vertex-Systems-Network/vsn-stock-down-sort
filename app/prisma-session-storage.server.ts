@@ -1,4 +1,8 @@
-import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
+import type { PrismaClient } from "@prisma/client";
+import {
+  PrismaSessionStorage,
+  type PrismaSessionStorageInterface,
+} from "@shopify/shopify-app-session-storage-prisma";
 import { createPrismaClient } from "./db.server";
 
 const storageOptions = {
@@ -6,8 +10,10 @@ const storageOptions = {
   connectionRetryIntervalMs: 10,
 };
 
+type ScopedStorage = PrismaSessionStorage<PrismaClient>;
+
 async function withPrismaSessionStorage<T>(
-  operation: (storage: PrismaSessionStorage) => Promise<T>,
+  operation: (storage: ScopedStorage) => Promise<T>,
 ): Promise<T> {
   const prisma = createPrismaClient();
   const storage = new PrismaSessionStorage(prisma, storageOptions);
@@ -19,12 +25,14 @@ async function withPrismaSessionStorage<T>(
   }
 }
 
-export class RequestScopedPrismaSessionStorage {
+export class RequestScopedPrismaSessionStorage
+  implements PrismaSessionStorageInterface
+{
   isReady() {
     return withPrismaSessionStorage((storage) => storage.isReady());
   }
 
-  storeSession(session: Parameters<PrismaSessionStorage["storeSession"]>[0]) {
+  storeSession(session: Parameters<ScopedStorage["storeSession"]>[0]) {
     return withPrismaSessionStorage((storage) => storage.storeSession(session));
   }
 
