@@ -178,12 +178,24 @@ jobs:
                       raise RuntimeError("staging billing is not in test mode")
                   if payload.get("database") != "postgresql":
                       raise RuntimeError("unexpected database mode")
+
+                  sort_queue = payload.get("sortQueue") or {}
+                  if sort_queue.get("required") is not True:
+                      raise RuntimeError("staging sort queue is not marked required")
+                  if sort_queue.get("configured") is not True:
+                      raise RuntimeError("staging sort queue binding is missing")
+                  if sort_queue.get("ready") is not True:
+                      raise RuntimeError("staging sort queue is not ready")
+                  if sort_queue.get("mode") != "cloudflare-queue":
+                      raise RuntimeError("unexpected staging sort queue mode")
+
                   if payload.get("plan") != expected_plan:
                       raise RuntimeError(
                           f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
                       )
 
                   print("staging_runtime_health=pass")
+                  print("staging_sort_queue=pass")
                   print("staging_billing_contract=5_days_usd_55")
                   break
               except Exception as exc:
