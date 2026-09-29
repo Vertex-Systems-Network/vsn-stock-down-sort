@@ -1,13 +1,12 @@
 import type { ActionFunctionArgs } from "react-router";
-import { purgeShopData } from "../services/shop-data.server";
 import { authenticate } from "../shopify.server";
 
+/**
+ * This app doesn't persist Shopify customer or order records.
+ * Authentication still verifies Shopify's HMAC before acknowledging the
+ * mandatory data-request webhook.
+ */
 export async function action({ request }: ActionFunctionArgs) {
-  const { shop } = await authenticate.webhook(request);
-
-  if (shop) {
-    await purgeShopData(shop);
-  }
-
+  await authenticate.webhook(request);
   return new Response(null, { status: 200 });
 }
