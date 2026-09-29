@@ -601,3 +601,22 @@ test("health requires the sort queue only in hosted environments", () => {
   assert.match(production, /sort_queue\.get\("ready"\) is not True/);
   assert.match(production, /cloudflare-queue/);
 });
+
+
+test("bulk disable uses one database update", () => {
+  const index = read("app/routes/app._index.tsx");
+  const disableAllStart = index.indexOf('if (intent === "disableAll")');
+  const disableAllEnd = index.indexOf('return { ok: false, message: "Unknown action." }');
+
+  assert.ok(disableAllStart >= 0);
+  assert.ok(disableAllEnd > disableAllStart);
+
+  const block = index.slice(disableAllStart, disableAllEnd);
+
+  assert.match(block, /collectionSetting\.updateMany/);
+  assert.match(block, /where: \{ shop: session\.shop, enabled: true \}/);
+  assert.match(block, /enabled: false/);
+  assert.match(block, /lastError: null/);
+  assert.doesNotMatch(block, /collectionSetting\.findMany/);
+  assert.doesNotMatch(block, /disableCollection\(/);
+});
