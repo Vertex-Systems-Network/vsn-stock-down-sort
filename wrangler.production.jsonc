@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+  "name": "vsn-stock-down-sort-production",
+  "main": "./workers/app.js",
+  "compatibility_date": "2026-09-29",
+  "assets": {
+    "directory": "build/client"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "secrets": {
+    "required": [
+      "APP_ENV",
+      "SHOPIFY_BILLING_TEST_MODE",
+      "DATABASE_URL",
+      "DIRECT_URL",
+      "SHOPIFY_API_KEY",
+      "SHOPIFY_API_SECRET",
+      "SHOPIFY_APP_URL",
+      "SCOPES"
+    ]
+  }
+}
