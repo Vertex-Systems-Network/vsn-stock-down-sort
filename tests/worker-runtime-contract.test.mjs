@@ -75,6 +75,16 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   assert.ok(!staging.secrets.required.includes("SCOPES"));
   assert.equal(production.vars.APP_ENV, "production");
   assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
+  assert.equal(
+    production.vars.SHOPIFY_APP_URL,
+    "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
+  );
+  assert.equal(
+    production.vars.SCOPES,
+    "read_products,write_products,read_inventory",
+  );
+  assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
+  assert.ok(!production.secrets.required.includes("SCOPES"));
 });
 
 test("staging deployment is manual, development-sourced, and test-billed", () => {
@@ -132,4 +142,26 @@ test("health and staging deployment produce post-deploy evidence", () => {
   assert.match(workflow, /staging_admin_graphql=pass/);
   assert.match(workflow, /staging_subscription_read=pass/);
   assert.match(workflow, /deferred_until_app_install/);
+});
+
+
+test("production Worker preparation is manual and does not cut over Shopify", () => {
+  const workflow = read(".github/workflows/cloudflare-production-prepare.yml");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /APP_ENV: production/);
+  assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "false"/);
+  assert.match(
+    workflow,
+    /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-production\.vertexsystemsnetwork\.workers\.dev/,
+  );
+  assert.match(workflow, /Deploy isolated production Worker only/);
+  assert.match(workflow, /production_worker_prepare=pass/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.match(workflow, /--secrets-file \.worker-secrets\.json/);
+  assert.match(workflow, /rm -f \.worker-secrets\.json/);
+  assert.doesNotMatch(workflow, /shopify app deploy/);
+  assert.doesNotMatch(workflow, /shopify app config push/);
 });
