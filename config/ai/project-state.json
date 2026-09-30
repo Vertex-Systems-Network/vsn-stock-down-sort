@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "lifecycle_stage": "engineering",
+  "current_phase": "PHASE-01",
+  "current_module": "manual-staging-certification",
+  "current_work_unit": "ISSUE-32-management-control-plane-alignment",
+  "active_issue": 32,
+  "last_verified_completion": "PR #31 merged the validated manual Local/Development -> manual Staging -> reviewed main -> manual Production promotion model. App Validation passed lint, typecheck, Worker runtime contracts, Worker build, Cloudflare Staging dry-run, and Cloudflare Production dry-run. main and development were reconciled to 72d2183269753ec76218ceb6af00642f8b86be54.",
+  "next_valid_work_unit": "Finish and certify the VSN Metafields-style repository management/control-plane alignment, then verify the GitHub staging Environment secret contract. After that run Staging Readiness and manually dispatch Cloudflare Staging Deploy from development. Do not prepare or release Production before Staging acceptance evidence exists.",
+  "progress": {
+    "total_work_units": 7,
+    "complete": 0,
+    "in_progress": 1,
+    "blocked": 0,
+    "deferred": 0,
+    "needs_update": 0,
+    "needs_removal": 0
+  },
+  "outstanding_updates": [
+    "Certify the management/control-plane alignment through PR and App Validation.",
+    "Verify all required staging GitHub Environment values without exposing secret values.",
+    "Run Staging Readiness.",
+    "Manually deploy development to the isolated Cloudflare Staging Worker.",
+    "Verify Worker health, PostgreSQL migrations, Queue/DLQ readiness, Shopify session/Admin API reads, and exact unlimited USD 55 / 5-day test billing contract.",
+    "Create and release the dedicated Staging Shopify version only after runtime acceptance."
+  ],
+  "outstanding_removals": [],
+  "unresolved_decisions": [
+    "Project Management provider remains unselected; repository/GitHub Issues are the active planning surface.",
+    "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed.",
+    "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes."
+  ],
+  "critical_defects": [],
+  "qa_readiness": "manual_staging_flow_implemented_management_alignment_in_progress_staging_runtime_not_yet_certified",
+  "security_readiness": "main_ruleset_active_manual_staging_and_production_no_automatic_live_promotion",
+  "last_reconciled_repository_ref": "72d2183269753ec76218ceb6af00642f8b86be54",
+  "last_reconciled_at": "2026-09-30T08:08:47+00:00",
+  "notes": "The app already exists and is not a greenfield project. Repository/Git/CI evidence is canonical. Local, Staging, and Live use separate Shopify identities. CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID were reported configured for staging by the owner; the remaining staging secret contract has not yet been runtime-verified."
+}

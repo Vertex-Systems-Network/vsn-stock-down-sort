@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "active_issue": 32,
+  "phases": [
+    {
+      "id": "PHASE-01",
+      "name": "Manual staging certification and production-safe promotion",
+      "objective": "Prove the isolated staging app/runtime end-to-end before any production promotion.",
+      "module_ids": [
+        "MOD-MGMT",
+        "MOD-STAGING",
+        "MOD-PRODUCTION"
+      ],
+      "dependencies": [],
+      "status": "in_progress",
+      "exit_criteria": [
+        "Dedicated Staging Shopify identity is verified.",
+        "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
+        "Staging Shopify auth/session/Admin API reads pass.",
+        "Exact unlimited USD 55 every 30 days with 5-day test trial contract is verified.",
+        "Production remains unmodified until Staging acceptance evidence exists."
+      ]
+    }
+  ],
+  "work_units": [
+    {
+      "id": "ISSUE-32-WU-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-MGMT",
+      "title": "Align repository management model with VSN Metafields",
+      "objective": "Install repository-backed project state, role routing, coordination, risk, release, audit and governance registries.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "config/ai/project-state.json is canonical and repository-specific.",
+        "Issue #32 is the active work anchor.",
+        "AGENTS/manifest route Supervisor/Worker roles through repository state.",
+        "Existing application/deployment code is unchanged."
+      ],
+      "required_checks": [
+        "App Validation"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-02",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-STAGING",
+      "title": "Verify staging environment secret contract",
+      "objective": "Prove required staging GitHub Environment values are configured without exposing values.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Environment Secrets Audit passes for staging."
+      ],
+      "required_checks": [
+        "Environment Secrets Audit"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-03",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-STAGING",
+      "title": "Run Staging Readiness",
+      "objective": "Validate migrations, build, identity isolation and staging contract before deployment.",
+      "dependencies": [
+        "ISSUE-32-WU-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging Readiness completes successfully."
+      ],
+      "required_checks": [
+        "Staging Readiness"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-04",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-STAGING",
+      "title": "Manually deploy Cloudflare Staging",
+      "objective": "Deploy exact development source through the guarded manual staging workflow.",
+      "dependencies": [
+        "ISSUE-32-WU-03"
+      ],
+      "priority": 70,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Cloudflare Staging Deploy passes.",
+        "Queue and DLQ exist and bind correctly."
+      ],
+      "required_checks": [
+        "Cloudflare Staging Deploy"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-05",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-STAGING",
+      "title": "Certify staging runtime and Shopify acceptance",
+      "objective": "Verify health, database, queues, sessions, Admin GraphQL and billing reads.",
+      "dependencies": [
+        "ISSUE-32-WU-04"
+      ],
+      "priority": 60,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Runtime health passes.",
+        "Signed staging acceptance passes against isolated test shop."
+      ],
+      "required_checks": [
+        "Post-deploy health",
+        "Signed Shopify staging acceptance"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-06",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-STAGING",
+      "title": "Create and release Staging Shopify version",
+      "objective": "Release the exact verified staging Shopify configuration only.",
+      "dependencies": [
+        "ISSUE-32-WU-05"
+      ],
+      "priority": 50,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Exact staging candidate created and released.",
+        "Local and Production configs remain untouched."
+      ],
+      "required_checks": [
+        "Shopify Staging Version",
+        "Shopify Staging Release"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "ISSUE-32-WU-07",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-PRODUCTION",
+      "title": "Prepare reviewed production candidate after Staging acceptance",
+      "objective": "Allow production preparation only after all Staging acceptance evidence is recorded.",
+      "dependencies": [
+        "ISSUE-32-WU-06"
+      ],
+      "priority": 40,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging phase is accepted before production preparation starts."
+      ],
+      "required_checks": [
+        "Production Readiness"
+      ],
+      "completion_evidence": []
+    }
+  ],
+  "status_values": [
+    "not_started",
+    "ready",
+    "in_progress",
+    "blocked",
+    "needs_update",
+    "needs_removal",
+    "verification_required",
+    "complete",
+    "deferred",
+    "deprecated"
+  ]
+}
