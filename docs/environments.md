@@ -6,8 +6,8 @@ remain isolated by environment.
 
 VSN Stock Down Sort uses **three separate Shopify app registrations**:
 
-- Local / Development: `VSN Stock Down Sort Dev` → `shopify.app.toml`
-- Staging: `VSN Stock Down Sort Staging` → `shopify.app.staging.toml`
+- Local / Development: `VSN | Stock Down Sort Dev` → `shopify.app.toml`
+- Staging: `VSN | Stock Down Sort Staging` → `shopify.app.staging.toml`
 - Live / Production: `VSN Stock Down Sort` → `shopify.app.production.toml`
 
 The three apps must have different Shopify client IDs and secrets. A client ID,
@@ -106,7 +106,7 @@ Run:
 `npm run dev`
 
 That command is exactly `shopify app dev` and uses the default
-`shopify.app.toml`, which is dedicated to **VSN Stock Down Sort Dev**.
+`shopify.app.toml`, which is dedicated to **VSN | Stock Down Sort Dev**.
 
 Do not run `shopify app config use` as part of the normal Local → Staging →
 Live flow.
@@ -179,7 +179,7 @@ These names are authoritative for Actions bindings. Do not create parallel `stag
 
 Local/Dev must be certified before Staging:
 1. checkout `development`;
-2. use **VSN Stock Down Sort Dev**;
+2. use **VSN | Stock Down Sort Dev**;
 3. connect only to the dedicated Neon Local database;
 4. use pooled `DATABASE_URL` and matching direct `DIRECT_URL`;
 5. run Prisma migrations;
