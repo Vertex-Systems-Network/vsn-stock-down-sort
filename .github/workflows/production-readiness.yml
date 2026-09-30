@@ -32,8 +32,11 @@ jobs:
       SCOPES: read_products,write_products,read_inventory
 
     steps:
-      - name: Checkout protected source
+      - name: Checkout protected main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
 
       - name: Verify Staging acceptance gate
         shell: bash
