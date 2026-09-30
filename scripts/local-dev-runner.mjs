@@ -3,12 +3,10 @@ import { spawnSync } from "node:child_process";
 import { loadLocalEnv, validateLocalNeonEnv } from "./local-env.mjs";
 
 function run(command, args) {
-  const executable =
-    process.platform === "win32" ? `${command}.cmd` : command;
-
-  const result = spawnSync(executable, args, {
+  const result = spawnSync(command, args, {
     stdio: "inherit",
     env: process.env,
+    shell: process.platform === "win32",
   });
 
   if (result.error) {
