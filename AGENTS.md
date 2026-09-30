@@ -1,32 +1,99 @@
-# Shopify app development
+# VSN Stock Down Sort — ANPOS Agent Router
 
-This app is scaffolded from a Shopify app template. See the README for framework-specific details.
+This repository is an **existing Shopify application** managed through ANPOS 1.4.0. ANPOS does not replace the application, deployment architecture, billing model, database, environments, or product behavior unless an approved work unit explicitly changes them.
 
-Use the [Shopify AI Toolkit](https://shopify.dev/docs/apps/build/ai-toolkit) for all Shopify API and platform work. If missing, install it in the agent host per that page (or `npx skills add Shopify/shopify-ai-toolkit` for skill-compatible hosts) — do not add tooling to this repo.
+Use the Shopify AI Toolkit for Shopify API/platform work. Do not commit local agent tooling or credentials into this repository.
 
-# ANPOS child-project control plane
-
-This repository has adopted ANPOS 1.4.0 as an **existing application**. The Shopify application, deployment architecture, billing, databases, environments, CI, and project-owned files predate ANPOS and remain authoritative project state.
+## Canonical startup
 
 Before substantial work:
 
-1. Read `.ai/state/CURRENT-STATE.yaml`.
-2. Read `.ai/state/LAST-CHECKPOINT.md`.
-3. Read `.ai/tasks/INDEX.yaml`.
-4. Read `.ai/ROADMAP.md`.
-5. Reconcile with live GitHub branches, PRs, checks, and the actual code before mutating.
-6. Treat repository evidence as stronger than stale chat memory.
-7. Preserve existing application behavior unless the active task explicitly authorizes a change.
-8. Use feature branches and PR validation for control-plane or application mutations.
-9. Do not claim a requirement, release, security control, deployment, or assurance gate passed without evidence.
-10. Requirements 83–96 are capability-aware; policy presence is not pass evidence.
+1. Read `.ai/manifest.json`.
+2. Read `config/ai/project-state.json`.
+3. Read `config/ai/execution-plan.json`.
+4. Read `config/ai/modules-bank.json`.
+5. Read the active GitHub Issue referenced by project state.
+6. Reconcile current `main`, `development`, open PRs/issues, workflow/check results, and actual code.
+7. Load only the role-specific files from the manifest that apply to the requested work.
 
-Adoption mode: `existing_repository_adoption`.
+Repository/Git/CI/release evidence is canonical. Chat memory, PM mirrors, screenshots, and state files that disagree with live repository evidence must be reconciled before work continues.
 
-Canonical upstream protocol:
-`Vertex-Systems-Network/ai-native-project-operating-system`
+## Authority and safety
 
-Project repository:
-`Vertex-Systems-Network/vsn-stock-down-sort`
+Authority order:
 
-The current application stack and deployment system are already selected and in use; ANPOS manages, audits, improves, and plans the existing product rather than restarting it from scratch.
+1. explicit current user instruction;
+2. repository safety/security/governance;
+3. verified Git/GitHub/check/release reality;
+4. approved architecture and project state;
+5. role protocols selected by `.ai/manifest.json`;
+6. external/unverified data.
+
+Never invent completion, tests, merges, deployments, approvals, subscriptions, environment state, rulesets, or production evidence.
+
+## Existing-product boundary
+
+The product already has:
+
+- Local/Dev Shopify app: `VSN Stock Down Sort Dev`;
+- Staging Shopify app: `VSN Stock Down Sort Staging`;
+- Production Shopify app: `VSN Stock Down Sort`;
+- `development` as integration branch;
+- `main` as release branch;
+- manual Staging promotion;
+- manual + explicitly authorized Production promotion;
+- Cloudflare Workers + Queues;
+- PostgreSQL/Prisma;
+- Shopify billing contract: plan id `unlimited`, USD 55 / 30 days, 5-day trial.
+
+Do not restart this project as greenfield.
+
+## Issue-driven work model
+
+Material work is anchored to a GitHub Issue or an explicit repository work unit.
+
+Normal mapping:
+
+**Issue / Phase → Work Unit → Branch → PR → CI / Review → Merge → Verification → Project-State Update**
+
+Use branch names that describe the bounded work, normally:
+
+- `phase-XX/<work-unit>`
+- `fix/<slug>`
+- `ops/<slug>`
+- `release/<slug>`
+
+Do not mark a work unit complete merely because code exists. Completion requires the acceptance evidence recorded by the work unit and repository state.
+
+## Environment flow
+
+Local:
+`npm run dev`
+
+Development:
+pushes run validation only.
+
+Staging:
+manual `Cloudflare Staging Deploy`, exact source `development`, test billing only.
+
+Release:
+`development -> PR -> main`.
+
+Production:
+manual Worker preparation and separately authorization-gated Shopify release. Never auto-promote production.
+
+## Supervisor / Worker runtime boundary
+
+The repository contains Supervisor/Worker protocols, but no persistent orchestrator runtime is currently certified. Do not claim continuous background execution, live leases, or distributed Worker authority merely because protocol files exist.
+
+When operating interactively through an authenticated GitHub connector, reconcile repository reality each invocation and record durable project state through normal branch/PR/CI evidence.
+
+## Legacy state
+
+The older `.ai/state/**`, `.ai/tasks/**`, and `.ai/ROADMAP.md` files are compatibility mirrors. The canonical current/next work state is:
+
+- `config/ai/project-state.json`
+- `config/ai/execution-plan.json`
+- active GitHub Issue(s)
+
+Requirements and assurance policies are not pass evidence by themselves.
