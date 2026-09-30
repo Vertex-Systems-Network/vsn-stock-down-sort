@@ -204,10 +204,18 @@ test("three Shopify app identities stay isolated", () => {
 });
 
 
-test("local Shopify flow stays npm run dev with the default config", () => {
+test("local Shopify flow stays npm run dev with the explicit Local config", () => {
   const pkg = JSON.parse(read("package.json"));
+  const localDefault = read("shopify.app.toml");
+  const localNamed = read("shopify.app.local.toml");
 
-  assert.equal(pkg.scripts.dev, "shopify app dev");
+  assert.equal(pkg.scripts.dev, "shopify app dev --config local");
+  assert.match(localNamed, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(localNamed, /automatically_update_urls_on_dev = true/);
+  assert.equal(
+    localNamed.match(/^client_id = "([^"]+)"$/m)?.[1],
+    localDefault.match(/^client_id = "([^"]+)"$/m)?.[1],
+  );
   assert.ok(!pkg.scripts["shopify:use:local"]);
   assert.ok(!pkg.scripts["shopify:use:staging"]);
   assert.ok(!pkg.scripts["shopify:use:live"]);
