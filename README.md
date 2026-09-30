@@ -77,7 +77,7 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.toml` | test |
+| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.local.toml` | test |
 | Staging | VSN | Stock Down Sort Staging | `shopify.app.staging.toml` | test |
 | Live / Production | VSN | Stock Down Sort | `shopify.app.production.toml` | real |
 
@@ -94,7 +94,7 @@ The Staging client ID remains a placeholder in git and is injected from `cloudfl
 
 ## Local development
 
-Normal development happens from `development` or a short-lived feature branch based on it.
+Normal Local development runs from the `development` branch. The repository Local runner rejects other branches so the Local integration identity stays deterministic.
 
 ```bash
 git switch development
@@ -103,7 +103,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` remains the normal command and uses the default `shopify.app.toml`. Before the web process starts, the repo validates that `DATABASE_URL` is a pooled Neon URL and `DIRECT_URL` is the matching direct Neon URL, then applies Prisma migrations.
+`npm run dev` remains the normal command and explicitly uses the Local Shopify config `shopify.app.local.toml`. Before Shopify starts, the repo validates the Local Shopify identity, `DATABASE_URL` pooled Neon URL, matching direct `DIRECT_URL`, development billing test mode, and then Prisma generates the cloud client.
 
 Local development uses the `development` branch and the dedicated Local Neon database. It never deploys Staging or Production. Pushes to `development` run validation only.
 
