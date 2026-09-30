@@ -108,6 +108,7 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.match(localEnv, /shopify\.app\.local\.toml/);
   assert.match(localEnv, /VSN \| Stock Down Sort Dev/);
   assert.match(localEnv, /675de0e3834ce61a75473de19df457c4/);
+  assert.match(localEnv, /validateLocalShopifyEnv/);
 });
 
 test("production release policy references the staging acceptance gate", () => {
