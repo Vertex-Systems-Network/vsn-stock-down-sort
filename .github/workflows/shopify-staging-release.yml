@@ -24,7 +24,7 @@ jobs:
     if: github.event.inputs.confirm == 'RELEASE_STAGING_SHOPIFY_VERSION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: staging
+    environment: cloudflare-staging
     env:
       CI: "true"
       TARGET_VERSION: ${{ github.event.inputs.version }}

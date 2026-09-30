@@ -24,7 +24,7 @@ jobs:
     if: github.event.inputs.confirm == 'RELEASE_PRODUCTION_SHOPIFY_VERSION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
+    environment: cloudflare-production
     env:
       CI: "true"
       TARGET_VERSION: ${{ github.event.inputs.version }}

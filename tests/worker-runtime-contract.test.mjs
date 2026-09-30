@@ -638,8 +638,8 @@ test("environment secrets audit checks required deployment credentials", () => {
 
   assert.match(workflow, /name: Environment Secrets Audit/);
   assert.match(workflow, /AUDIT_ENVIRONMENT_SECRETS/);
-  assert.match(workflow, /environment: staging/);
-  assert.match(workflow, /environment: production/);
+  assert.match(workflow, /environment: cloudflare-staging/);
+  assert.match(workflow, /environment: cloudflare-production/);
 
   for (const name of [
     "DATABASE_URL",
@@ -720,19 +720,22 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "manual-staging-certification");
+  assert.equal(state.current_module, "local-development-certification");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Staging/i);
+  assert.match(state.next_valid_work_unit, /Neon/i);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.equal(plan.work_units.length, 7);
+  assert.equal(plan.work_units.length, 8);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "in_progress");
+  assert.equal(plan.work_units[2].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
-  assert.equal(plan.work_units[1].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
+  assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-STAGING"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-PRODUCTION"));
 
@@ -777,5 +780,59 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
       assert.doesNotThrow(() => JSON.parse(source), relativePath);
       assert.doesNotMatch(source, /Vertex-Systems-Network\/vsn-metafields/i, relativePath);
     }
+  }
+});
+
+
+test("local development requires isolated Neon pooled and direct connections", () => {
+  const flow = JSON.parse(read("config/development-flow.json"));
+  const topology = JSON.parse(read("config/database/environment-topology.json"));
+  const web = read("shopify.web.toml");
+  const validator = read("scripts/validate-local-neon-env.mjs");
+  const localExample = read(".env.local.example");
+
+  assert.equal(flow.local.source_branch, "development");
+  assert.equal(flow.local.command, "npm run dev");
+  assert.equal(flow.local.database.provider, "neon_postgresql");
+  assert.equal(flow.local.database.project_name, "vsn-stock-down-sort-local");
+  assert.equal(flow.local.database.runtime_connection, "pooled");
+  assert.equal(flow.local.database.migration_connection, "direct");
+  assert.equal(topology.order.join(","), "local,staging,production");
+  assert.equal(topology.local.database.provider, "neon_postgresql");
+  assert.equal(topology.local.database.reuse_staging_or_production, false);
+  assert.equal(topology.staging.github_environment, "cloudflare-staging");
+  assert.equal(topology.production.github_environment, "cloudflare-production");
+
+  assert.match(web, /validate-local-neon-env\.mjs/);
+  assert.match(validator, /\.neon\.tech/);
+  assert.match(validator, /-pooler\./);
+  assert.match(validator, /DIRECT_URL must be the Neon direct/);
+  assert.match(localExample, /vsn-stock-down-sort-local/);
+  assert.match(localExample, /-pooler/);
+});
+
+test("GitHub workflows bind to exact Cloudflare environments", () => {
+  const stagingFiles = [
+    ".github/workflows/environment-secrets-audit.yml",
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/shopify-staging-version.yml",
+    ".github/workflows/shopify-staging-release.yml",
+  ];
+  for (const file of stagingFiles) {
+    const source = read(file);
+    assert.match(source, /environment: cloudflare-staging/);
+  }
+
+  const productionFiles = [
+    ".github/workflows/environment-secrets-audit.yml",
+    ".github/workflows/production-readiness.yml",
+    ".github/workflows/cloudflare-production-prepare.yml",
+    ".github/workflows/shopify-production-candidate.yml",
+    ".github/workflows/shopify-production-release.yml",
+  ];
+  for (const file of productionFiles) {
+    const source = read(file);
+    assert.match(source, /environment: cloudflare-production/);
   }
 });

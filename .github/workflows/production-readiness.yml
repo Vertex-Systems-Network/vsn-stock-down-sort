@@ -20,7 +20,7 @@ jobs:
     if: github.event.inputs.confirm == 'VALIDATE_PRODUCTION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
+    environment: cloudflare-production
     env:
       APP_ENV: production
       SHOPIFY_BILLING_TEST_MODE: "false"

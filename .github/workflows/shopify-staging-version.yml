@@ -20,7 +20,7 @@ jobs:
     if: github.event.inputs.confirm == 'CREATE_STAGING_SHOPIFY_VERSION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: staging
+    environment: cloudflare-staging
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}

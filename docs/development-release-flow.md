@@ -19,6 +19,13 @@ Local development never deploys Staging or Production.
 
 Local secret files such as `.env`, `.env.local`, and `.dev.vars` are ignored and must never be committed.
 
+Local database policy:
+- provider: Neon PostgreSQL
+- project identity: `vsn-stock-down-sort-local`
+- `DATABASE_URL`: pooled Neon connection
+- `DIRECT_URL`: matching direct Neon connection
+- Local must never reuse Staging or Production database credentials.
+
 ## 2. Development branch
 
 Pushes and pull requests run validation only.
@@ -31,7 +38,7 @@ Staging uses:
 
 - Shopify app: **VSN Stock Down Sort Staging**
 - Shopify config: `shopify.app.staging.toml`
-- GitHub Environment: `staging`
+- GitHub Environment: `cloudflare-staging`
 - Cloudflare Worker: `vsn-stock-down-sort-staging`
 - billing mode: test
 - source branch: `development`
@@ -60,7 +67,7 @@ Production uses:
 
 - Shopify app: **VSN Stock Down Sort**
 - Shopify config: `shopify.app.production.toml`
-- GitHub Environment: `production`
+- GitHub Environment: `cloudflare-production`
 - Cloudflare Worker: `vsn-stock-down-sort-production`
 - billing mode: real
 - source branch: `main`
@@ -70,7 +77,9 @@ Production Worker preparation is manual. Shopify production candidate creation i
 ## Daily flow
 
 ```text
-Local code
+Local Neon setup
+   ↓
+Local app verification
    ↓
 development branch
    ↓

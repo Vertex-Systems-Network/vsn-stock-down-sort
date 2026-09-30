@@ -16,9 +16,9 @@ another tier.
 
 | Tier | Source flow | Shopify config | Database | Billing |
 | --- | --- | --- | --- | --- |
-| Development | local / `development` | `shopify.app.toml` | development PostgreSQL | test |
-| Staging | `development` → manual deploy | `shopify.app.staging.toml` | staging PostgreSQL | test |
-| Production | protected `main` | `shopify.app.production.toml` | production PostgreSQL | real |
+| Development | local / `development` | `shopify.app.toml` | dedicated Neon PostgreSQL (`vsn-stock-down-sort-local`) | test |
+| Staging | `development` → manual deploy | `shopify.app.staging.toml` | isolated Neon PostgreSQL | test |
+| Production | protected `main` | `shopify.app.production.toml` | isolated Neon PostgreSQL | real |
 
 ## Runtime database
 
@@ -26,7 +26,7 @@ The active schema is `prisma/cloud/schema.prisma`.
 
 It uses:
 
-- PostgreSQL;
+- Neon PostgreSQL as the environment database provider;
 - Prisma engine-less client;
 - `@prisma/adapter-pg`;
 - request-scoped Prisma clients;
@@ -86,11 +86,12 @@ Staging Worker URL: `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.wo
 
 Before staging deployment:
 
-1. configure the GitHub `staging` environment;
-2. supply staging PostgreSQL and Shopify credentials;
-3. keep the committed staging Client ID placeholder intact;
-4. run **Staging Readiness**;
-5. run **Cloudflare Staging Deploy** only after readiness passes.
+1. complete Local/Dev Neon certification;
+2. configure the GitHub `cloudflare-staging` environment;
+3. supply isolated staging Neon and Shopify credentials;
+4. keep the committed staging Client ID placeholder intact;
+5. run **Staging Readiness**;
+6. run **Cloudflare Staging Deploy** only after readiness passes.
 
 Production stays manual and requires a separate production readiness/cutover
 decision.
@@ -119,7 +120,7 @@ used by VSN Metafields:
 2. `Cloudflare Staging Deploy` deploys the `development` branch to the
    staging Worker.
 3. `Shopify Staging Version` reads the staging Shopify Client ID from the
-   GitHub `staging` environment, injects it only into the disposable Actions
+   GitHub `cloudflare-staging` environment, injects it only into the disposable Actions
    checkout, and creates an **unreleased** Shopify app version.
 4. `Shopify Staging Release` releases only the exact staging version supplied
    to the workflow.
@@ -137,7 +138,7 @@ Live is also Action-driven; there is no normal manual config switch.
 2. **Cloudflare Production Prepare** deploys and certifies the isolated
    production Worker without Shopify cutover.
 3. **Shopify Production Candidate** injects the Live Client ID from the GitHub
-   `production` Environment only in the disposable runner and creates an
+   `cloudflare-production` Environment only in the disposable runner and creates an
    unreleased candidate from protected `main`.
 4. `config/shopify/production-release.json` must explicitly authorize that
    exact candidate and source SHA.
@@ -165,3 +166,22 @@ workflows create missing Queue resources before Worker deployment.
 Hosted inventory/product webhook sorts and bulk **Enable all** work are queued.
 Local development keeps the direct fallback because `npm run dev` does not
 require Cloudflare Queue resources.
+
+
+## Canonical GitHub Environment records
+
+- Staging: `cloudflare-staging` — https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23050370538/edit
+- Production: `cloudflare-production` — https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit
+
+These names are authoritative for Actions bindings. Do not create parallel `staging` or `production` GitHub Environments for this project.
+
+## Local-first order
+
+Local/Dev must be certified before Staging:
+1. checkout `development`;
+2. use **VSN Stock Down Sort Dev**;
+3. connect only to the dedicated Neon Local database;
+4. use pooled `DATABASE_URL` and matching direct `DIRECT_URL`;
+5. run Prisma migrations;
+6. run `npm run dev`;
+7. record Local acceptance, then proceed to `cloudflare-staging`.

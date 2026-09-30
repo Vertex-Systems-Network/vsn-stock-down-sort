@@ -4,8 +4,14 @@ Production is intentionally isolated from local development and staging.
 
 ## Required GitHub environment
 
-Create a GitHub Environment named `production` with these secrets:
+Use the existing GitHub Environment `cloudflare-production`:
 
+https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit
+
+Configure these secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
 - `DATABASE_URL`
 - `DIRECT_URL`
 - `SHOPIFY_API_KEY`
@@ -23,7 +29,7 @@ The production URL is fixed to:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-GitHub Actions inject the real Live Client ID from the `production`
+GitHub Actions inject the real Live Client ID from the `cloudflare-production`
 Environment only into a disposable runner.
 
 ## Billing safety

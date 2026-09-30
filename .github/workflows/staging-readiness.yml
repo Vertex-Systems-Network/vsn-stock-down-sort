@@ -20,7 +20,7 @@ jobs:
     if: github.event.inputs.confirm == 'VALIDATE_STAGING'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: staging
+    environment: cloudflare-staging
     env:
       APP_ENV: staging
       SHOPIFY_BILLING_TEST_MODE: "true"
