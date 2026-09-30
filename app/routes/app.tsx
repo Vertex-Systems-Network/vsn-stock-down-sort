@@ -1,5 +1,5 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { Link, Outlet, redirect, useLoaderData, useLocation, useRouteError } from "react-router";
+import { Link, Outlet, useLoaderData, useLocation, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { NavMenu } from "@shopify/app-bridge-react";
@@ -8,7 +8,7 @@ import { authenticate } from "../shopify.server";
 import { getCurrentSubscription } from "../services/billing.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, redirect: shopifyRedirect } = await authenticate.admin(request);
   const url = new URL(request.url);
   const billingRoute =
     url.pathname.startsWith("/app/plans") ||
@@ -18,15 +18,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const subscription = await getCurrentSubscription(admin);
 
     if (!subscription) {
-      const params = new URLSearchParams();
-      const shop = url.searchParams.get("shop");
-      const host = url.searchParams.get("host");
-
-      if (shop) params.set("shop", shop);
-      if (host) params.set("host", host);
-
-      const query = params.toString();
-      throw redirect(`/app/plans${query ? `?${query}` : ""}`);
+      return shopifyRedirect("/app/plans");
     }
   }
 
