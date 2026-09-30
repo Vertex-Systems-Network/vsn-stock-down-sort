@@ -1,4 +1,5 @@
 import process from "node:process";
+import { execFileSync } from "node:child_process";
 import { spawnSync } from "node:child_process";
 import { loadLocalEnv, validateLocalNeonEnv } from "./local-env.mjs";
 
@@ -19,6 +20,15 @@ function run(command, args) {
 }
 
 try {
+  const branch = execFileSync("git", ["branch", "--show-current"], {
+    encoding: "utf8",
+  }).trim();
+  if (branch !== "development") {
+    throw new Error(
+      `[local-env] npm run dev is restricted to development; current branch is "${branch || "detached"}".`,
+    );
+  }
+
   loadLocalEnv();
   validateLocalNeonEnv();
 
