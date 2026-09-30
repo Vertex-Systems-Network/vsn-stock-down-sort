@@ -817,8 +817,8 @@ test("local development requires isolated Neon pooled and direct connections", (
   assert.match(envLoader, /process\.loadEnvFile/);
   assert.match(validator, /loadLocalEnv/);
   assert.match(envLoader, /\.neon\.tech/);
-  assert.match(validator, /-pooler\./);
-  assert.match(validator, /DIRECT_URL must be the Neon direct/);
+  assert.match(envLoader, /-pooler\./);
+  assert.match(envLoader, /DIRECT_URL must be the Neon direct/);
   assert.match(localExample, /vsn-stock-down-sort-local/);
   assert.match(localExample, /-pooler/);
 });
