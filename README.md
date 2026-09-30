@@ -20,6 +20,36 @@ The Shopify plan is:
 
 Production only recognizes the exact current VSN Stock Down Sort subscription as an entitlement.
 
+## Repository management model
+
+This repository uses the same repository-first management pattern as VSN Metafields.
+
+Canonical management chain:
+
+```text
+GitHub Issue / Phase
+        ↓
+config/ai/project-state.json
+        ↓
+config/ai/execution-plan.json
+        ↓
+bounded branch
+        ↓
+Pull Request
+        ↓
+CI / review evidence
+        ↓
+merge
+        ↓
+verification
+        ↓
+project-state update / next work unit
+```
+
+The active phase is anchored to GitHub Issue #32. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+
+The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
+
 ## Runtime architecture
 
 The hosted runtime is built for Cloudflare Workers.

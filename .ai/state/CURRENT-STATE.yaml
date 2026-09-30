@@ -1,42 +1,15 @@
 schema_version: 1
-protocol: ANPOS
-protocol_version: 1.4.0
+compatibility_mirror: true
+canonical_state: config/ai/project-state.json
+canonical_plan: config/ai/execution-plan.json
+active_issue: 32
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
-instance_status: active_project
-adoption_mode: existing_repository_adoption
-application_status: existing_application
-initialized_at: 2026-09-30T00:14:00+05:00
-current_baseline:
-  default_branch: main
-  application: Shopify embedded app
-  runtime: Cloudflare Workers
-  database: PostgreSQL via Prisma
-  billing:
-    plan_id: unlimited
-    amount_usd: 55
-    interval: EVERY_30_DAYS
-    trial_days: 5
-  environments:
-    - local
-    - staging
-    - production
-  staging_worker: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
-current_focus: Manual development to staging promotion under ANPOS control
-active_task: INFRA-STAGING-002
-completed:
-  - ANPOS-ADOPT-001
-deployment_flow:
-  development_branch: development
-  staging_mode: manual_dispatch_from_development
-  staging_confirmation: DEPLOY_DEVELOPMENT_TO_STAGING
-  release_route: development -> pull request -> main
-  production_mode: manual_and_authorization_gated
-blockers:
-  - Manual staging deployment requires the staging GitHub Environment values to be complete.
-  - Cloudflare token/account ID are configured by the owner; database and Shopify staging values still require runtime verification before deployment.
-rules:
-  preserve_existing_application: true
-  repository_evidence_over_chat_memory: true
-  no_fake_completion: true
-  no_blind_protocol_overlay: true
+protocol: ANPOS
+protocol_version: 1.4.0
+current_phase: PHASE-01
+current_module: manual-staging-certification
+current_work_unit: ISSUE-32-management-control-plane-alignment
+note: >
+  This file is retained for compatibility with earlier project sessions.
+  Reconcile and update config/ai/project-state.json first; repository/Git/CI evidence remains authoritative.

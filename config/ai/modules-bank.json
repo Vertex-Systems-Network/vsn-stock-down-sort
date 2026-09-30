@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "id": "MOD-MGMT",
+      "name": "Repository Management Control Plane",
+      "objective": "Keep project truth, work sequencing, risks, decisions and evidence repository-backed.",
+      "scope": [
+        "ANPOS routing",
+        "GitHub Issue work anchors",
+        "project state",
+        "coordination",
+        "risk/audit/release registries"
+      ],
+      "boundaries": [
+        "No application behavior changes without a separate work unit."
+      ],
+      "dependencies": [],
+      "option_ids": [],
+      "data_entities": [],
+      "contracts": [],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Do not store secrets.",
+        "Repository evidence outranks external state."
+      ],
+      "acceptance_criteria": [
+        "Current/next work unit is machine-readable.",
+        "PR/CI evidence drives completion."
+      ],
+      "quality_gates": [
+        "App Validation"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-STAGING",
+      "name": "Isolated Staging",
+      "objective": "Certify the dedicated Shopify Staging app, Cloudflare Worker, PostgreSQL and Queue runtime.",
+      "scope": [
+        "Staging secrets",
+        "Staging readiness",
+        "Cloudflare deploy",
+        "Shopify staging version/release"
+      ],
+      "boundaries": [
+        "No Production mutation."
+      ],
+      "dependencies": [
+        "MOD-MGMT"
+      ],
+      "option_ids": [],
+      "data_entities": [],
+      "contracts": [],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Dedicated staging identity.",
+        "Test billing only.",
+        "Environment-scoped secrets."
+      ],
+      "acceptance_criteria": [
+        "End-to-end staging acceptance passes."
+      ],
+      "quality_gates": [
+        "Staging Readiness",
+        "Cloudflare Staging Deploy"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-PRODUCTION",
+      "name": "Guarded Production Promotion",
+      "objective": "Prepare/release Production only from verified main after Staging acceptance.",
+      "scope": [
+        "Production readiness",
+        "Worker prepare",
+        "Shopify candidate",
+        "explicit authorization",
+        "release"
+      ],
+      "boundaries": [
+        "No automatic deployment.",
+        "No production release without exact authorization."
+      ],
+      "dependencies": [
+        "MOD-STAGING"
+      ],
+      "option_ids": [],
+      "data_entities": [],
+      "contracts": [],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Real billing only.",
+        "Immutable source/candidate evidence.",
+        "Manual authorization."
+      ],
+      "acceptance_criteria": [
+        "Production release is separately authorized and verified."
+      ],
+      "quality_gates": [
+        "Production Readiness"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    }
+  ],
+  "status_values": [
+    "not_started",
+    "ready",
+    "in_progress",
+    "blocked",
+    "needs_update",
+    "needs_removal",
+    "verification_required",
+    "complete",
+    "deferred",
+    "deprecated"
+  ]
+}
