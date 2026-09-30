@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  administration: read
 
 concurrency:
   group: app-validation-${{ github.event.pull_request.number || github.ref }}
