@@ -4,6 +4,7 @@ import test from "node:test";
 
 const flow = JSON.parse(fs.readFileSync("config/development-flow.json", "utf8"));
 const gates = JSON.parse(fs.readFileSync("config/release/environment-gates.json", "utf8"));
+const productionRelease = JSON.parse(fs.readFileSync("config/shopify/production-release.json", "utf8"));
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
@@ -64,6 +65,14 @@ test("all production operations require staging acceptance recorded on main", ()
 test("production readiness is explicitly pinned to main", () => {
   const workflow = read(".github/workflows/production-readiness.yml");
   assert.match(workflow, /ref: main/);
+});
+
+test("production release policy references the staging acceptance gate", () => {
+  assert.deepEqual(productionRelease.governance.promotion_order, ["local_dev", "staging", "live"]);
+  assert.equal(productionRelease.governance.staging_acceptance_required, true);
+  assert.equal(productionRelease.governance.staging_acceptance_record, "config/release/environment-gates.json");
+  assert.equal(productionRelease.governance.staging_acceptance_authoritative_branch, "main");
+  assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
 test("initial gate state cannot accidentally authorize promotion", () => {
