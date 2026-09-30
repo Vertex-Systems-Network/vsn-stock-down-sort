@@ -658,7 +658,7 @@ test("environment secrets audit checks required deployment credentials", () => {
     /SHOPIFY_API_KEY matches the Local\/Dev Shopify client ID/,
   );
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
-  assert.match(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
@@ -835,4 +835,40 @@ test("GitHub workflows bind to exact Cloudflare environments", () => {
     const source = read(file);
     assert.match(source, /environment: cloudflare-production/);
   }
+});
+
+
+test("Shopify app identities match the VSN Metafields-style model", () => {
+  const local = read("shopify.app.toml");
+  const staging = read("shopify.app.staging.toml");
+  const production = read("shopify.app.production.toml");
+  const audit = read(".github/workflows/environment-secrets-audit.yml");
+  const readiness = read(".github/workflows/production-readiness.yml");
+  const candidate = read(".github/workflows/shopify-production-candidate.yml");
+  const release = read(".github/workflows/shopify-production-release.yml");
+
+  const clientId = (source) =>
+    source.match(/^client_id = "([^"]+)"$/m)?.[1];
+
+  const localId = clientId(local);
+  const stagingId = clientId(staging);
+  const productionId = clientId(production);
+
+  assert.ok(localId);
+  assert.equal(stagingId, "__SHOPIFY_STAGING_CLIENT_ID__");
+  assert.ok(productionId);
+  assert.notEqual(productionId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
+  assert.notEqual(localId, productionId);
+
+  assert.match(local, /name = "VSN \| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \| Stock Down Sort"/);
+
+  for (const workflow of [audit, readiness, candidate, release]) {
+    assert.match(workflow, /committed Live Shopify client ID/);
+    assert.doesNotMatch(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  }
+
+  assert.doesNotMatch(candidate, /Inject Live client ID into disposable checkout/);
+  assert.doesNotMatch(release, /Inject Live client ID into disposable checkout/);
 });
