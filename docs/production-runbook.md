@@ -10,6 +10,8 @@ https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environme
 
 Configure these secrets:
 
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
 - `DATABASE_URL`
 - `DIRECT_URL`
 - `SHOPIFY_API_KEY`
