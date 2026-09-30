@@ -73,7 +73,8 @@ test("main branch merge protection contract is explicit", () => {
   assert.equal(developmentFlow.main_branch_protection.ruleset_name, "main");
   assert.equal(developmentFlow.main_branch_protection.enforcement, "active");
   assert.equal(developmentFlow.main_branch_protection.pull_request_required, true);
-  assert.equal(developmentFlow.main_branch_protection.required_status_check, "App Validation / validate");
+  assert.equal(developmentFlow.main_branch_protection.required_status_check, "validate");
+  assert.equal(developmentFlow.main_branch_protection.required_status_check_display, "App Validation / validate");
   assert.equal(developmentFlow.main_branch_protection.required_status_check_enforced, true);
   assert.equal(developmentFlow.main_branch_protection.bypass, "never");
 });
