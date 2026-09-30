@@ -6,7 +6,7 @@
   "local": {
     "command": "npm run dev",
     "shopify_app": "VSN | Stock Down Sort Dev",
-    "shopify_config": "shopify.app.toml",
+    "shopify_config": "shopify.app.local.toml",
     "committed_secrets": false,
     "direct_staging_deploy": false,
     "direct_live_deploy": false,
@@ -18,7 +18,9 @@
       "runtime_connection": "pooled",
       "migration_connection": "direct",
       "isolated_from_staging_and_production": true
-    }
+    },
+    "cli_config_alias": "local",
+    "branch_policy": "development_only"
   },
   "staging": {
     "github_environment": "cloudflare-staging",
@@ -63,7 +65,8 @@
     "production_environment_client_id_must_match_committed_live_config": true,
     "staging_requires_local_dev_acceptance_record": true,
     "staging_source_ref_must_match_local_accepted_ref": true,
-    "live_requires_staging_acceptance_record_on_main": true
+    "live_requires_staging_acceptance_record_on_main": true,
+    "local_shopify_identity_must_match_committed_local_config": true
   },
   "development_ci": {
     "automatic_on_push": true,
