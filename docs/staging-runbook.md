@@ -20,6 +20,8 @@ https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environme
 
 Add these secrets:
 
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
 - `DATABASE_URL` — pooled/runtime PostgreSQL connection string.
 - `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
 - `SHOPIFY_API_KEY` — staging Shopify app client ID.
