@@ -29,8 +29,7 @@ The production URL is fixed to:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-GitHub Actions inject the real Live Client ID from the `cloudflare-production`
-Environment only into a disposable runner.
+The committed Live Client ID in `shopify.app.production.toml` is authoritative. The `cloudflare-production` Environment `SHOPIFY_API_KEY` must match it; the API secret remains Environment-only.
 
 ## Billing safety
 
