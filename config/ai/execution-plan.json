@@ -64,7 +64,7 @@
       "priority": 95,
       "status": "in_progress",
       "blockers": [
-        "Dedicated Neon project vsn-stock-down-sort-local still needs to be provisioned/bound and its project ID recorded."
+        "Dedicated Neon project vsn-stock-down-sort-local is not yet provisioned/bound with a real project ID and endpoint."
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
@@ -80,7 +80,13 @@
         "Prisma migrate deploy",
         "Shopify local dev boot"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "PR #37 App Validation run 36698394720 passed Prisma validation/generation, lint, typecheck, runtime contracts, Worker build, Cloudflare Staging dry-run and Cloudflare Production dry-run.",
+        "PR #37 merged Local-first topology to development as d90dd87de3ca6605a7d97e3f7c8e9f592811c732.",
+        "PR #38 promoted the identical certified Git tree fc6e44bf74de24f2d68890136bf75cd55069fe8c to protected main as c0320d5bcbb1057bd6100253e1b0664843ed0404.",
+        "All Staging workflows bind to cloudflare-staging; all Production workflows bind to cloudflare-production.",
+        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup."
+      ]
     },
     {
       "id": "ISSUE-32-WU-02",
