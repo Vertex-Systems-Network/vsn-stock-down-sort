@@ -23,6 +23,20 @@ The AI must continuously know, as far as repository evidence permits:
 - where development should resume
 - what the next highest-value valid work item is
 
+## Non-negotiable Local/Dev → Staging → Live promotion protocol
+
+Environment promotion is a hard control-plane invariant for this repository:
+
+1. **Local/Dev first** — "development" is the canonical Local/Dev integration branch. Work normally enters "development" through a bounded work branch and PR, then is verified locally from "development".
+2. **Staging second** — only an exact verified commit from "development" may be promoted to Staging. Staging promotion is manual/guarded and uses the isolated Staging environment with Shopify test billing.
+3. **Live last** — only after Staging acceptance is verified may the change enter the release route "development -> PR/review -> main -> manual Production dispatch". Production uses "main", real billing, and explicit authorization.
+4. **No bypass** — never deploy a feature/work branch directly to Staging or Live; never deploy "development" directly to Live; never promote "main" to Staging; never treat Staging as Live or bypass the "development -> main" release step.
+5. **Evidence gate** — deployment alone is not acceptance. The AI must have the required environment-specific checks and acceptance evidence before advancing. Missing/stale/failed evidence means "blocked" or "verification_required".
+6. **State synchronization** — after each environment gate, update the active work-unit evidence and project state before selecting promotion to the next environment.
+7. **Conflict handling** — if code, workflow configuration, branch state, or deployment reality contradicts this sequence, stop promotion and reconcile repository reality before continuing.
+
+This protocol overrides convenience-based shortcuts. It may be changed only by an explicit approved repository decision followed by the corresponding governance/configuration update.
+
 ## Repository-backed memory bank
 
 Chat history and model memory are never sufficient as the project source of truth. The repository must carry a persistent memory bank that another compatible AI can read and continue from.
