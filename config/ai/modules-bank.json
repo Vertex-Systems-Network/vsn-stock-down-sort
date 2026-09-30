@@ -77,7 +77,11 @@
         "Local Neon validation"
       ],
       "status": "in_progress",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "Environment topology policy and Local Neon validator merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404.",
+        "PR #37 App Validation run 36698394720 passed all repository checks.",
+        "Actual Neon Local project binding and live npm run dev acceptance remain pending."
+      ],
       "update_notes": [],
       "removal_or_deprecation_notes": []
     },
