@@ -5,6 +5,7 @@ import test from "node:test";
 const flow = JSON.parse(fs.readFileSync("config/development-flow.json", "utf8"));
 const gates = JSON.parse(fs.readFileSync("config/release/environment-gates.json", "utf8"));
 const productionRelease = JSON.parse(fs.readFileSync("config/shopify/production-release.json", "utf8"));
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
@@ -65,6 +66,14 @@ test("all production operations require staging acceptance recorded on main", ()
 test("production readiness is explicitly pinned to main", () => {
   const workflow = read(".github/workflows/production-readiness.yml");
   assert.match(workflow, /ref: main/);
+});
+
+test("Local/Dev entrypoint enforces Neon environment validation", () => {
+  assert.equal(packageJson.scripts.predev, "node scripts/local-dev-runner.mjs predev");
+  assert.equal(packageJson.scripts["local:validate"], "node scripts/validate-local-neon-env.mjs");
+  const runner = read("scripts/local-dev-runner.mjs");
+  assert.match(runner, /validateLocalNeonEnv\(\)/);
+  assert.match(runner, /prisma/);
 });
 
 test("production release policy references the staging acceptance gate", () => {
