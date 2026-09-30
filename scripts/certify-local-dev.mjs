@@ -60,6 +60,13 @@ async function main() {
   loadLocalEnv();
   validateLocalNeonEnv();
 
+  const status = execFileSync("git", ["status", "--porcelain"], {
+    encoding: "utf8",
+  }).trim();
+  if (status) {
+    fail("working tree must be clean before Local certification; commit the exact code under test first.");
+  }
+
   const sourceRef = execFileSync("git", ["rev-parse", "HEAD"], {
     encoding: "utf8",
   }).trim();
