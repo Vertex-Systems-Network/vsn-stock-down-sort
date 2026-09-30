@@ -6,15 +6,19 @@ VSN Stock Down Sort keeps local development isolated from hosted environments.
 
 | Tier | Shopify config | Database | Billing |
 | --- | --- | --- | --- |
-| Local / dev | `shopify.app.toml` | PostgreSQL | Test |
-| Staging | `shopify.app.staging.toml` | PostgreSQL | Test |
-| Production | `shopify.app.production.toml` | PostgreSQL | Real |
+| Local / dev | `shopify.app.toml` | Neon PostgreSQL (dedicated Local project) | Test |
+| Staging | `shopify.app.staging.toml` | Neon PostgreSQL (isolated) | Test |
+| Production | `shopify.app.production.toml` | Neon PostgreSQL (isolated) | Real |
 
 The active Prisma schema for local, staging, and production is `prisma/cloud/schema.prisma`.
 
 ## GitHub staging environment
 
-Create a GitHub Environment named `staging` and add these secrets:
+Use the existing GitHub Environment `cloudflare-staging`:
+
+https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23050370538/edit
+
+Add these secrets:
 
 - `DATABASE_URL` — pooled/runtime PostgreSQL connection string.
 - `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
@@ -112,6 +116,8 @@ runtime. It never creates or cancels subscriptions.
 
 
 ## Shopify staging promotion
+
+Before any Staging work, Local/Dev must pass using the dedicated Neon Local database.
 
 Local development stays simple:
 
