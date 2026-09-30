@@ -70,9 +70,15 @@ const hasAppValidation = requiredChecks.some((check) =>
 );
 
 if (!hasAppValidation) {
-  throw new Error(
-    "[ruleset-audit] Main ruleset does not require the App Validation status check. Merge protection is incomplete.",
-  );
+  if (process.env.RULESET_BOOTSTRAP === "true") {
+    console.warn(
+      "[ruleset-audit] BOOTSTRAP: main ruleset is missing the App Validation status check. This temporary mode exists only to produce a successful validate check so GitHub can expose it for selection in the ruleset UI.",
+    );
+  } else {
+    throw new Error(
+      "[ruleset-audit] Main ruleset does not require the App Validation status check. Merge protection is incomplete.",
+    );
+  }
 }
 
 if (detail.current_user_can_bypass !== "never") {
