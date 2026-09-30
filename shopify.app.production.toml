@@ -1,5 +1,6 @@
 # Dedicated live/production Shopify app configuration.
-# Keep the client_id placeholder committed; GitHub Actions inject the Live app identity only in a disposable runner.
+# The committed client_id is the Live Shopify app identity, matching the VSN Metafields management model.
+# cloudflare-production SHOPIFY_API_KEY must match this client_id; the API secret remains environment-scoped.
 # The production Worker URL is fixed and must not be changed by local development.
 
 client_id = "2d152d80cd0b6c50adbc96ad9b343e5a"
