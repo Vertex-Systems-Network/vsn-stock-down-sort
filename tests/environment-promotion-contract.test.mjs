@@ -13,6 +13,9 @@ test("environment promotion order is Local/Dev -> Staging -> Live", () => {
   assert.equal(flow.release_branch, "main");
   assert.equal(flow.promotion_policy.staging.source_branch, "development");
   assert.equal(flow.promotion_policy.live.source_branch, "main");
+  assert.equal(flow.promotion_policy.evidence_record, "config/release/environment-gates.json");
+  assert.equal(flow.invariants.staging_requires_local_dev_acceptance_record, true);
+  assert.equal(flow.invariants.live_requires_staging_acceptance_record_on_main, true);
 });
 
 test("staging deployment requires a Local/Dev-accepted exact source", () => {
