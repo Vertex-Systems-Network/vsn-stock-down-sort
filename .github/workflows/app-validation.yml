@@ -33,8 +33,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Audit main branch ruleset
-        env:
-          RULESET_BOOTSTRAP: "true"
         run: node scripts/audit-main-ruleset.mjs
 
       - name: Setup Node
