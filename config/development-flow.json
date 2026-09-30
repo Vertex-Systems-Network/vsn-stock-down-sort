@@ -138,9 +138,10 @@
     "ruleset_name": "main",
     "enforcement": "active",
     "pull_request_required": true,
-    "required_status_check": "App Validation / validate",
+    "required_status_check": "validate",
     "required_status_check_enforced": true,
     "bypass": "never",
-    "note": "Repository CI audits this contract; if the live ruleset lacks the required status check, App Validation fails."
+    "note": "Repository CI audits this contract; if the live ruleset lacks the required status check, App Validation fails.",
+    "required_status_check_display": "App Validation / validate"
   }
 }
