@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+  "order": [
+    "local",
+    "staging",
+    "production"
+  ],
+  "local": {
+    "git_branch": "development",
+    "shopify_app": "VSN Stock Down Sort Dev",
+    "shopify_config": "shopify.app.toml",
+    "runtime": "local_shopify_cli",
+    "database": {
+      "provider": "neon_postgresql",
+      "project_name": "vsn-stock-down-sort-local",
+      "status": "provisioning_required",
+      "database_name": "neondb",
+      "database_url_role": "pooled_runtime",
+      "direct_url_role": "direct_migrations",
+      "reuse_staging_or_production": false
+    },
+    "command": "npm run dev",
+    "billing_test_mode": true
+  },
+  "staging": {
+    "github_environment": "cloudflare-staging",
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23050370538/edit",
+    "source_branch": "development",
+    "worker": "vsn-stock-down-sort-staging",
+    "database": {
+      "provider": "neon_postgresql",
+      "isolated_from_local_and_production": true
+    },
+    "billing_test_mode": true,
+    "deploy": "manual"
+  },
+  "production": {
+    "github_environment": "cloudflare-production",
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit",
+    "source_branch": "main",
+    "worker": "vsn-stock-down-sort-production",
+    "database": {
+      "provider": "neon_postgresql",
+      "isolated_from_local_and_staging": true
+    },
+    "billing_test_mode": false,
+    "deploy": "manual_and_authorized"
+  }
+}
