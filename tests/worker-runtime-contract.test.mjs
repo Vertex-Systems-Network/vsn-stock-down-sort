@@ -903,3 +903,12 @@ test("Local Dev runner is Windows-safe", () => {
   assert.match(runner, /run\("npx"/);
   assert.match(runner, /run\("npm"/);
 });
+
+
+test("embedded Shopify auth uses online tokens", () => {
+  const shopify = read("app/shopify.server.ts");
+
+  assert.match(shopify, /distribution: AppDistribution\.AppStore/);
+  assert.match(shopify, /useOnlineTokens:\s*true/);
+  assert.match(shopify, /authPathPrefix:\s*"\/auth"/);
+});
