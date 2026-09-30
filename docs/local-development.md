@@ -40,7 +40,7 @@ npm run dev
 If the Shopify dev preview is still showing an old placeholder/default page, stop the current dev process and run once:
 
 ```bash
-npm run dev -- --reset
+npm run dev:reset
 ```
 
 Then choose the dedicated Dev app/store when prompted. After that, normal `npm run dev` is enough.

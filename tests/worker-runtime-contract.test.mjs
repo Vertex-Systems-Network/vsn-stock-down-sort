@@ -210,6 +210,7 @@ test("local Shopify flow stays npm run dev with the explicit Local config", () =
   const localNamed = read("shopify.app.local.toml");
 
   assert.equal(pkg.scripts.dev, "npx --yes shopify@4.8.2 app dev --config local");
+  assert.equal(pkg.scripts["dev:reset"], "npx --yes shopify@4.8.2 app dev --reset");
   assert.match(localNamed, /name = "VSN \\| Stock Down Sort Dev"/);
   assert.match(localNamed, /automatically_update_urls_on_dev = true/);
   assert.equal(
