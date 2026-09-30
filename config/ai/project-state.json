@@ -17,11 +17,11 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
+    "Install/verify Shopify CLI on the Local Windows workstation, then install project dependencies.",
     "Provision or identify the dedicated Neon project vsn-stock-down-sort-local and record its real project/branch/endpoint identity.",
     "Configure the uncommitted Local .env with pooled Neon DATABASE_URL and matching direct DIRECT_URL.",
-    "Run Local Prisma migrations and npm run dev from development using VSN Stock Down Sort Dev.",
-    "Record Local/Dev acceptance evidence.",
-    "Only then verify cloudflare-staging Environment secrets and run Staging Readiness."
+    "Run Local Prisma migrations and npm run dev from development using VSN | Stock Down Sort Dev.",
+    "Record Local/Dev acceptance evidence before Staging work."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -34,5 +34,5 @@
   "security_readiness": "cloudflare_environment_bindings_certified_local_neon_isolation_enforced_binding_pending",
   "last_reconciled_repository_ref": "c0320d5bcbb1057bd6100253e1b0664843ed0404",
   "last_reconciled_at": "2026-09-30T10:05:00+00:00",
-  "notes": "Owner-approved Local-first topology is now merged: Local uses development + VSN Stock Down Sort Dev + dedicated Neon PostgreSQL; Staging GitHub Environment is cloudflare-staging (ID 23050370538); Production GitHub Environment is cloudflare-production (ID 23098399859). Local Neon project binding remains the only active environment blocker. Staging/Production remain manual and deferred."
+  "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains active and Staging/Production remain deferred."
 }

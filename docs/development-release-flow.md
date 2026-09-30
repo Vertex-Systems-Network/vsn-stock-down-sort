@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` runs `shopify app dev` with the default `shopify.app.toml`, which belongs only to **VSN Stock Down Sort Dev**.
+`npm run dev` runs `shopify app dev` with the default `shopify.app.toml`, which belongs only to **VSN | Stock Down Sort Dev**.
 
 Local development never deploys Staging or Production.
 
@@ -36,7 +36,7 @@ A push to `development` must not deploy Cloudflare Staging and must never deploy
 
 Staging uses:
 
-- Shopify app: **VSN Stock Down Sort Staging**
+- Shopify app: **VSN | Stock Down Sort Staging**
 - Shopify config: `shopify.app.staging.toml`
 - GitHub Environment: `cloudflare-staging`
 - Cloudflare Worker: `vsn-stock-down-sort-staging`
@@ -65,7 +65,7 @@ Merging to `main` does not automatically deploy Production.
 
 Production uses:
 
-- Shopify app: **VSN Stock Down Sort**
+- Shopify app: **VSN | Stock Down Sort**
 - Shopify config: `shopify.app.production.toml`
 - GitHub Environment: `cloudflare-production`
 - Cloudflare Worker: `vsn-stock-down-sort-production`

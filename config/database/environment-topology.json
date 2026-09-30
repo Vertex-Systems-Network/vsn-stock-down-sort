@@ -8,7 +8,7 @@
   ],
   "local": {
     "git_branch": "development",
-    "shopify_app": "VSN Stock Down Sort Dev",
+    "shopify_app": "VSN | Stock Down Sort Dev",
     "shopify_config": "shopify.app.toml",
     "runtime": "local_shopify_cli",
     "database": {
@@ -33,7 +33,8 @@
       "isolated_from_local_and_production": true
     },
     "billing_test_mode": true,
-    "deploy": "manual"
+    "deploy": "manual",
+    "shopify_app": "VSN | Stock Down Sort Staging"
   },
   "production": {
     "github_environment": "cloudflare-production",
@@ -45,6 +46,8 @@
       "isolated_from_local_and_staging": true
     },
     "billing_test_mode": false,
-    "deploy": "manual_and_authorized"
+    "deploy": "manual_and_authorized",
+    "shopify_app": "VSN | Stock Down Sort",
+    "client_id_source": "committed_shopify_app_production_toml"
   }
 }

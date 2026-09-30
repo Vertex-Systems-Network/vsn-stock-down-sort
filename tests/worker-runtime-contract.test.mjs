@@ -184,9 +184,9 @@ test("three Shopify app identities stay isolated", () => {
   const staging = read("shopify.app.staging.toml");
   const production = read("shopify.app.production.toml");
 
-  assert.match(local, /name = "VSN Stock Down Sort Dev"/);
-  assert.match(staging, /name = "VSN Stock Down Sort Staging"/);
-  assert.match(production, /name = "VSN Stock Down Sort"/);
+  assert.match(local, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \\| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \\| Stock Down Sort"/);
 
   const clientId = (source) =>
     source.match(/client_id\s*=\s*"([^"]+)"/)?.[1] ?? "";
@@ -262,9 +262,10 @@ test("production Shopify promotion is action driven and authorization gated", ()
     read("config/shopify/production-release.json"),
   );
 
-  assert.match(
+  assert.match(productionConfig, /client_id\s*=\s*"[0-9a-f]+"/);
+  assert.doesNotMatch(
     productionConfig,
-    /client_id\s*=\s*"__SHOPIFY_PRODUCTION_CLIENT_ID__"/,
+    /__SHOPIFY_PRODUCTION_CLIENT_ID__/,
   );
   assert.match(
     productionConfig,
@@ -272,7 +273,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   );
   assert.doesNotMatch(productionConfig, /example\.invalid/);
 
-  assert.match(readiness, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(readiness, /committed Live Shopify client ID/);
   assert.match(
     readiness,
     /Refusing production readiness with the Local\/Dev Shopify client ID/,
@@ -285,7 +286,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.match(candidate, /workflow_dispatch:/);
   assert.match(candidate, /ref: main/);
   assert.match(candidate, /SHOPIFY_APP_AUTOMATION_TOKEN/);
-  assert.match(candidate, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(candidate, /committed Live Shopify client ID/);
   assert.match(candidate, /--config production/);
   assert.match(candidate, /--no-release/);
   assert.match(
@@ -658,7 +659,7 @@ test("environment secrets audit checks required deployment credentials", () => {
     /SHOPIFY_API_KEY matches the Local\/Dev Shopify client ID/,
   );
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
-  assert.match(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
@@ -803,10 +804,21 @@ test("local development requires isolated Neon pooled and direct connections", (
   assert.equal(topology.staging.github_environment, "cloudflare-staging");
   assert.equal(topology.production.github_environment, "cloudflare-production");
 
-  assert.match(web, /validate-local-neon-env\.mjs/);
-  assert.match(validator, /\.neon\.tech/);
-  assert.match(validator, /-pooler\./);
-  assert.match(validator, /DIRECT_URL must be the Neon direct/);
+  const runner = read("scripts/local-dev-runner.mjs");
+  const envLoader = read("scripts/local-env.mjs");
+
+  assert.match(web, /local-dev-runner\.mjs predev/);
+  assert.match(web, /local-dev-runner\.mjs dev/);
+  assert.match(runner, /loadLocalEnv/);
+  assert.match(runner, /validateLocalNeonEnv/);
+  assert.match(runner, /prisma/);
+  assert.match(runner, /react-router/);
+  assert.match(envLoader, /\.env\.local/);
+  assert.match(envLoader, /process\.loadEnvFile/);
+  assert.match(validator, /loadLocalEnv/);
+  assert.match(envLoader, /\.neon\.tech/);
+  assert.match(envLoader, /-pooler\./);
+  assert.match(envLoader, /DIRECT_URL must be the Neon direct/);
   assert.match(localExample, /vsn-stock-down-sort-local/);
   assert.match(localExample, /-pooler/);
 });
@@ -835,4 +847,40 @@ test("GitHub workflows bind to exact Cloudflare environments", () => {
     const source = read(file);
     assert.match(source, /environment: cloudflare-production/);
   }
+});
+
+
+test("Shopify app identities match the VSN Metafields-style model", () => {
+  const local = read("shopify.app.toml");
+  const staging = read("shopify.app.staging.toml");
+  const production = read("shopify.app.production.toml");
+  const audit = read(".github/workflows/environment-secrets-audit.yml");
+  const readiness = read(".github/workflows/production-readiness.yml");
+  const candidate = read(".github/workflows/shopify-production-candidate.yml");
+  const release = read(".github/workflows/shopify-production-release.yml");
+
+  const clientId = (source) =>
+    source.match(/^client_id = "([^"]+)"$/m)?.[1];
+
+  const localId = clientId(local);
+  const stagingId = clientId(staging);
+  const productionId = clientId(production);
+
+  assert.ok(localId);
+  assert.equal(stagingId, "__SHOPIFY_STAGING_CLIENT_ID__");
+  assert.ok(productionId);
+  assert.notEqual(productionId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
+  assert.notEqual(localId, productionId);
+
+  assert.match(local, /name = "VSN \| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \| Stock Down Sort"/);
+
+  for (const workflow of [audit, readiness, candidate, release]) {
+    assert.match(workflow, /committed Live Shopify client ID/);
+    assert.doesNotMatch(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  }
+
+  assert.doesNotMatch(candidate, /Inject Live client ID into disposable checkout/);
+  assert.doesNotMatch(release, /Inject Live client ID into disposable checkout/);
 });
