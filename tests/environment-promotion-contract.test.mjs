@@ -80,6 +80,8 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.match(certifier, /prisma/);
   assert.match(certifier, /health endpoint did not report ok=true/);
   assert.match(certifier, /gates\.local_dev/);
+  assert.match(certifier, /git\", \["status", "--porcelain"\]/);
+  assert.match(certifier, /working tree must be clean/);
 });
 
 test("production release policy references the staging acceptance gate", () => {
