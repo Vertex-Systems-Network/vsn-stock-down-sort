@@ -7,13 +7,19 @@ This file is a compatibility mirror. Canonical live state is:
 - GitHub Issue #32
 - live Git/PR/CI evidence
 
-Verified completion:
+Verified management baseline:
+- VSN Metafields-style repository management model is merged and CI-certified.
+- Local, Staging, and Production remain separate Shopify identities.
+- No automatic Staging or Production deployment is allowed.
 
-- VSN Metafields-style repository management model passed App Validation in PR #33 and PR #34.
-- Management baseline is merged to protected `main` at `3035be989c28fead36d66c688f3a79632abc1948`.
-- `development` was reconciled to the same main baseline.
-- Application behavior and Production deployment were not changed by the management migration.
+Owner-directed environment order:
+1. Local/Dev first on `development`.
+2. Local/Dev uses a dedicated Neon PostgreSQL database.
+3. Staging follows only after Local certification.
+4. Staging GitHub Environment is `cloudflare-staging` (environment ID 23050370538).
+5. Production GitHub Environment is `cloudflare-production` (environment ID 23098399859).
 
-Next valid work:
+Current work:
+`ISSUE-32-WU-LOCAL-01` — provision/bind `vsn-stock-down-sort-local`, configure pooled/direct Neon URLs locally, run Prisma migration and `npm run dev`, then record evidence.
 
-`ISSUE-32-WU-02` — verify the GitHub `staging` Environment secret contract, then run Staging Readiness if the audit passes. Production remains deferred.
+Staging and Production remain deferred.
