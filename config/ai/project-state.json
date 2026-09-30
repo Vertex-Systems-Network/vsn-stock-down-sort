@@ -19,9 +19,10 @@
   "outstanding_updates": [
     "Install/verify Shopify CLI on the Local Windows workstation, then install project dependencies.",
     "Provision or identify the dedicated Neon project vsn-stock-down-sort-local and record its real project/branch/endpoint identity.",
-    "Configure the uncommitted Local .env with pooled Neon DATABASE_URL and matching direct DIRECT_URL.",
-    "Run npm run dev from development; the predev hook now validates Neon pooled/direct separation before local Shopify development.",
-    "Record Local/Dev acceptance evidence in config/release/environment-gates.json before Staging work."
+    "Configure the uncommitted Local .env with pooled DATABASE_URL and matching direct DIRECT_URL.",
+    "Run npm run dev from development; the predev hook validates Neon pooled/direct separation before Shopify local development.",
+    "With the local app running, execute npm run local:certify -- <local-health-url>/healthz. The command runs Neon validation, Prisma migrate deploy, verifies development + billing test mode + PostgreSQL health, and records the exact Git source ref in config/release/environment-gates.json.",
+    "Commit the resulting Local acceptance evidence on development before Staging work."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
