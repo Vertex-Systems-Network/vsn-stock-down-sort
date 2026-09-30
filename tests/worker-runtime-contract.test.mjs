@@ -720,6 +720,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   const state = JSON.parse(read("config/ai/project-state.json"));
   const plan = JSON.parse(read("config/ai/execution-plan.json"));
   const modules = JSON.parse(read("config/ai/modules-bank.json"));
+  const productPlan = JSON.parse(read("config/ai/product-plan.json"));
   const supervisor = JSON.parse(read("config/coordination/supervisor-state.json"));
 
   assert.equal(manifest.schema_version, 7);
@@ -736,13 +737,25 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.equal(plan.work_units.length, 8);
+  assert.equal(plan.work_units.length, 37);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "in_progress");
   assert.equal(plan.work_units[2].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
-  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-BILLING-01");
+  assert.equal(plan.work_units[2].module_id, "MOD-BILLING");
+  assert.match(plan.work_units[2].objective, /four-plan/i);
+  assert.equal(productPlan.trial_days, 10);
+  assert.deepEqual(
+    productPlan.plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
+    [
+      ["starter", 10.99, 10],
+      ["growth", 19.99, 10],
+      ["pro", 34.99, 10],
+      ["unlimited", 54.99, 10],
+    ],
+  );
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
