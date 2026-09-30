@@ -5,7 +5,7 @@
   "current_module": "local-development-certification",
   "current_work_unit": "ISSUE-32-WU-LOCAL-01",
   "active_issue": 32,
-  "last_verified_completion": "VSN Metafields-style repository management model is merged to protected main at 3035be989c28fead36d66c688f3a79632abc1948. PR #33 App Validation run 36689009779 passed; PR #34 App Validation run 36689307658 passed. The management diff changed control-plane/docs/tests only and preserved application/deployment behavior.",
+  "last_verified_completion": "Local-first environment topology is merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404. PR #37 App Validation run 36698394720 attempt 2 passed all checks before merge to development; PR #38 App Validation run 36699223926 passed all checks before promotion to main. All Staging workflows now bind cloudflare-staging and all Production workflows bind cloudflare-production. No Staging or Production deployment occurred.",
   "next_valid_work_unit": "Provision/bind the dedicated Neon project vsn-stock-down-sort-local, use pooled DATABASE_URL plus matching direct DIRECT_URL in the uncommitted local .env, then run npm run dev from development. Only after Local/Dev certification may cloudflare-staging secret/readiness work resume.",
   "progress": {
     "total_work_units": 8,
@@ -32,7 +32,7 @@
   "critical_defects": [],
   "qa_readiness": "repository_management_certified_local_neon_setup_active_staging_deferred",
   "security_readiness": "local_neon_isolation_required_cloudflare_staging_and_production_environment_names_recorded",
-  "last_reconciled_repository_ref": "3035be989c28fead36d66c688f3a79632abc1948",
-  "last_reconciled_at": "2026-09-30T08:26:00+00:00",
-  "notes": "Local-first order is authoritative. Local uses development + VSN Stock Down Sort Dev + dedicated Neon PostgreSQL. GitHub environments are cloudflare-staging (ID 23050370538) and cloudflare-production (ID 23098399859). Staging/Production remain manual and isolated."
+  "last_reconciled_repository_ref": "c0320d5bcbb1057bd6100253e1b0664843ed0404",
+  "last_reconciled_at": "2026-09-30T09:56:00+00:00",
+  "notes": "Local-first order is authoritative. Local uses development + VSN Stock Down Sort Dev + dedicated Neon PostgreSQL project identity vsn-stock-down-sort-local (still provisioning/binding required). GitHub environments are cloudflare-staging (ID 23050370538) and cloudflare-production (ID 23098399859). Staging/Production remain manual, isolated, and deferred until Local certification."
 }
