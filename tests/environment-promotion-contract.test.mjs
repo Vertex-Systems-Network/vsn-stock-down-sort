@@ -83,6 +83,7 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.equal(packageJson.scripts.predev, "node scripts/local-dev-runner.mjs predev");
   assert.equal(packageJson.scripts["local:validate"], "node scripts/validate-local-neon-env.mjs");
   assert.equal(packageJson.scripts["local:certify"], "node scripts/certify-local-dev.mjs");
+  assert.match(packageJson.scripts.dev, /--config local/);
   const runner = read("scripts/local-dev-runner.mjs");
   assert.match(runner, /validateLocalNeonEnv\(\)/);
   assert.match(runner, /branch !== "development"/);
@@ -95,8 +96,12 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.match(certifier, /gates\.local_dev/);
   assert.match(certifier, /git\", \["status", "--porcelain"\]/);
   assert.match(certifier, /working tree must be clean/);
+  const localConfig = read("shopify.app.local.toml");
+  assert.match(localConfig, /name\s*=\s*"VSN \| Stock Down Sort Dev"/);
+  assert.match(localConfig, /client_id\s*=\s*"675de0e3834ce61a75473de19df457c4"/);
   const localEnv = read("scripts/local-env.mjs");
   assert.match(localEnv, /validateLocalShopifyConfig/);
+  assert.match(localEnv, /shopify\.app\.local\.toml/);
   assert.match(localEnv, /VSN \| Stock Down Sort Dev/);
   assert.match(localEnv, /675de0e3834ce61a75473de19df457c4/);
 });
