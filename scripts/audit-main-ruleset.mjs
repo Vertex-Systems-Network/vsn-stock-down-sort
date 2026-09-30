@@ -1,6 +1,6 @@
 import process from "node:process";
 
-const token = process.env.GITHUB_TOKEN;
+const token = process.env.RULESET_AUDIT_TOKEN;
 const repository = process.env.GITHUB_REPOSITORY;
 
 if (!repository) {
