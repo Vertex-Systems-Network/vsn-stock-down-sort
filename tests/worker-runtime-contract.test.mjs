@@ -884,3 +884,13 @@ test("Shopify app identities match the VSN Metafields-style model", () => {
   assert.doesNotMatch(candidate, /Inject Live client ID into disposable checkout/);
   assert.doesNotMatch(release, /Inject Live client ID into disposable checkout/);
 });
+
+
+test("Local Dev runner is Windows-safe", () => {
+  const runner = read("scripts/local-dev-runner.mjs");
+
+  assert.match(runner, /shell: process\.platform === "win32"/);
+  assert.doesNotMatch(runner, /\.cmd`/);
+  assert.match(runner, /run\("npx"/);
+  assert.match(runner, /run\("npm"/);
+});
