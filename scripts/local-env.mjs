@@ -42,8 +42,8 @@ function parseUrl(name) {
 }
 
 function validateLocalShopifyConfig() {
-  const path = "shopify.app.toml";
-  if (!fs.existsSync(path)) fail("shopify.app.toml is required for Local/Dev.");
+  const path = "shopify.app.local.toml";
+  if (!fs.existsSync(path)) fail("shopify.app.local.toml is required for Local/Dev when using --config local.");
   const config = fs.readFileSync(path, "utf8");
   if (!/name\s*=\s*"VSN \| Stock Down Sort Dev"/.test(config)) {
     fail("shopify.app.toml must use the dedicated VSN | Stock Down Sort Dev identity.");
