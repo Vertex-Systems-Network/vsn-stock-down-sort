@@ -71,9 +71,15 @@ test("production readiness is explicitly pinned to main", () => {
 test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.equal(packageJson.scripts.predev, "node scripts/local-dev-runner.mjs predev");
   assert.equal(packageJson.scripts["local:validate"], "node scripts/validate-local-neon-env.mjs");
+  assert.equal(packageJson.scripts["local:certify"], "node scripts/certify-local-dev.mjs");
   const runner = read("scripts/local-dev-runner.mjs");
   assert.match(runner, /validateLocalNeonEnv\(\)/);
   assert.match(runner, /prisma/);
+  const certifier = read("scripts/certify-local-dev.mjs");
+  assert.match(certifier, /branch !== "development"/);
+  assert.match(certifier, /prisma/);
+  assert.match(certifier, /health endpoint did not report ok=true/);
+  assert.match(certifier, /gates\.local_dev/);
 });
 
 test("production release policy references the staging acceptance gate", () => {
