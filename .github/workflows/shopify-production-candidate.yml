@@ -20,7 +20,7 @@ jobs:
     if: github.event.inputs.confirm == 'CREATE_PRODUCTION_SHOPIFY_VERSION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
+    environment: cloudflare-production
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}

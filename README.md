@@ -81,6 +81,13 @@ The same codebase uses three separate Shopify app registrations.
 | Staging | VSN Stock Down Sort Staging | `shopify.app.staging.toml` | test |
 | Live / Production | VSN Stock Down Sort | `shopify.app.production.toml` | real |
 
+Database topology is also isolated:
+- Local: dedicated Neon project `vsn-stock-down-sort-local`
+- Staging: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-staging`
+- Production: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-production`
+
+Local must be completed and verified before Staging work begins.
+
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
 The Staging and Production client IDs intentionally remain placeholders in git. GitHub Actions inject the real environment-specific IDs only into disposable runners.
@@ -96,9 +103,9 @@ npm install
 npm run dev
 ```
 
-`npm run dev` is exactly `shopify app dev` and uses the default `shopify.app.toml`.
+`npm run dev` remains the normal command and uses the default `shopify.app.toml`. Before the web process starts, the repo validates that `DATABASE_URL` is a pooled Neon URL and `DIRECT_URL` is the matching direct Neon URL, then applies Prisma migrations.
 
-Local development never deploys Staging or Production. Pushes to `development` run validation only.
+Local development uses the `development` branch and the dedicated Local Neon database. It never deploys Staging or Production. Pushes to `development` run validation only.
 
 Do not manually switch the Local app to Staging or Production with `shopify app config use`.
 
@@ -181,7 +188,7 @@ Production release is blocked unless the repository authorization record, versio
 
 The real credentials belong in GitHub Environments, not in committed files.
 
-### Staging
+### Staging — GitHub Environment `cloudflare-staging`
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
@@ -191,7 +198,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
 
-### Production
+### Production — GitHub Environment `cloudflare-production`
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`

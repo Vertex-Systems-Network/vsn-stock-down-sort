@@ -3,5 +3,5 @@ roles = ["frontend", "backend"]
 webhooks_path = "/webhooks/app/uninstalled"
 
 [commands]
-predev = "npx prisma generate --schema prisma/cloud/schema.prisma"
-dev = "npx prisma migrate deploy --schema prisma/cloud/schema.prisma && npm exec react-router dev"
+predev = "node scripts/validate-local-neon-env.mjs && npx prisma generate --schema prisma/cloud/schema.prisma"
+dev = "node scripts/validate-local-neon-env.mjs && npx prisma migrate deploy --schema prisma/cloud/schema.prisma && npm exec react-router dev"

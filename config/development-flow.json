@@ -9,10 +9,19 @@
     "shopify_config": "shopify.app.toml",
     "committed_secrets": false,
     "direct_staging_deploy": false,
-    "direct_live_deploy": false
+    "direct_live_deploy": false,
+    "source_branch": "development",
+    "database": {
+      "provider": "neon_postgresql",
+      "project_name": "vsn-stock-down-sort-local",
+      "provisioning_status": "required",
+      "runtime_connection": "pooled",
+      "migration_connection": "direct",
+      "isolated_from_staging_and_production": true
+    }
   },
   "staging": {
-    "github_environment": "staging",
+    "github_environment": "cloudflare-staging",
     "shopify_app": "VSN Stock Down Sort Staging",
     "shopify_config": "shopify.app.staging.toml",
     "worker": "vsn-stock-down-sort-staging",
@@ -21,7 +30,8 @@
     "deploy_mode": "manual_dispatch_from_development",
     "confirmation": "DEPLOY_DEVELOPMENT_TO_STAGING",
     "billing_test_mode": true,
-    "production_identity_allowed": false
+    "production_identity_allowed": false,
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23050370538/edit"
   },
   "release": {
     "route": "development -> pull request -> main",
@@ -29,7 +39,7 @@
     "validation_required": true
   },
   "live": {
-    "github_environment": "production",
+    "github_environment": "cloudflare-production",
     "shopify_app": "VSN Stock Down Sort",
     "shopify_config": "shopify.app.production.toml",
     "worker": "vsn-stock-down-sort-production",
@@ -37,14 +47,17 @@
     "auto_deploy": false,
     "deploy_mode": "manual_dispatch",
     "shopify_release_mode": "explicit_authorization_only",
-    "billing_test_mode": false
+    "billing_test_mode": false,
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit"
   },
   "invariants": {
     "development_push_cannot_deploy_staging": true,
     "development_push_cannot_deploy_production": true,
     "main_push_cannot_deploy_production": true,
     "staging_cannot_change_live_shopify_identity": true,
-    "production_release_requires_explicit_authorization": true
+    "production_release_requires_explicit_authorization": true,
+    "local_database_must_be_neon": true,
+    "local_database_must_be_isolated": true
   },
   "development_ci": {
     "automatic_on_push": true,

@@ -4,16 +4,18 @@
   "phases": [
     {
       "id": "PHASE-01",
-      "name": "Manual staging certification and production-safe promotion",
-      "objective": "Prove the isolated staging app/runtime end-to-end before any production promotion.",
+      "name": "Local-first environment certification and production-safe promotion",
+      "objective": "Certify Local/Dev on development with dedicated Neon first, then Staging end-to-end, before any Production promotion.",
       "module_ids": [
         "MOD-MGMT",
+        "MOD-LOCAL",
         "MOD-STAGING",
         "MOD-PRODUCTION"
       ],
       "dependencies": [],
       "status": "in_progress",
       "exit_criteria": [
+        "Local/Dev runs from development with a dedicated Neon database.",
         "Dedicated Staging Shopify identity is verified.",
         "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
         "Staging Shopify auth/session/Admin API reads pass.",
@@ -51,17 +53,49 @@
       ]
     },
     {
+      "id": "ISSUE-32-WU-LOCAL-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-LOCAL",
+      "title": "Set up and certify Local Dev with Neon",
+      "objective": "Run VSN Stock Down Sort Dev from development using an isolated Neon PostgreSQL database before any Staging work.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 95,
+      "status": "in_progress",
+      "blockers": [
+        "Dedicated Neon project vsn-stock-down-sort-local still needs to be provisioned/bound and its project ID recorded."
+      ],
+      "acceptance_criteria": [
+        "development is the Local integration branch.",
+        "npm run dev uses VSN Stock Down Sort Dev.",
+        "DATABASE_URL is a Neon pooled connection.",
+        "DIRECT_URL is the matching Neon direct connection.",
+        "Prisma migrations pass on the Local Neon database.",
+        "Local credentials do not reuse Staging or Production database identities."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Local Neon environment validation",
+        "Prisma migrate deploy",
+        "Shopify local dev boot"
+      ],
+      "completion_evidence": []
+    },
+    {
       "id": "ISSUE-32-WU-02",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Verify staging environment secret contract",
-      "objective": "Prove required staging GitHub Environment values are configured without exposing values.",
+      "objective": "After Local certification, prove required cloudflare-staging GitHub Environment values are configured without exposing values.",
       "dependencies": [
-        "ISSUE-32-WU-01"
+        "ISSUE-32-WU-LOCAL-01"
       ],
       "priority": 90,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "not_started",
+      "blockers": [
+        "Local/Dev Neon certification must complete first."
+      ],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
       ],

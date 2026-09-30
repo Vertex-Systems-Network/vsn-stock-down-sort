@@ -40,9 +40,51 @@
       "removal_or_deprecation_notes": []
     },
     {
+      "id": "MOD-LOCAL",
+      "name": "Local Development and Neon",
+      "objective": "Certify development-branch local Shopify development against a dedicated Neon PostgreSQL database before Staging begins.",
+      "scope": [
+        "development branch",
+        "VSN Stock Down Sort Dev",
+        "dedicated Local Neon project",
+        "Prisma migrations",
+        "npm run dev"
+      ],
+      "boundaries": [
+        "No Staging deployment.",
+        "No Production mutation.",
+        "Never reuse Staging or Production database credentials."
+      ],
+      "dependencies": [
+        "MOD-MGMT"
+      ],
+      "option_ids": [],
+      "data_entities": [],
+      "contracts": [],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Local Neon identity must be isolated.",
+        "Secrets remain uncommitted.",
+        "Shopify billing remains test mode."
+      ],
+      "acceptance_criteria": [
+        "Local Neon pooled/direct connection contract passes.",
+        "Prisma migration succeeds.",
+        "npm run dev reaches the dedicated Dev Shopify app."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Local Neon validation"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
       "id": "MOD-STAGING",
       "name": "Isolated Staging",
-      "objective": "Certify the dedicated Shopify Staging app, Cloudflare Worker, PostgreSQL and Queue runtime.",
+      "objective": "After Local certification, certify the dedicated Shopify Staging app, Cloudflare Worker, Neon PostgreSQL and Queue runtime.",
       "scope": [
         "Staging secrets",
         "Staging readiness",
@@ -53,7 +95,7 @@
         "No Production mutation."
       ],
       "dependencies": [
-        "MOD-MGMT"
+        "MOD-LOCAL"
       ],
       "option_ids": [],
       "data_entities": [],
@@ -71,7 +113,7 @@
         "Staging Readiness",
         "Cloudflare Staging Deploy"
       ],
-      "status": "in_progress",
+      "status": "not_started",
       "completion_evidence": [],
       "update_notes": [],
       "removal_or_deprecation_notes": []
