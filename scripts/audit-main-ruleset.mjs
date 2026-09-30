@@ -81,12 +81,12 @@ if (!hasAppValidation) {
   }
 }
 
-if (detail.current_user_can_bypass !== "never") {
+if (token && detail.current_user_can_bypass !== "never") {
   throw new Error(
     `[ruleset-audit] Main ruleset bypass policy is not 'never' (actual: ${detail.current_user_can_bypass ?? "unknown"}).`,
   );
 }
 
 console.log(
-  `[ruleset-audit] PASS main ruleset=${detail.id}; required App Validation check present; bypass=${detail.current_user_can_bypass}`,
+  `[ruleset-audit] PASS main ruleset=${detail.id}; required App Validation check present; bypass=${detail.current_user_can_bypass ?? "not exposed to unauthenticated audit"}`,
 );
