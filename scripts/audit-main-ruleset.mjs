@@ -3,8 +3,8 @@ import process from "node:process";
 const token = process.env.GITHUB_TOKEN;
 const repository = process.env.GITHUB_REPOSITORY;
 
-if (!token || !repository) {
-  throw new Error("[ruleset-audit] GITHUB_TOKEN and GITHUB_REPOSITORY are required.");
+if (!repository) {
+  throw new Error("[ruleset-audit] GITHUB_REPOSITORY is required.");
 }
 
 const response = await fetch(
@@ -12,7 +12,7 @@ const response = await fetch(
   {
     headers: {
       Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "X-GitHub-Api-Version": "2022-11-28",
     },
   },
