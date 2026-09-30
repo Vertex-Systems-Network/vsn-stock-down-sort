@@ -720,19 +720,22 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "manual-staging-certification");
+  assert.equal(state.current_module, "local-development-certification");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Staging/i);
+  assert.match(state.next_valid_work_unit, /Neon/i);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.equal(plan.work_units.length, 7);
+  assert.equal(plan.work_units.length, 8);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "in_progress");
+  assert.equal(plan.work_units[2].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
-  assert.equal(plan.work_units[1].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
+  assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-STAGING"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-PRODUCTION"));
 
