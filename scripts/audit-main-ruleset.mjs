@@ -7,6 +7,11 @@ if (!repository) {
   throw new Error("[ruleset-audit] GITHUB_REPOSITORY is required.");
 }
 
+if (process.env.RULESET_BOOTSTRAP === "true") {
+  console.warn("[ruleset-audit] BOOTSTRAP: skipping live ruleset enforcement audit for this one-time check discovery run.");
+  process.exit(0);
+}
+
 const response = await fetch(
   `https://api.github.com/repos/${repository}/rulesets`,
   {
