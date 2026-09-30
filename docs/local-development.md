@@ -6,11 +6,11 @@ Local/Dev is the first environment and must be certified before Staging.
 
 - Git branch: `development`
 - Shopify app: **VSN | Stock Down Sort Dev**
-- Shopify config: `shopify.app.toml`
+- Shopify config: `shopify.app.local.toml`
 - command: `npm run dev`
 - billing: test mode only
 
-Do not run `shopify app config use` during the normal Local → Staging → Production flow.
+Do not run `shopify app config use` during the normal Local → Staging → Production flow. `npm run dev` explicitly uses the `local` config.
 
 ## Neon Local database
 
@@ -36,6 +36,14 @@ git pull
 npm install
 npm run dev
 ```
+
+If the Shopify dev preview is still showing an old placeholder/default page, stop the current dev process and run once:
+
+```bash
+npm run dev -- --reset
+```
+
+Then choose the dedicated Dev app/store when prompted. After that, normal `npm run dev` is enough.
 
 The Shopify web process runs `scripts/local-dev-runner.mjs`, which loads `.env.local`, validates Neon, and forwards the same environment to Prisma and React Router. It refuses to start when the database is not Neon, when the runtime URL is not pooled, when the migration URL is pooled, or when the two URLs do not belong to the same Neon endpoint.
 
