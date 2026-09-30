@@ -5,7 +5,7 @@
   "current_module": "local-development-certification",
   "current_work_unit": "ISSUE-32-WU-LOCAL-01",
   "active_issue": 32,
-  "last_verified_completion": "Local Shopify config contract is now consistent across package.json (`--config local`), shopify.app.local.toml, validator, tests, development-flow.json, and docs. Main ruleset 24186631 requires validate.",
+  "last_verified_completion": "Repository Local config contract is aligned to --config local and main ruleset requires validate. Neon audit confirms the previously referenced nameless-breeze project belongs to VSN Metafields Production, so it is excluded from Local.",
   "next_valid_work_unit": "Provision/bind the dedicated Neon project vsn-stock-down-sort-local, use pooled DATABASE_URL plus matching direct DIRECT_URL in the uncommitted local .env, then run npm run dev from development. Only after Local/Dev certification may cloudflare-staging secret/readiness work resume.",
   "progress": {
     "total_work_units": 8,
@@ -24,7 +24,8 @@
     "With the local app running, execute npm run local:certify -- <local-health-url>/healthz. The command runs Neon validation, Prisma migrate deploy, verifies development + billing test mode + PostgreSQL health, and records the exact Git source ref in config/release/environment-gates.json.",
     "Commit the resulting Local acceptance evidence on development before Staging work.",
     "Pull the latest development commit containing the corrected Local Shopify config validator, then rerun npm run dev on the Windows Local/Dev workstation.",
-    "If Local Neon validation passes, run npm run local:certify against the running local /healthz endpoint and commit the generated Local acceptance evidence on development."
+    "If Local Neon validation passes, run npm run local:certify against the running local /healthz endpoint and commit the generated Local acceptance evidence on development.",
+    "Neon project identity audit: `nameless-breeze-35836648` is verified as `vsn-metafields-production`; it must not be reused for VSN Stock Down Sort Local."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
