@@ -31,7 +31,7 @@
       "objective": "Install repository-backed project state, role routing, coordination, risk, release, audit and governance registries.",
       "dependencies": [],
       "priority": 100,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "config/ai/project-state.json is canonical and repository-specific.",
@@ -42,7 +42,13 @@
       "required_checks": [
         "App Validation"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "PR #33 merged to development as f9925f28793daac49d9deca72d18d7d01fbdaafe",
+        "PR #33 App Validation run 36689009779 passed all checks",
+        "PR #34 merged the identical certified tree to main as 3035be989c28fead36d66c688f3a79632abc1948",
+        "PR #34 App Validation run 36689307658 passed all checks",
+        "Issue #32 is the active PHASE-01 work anchor"
+      ]
     },
     {
       "id": "ISSUE-32-WU-02",
@@ -54,7 +60,7 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 90,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
