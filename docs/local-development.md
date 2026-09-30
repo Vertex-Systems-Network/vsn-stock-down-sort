@@ -5,7 +5,7 @@ Local/Dev is the first environment and must be certified before Staging.
 ## Source and Shopify identity
 
 - Git branch: `development`
-- Shopify app: **VSN Stock Down Sort Dev**
+- Shopify app: **VSN | Stock Down Sort Dev**
 - Shopify config: `shopify.app.toml`
 - command: `npm run dev`
 - billing: test mode only
@@ -52,7 +52,7 @@ Local/Dev is complete only when:
 - pooled/direct URLs validate;
 - migrations succeed;
 - `npm run dev` starts successfully;
-- the app opens through **VSN Stock Down Sort Dev**;
+- the app opens through **VSN | Stock Down Sort Dev**;
 - no Staging or Production credential is used.
 
 Only then may PHASE-01 resume with the `cloudflare-staging` environment.
