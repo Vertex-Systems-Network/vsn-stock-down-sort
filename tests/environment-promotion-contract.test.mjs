@@ -70,6 +70,10 @@ test("production readiness is explicitly pinned to main", () => {
 });
 
 test("main branch merge protection contract is explicit", () => {
+  assert.equal(developmentFlow.local.shopify_config, "shopify.app.local.toml");
+  assert.equal(developmentFlow.local.cli_config_alias, "local");
+  assert.equal(developmentFlow.local.branch_policy, "development_only");
+  assert.equal(developmentFlow.invariants.local_shopify_identity_must_match_committed_local_config, true);
   assert.equal(developmentFlow.main_branch_protection.ruleset_name, "main");
   assert.equal(developmentFlow.main_branch_protection.enforcement, "active");
   assert.equal(developmentFlow.main_branch_protection.pull_request_required, true);
