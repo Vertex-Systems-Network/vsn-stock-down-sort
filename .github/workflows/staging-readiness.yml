@@ -37,8 +37,11 @@ jobs:
       SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
-      - name: Checkout
+      - name: Checkout development source
         uses: actions/checkout@v4
+        with:
+          ref: development
+          persist-credentials: false
 
       - name: Verify Local/Dev acceptance and exact source ref
         shell: bash
