@@ -26,7 +26,8 @@
     "worker:dry-run": "npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc",
     "dev:reset": "npx --yes shopify@4.8.2 app dev --reset",
     "predev": "node scripts/local-dev-runner.mjs predev",
-    "local:validate": "node scripts/validate-local-neon-env.mjs"
+    "local:validate": "node scripts/validate-local-neon-env.mjs",
+    "local:certify": "node scripts/certify-local-dev.mjs"
   },
   "type": "module",
   "engines": {
