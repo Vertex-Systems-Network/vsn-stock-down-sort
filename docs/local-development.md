@@ -26,7 +26,7 @@ Use:
 - `DATABASE_URL` = pooled Neon runtime URL (hostname contains `-pooler`)
 - `DIRECT_URL` = matching direct Neon migration URL (same endpoint identity, no `-pooler`)
 
-Put real values only in the uncommitted local `.env`.
+Put real values in the uncommitted local `.env.local`. The runner loads `.env.local` first and falls back to `.env` only if `.env.local` is absent.
 
 ## Start sequence
 
@@ -37,7 +37,7 @@ npm install
 npm run dev
 ```
 
-The Shopify web process runs `scripts/validate-local-neon-env.mjs` before Prisma generation/migration. It refuses to start when the database is not Neon, when the runtime URL is not pooled, when the migration URL is pooled, or when the two URLs do not belong to the same Neon endpoint.
+The Shopify web process runs `scripts/local-dev-runner.mjs`, which loads `.env.local`, validates Neon, and forwards the same environment to Prisma and React Router. It refuses to start when the database is not Neon, when the runtime URL is not pooled, when the migration URL is pooled, or when the two URLs do not belong to the same Neon endpoint.
 
 After validation:
 1. Prisma generates the cloud client.
