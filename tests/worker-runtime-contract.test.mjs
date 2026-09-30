@@ -749,3 +749,31 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
 });
+
+
+test("management registries are valid JSON and do not inherit VSN Metafields project identity", () => {
+  const dirs = [
+    "config/ai",
+    "config/architecture",
+    "config/assurance",
+    "config/audit",
+    "config/consent",
+    "config/coordination",
+    "config/integrations",
+    "config/operations",
+    "config/release",
+    "config/risk",
+    "config/security",
+    "config/traceability",
+  ];
+
+  for (const dir of dirs) {
+    for (const entry of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith(".json")) continue;
+      const relativePath = path.join(dir, entry.name);
+      const source = read(relativePath);
+      assert.doesNotThrow(() => JSON.parse(source), relativePath);
+      assert.doesNotMatch(source, /Vertex-Systems-Network\/vsn-metafields/i, relativePath);
+    }
+  }
+});
