@@ -4,7 +4,7 @@ VSN Stock Down Sort uses three isolated Shopify app identities and a manual prom
 
 ## 1. Local development
 
-Normal development happens from the `development` branch or a short-lived feature branch based on `development`.
+Normal Local development runs from the `development` branch. The Local runner rejects other branches.
 
 ```bash
 git switch development
@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` runs `shopify app dev` with the default `shopify.app.toml`, which belongs only to **VSN | Stock Down Sort Dev**.
+`npm run dev` runs Shopify CLI with `--config local`, so the authoritative Local config is `shopify.app.local.toml`, belonging only to **VSN | Stock Down Sort Dev**.
 
 Local development never deploys Staging or Production.
 
