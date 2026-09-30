@@ -6,7 +6,7 @@ VSN Stock Down Sort keeps local development isolated from hosted environments.
 
 | Tier | Shopify config | Database | Billing |
 | --- | --- | --- | --- |
-| Local / dev | `shopify.app.toml` | Neon PostgreSQL (dedicated Local project) | Test |
+| Local / dev | `shopify.app.local.toml` | Neon PostgreSQL (dedicated Local project) | Test |
 | Staging | `shopify.app.staging.toml` | Neon PostgreSQL (isolated) | Test |
 | Production | `shopify.app.production.toml` | Neon PostgreSQL (isolated) | Real |
 
