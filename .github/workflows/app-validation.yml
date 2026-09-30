@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  administration: read
 
 concurrency:
   group: app-validation-${{ github.event.pull_request.number || github.ref }}
@@ -31,6 +32,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Audit main branch ruleset
+        run: node scripts/audit-main-ruleset.mjs
 
       - name: Setup Node
         uses: actions/setup-node@v4
