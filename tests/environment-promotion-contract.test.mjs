@@ -74,6 +74,8 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.equal(packageJson.scripts["local:certify"], "node scripts/certify-local-dev.mjs");
   const runner = read("scripts/local-dev-runner.mjs");
   assert.match(runner, /validateLocalNeonEnv\(\)/);
+  assert.match(runner, /branch !== "development"/);
+  assert.match(runner, /npm run dev is restricted to development/);
   assert.match(runner, /prisma/);
   const certifier = read("scripts/certify-local-dev.mjs");
   assert.match(certifier, /branch !== "development"/);
@@ -82,6 +84,10 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.match(certifier, /gates\.local_dev/);
   assert.match(certifier, /git\", \["status", "--porcelain"\]/);
   assert.match(certifier, /working tree must be clean/);
+  const localEnv = read("scripts/local-env.mjs");
+  assert.match(localEnv, /validateLocalShopifyConfig/);
+  assert.match(localEnv, /VSN \\| Stock Down Sort Dev/);
+  assert.match(localEnv, /675de0e3834ce61a75473de19df457c4/);
 });
 
 test("production release policy references the staging acceptance gate", () => {
