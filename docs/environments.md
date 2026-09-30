@@ -6,7 +6,7 @@ remain isolated by environment.
 
 VSN Stock Down Sort uses **three separate Shopify app registrations**:
 
-- Local / Development: `VSN | Stock Down Sort Dev` → `shopify.app.toml`
+- Local / Development: `VSN | Stock Down Sort Dev` → `shopify.app.local.toml`
 - Staging: `VSN | Stock Down Sort Staging` → `shopify.app.staging.toml`
 - Live / Production: `VSN Stock Down Sort` → `shopify.app.production.toml`
 
@@ -16,7 +16,7 @@ another tier.
 
 | Tier | Source flow | Shopify config | Database | Billing |
 | --- | --- | --- | --- | --- |
-| Development | local / `development` | `shopify.app.toml` | dedicated Neon PostgreSQL (`vsn-stock-down-sort-local`) | test |
+| Development | local / `development` | `shopify.app.local.toml` | dedicated Neon PostgreSQL (`vsn-stock-down-sort-local`) | test |
 | Staging | `development` → manual deploy | `shopify.app.staging.toml` | isolated Neon PostgreSQL | test |
 | Production | protected `main` | `shopify.app.production.toml` | isolated Neon PostgreSQL | real |
 
@@ -105,8 +105,8 @@ Run:
 
 `npm run dev`
 
-That command is exactly `shopify app dev` and uses the default
-`shopify.app.toml`, which is dedicated to **VSN | Stock Down Sort Dev**.
+That command runs Shopify CLI with `--config local` and therefore uses
+`shopify.app.local.toml`, which is dedicated to **VSN | Stock Down Sort Dev**.
 
 Do not run `shopify app config use` as part of the normal Local → Staging →
 Live flow.
