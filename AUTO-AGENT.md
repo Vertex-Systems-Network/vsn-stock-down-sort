@@ -41,6 +41,20 @@ Follow `CONTROL-PLANE-SECURITY.md`, `config/security/control-plane-policy.json`,
 - Use isolated/ephemeral workspaces when the host supports them.
 - Never bypass control-plane ownership by editing `AGENTS.md`, `.ai/**`, coordination/protocol/security/consent/governance files, validators, workflows, schemas, or orchestration scripts unless the slot explicitly authorizes protected-path work and required independent review.
 
+## Environment promotion hard gate
+
+Before any deployment, release, environment migration, or environment-specific acceptance, the Worker must read and obey config/development-flow.json and enforce this sequence:
+
+**Local/Dev (development) -> Staging -> Live (main)**
+
+- Local/Dev work and acceptance happen against the development integration branch.
+- Staging may be promoted only from an exact verified development commit and only after Local/Dev acceptance evidence exists.
+- Live may be promoted only after Staging acceptance evidence exists, through development -> PR/review -> main, followed by the separately authorized manual Production dispatch.
+- A Worker must not deploy a feature/work branch directly to Staging or Live, must not deploy development directly to Live, and must not promote main to Staging.
+- Missing or failed gate evidence makes the work blocked/verification_required; the Worker must not bypass or reinterpret the gate.
+- Deployment success is not acceptance; record the required environment-specific verification before claiming completion.
+
+
 ## During work
 
 - Work only inside the claimed module/work-unit and typed handoff scope.
