@@ -912,3 +912,16 @@ test("embedded Shopify auth uses online tokens", () => {
   assert.match(shopify, /useOnlineTokens:\s*true/);
   assert.match(shopify, /authPathPrefix:\s*"\/auth"/);
 });
+
+
+test("billing gate preserves embedded Shopify auth context", () => {
+  const app = read("app/routes/app.tsx");
+
+  assert.match(
+    app,
+    /const \{ admin, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
+  );
+  assert.match(app, /return shopifyRedirect\("\/app\/plans"\)/);
+  assert.doesNotMatch(app, /throw redirect\(/);
+  assert.doesNotMatch(app, /new URLSearchParams\(\)/);
+});
