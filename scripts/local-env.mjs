@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import process from "node:process";
+import fs from "node:fs";
 
 function fail(message) {
   throw new Error(`[local-neon] ${message}`);
@@ -41,7 +42,24 @@ function parseUrl(name) {
   return { url, host };
 }
 
+function validateLocalShopifyConfig() {
+  const path = "shopify.app.toml";
+  if (!fs.existsSync(path)) fail("shopify.app.toml is required for Local/Dev.");
+  const config = fs.readFileSync(path, "utf8");
+  if (!/name\\s*=\\s*"VSN \\| Stock Down Sort Dev"/.test(config)) {
+    fail("shopify.app.toml must use the dedicated VSN | Stock Down Sort Dev identity.");
+  }
+  if (!/client_id\\s*=\\s*"675de0e3834ce61a75473de19df457c4"/.test(config)) {
+    fail("shopify.app.toml must use the committed Local/Dev Shopify client identity.");
+  }
+  if (!/automatically_update_urls_on_dev\\s*=\\s*true/.test(config)) {
+    fail("Local/Dev Shopify config must allow Shopify CLI local URL updates.");
+  }
+}
+
 export function validateLocalNeonEnv() {
+  validateLocalShopifyConfig();
+
   const appEnv = (process.env.APP_ENV || "development").trim().toLowerCase();
   if (appEnv !== "development") {
     fail("APP_ENV must be development for npm run dev.");
