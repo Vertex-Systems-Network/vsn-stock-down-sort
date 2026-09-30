@@ -7,6 +7,10 @@ on:
         description: "Type VALIDATE_STAGING to validate the isolated staging runtime"
         required: true
         type: string
+      source_ref:
+        description: "Exact 40-character development commit currently deployed to Staging"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,11 +34,30 @@ jobs:
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify Local/Dev acceptance and exact source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, os, re, subprocess
+          source_ref=os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+          subprocess.run(["git","fetch","origin","development","--depth=200"],check=True)
+          subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          local=gate.get("local_dev") or {}
+          if local.get("status")!="accepted" or local.get("accepted_source_ref")!=source_ref or not local.get("evidence_record"):
+              raise SystemExit("Local/Dev acceptance gate is not satisfied for this source_ref.")
+          PY
+          git checkout --detach "$SOURCE_REF"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
