@@ -45,7 +45,7 @@
       "objective": "Certify development-branch local Shopify development against a dedicated Neon PostgreSQL database before Staging begins.",
       "scope": [
         "development branch",
-        "VSN Stock Down Sort Dev",
+        "VSN | Stock Down Sort Dev",
         "dedicated Local Neon project",
         "Prisma migrations",
         "npm run dev"
@@ -159,6 +159,504 @@
       "completion_evidence": [],
       "update_notes": [],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-BILLING",
+      "name": "Billing and Plan Catalog",
+      "objective": "Implement Shopify billing for the approved four stable plan IDs and ten-day trials.",
+      "scope": [
+        "plan catalog",
+        "Shopify recurring subscriptions",
+        "test/real billing separation",
+        "legacy billing compatibility"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-MGMT"
+      ],
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-PRIORITY-SUPPORT"
+      ],
+      "data_entities": [
+        "subscription state"
+      ],
+      "contracts": [
+        "Shopify Billing API",
+        "config/ai/product-plan.json"
+      ],
+      "ui_surfaces": [
+        "Plans"
+      ],
+      "security_responsibilities": [
+        "Test billing outside Production",
+        "Never grant entitlement from unverified client state"
+      ],
+      "acceptance_criteria": [
+        "starter/growth/pro/unlimited exact IDs and prices are testable",
+        "All plans use 10-day trials",
+        "Legacy single-plan behavior has an explicit compatibility path"
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Billing contract tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-ENTITLEMENTS",
+      "name": "Plan Entitlements",
+      "objective": "Centralize server-side capability authorization by active plan.",
+      "scope": [
+        "feature entitlement matrix",
+        "server-side gates",
+        "upgrade/downgrade compatibility"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-BILLING"
+      ],
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-SLACK-ALERTS",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-MULTI-LOCATION",
+        "OPT-RULE-BUILDER",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES",
+        "OPT-API-INTEGRATIONS",
+        "OPT-PRIORITY-SUPPORT"
+      ],
+      "data_entities": [
+        "plan entitlement state"
+      ],
+      "contracts": [
+        "entitlement service"
+      ],
+      "ui_surfaces": [
+        "Plan badges",
+        "locked-feature upgrade prompts"
+      ],
+      "security_responsibilities": [
+        "Server-side authorization is authoritative",
+        "No UI-only gating"
+      ],
+      "acceptance_criteria": [
+        "Every selected option maps deterministically to allowed plans",
+        "Unauthorized actions fail safely"
+      ],
+      "quality_gates": [
+        "Entitlement unit/integration tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-SORTING",
+      "name": "Collection Sorting and Merchandising",
+      "objective": "Expand stock-first sorting into a reversible merchandising engine.",
+      "scope": [
+        "sold-out push-down",
+        "restock restore",
+        "manual/bulk sort",
+        "exclusions",
+        "pinning",
+        "advanced sort strategies"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-ENTITLEMENTS"
+      ],
+      "option_ids": [
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES"
+      ],
+      "data_entities": [
+        "collection settings",
+        "ordering snapshots"
+      ],
+      "contracts": [
+        "Shopify collection reorder APIs"
+      ],
+      "ui_surfaces": [
+        "Collections",
+        "Sorting rules"
+      ],
+      "security_responsibilities": [
+        "Idempotent mutation",
+        "Safe rollback"
+      ],
+      "acceptance_criteria": [
+        "Large-catalog ordering is correct and recoverable"
+      ],
+      "quality_gates": [
+        "Sorting integration tests",
+        "Queue reliability tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-PRODUCT-VISIBILITY",
+      "name": "Product Visibility Automation",
+      "objective": "Safely automate product soft-hide, unpublish and restock recovery.",
+      "scope": [
+        "soft hide",
+        "hard hide/unpublish",
+        "republish",
+        "SEO-safe behavior"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-ENTITLEMENTS"
+      ],
+      "option_ids": [
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE"
+      ],
+      "data_entities": [
+        "visibility rules",
+        "prior visibility state"
+      ],
+      "contracts": [
+        "Shopify publication/product APIs"
+      ],
+      "ui_surfaces": [
+        "Product visibility"
+      ],
+      "security_responsibilities": [
+        "Preview destructive changes",
+        "Preserve recovery evidence"
+      ],
+      "acceptance_criteria": [
+        "Visibility actions are reversible where Shopify permits"
+      ],
+      "quality_gates": [
+        "Visibility integration tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-VARIANT-VISIBILITY",
+      "name": "Variant and Inventory Visibility",
+      "objective": "Automate sold-out variant visibility with clear inventory semantics.",
+      "scope": [
+        "variant hide/show",
+        "restock restore",
+        "multi-location inventory semantics"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-ENTITLEMENTS"
+      ],
+      "option_ids": [
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-MULTI-LOCATION"
+      ],
+      "data_entities": [
+        "variant visibility state",
+        "location inventory settings"
+      ],
+      "contracts": [
+        "Shopify variant/inventory APIs"
+      ],
+      "ui_surfaces": [
+        "Variant rules"
+      ],
+      "security_responsibilities": [
+        "Do not infer stock incorrectly across locations"
+      ],
+      "acceptance_criteria": [
+        "Variant actions match configured inventory semantics"
+      ],
+      "quality_gates": [
+        "Variant/multi-location tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-ALERTS",
+      "name": "Inventory Alerts",
+      "objective": "Deliver configurable low/out-of-stock notifications and digests.",
+      "scope": [
+        "email alerts",
+        "Slack alerts",
+        "thresholds",
+        "delivery history"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-ENTITLEMENTS"
+      ],
+      "option_ids": [
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-SLACK-ALERTS"
+      ],
+      "data_entities": [
+        "alert rules",
+        "delivery attempts"
+      ],
+      "contracts": [
+        "email provider",
+        "Slack integration"
+      ],
+      "ui_surfaces": [
+        "Alerts"
+      ],
+      "security_responsibilities": [
+        "Protect recipients and integration secrets",
+        "Deduplicate noisy delivery"
+      ],
+      "acceptance_criteria": [
+        "Thresholds and deliveries are testable and auditable"
+      ],
+      "quality_gates": [
+        "Notification tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-RULE-ENGINE",
+      "name": "Automation Rule Engine",
+      "objective": "Provide deterministic IF/AND/THEN inventory automation with schedules and delayed actions.",
+      "scope": [
+        "conditions",
+        "actions",
+        "schedules",
+        "delays",
+        "precedence",
+        "conflict handling"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-SORTING",
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-VARIANT-VISIBILITY",
+        "MOD-ALERTS"
+      ],
+      "option_ids": [
+        "OPT-RULE-BUILDER",
+        "OPT-SCHEDULED-AUTOMATION"
+      ],
+      "data_entities": [
+        "rules",
+        "rule versions",
+        "executions"
+      ],
+      "contracts": [
+        "rule evaluator",
+        "scheduler"
+      ],
+      "ui_surfaces": [
+        "Automation rules"
+      ],
+      "security_responsibilities": [
+        "Validate actions before mutation",
+        "Deterministic evaluation and replay safety"
+      ],
+      "acceptance_criteria": [
+        "Rule outcomes are explainable and deterministic"
+      ],
+      "quality_gates": [
+        "Rule engine tests",
+        "Conflict tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-ANALYTICS",
+      "name": "Analytics and Operations",
+      "objective": "Expose stock health, activity history, failures, recovery and exports.",
+      "scope": [
+        "dashboard",
+        "activity history",
+        "errors/retry",
+        "rollback signals",
+        "CSV export"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-RULE-ENGINE"
+      ],
+      "option_ids": [
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT"
+      ],
+      "data_entities": [
+        "analytics aggregates",
+        "activity records",
+        "failure records"
+      ],
+      "contracts": [
+        "report/export service"
+      ],
+      "ui_surfaces": [
+        "Dashboard",
+        "Activity",
+        "Reports"
+      ],
+      "security_responsibilities": [
+        "Minimize retained merchant/customer data"
+      ],
+      "acceptance_criteria": [
+        "Operational state can be audited without claiming false success"
+      ],
+      "quality_gates": [
+        "Analytics accuracy tests",
+        "Export tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-INTEGRATIONS",
+      "name": "External Integrations",
+      "objective": "Provide guarded integration points for advanced plans.",
+      "scope": [
+        "API access",
+        "outbound/inbound webhooks"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-ENTITLEMENTS",
+        "MOD-RULE-ENGINE"
+      ],
+      "option_ids": [
+        "OPT-API-INTEGRATIONS"
+      ],
+      "data_entities": [
+        "integration credentials metadata",
+        "webhook deliveries"
+      ],
+      "contracts": [
+        "authenticated API",
+        "signed webhooks"
+      ],
+      "ui_surfaces": [
+        "Integrations"
+      ],
+      "security_responsibilities": [
+        "Authentication, authorization, replay protection and rate limits"
+      ],
+      "acceptance_criteria": [
+        "Integration contracts are documented and tested"
+      ],
+      "quality_gates": [
+        "API/webhook security tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-MARKETS-B2B",
+      "name": "Markets, B2B and Channel Rules",
+      "objective": "Support market-, catalog- and sales-channel-aware merchandising/visibility.",
+      "scope": [
+        "Shopify Markets",
+        "B2B catalogs",
+        "sales channel publications"
+      ],
+      "boundaries": [
+        "No capability is considered implemented until code and required checks provide evidence."
+      ],
+      "dependencies": [
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-VARIANT-VISIBILITY",
+        "MOD-ENTITLEMENTS"
+      ],
+      "option_ids": [
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES"
+      ],
+      "data_entities": [
+        "market/catalog/channel rule state"
+      ],
+      "contracts": [
+        "Shopify Markets/catalog/publication APIs"
+      ],
+      "ui_surfaces": [
+        "Markets & B2B"
+      ],
+      "security_responsibilities": [
+        "Prevent cross-market/catalog leakage"
+      ],
+      "acceptance_criteria": [
+        "Rules behave correctly across supported market/catalog/channel contexts"
+      ],
+      "quality_gates": [
+        "Markets/B2B integration tests"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
@@ -172,5 +670,24 @@
     "complete",
     "deferred",
     "deprecated"
-  ]
+  ],
+  "module_template": {
+    "id": "MOD-EXAMPLE",
+    "name": "Example module",
+    "objective": "Coherent product or engineering responsibility.",
+    "scope": [],
+    "boundaries": [],
+    "dependencies": [],
+    "option_ids": [],
+    "data_entities": [],
+    "contracts": [],
+    "ui_surfaces": [],
+    "security_responsibilities": [],
+    "acceptance_criteria": [],
+    "quality_gates": [],
+    "status": "not_started",
+    "completion_evidence": [],
+    "update_notes": [],
+    "removal_or_deprecation_notes": []
+  }
 }

@@ -1,6 +1,602 @@
 {
   "schema_version": 1,
-  "options": [],
+  "options": [
+    {
+      "id": "OPT-UNLIMITED-CATALOGS",
+      "name": "Unlimited product and collection counts",
+      "category": "commercial",
+      "description": "No VSN-imposed product or collection count cap on paid plans.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 100,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-SOLD-OUT-PUSH-DOWN",
+      "name": "Sold-out push down",
+      "category": "sorting",
+      "description": "Keep available products before sold-out products in enabled collections.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 100,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Shopify collection reorder APIs"
+      ],
+      "ux_implications": [
+        "Per-collection enable/disable controls"
+      ],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [
+        "Ordering integration tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-REALTIME-RESORT",
+      "name": "Realtime inventory re-sort",
+      "category": "sorting",
+      "description": "Re-evaluate enabled collections after inventory/product changes.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 98,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Shopify webhooks",
+        "queue processing"
+      ],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [
+        "Webhook authenticity and idempotency"
+      ],
+      "qa_implications": [
+        "Webhook/queue integration tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-RESTORE-ORIGINAL-POSITION",
+      "name": "Restore original position",
+      "category": "sorting",
+      "description": "Restore prior product/collection position when stock returns or automation is disabled.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 97,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Persist reversible ordering state"
+      ],
+      "ux_implications": [
+        "Restore controls"
+      ],
+      "data_implications": [
+        "Ordering snapshots"
+      ],
+      "security_implications": [],
+      "qa_implications": [
+        "Round-trip restore tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-MANUAL-BULK-SORT",
+      "name": "Manual and bulk sort controls",
+      "category": "sorting",
+      "description": "Allow immediate sort and bulk enable/disable operations.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 95,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-TAG-EXCLUSIONS",
+      "name": "Tag/vendor/product exclusions",
+      "category": "sorting",
+      "description": "Exclude preorder, coming-soon, protected or selected items from automation.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 92,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-PINNED-PRODUCTS",
+      "name": "Pinned products",
+      "category": "sorting",
+      "description": "Keep selected products in protected priority positions.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 88,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-ADVANCED-SORT-RULES",
+      "name": "Advanced collection sorting",
+      "category": "sorting",
+      "description": "Support additional sort strategies and priority criteria beyond stock state.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 86,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-LOW-STOCK-EMAIL",
+      "name": "Low-stock email alerts",
+      "category": "alerts",
+      "description": "Send configurable low/out-of-stock email notifications.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 90,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Notification delivery service"
+      ],
+      "ux_implications": [
+        "Threshold and recipient configuration"
+      ],
+      "data_implications": [
+        "Alert rules and delivery log"
+      ],
+      "security_implications": [
+        "Protect recipient data"
+      ],
+      "qa_implications": [
+        "Threshold/deduplication tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-SLACK-ALERTS",
+      "name": "Slack alerts",
+      "category": "alerts",
+      "description": "Deliver inventory alerts to configured Slack destinations.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 72,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Slack integration"
+      ],
+      "ux_implications": [],
+      "data_implications": [
+        "Integration credentials/references"
+      ],
+      "security_implications": [
+        "Least-privilege secret handling"
+      ],
+      "qa_implications": [
+        "Delivery failure tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-AUTO-HIDE-PRODUCTS",
+      "name": "Automatic product hide/unpublish",
+      "category": "visibility",
+      "description": "Hide or unpublish products when configured stock conditions are met.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 88,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Shopify product/publication APIs"
+      ],
+      "ux_implications": [
+        "Rule preview and safety messaging"
+      ],
+      "data_implications": [
+        "Visibility state/history"
+      ],
+      "security_implications": [
+        "Prevent unintended destructive visibility changes"
+      ],
+      "qa_implications": [
+        "Hide safety and recovery tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-AUTO-REPUBLISH",
+      "name": "Automatic republish on restock",
+      "category": "visibility",
+      "description": "Restore eligible products automatically when stock recovers.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 88,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-SEO-SAFE-HIDE",
+      "name": "SEO-safe soft hide",
+      "category": "visibility",
+      "description": "Remove products from selected merchandising surfaces while preserving product URL where possible.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 87,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-HIDE-SOLD-OUT-VARIANTS",
+      "name": "Hide sold-out variants",
+      "category": "variant_visibility",
+      "description": "Hide unavailable variants according to configured rules.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 84,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-VARIANT-RESTORE",
+      "name": "Restore variants on restock",
+      "category": "variant_visibility",
+      "description": "Restore hidden variants when inventory conditions recover.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 84,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-SCHEDULED-AUTOMATION",
+      "name": "Scheduled automation",
+      "category": "automation",
+      "description": "Run eligible rules on schedules in addition to event-driven execution.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 78,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-MULTI-LOCATION",
+      "name": "Multi-location inventory rules",
+      "category": "inventory",
+      "description": "Evaluate inventory rules across Shopify locations with explicit aggregation semantics.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 80,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-RULE-BUILDER",
+      "name": "Advanced IF/AND/THEN rule builder",
+      "category": "automation",
+      "description": "Compose conditions and actions using inventory, tags, vendor, collection, SKU, location and timing.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 82,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Deterministic rule evaluator"
+      ],
+      "ux_implications": [
+        "Explainable rule UI"
+      ],
+      "data_implications": [
+        "Rules, versions and execution records"
+      ],
+      "security_implications": [
+        "Validate actions before mutation"
+      ],
+      "qa_implications": [
+        "Determinism/conflict tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-ANALYTICS",
+      "name": "Inventory and automation analytics",
+      "category": "analytics",
+      "description": "Show stock health and automation outcome metrics.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 70,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-ACTIVITY-HISTORY",
+      "name": "Activity and audit history",
+      "category": "operations",
+      "description": "Record rule executions, visibility changes, sorts, failures and recoveries.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 76,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [
+        "Search/filter history"
+      ],
+      "data_implications": [
+        "Append-only operational records"
+      ],
+      "security_implications": [
+        "Avoid storing unnecessary customer data"
+      ],
+      "qa_implications": [
+        "Audit completeness tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-CSV-EXPORT",
+      "name": "CSV export",
+      "category": "analytics",
+      "description": "Export inventory/automation reports.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 62,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-MARKETS",
+      "name": "Shopify Markets rules",
+      "category": "enterprise",
+      "description": "Apply supported visibility/automation behavior with market-aware semantics.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 68,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-B2B-CATALOGS",
+      "name": "B2B catalog rules",
+      "category": "enterprise",
+      "description": "Support catalog-aware visibility/merchandising behavior for B2B.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 66,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-SALES-CHANNEL-RULES",
+      "name": "Sales-channel visibility rules",
+      "category": "enterprise",
+      "description": "Apply publication behavior by supported sales channel.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 66,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-API-INTEGRATIONS",
+      "name": "API and webhook integrations",
+      "category": "integrations",
+      "description": "Expose guarded integration surfaces for external automation.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 55,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Authenticated API/webhook contracts"
+      ],
+      "ux_implications": [],
+      "data_implications": [
+        "Integration audit records"
+      ],
+      "security_implications": [
+        "Authentication, authorization, replay protection"
+      ],
+      "qa_implications": [
+        "Contract and abuse tests"
+      ],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    },
+    {
+      "id": "OPT-PRIORITY-SUPPORT",
+      "name": "Priority support entitlement",
+      "category": "commercial",
+      "description": "Expose support tier entitlement for higher plans.",
+      "status": "selected",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "priority": 50,
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": [],
+      "rationale": "Selected for the approved VSN Stock Down Sort capability roadmap; runtime availability is controlled by plan entitlements and implementation evidence."
+    }
+  ],
   "status_values": [
     "candidate",
     "selected",

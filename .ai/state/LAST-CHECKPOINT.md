@@ -4,29 +4,33 @@ This file is a compatibility mirror. Canonical live state is:
 
 - `config/ai/project-state.json`
 - `config/ai/execution-plan.json`
+- `config/ai/product-plan.json`
 - GitHub Issue #32
 - live Git/PR/CI evidence
 
-Verified environment-topology completion:
-- PR #37 App Validation run `36698394720` passed all checks on certified Git tree `fc6e44bf74de24f2d68890136bf75cd55069fe8c`.
-- PR #37 merged to `development` as `d90dd87de3ca6605a7d97e3f7c8e9f592811c732`.
-- PR #38 promoted the identical certified tree to protected `main` as `c0320d5bcbb1057bd6100253e1b0664843ed0404`.
-- `development` was fast-forwarded to the same protected-main baseline.
-- Staging and Production were not deployed.
+## Verified environment baseline
 
-Canonical environment order:
-1. Local/Dev — `development` + **VSN Stock Down Sort Dev** + dedicated Neon PostgreSQL.
-2. Staging — GitHub Environment `cloudflare-staging` (ID `23050370538`) + manual deployment.
-3. Production — GitHub Environment `cloudflare-production` (ID `23098399859`) + manual/authorized deployment.
+- Local-first environment topology is present in the guarded repository flow.
+- `development` contains the latest embedded billing redirect preservation at `7f41646e1b0075f7614b53cf26e24bea56a44554`.
+- Staging and Production have not been deployed.
+- Active work remains `ISSUE-32-WU-LOCAL-01`.
 
-Current active work:
-`ISSUE-32-WU-LOCAL-01` remains **in progress**.
+## Owner-approved product-plan reconciliation
 
-Remaining Local blocker:
-- provision/bind the real Neon project `vsn-stock-down-sort-local`;
-- record project/branch/endpoint identity;
-- configure pooled `DATABASE_URL` + matching direct `DIRECT_URL` in the uncommitted local `.env`;
-- run Prisma migrations and `npm run dev`;
-- prove the Dev Shopify app opens successfully.
+The AI-Native planner now carries the future four-plan commercial contract:
 
-Do not start Staging until that Local evidence exists.
+- `starter` — USD 10.99 / 30 days / 10-day trial
+- `growth` — USD 19.99 / 30 days / 10-day trial
+- `pro` — USD 34.99 / 30 days / 10-day trial
+- `unlimited` — USD 54.99 / 30 days / 10-day trial
+
+All four paid plans are planned without VSN-imposed product/collection count limits. Capability differentiation is canonical in `config/ai/product-plan.json`.
+
+This does **not** claim the runtime billing code has changed. The current legacy single-plan runtime contract remains implementation truth until `ISSUE-32-WU-BILLING-01` passes.
+
+## Resume rule
+
+1. Finish Local Neon binding, migrations and Dev Shopify boot evidence.
+2. Implement/certify `ISSUE-32-WU-BILLING-01` in Shopify test mode.
+3. Continue Staging secret/readiness/deploy/acceptance gates.
+4. Advance into PHASE-02+ only through dependency-valid work units.

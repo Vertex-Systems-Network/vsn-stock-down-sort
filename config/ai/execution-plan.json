@@ -1,14 +1,16 @@
 {
   "schema_version": 1,
   "active_issue": 32,
+  "product_plan": "config/ai/product-plan.json",
   "phases": [
     {
       "id": "PHASE-01",
       "name": "Local-first environment certification and production-safe promotion",
-      "objective": "Certify Local/Dev on development with dedicated Neon first, then Staging end-to-end, before any Production promotion.",
+      "objective": "Certify Local/Dev first, introduce the approved four-plan test billing contract, then certify Staging before any Production preparation.",
       "module_ids": [
         "MOD-MGMT",
         "MOD-LOCAL",
+        "MOD-BILLING",
         "MOD-STAGING",
         "MOD-PRODUCTION"
       ],
@@ -16,11 +18,156 @@
       "status": "in_progress",
       "exit_criteria": [
         "Local/Dev runs from development with a dedicated Neon database.",
+        "Stable plan IDs starter, growth, pro, unlimited are implemented with monthly USD 10.99, 19.99, 34.99, 54.99 and 10-day trials in Shopify test mode.",
         "Dedicated Staging Shopify identity is verified.",
         "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
-        "Staging Shopify auth/session/Admin API reads pass.",
-        "Exact unlimited USD 55 every 30 days with 5-day test trial contract is verified.",
+        "Staging Shopify auth/session/Admin API and four-plan billing checks pass.",
         "Production remains unmodified until Staging acceptance evidence exists."
+      ]
+    },
+    {
+      "id": "PHASE-02",
+      "name": "Four-plan billing and entitlement architecture",
+      "objective": "Turn the approved commercial catalog into authoritative server-side entitlement behavior and safe subscription transitions.",
+      "module_ids": [
+        "MOD-BILLING",
+        "MOD-ENTITLEMENTS"
+      ],
+      "dependencies": [
+        "PHASE-01"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "All four plans map to deterministic capability entitlements.",
+        "Upgrade/downgrade/cancel/legacy paths are verified.",
+        "Plans UX matches canonical product plan."
+      ]
+    },
+    {
+      "id": "PHASE-03",
+      "name": "Sorting and merchandising correctness",
+      "objective": "Make stock-first sorting scalable, reversible and more configurable than single-purpose competitors.",
+      "module_ids": [
+        "MOD-SORTING"
+      ],
+      "dependencies": [
+        "PHASE-02"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Advanced sorting, pinning/exclusions and restore behavior are verified.",
+        "Queue/API-limit behavior is resilient."
+      ]
+    },
+    {
+      "id": "PHASE-04",
+      "name": "Product visibility automation",
+      "objective": "Add safe soft-hide, unpublish and restock recovery workflows.",
+      "module_ids": [
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "dependencies": [
+        "PHASE-03"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Visibility actions are reversible/recoverable and entitlement-gated."
+      ]
+    },
+    {
+      "id": "PHASE-05",
+      "name": "Variant and multi-location automation",
+      "objective": "Add sold-out variant control and explicit location-aware inventory semantics.",
+      "module_ids": [
+        "MOD-VARIANT-VISIBILITY"
+      ],
+      "dependencies": [
+        "PHASE-04"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Variant/multi-location behavior passes integration and edge-case tests."
+      ]
+    },
+    {
+      "id": "PHASE-06",
+      "name": "Inventory alerts and notifications",
+      "objective": "Deliver low/out-of-stock email, Slack and digest workflows with deduplication and reliability.",
+      "module_ids": [
+        "MOD-ALERTS"
+      ],
+      "dependencies": [
+        "PHASE-05"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Alert thresholds, integrations and failure recovery are verified."
+      ]
+    },
+    {
+      "id": "PHASE-07",
+      "name": "Advanced automation rule engine",
+      "objective": "Provide deterministic IF/AND/THEN rules, scheduling, delays, precedence and explainability.",
+      "module_ids": [
+        "MOD-RULE-ENGINE"
+      ],
+      "dependencies": [
+        "PHASE-06"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Rules are deterministic, conflict-safe, explainable and idempotent."
+      ]
+    },
+    {
+      "id": "PHASE-08",
+      "name": "Analytics, history and merchant operations",
+      "objective": "Add dashboard, history, error/retry/rollback and export surfaces.",
+      "module_ids": [
+        "MOD-ANALYTICS"
+      ],
+      "dependencies": [
+        "PHASE-07"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Operational outcomes are auditable and reports reconcile to source data."
+      ]
+    },
+    {
+      "id": "PHASE-09",
+      "name": "Markets, B2B and integrations",
+      "objective": "Add enterprise-context merchandising plus guarded external integration surfaces.",
+      "module_ids": [
+        "MOD-MARKETS-B2B",
+        "MOD-INTEGRATIONS"
+      ],
+      "dependencies": [
+        "PHASE-08"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Markets/catalog/channel isolation is verified.",
+        "Integration contracts are secure and entitlement-gated."
+      ]
+    },
+    {
+      "id": "PHASE-10",
+      "name": "Security, scale and production certification",
+      "objective": "Certify the complete product under security, scale, staging and guarded Production release gates.",
+      "module_ids": [
+        "MOD-PRODUCTION",
+        "MOD-STAGING",
+        "MOD-SORTING"
+      ],
+      "dependencies": [
+        "PHASE-09"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Security and scale gates pass.",
+        "Full Staging certification passes.",
+        "Production is released only from exact certified evidence with explicit authorization."
       ]
     }
   ],
@@ -57,7 +204,7 @@
       "phase_id": "PHASE-01",
       "module_id": "MOD-LOCAL",
       "title": "Set up and certify Local Dev with Neon",
-      "objective": "Run VSN Stock Down Sort Dev from development using an isolated Neon PostgreSQL database before any Staging work.",
+      "objective": "Run VSN | Stock Down Sort Dev from development using an isolated Neon PostgreSQL database before Staging work.",
       "dependencies": [
         "ISSUE-32-WU-01"
       ],
@@ -68,7 +215,7 @@
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
-        "npm run dev uses VSN Stock Down Sort Dev.",
+        "npm run dev uses VSN | Stock Down Sort Dev.",
         "DATABASE_URL is a Neon pooled connection.",
         "DIRECT_URL is the matching Neon direct connection.",
         "Prisma migrations pass on the Local Neon database.",
@@ -81,26 +228,52 @@
         "Shopify local dev boot"
       ],
       "completion_evidence": [
-        "PR #37 App Validation run 36698394720 passed Prisma validation/generation, lint, typecheck, runtime contracts, Worker build, Cloudflare Staging dry-run and Cloudflare Production dry-run.",
-        "PR #37 merged Local-first topology to development as d90dd87de3ca6605a7d97e3f7c8e9f592811c732.",
-        "PR #38 promoted the identical certified Git tree fc6e44bf74de24f2d68890136bf75cd55069fe8c to protected main as c0320d5bcbb1057bd6100253e1b0664843ed0404.",
-        "All Staging workflows bind to cloudflare-staging; all Production workflows bind to cloudflare-production.",
-        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup."
+        "PR #37 App Validation run 36698394720 passed repository checks.",
+        "Local-first topology is present in protected main.",
+        "Actual Local Neon binding/live dev acceptance remains pending."
       ]
+    },
+    {
+      "id": "ISSUE-32-WU-BILLING-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-BILLING",
+      "title": "Replace legacy single-plan test contract with approved four-plan catalog",
+      "objective": "Implement and locally verify exact starter/growth/pro/unlimited recurring test billing using 10-day trials before Staging acceptance.",
+      "dependencies": [
+        "ISSUE-32-WU-LOCAL-01"
+      ],
+      "priority": 92,
+      "status": "not_started",
+      "blockers": [
+        "Local/Dev certification must complete first."
+      ],
+      "acceptance_criteria": [
+        "Stable IDs are starter, growth, pro, unlimited.",
+        "Monthly prices are USD 10.99, 19.99, 34.99 and 54.99 respectively.",
+        "Every plan uses a 10-day trial.",
+        "Local billing remains Shopify test mode.",
+        "Legacy USD 55 / 5-day runtime contract is removed or explicitly migrated without breaking existing subscription handling."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Billing contract tests",
+        "Local Shopify test subscription verification"
+      ],
+      "completion_evidence": []
     },
     {
       "id": "ISSUE-32-WU-02",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Verify staging environment secret contract",
-      "objective": "After Local certification, prove required cloudflare-staging GitHub Environment values are configured without exposing values.",
+      "objective": "After Local and four-plan billing contract certification, prove required cloudflare-staging values are configured without exposing them.",
       "dependencies": [
-        "ISSUE-32-WU-LOCAL-01"
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
       "status": "not_started",
       "blockers": [
-        "Local/Dev Neon certification must complete first."
+        "Local/Dev and billing contract certification must complete first."
       ],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
@@ -155,8 +328,8 @@
       "id": "ISSUE-32-WU-05",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
-      "title": "Certify staging runtime and Shopify acceptance",
-      "objective": "Verify health, database, queues, sessions, Admin GraphQL and billing reads.",
+      "title": "Certify staging runtime, Shopify acceptance and four-plan test billing",
+      "objective": "Verify health, database, queues, sessions, Admin GraphQL and exact four-plan test billing reads/creation.",
       "dependencies": [
         "ISSUE-32-WU-04"
       ],
@@ -165,11 +338,13 @@
       "blockers": [],
       "acceptance_criteria": [
         "Runtime health passes.",
-        "Signed staging acceptance passes against isolated test shop."
+        "Signed staging acceptance passes against isolated test shop.",
+        "All four stable plan IDs/prices use 10-day trial in test mode."
       ],
       "required_checks": [
         "Post-deploy health",
-        "Signed Shopify staging acceptance"
+        "Signed Shopify staging acceptance",
+        "Billing contract verification"
       ],
       "completion_evidence": []
     },
@@ -212,6 +387,581 @@
       ],
       "required_checks": [
         "Production Readiness"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P2-01",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-ENTITLEMENTS",
+      "title": "Build server-side entitlement engine",
+      "objective": "Map active Shopify plan to selected option IDs and enforce access on server actions.",
+      "dependencies": [
+        "ISSUE-32-WU-07"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Every protected capability checks server-side entitlements.",
+        "Unknown/invalid plans fail closed."
+      ],
+      "required_checks": [
+        "Entitlement tests",
+        "App Validation"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P2-02",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-BILLING",
+      "title": "Implement upgrade, downgrade, cancel and legacy compatibility",
+      "objective": "Make subscription transitions deterministic and preserve a safe path from legacy subscriptions.",
+      "dependencies": [
+        "WU-P2-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Transitions are explicit and tested.",
+        "Legacy subscription state never silently grants the wrong tier."
+      ],
+      "required_checks": [
+        "Billing transition tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P2-03",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-ENTITLEMENTS",
+      "title": "Align Plans UX and feature gates",
+      "objective": "Render the four plans, ten-day trials and capability-aware upgrade prompts.",
+      "dependencies": [
+        "WU-P2-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Plans UI matches canonical product-plan.json.",
+        "Locked features explain required tier without bypassing server gates."
+      ],
+      "required_checks": [
+        "UI tests",
+        "App Validation"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P3-01",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-SORTING",
+      "title": "Certify stock-first sorting correctness at scale",
+      "objective": "Audit current ordering, Shopify API limits and large-catalog behavior.",
+      "dependencies": [
+        "WU-P2-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Ordering is deterministic across large collections.",
+        "API throttling is handled without false success."
+      ],
+      "required_checks": [
+        "Large-catalog integration tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P3-02",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-SORTING",
+      "title": "Add exclusions, pinning and advanced sort strategies",
+      "objective": "Implement approved merchandising controls while preserving stock-first invariants.",
+      "dependencies": [
+        "WU-P3-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Excluded/pinned products behave deterministically.",
+        "Restore remains reversible."
+      ],
+      "required_checks": [
+        "Sorting rule tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P3-03",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-SORTING",
+      "title": "Harden queues, retries and idempotency",
+      "objective": "Certify webhook/queue durability, DLQ recovery and concurrency behavior.",
+      "dependencies": [
+        "WU-P3-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Duplicate events do not duplicate harmful mutations.",
+        "Failures are recoverable and observable."
+      ],
+      "required_checks": [
+        "Queue/DLQ tests",
+        "Idempotency tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P4-01",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement SEO-safe soft hide",
+      "objective": "Allow collection/search merchandising removal while preserving product URL where supported.",
+      "dependencies": [
+        "WU-P3-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Soft hide has a previewable/reversible state model."
+      ],
+      "required_checks": [
+        "Visibility integration tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P4-02",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement hard hide/unpublish and restock republish",
+      "objective": "Automate publication changes with preserved prior-state evidence.",
+      "dependencies": [
+        "WU-P4-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Hard hide and republish are reversible where Shopify permits.",
+        "Protected/excluded items are not mutated."
+      ],
+      "required_checks": [
+        "Publication recovery tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P4-03",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Certify visibility failure recovery",
+      "objective": "Add retry/error handling and merchant-visible recovery evidence.",
+      "dependencies": [
+        "WU-P4-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "No failed visibility action is reported as successful."
+      ],
+      "required_checks": [
+        "Failure injection tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P5-01",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-VARIANT-VISIBILITY",
+      "title": "Implement sold-out variant hide/restore",
+      "objective": "Apply variant visibility rules and automatically restore on restock.",
+      "dependencies": [
+        "WU-P4-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Variant state transitions are deterministic and reversible."
+      ],
+      "required_checks": [
+        "Variant integration tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P5-02",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-VARIANT-VISIBILITY",
+      "title": "Implement multi-location inventory semantics",
+      "objective": "Define and enforce how location inventory contributes to rule conditions.",
+      "dependencies": [
+        "WU-P5-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Location aggregation is explicit and tested."
+      ],
+      "required_checks": [
+        "Multi-location tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P5-03",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-VARIANT-VISIBILITY",
+      "title": "Harden variant edge cases",
+      "objective": "Cover mixed availability, tracking-disabled variants and concurrent stock changes.",
+      "dependencies": [
+        "WU-P5-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Edge cases fail safely without hiding valid inventory."
+      ],
+      "required_checks": [
+        "Variant edge-case tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P6-01",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-ALERTS",
+      "title": "Implement low/out-of-stock email rules",
+      "objective": "Add thresholds, recipients, deduplication and delivery history.",
+      "dependencies": [
+        "WU-P5-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Threshold alerts are deterministic and deduplicated."
+      ],
+      "required_checks": [
+        "Alert tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P6-02",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-ALERTS",
+      "title": "Add Slack and scheduled digests",
+      "objective": "Deliver eligible alerts to Slack and scheduled summaries for entitled plans.",
+      "dependencies": [
+        "WU-P6-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Integration secrets are protected.",
+        "Failures are visible and retryable."
+      ],
+      "required_checks": [
+        "Slack/digest tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P6-03",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-ALERTS",
+      "title": "Certify notification reliability",
+      "objective": "Test retries, rate limits and noisy inventory-update suppression.",
+      "dependencies": [
+        "WU-P6-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Delivery reliability has evidence under failure/load."
+      ],
+      "required_checks": [
+        "Failure/load tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P7-01",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-RULE-ENGINE",
+      "title": "Build deterministic rule model and evaluator",
+      "objective": "Implement versioned IF/AND/THEN rules against approved conditions/actions.",
+      "dependencies": [
+        "WU-P6-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Same inputs produce same rule decisions.",
+        "Invalid actions are rejected before mutation."
+      ],
+      "required_checks": [
+        "Rule evaluator tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P7-02",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-RULE-ENGINE",
+      "title": "Add schedules, delays and chained recovery actions",
+      "objective": "Support time-based execution such as push down then soft hide then restore.",
+      "dependencies": [
+        "WU-P7-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Scheduled/delayed actions are idempotent and cancelable where required."
+      ],
+      "required_checks": [
+        "Scheduler tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P7-03",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-RULE-ENGINE",
+      "title": "Implement conflict precedence and explainability",
+      "objective": "Resolve overlapping rules predictably and show why an action occurred.",
+      "dependencies": [
+        "WU-P7-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Conflict resolution is explicit and test-covered."
+      ],
+      "required_checks": [
+        "Conflict/explainability tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P8-01",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-ANALYTICS",
+      "title": "Build merchant dashboard and activity history",
+      "objective": "Expose stock health, automation outcomes and auditable activity records.",
+      "dependencies": [
+        "WU-P7-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Dashboard metrics reconcile with stored execution data."
+      ],
+      "required_checks": [
+        "Analytics tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P8-02",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-ANALYTICS",
+      "title": "Add error center, retry and rollback controls",
+      "objective": "Surface failed actions and guarded recovery paths.",
+      "dependencies": [
+        "WU-P8-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Retries/rollback never claim success without verified outcome."
+      ],
+      "required_checks": [
+        "Recovery tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P8-03",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-ANALYTICS",
+      "title": "Add reports and CSV export",
+      "objective": "Provide entitled inventory and automation exports.",
+      "dependencies": [
+        "WU-P8-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Exports match filtered source data."
+      ],
+      "required_checks": [
+        "Export tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P9-01",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-MARKETS-B2B",
+      "title": "Implement Markets/catalog/channel-aware rules",
+      "objective": "Add supported Shopify Markets, B2B catalog and publication-channel semantics.",
+      "dependencies": [
+        "WU-P8-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Rules do not leak visibility across unintended contexts."
+      ],
+      "required_checks": [
+        "Markets/B2B tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P9-02",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-INTEGRATIONS",
+      "title": "Implement guarded API and webhook integrations",
+      "objective": "Expose authenticated/replay-safe integration contracts for entitled plans.",
+      "dependencies": [
+        "WU-P9-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "API/webhooks enforce entitlement, auth and rate limits."
+      ],
+      "required_checks": [
+        "API security tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P9-03",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-MARKETS-B2B",
+      "title": "Certify enterprise-context behavior",
+      "objective": "Test multi-market, catalog and channel combinations with recovery evidence.",
+      "dependencies": [
+        "WU-P9-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Enterprise contexts have deterministic acceptance evidence."
+      ],
+      "required_checks": [
+        "Enterprise integration tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P10-01",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-PRODUCTION",
+      "title": "Run security/privacy threat model and dependency assurance",
+      "objective": "Review Shopify auth, billing, webhooks, database, Cloudflare, Actions, integrations and data minimization.",
+      "dependencies": [
+        "WU-P9-03"
+      ],
+      "priority": 100,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Critical security findings are resolved or explicitly blocked."
+      ],
+      "required_checks": [
+        "Security checks",
+        "Dependency review"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P10-02",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-SORTING",
+      "title": "Certify scale, API limits and failure recovery",
+      "objective": "Run high-volume catalog, queue, retry and rate-limit certification.",
+      "dependencies": [
+        "WU-P10-01"
+      ],
+      "priority": 90,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "High-volume operation does not corrupt ordering or visibility state."
+      ],
+      "required_checks": [
+        "Scale/load tests"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P10-03",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-STAGING",
+      "title": "Run full Staging product certification",
+      "objective": "Verify all four plans, entitlements and implemented modules against isolated Staging.",
+      "dependencies": [
+        "WU-P10-02"
+      ],
+      "priority": 80,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging acceptance covers billing, entitlements, core workflows and recovery."
+      ],
+      "required_checks": [
+        "Full staging acceptance"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "WU-P10-04",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-PRODUCTION",
+      "title": "Prepare and release guarded Production candidate",
+      "objective": "Promote exact certified source only after explicit release authorization and verify post-release health.",
+      "dependencies": [
+        "WU-P10-03"
+      ],
+      "priority": 70,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Production release is explicitly authorized.",
+        "Post-release verification passes or rollback is executed."
+      ],
+      "required_checks": [
+        "Production Readiness",
+        "Post-release verification"
       ],
       "completion_evidence": []
     }

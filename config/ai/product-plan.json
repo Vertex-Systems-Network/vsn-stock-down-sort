@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "status": "approved_for_implementation",
+  "currency_code": "USD",
+  "billing_interval": "EVERY_30_DAYS",
+  "trial_days": 10,
+  "invariants": [
+    "Stable plan IDs are starter, growth, pro, unlimited and must not be repurposed.",
+    "Every paid plan uses a 10-day trial unless a future explicit owner decision changes the commercial contract.",
+    "All four plans have no VSN-imposed product or collection count limit; differentiation is capability-based.",
+    "Local and Staging use Shopify test billing; Production uses real billing only after guarded release authorization."
+  ],
+  "plans": [
+    {
+      "id": "starter",
+      "name": "Starter",
+      "amount": 10.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 30,
+      "support": "standard",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL"
+      ]
+    },
+    {
+      "id": "growth",
+      "name": "Growth",
+      "amount": 19.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 90,
+      "support": "standard",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS"
+      ]
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "amount": 34.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 365,
+      "support": "priority",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS",
+        "OPT-MULTI-LOCATION",
+        "OPT-RULE-BUILDER",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-PRIORITY-SUPPORT"
+      ]
+    },
+    {
+      "id": "unlimited",
+      "name": "Unlimited",
+      "amount": 54.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": null,
+      "support": "24/7 priority",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS",
+        "OPT-MULTI-LOCATION",
+        "OPT-RULE-BUILDER",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES",
+        "OPT-API-INTEGRATIONS",
+        "OPT-PRIORITY-SUPPORT"
+      ]
+    }
+  ],
+  "migration_notes": [
+    "Current application code still exposes the legacy single unlimited plan at USD 55 with a 5-day trial until ISSUE-32-WU-BILLING-01 is implemented and verified.",
+    "Do not treat this planning file as runtime billing evidence.",
+    "Legacy subscriptions require an explicit migration/compatibility path before Production rollout."
+  ]
+}

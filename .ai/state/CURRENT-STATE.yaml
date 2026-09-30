@@ -2,6 +2,7 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
+canonical_product_plan: config/ai/product-plan.json
 active_issue: 32
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
@@ -11,5 +12,7 @@ current_phase: PHASE-01
 current_module: local-development-certification
 current_work_unit: ISSUE-32-WU-LOCAL-01
 note: >
-  This file is retained for compatibility with earlier project sessions.
-  Reconcile and update config/ai/project-state.json first; repository/Git/CI evidence remains authoritative.
+  Current execution remains Local/Dev certification. The owner-approved future commercial
+  catalog is starter/growth/pro/unlimited with 10-day trials and is machine-readable in
+  config/ai/product-plan.json. Planning does not equal runtime implementation. Reconcile
+  canonical state and repository/Git/CI evidence before advancing.
