@@ -5,7 +5,7 @@
   "current_module": "local-development-certification",
   "current_work_unit": "ISSUE-32-WU-LOCAL-01",
   "active_issue": 32,
-  "last_verified_completion": "Main ruleset live verification: ruleset 24186631 is active and requires validate (integration_id 15368); CI App Validation must not depend on privileged ruleset-management API access.",
+  "last_verified_completion": "Local Shopify validator now targets shopify.app.local.toml, matching npm run dev --config local; main ruleset 24186631 is live with validate required.",
   "next_valid_work_unit": "Provision/bind the dedicated Neon project vsn-stock-down-sort-local, use pooled DATABASE_URL plus matching direct DIRECT_URL in the uncommitted local .env, then run npm run dev from development. Only after Local/Dev certification may cloudflare-staging secret/readiness work resume.",
   "progress": {
     "total_work_units": 8,
@@ -33,9 +33,9 @@
     "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes."
   ],
   "critical_defects": [],
-  "qa_readiness": "app_validation_unblocked_after_ruleset_audit_decoupling_local_neon_binding_and_acceptance_required",
+  "qa_readiness": "App Validation is running against the corrected Local config contract; Local Neon binding and real workstation acceptance remain required.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "c0320d5bcbb1057bd6100253e1b0664843ed0404",
-  "last_reconciled_at": "2026-09-30T10:05:00+00:00",
+  "last_reconciled_repository_ref": "ab3516bbd904ca2e53fab85177dc683a9665752c",
+  "last_reconciled_at": "2026-09-30T23:37:13Z",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred."
 }
