@@ -41,6 +41,17 @@ function parseUrl(name) {
   return { url, host };
 }
 
+function validateLocalShopifyEnv() {
+  const apiKey = process.env.SHOPIFY_API_KEY?.trim();
+  if (!apiKey) fail("SHOPIFY_API_KEY is required for Local/Dev.");
+  if (apiKey !== "675de0e3834ce61a75473de19df457c4") {
+    fail("SHOPIFY_API_KEY must match the committed Local/Dev Shopify client identity.");
+  }
+
+  const apiSecret = process.env.SHOPIFY_API_SECRET?.trim();
+  if (!apiSecret) fail("SHOPIFY_API_SECRET is required for Local/Dev.");
+}
+
 function validateLocalShopifyConfig() {
   const path = "shopify.app.local.toml";
   if (!fs.existsSync(path)) fail("shopify.app.local.toml is required for Local/Dev when using --config local.");
@@ -58,6 +69,7 @@ function validateLocalShopifyConfig() {
 
 export function validateLocalNeonEnv() {
   validateLocalShopifyConfig();
+  validateLocalShopifyEnv();
 
   const appEnv = (process.env.APP_ENV || "development").trim().toLowerCase();
   if (appEnv !== "development") {
