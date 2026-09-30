@@ -55,6 +55,15 @@ Before any deployment, release, environment migration, or environment-specific a
 - Deployment success is not acceptance; record the required environment-specific verification before claiming completion.
 
 
+## Environment gate evidence
+
+Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
+
+- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
+- Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
+- A `verification_required` or `blocked` gate is a hard stop, not a suggestion.
+
 ## During work
 
 - Work only inside the claimed module/work-unit and typed handoff scope.

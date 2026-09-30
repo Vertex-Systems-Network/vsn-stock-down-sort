@@ -7,10 +7,13 @@ on:
         description: "Type DEPLOY_DEVELOPMENT_TO_STAGING to deploy the development branch to isolated staging"
         required: true
         type: string
+      source_ref:
+        description: "Exact 40-character development commit accepted by Local/Dev"
+        required: true
+        type: string
       staging_shop:
-        description: "Optional myshopify.com shop to run signed Shopify acceptance checks after deploy"
-        required: false
-        default: ""
+        description: "myshopify.com shop required for signed Shopify acceptance"
+        required: true
         type: string
 
 permissions:
@@ -39,6 +42,7 @@ jobs:
       SCOPES: read_products,write_products,read_inventory
       STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
       - name: Checkout development source
@@ -47,6 +51,29 @@ jobs:
           ref: development
           persist-credentials: false
 
+      - name: Verify Local/Dev acceptance and exact source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, os, re, subprocess
+          source_ref=os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+          subprocess.run(["git","fetch","origin","development","--depth=200"],check=True)
+          subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          local=gate.get("local_dev") or {}
+          if local.get("status")!="accepted":
+              raise SystemExit("Local/Dev acceptance gate is not accepted; Staging promotion is blocked.")
+          if local.get("accepted_source_ref")!=source_ref:
+              raise SystemExit("source_ref does not match the Local/Dev accepted source ref.")
+          if not local.get("evidence_record"):
+              raise SystemExit("Local/Dev evidence record is missing.")
+          print(f"local_dev_gate=accepted source_ref={source_ref}")
+          PY
+          git checkout --detach "$SOURCE_REF"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

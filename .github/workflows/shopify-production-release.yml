@@ -39,6 +39,29 @@ jobs:
           ref: main
           persist-credentials: false
 
+      - name: Verify Staging acceptance gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, subprocess
+          subprocess.run(["git","fetch","origin","main","--depth=200"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/main:config/release/environment-gates.json"],text=True))
+          staging=gate.get("staging") or {}
+          if staging.get("status")!="accepted":
+              raise SystemExit("Staging acceptance gate is not accepted; Live/Production operation is blocked.")
+          source_ref=staging.get("accepted_source_ref")
+          main_ref=staging.get("accepted_main_ref")
+          if not isinstance(source_ref,str) or len(source_ref)!=40:
+              raise SystemExit("Staging accepted source ref is missing or invalid.")
+          if not isinstance(main_ref,str) or len(main_ref)!=40:
+              raise SystemExit("Staging accepted main ref is missing or invalid.")
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/main"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",main_ref,"origin/main"],check=True)
+          if not staging.get("evidence_record"):
+              raise SystemExit("Staging acceptance evidence record is missing.")
+          print(f"staging_acceptance=accepted source_ref={source_ref} main_ref={main_ref}")
+          PY
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

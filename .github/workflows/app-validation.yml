@@ -56,6 +56,9 @@ jobs:
       - name: Worker runtime contracts
         run: node --test tests/worker-runtime-contract.test.mjs
 
+      - name: Environment promotion contract
+        run: node --test tests/environment-promotion-contract.test.mjs
+
       - name: Build Worker runtime
         run: npm run build:worker
 

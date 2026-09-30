@@ -28,5 +28,17 @@
   },
   "authorized_version": null,
   "authorized_source_ref": null,
-  "authorization_record": null
+  "authorization_record": null,
+  "governance": {
+    "promotion_order": [
+      "local_dev",
+      "staging",
+      "live"
+    ],
+    "staging_acceptance_required": true,
+    "staging_acceptance_record": "config/release/environment-gates.json",
+    "staging_acceptance_authoritative_branch": "main",
+    "live_source_branch": "main",
+    "explicit_release_authorization_required": true
+  }
 }

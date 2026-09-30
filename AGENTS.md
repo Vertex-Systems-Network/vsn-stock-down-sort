@@ -98,6 +98,15 @@ The AI must treat environment promotion as a strict one-way evidence-gated seque
 - A deployment is not proof of acceptance. Each promotion requires the environment-specific checks, acceptance evidence, and project-state synchronization required by the active work unit.
 - If repository reality conflicts with this flow, stop and reconcile the repository state/policy before proceeding.
 
+## Environment gate evidence
+
+Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
+
+- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
+- Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
+- A `verification_required` or `blocked` gate is a hard stop, not a suggestion.
+
 ## Supervisor / Worker runtime boundary
 
 The repository contains Supervisor/Worker protocols, but no persistent orchestrator runtime is currently certified. Do not claim continuous background execution, live leases, or distributed Worker authority merely because protocol files exist.

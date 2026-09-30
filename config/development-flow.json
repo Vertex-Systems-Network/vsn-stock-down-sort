@@ -60,7 +60,10 @@
     "production_release_requires_explicit_authorization": true,
     "local_database_must_be_neon": true,
     "local_database_must_be_isolated": true,
-    "production_environment_client_id_must_match_committed_live_config": true
+    "production_environment_client_id_must_match_committed_live_config": true,
+    "staging_requires_local_dev_acceptance_record": true,
+    "staging_source_ref_must_match_local_accepted_ref": true,
+    "live_requires_staging_acceptance_record_on_main": true
   },
   "development_ci": {
     "automatic_on_push": true,
@@ -108,6 +111,27 @@
     ],
     "evidence_gate_rule": "The AI must not advance to the next environment without verified acceptance evidence from the previous environment.",
     "no_skip_rule": "Missing, stale, or failed evidence blocks promotion and must be recorded rather than bypassed.",
-    "deployment_is_not_acceptance": true
+    "deployment_is_not_acceptance": true,
+    "evidence_record": "config/release/environment-gates.json",
+    "local_dev_gate": {
+      "status_values": [
+        "verification_required",
+        "accepted",
+        "blocked"
+      ],
+      "accepted_source_ref_required": true,
+      "evidence_record_required": true
+    },
+    "staging_gate": {
+      "status_values": [
+        "blocked",
+        "verification_required",
+        "accepted"
+      ],
+      "accepted_source_ref_required": true,
+      "accepted_main_ref_required": true,
+      "evidence_record_required": true,
+      "authoritative_location": "main"
+    }
   }
 }

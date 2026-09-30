@@ -11,6 +11,10 @@ on:
         description: "Exact unreleased staging Shopify version to release"
         required: true
         type: string
+      source_ref:
+        description: "Exact 40-character development commit used to create the staging version"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,14 +34,33 @@ jobs:
       TARGET_VERSION: ${{ github.event.inputs.version }}
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
-      - name: Checkout protected main
+      - name: Checkout development source
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: development
           persist-credentials: false
 
+      - name: Verify Local/Dev acceptance and exact source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, os, re, subprocess
+          source_ref=os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+          subprocess.run(["git","fetch","origin","development","--depth=200"],check=True)
+          subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          local=gate.get("local_dev") or {}
+          if local.get("status")!="accepted" or local.get("accepted_source_ref")!=source_ref or not local.get("evidence_record"):
+              raise SystemExit("Local/Dev acceptance gate is not satisfied for this source_ref.")
+          PY
+          git checkout --detach "$SOURCE_REF"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -58,6 +81,10 @@ jobs:
 
           if ! [[ "$TARGET_VERSION" =~ ^stock-down-sort-staging-[0-9a-f]{12}-[0-9]+$ ]]; then
             echo "Refusing to release a version outside the certified staging naming contract." >&2
+            exit 1
+          fi
+          if [[ "$TARGET_VERSION" != stock-down-sort-staging-${SOURCE_REF:0:12}-* ]]; then
+            echo "Refusing to release a staging version bound to a different source_ref." >&2
             exit 1
           fi
 
