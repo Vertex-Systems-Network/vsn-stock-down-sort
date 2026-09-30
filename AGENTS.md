@@ -82,6 +82,22 @@ Release:
 Production:
 manual Worker preparation and separately authorization-gated Shopify release. Never auto-promote production.
 
+## NON-NEGOTIABLE ENVIRONMENT PROMOTION ORDER
+
+The AI must treat environment promotion as a strict one-way evidence-gated sequence:
+
+**Local/Dev → Staging → Live**
+
+- "development" is the canonical **Local/Dev integration branch**. Local development work is performed and verified from "development" (normally through an isolated work branch/PR that targets "development").
+- No feature/work branch may be deployed directly to Staging or Live.
+- Local/Dev verification is the first gate. The AI must not begin Staging deployment/acceptance for a change until the required Local/Dev acceptance evidence for that change exists.
+- Staging is promoted **only from an exact, verified "development" commit** through the guarded manual Staging workflow. Staging uses Shopify test billing and the isolated Staging environment.
+- Live/Production is promoted **only after Staging acceptance is complete**. The release route is "development -> PR/review -> main -> manual Production dispatch", with explicit Production authorization. Production uses the "main" release branch and real billing.
+- The AI must never reorder, bypass, or silently waive these gates. Missing evidence means the work remains at the current environment and is "blocked"/"verification_required"; it must not be marked complete.
+- Direct paths are prohibited: feature/work branch -> Staging, feature/work branch -> Live, "development" -> Live, Staging -> Live without the "development -> PR -> main" release step, and "main" -> Staging.
+- A deployment is not proof of acceptance. Each promotion requires the environment-specific checks, acceptance evidence, and project-state synchronization required by the active work unit.
+- If repository reality conflicts with this flow, stop and reconcile the repository state/policy before proceeding.
+
 ## Supervisor / Worker runtime boundary
 
 The repository contains Supervisor/Worker protocols, but no persistent orchestrator runtime is currently certified. Do not claim continuous background execution, live leases, or distributed Worker authority merely because protocol files exist.
