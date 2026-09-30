@@ -77,9 +77,9 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN Stock Down Sort Dev | `shopify.app.toml` | test |
-| Staging | VSN Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.toml` | test |
+| Staging | VSN | Stock Down Sort Staging | `shopify.app.staging.toml` | test |
+| Live / Production | VSN | Stock Down Sort | `shopify.app.production.toml` | real |
 
 Database topology is also isolated:
 - Local: dedicated Neon project `vsn-stock-down-sort-local`
@@ -90,7 +90,7 @@ Local must be completed and verified before Staging work begins.
 
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
-The Staging and Production client IDs intentionally remain placeholders in git. GitHub Actions inject the real environment-specific IDs only into disposable runners.
+The Staging client ID remains a placeholder in git and is injected from `cloudflare-staging`. The Live/Production client ID is committed in `shopify.app.production.toml`, matching the VSN Metafields model; `cloudflare-production` must provide the same `SHOPIFY_API_KEY`, while the API secret remains environment-scoped.
 
 ## Local development
 
