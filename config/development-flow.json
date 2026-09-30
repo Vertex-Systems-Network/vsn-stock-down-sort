@@ -5,7 +5,7 @@
   "release_branch": "main",
   "local": {
     "command": "npm run dev",
-    "shopify_app": "VSN Stock Down Sort Dev",
+    "shopify_app": "VSN | Stock Down Sort Dev",
     "shopify_config": "shopify.app.toml",
     "committed_secrets": false,
     "direct_staging_deploy": false,
@@ -22,7 +22,7 @@
   },
   "staging": {
     "github_environment": "cloudflare-staging",
-    "shopify_app": "VSN Stock Down Sort Staging",
+    "shopify_app": "VSN | Stock Down Sort Staging",
     "shopify_config": "shopify.app.staging.toml",
     "worker": "vsn-stock-down-sort-staging",
     "source_branch": "development",
@@ -40,7 +40,7 @@
   },
   "live": {
     "github_environment": "cloudflare-production",
-    "shopify_app": "VSN Stock Down Sort",
+    "shopify_app": "VSN | Stock Down Sort",
     "shopify_config": "shopify.app.production.toml",
     "worker": "vsn-stock-down-sort-production",
     "source_branch": "main",
@@ -48,7 +48,9 @@
     "deploy_mode": "manual_dispatch",
     "shopify_release_mode": "explicit_authorization_only",
     "billing_test_mode": false,
-    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit"
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit",
+    "client_id_source": "committed_shopify_app_production_toml",
+    "secret_source": "cloudflare-production"
   },
   "invariants": {
     "development_push_cannot_deploy_staging": true,
@@ -57,7 +59,8 @@
     "staging_cannot_change_live_shopify_identity": true,
     "production_release_requires_explicit_authorization": true,
     "local_database_must_be_neon": true,
-    "local_database_must_be_isolated": true
+    "local_database_must_be_isolated": true,
+    "production_environment_client_id_must_match_committed_live_config": true
   },
   "development_ci": {
     "automatic_on_push": true,
