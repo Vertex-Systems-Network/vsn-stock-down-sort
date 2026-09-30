@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import process from "node:process";
-import fs from "node:fs";
 
 function fail(message) {
   throw new Error(`[local-neon] ${message}`);
