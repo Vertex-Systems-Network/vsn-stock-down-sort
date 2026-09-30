@@ -37,6 +37,15 @@ Environment promotion is a hard control-plane invariant for this repository:
 
 This protocol overrides convenience-based shortcuts. It may be changed only by an explicit approved repository decision followed by the corresponding governance/configuration update.
 
+## Environment gate evidence
+
+Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
+
+- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
+- Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
+- A `verification_required` or `blocked` gate is a hard stop, not a suggestion.
+
 ## Repository-backed memory bank
 
 Chat history and model memory are never sufficient as the project source of truth. The repository must carry a persistent memory bank that another compatible AI can read and continue from.
