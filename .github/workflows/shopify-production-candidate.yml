@@ -64,8 +64,15 @@ jobs:
             exit 1
           fi
 
-          if ! grep -q "__SHOPIFY_PRODUCTION_CLIENT_ID__" shopify.app.production.toml; then
-            echo "Production client ID placeholder must remain committed; the workflow injects it at runtime." >&2
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" != "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Production SHOPIFY_API_KEY must match the committed Live Shopify client ID." >&2
             exit 1
           fi
 
@@ -107,25 +114,6 @@ jobs:
               raise SystemExit("Production billing contract mismatch")
           PY
 
-      - name: Inject Live client ID into disposable checkout
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          path = Path("shopify.app.production.toml")
-          content = path.read_text(encoding="utf-8")
-          placeholder = "__SHOPIFY_PRODUCTION_CLIENT_ID__"
-          if placeholder not in content:
-              raise SystemExit("production client ID placeholder missing")
-          path.write_text(
-              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
-              encoding="utf-8",
-          )
-          PY
-
       - name: Create unreleased Shopify production candidate
         shell: bash
         run: |
@@ -150,8 +138,8 @@ jobs:
             --version "$VERSION" \
             --message "VSN Stock Down Sort production candidate"
 
-      - name: Confirm Local and Staging configs remain untouched
+      - name: Confirm Shopify configs remain untouched
         shell: bash
         run: |
           set -euo pipefail
-          git diff --exit-code -- shopify.app.toml shopify.app.staging.toml
+          git diff --exit-code -- shopify.app.toml shopify.app.staging.toml shopify.app.production.toml
