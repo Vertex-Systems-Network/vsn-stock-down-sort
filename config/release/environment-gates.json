@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "verification_required",
+  "local_dev": {
+    "status": "verification_required",
+    "accepted_source_ref": null,
+    "evidence_record": null,
+    "required_checks": [
+      "Local Shopify app boot from development",
+      "Local Neon pooled/direct connection validation",
+      "Prisma migrate deploy"
+    ]
+  },
+  "staging": {
+    "status": "blocked",
+    "accepted_source_ref": null,
+    "accepted_main_ref": null,
+    "evidence_record": null,
+    "required_checks": [
+      "Staging runtime health",
+      "Staging queue/DLQ readiness",
+      "Signed Shopify staging acceptance",
+      "Staging Shopify subscription read"
+    ]
+  },
+  "live": {
+    "status": "blocked",
+    "authorized_source_ref": null,
+    "authorization_record": null
+  },
+  "rules": {
+    "promotion_order": ["local_dev", "staging", "live"],
+    "staging_source_must_match_local_accepted_source": true,
+    "staging_acceptance_must_be_recorded_on_main_before_live": true,
+    "live_source_must_be_main": true,
+    "missing_or_failed_evidence_blocks_promotion": true
+  }
+}
