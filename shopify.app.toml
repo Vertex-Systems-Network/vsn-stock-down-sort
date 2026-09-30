@@ -4,10 +4,10 @@
 
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "2d152d80cd0b6c50adbc96ad9b343e5a"
+client_id = "675de0e3834ce61a75473de19df457c4"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
-name = "VSN Stock Down Sort Dev"
+name = "VSN | Stock Down Sort Dev"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes

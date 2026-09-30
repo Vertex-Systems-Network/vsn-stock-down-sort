@@ -5,7 +5,7 @@
 client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
 application_url = "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev"
 embedded = true
-name = "VSN Stock Down Sort Staging"
+name = "VSN | Stock Down Sort Staging"
 
 [access_scopes]
 scopes = "read_products,write_products,read_inventory"
