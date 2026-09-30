@@ -703,3 +703,49 @@ test("manual staging deploy owns queue bootstrap", () => {
   assert.match(staging, /ensure_queue "\$SORT_QUEUE_NAME-dlq"/);
   assert.equal(fs.existsSync(path.join(root, ".github/workflows/cloudflare-staging-bootstrap.yml")), false);
 });
+
+
+test("repository management follows the VSN Metafields-style canonical state chain", () => {
+  const manifest = JSON.parse(read(".ai/manifest.json"));
+  const state = JSON.parse(read("config/ai/project-state.json"));
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const modules = JSON.parse(read("config/ai/modules-bank.json"));
+  const supervisor = JSON.parse(read("config/coordination/supervisor-state.json"));
+
+  assert.equal(manifest.schema_version, 7);
+  assert.ok(manifest.common.includes("config/ai/project-state.json"));
+  assert.ok(manifest.common.includes("config/ai/execution-plan.json"));
+  assert.ok(manifest.roles.supervisor.includes("SUPERVISOR.md"));
+  assert.ok(manifest.roles.worker.includes("AUTO-AGENT.md"));
+
+  assert.equal(state.current_phase, "PHASE-01");
+  assert.equal(state.active_issue, 32);
+  assert.equal(state.current_module, "manual-staging-certification");
+  assert.equal(state.last_reconciled_repository_ref.length, 40);
+  assert.match(state.next_valid_work_unit, /Staging/i);
+
+  assert.equal(plan.active_issue, 32);
+  assert.equal(plan.phases[0].id, "PHASE-01");
+  assert.equal(plan.work_units.length, 7);
+  assert.equal(plan.work_units[0].status, "in_progress");
+  assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
+
+  assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
+  assert.ok(modules.modules.some((module) => module.id === "MOD-STAGING"));
+  assert.ok(modules.modules.some((module) => module.id === "MOD-PRODUCTION"));
+
+  assert.equal(supervisor.supervisor.status, "unassigned");
+  assert.equal(supervisor.supervisor.lease_status, "not_acquired");
+  assert.equal(supervisor.active_worker_count, 0);
+  assert.equal(supervisor.last_reconciled_main_sha.length, 40);
+});
+
+test("legacy ai state is compatibility-only, not a competing source of truth", () => {
+  const current = read(".ai/state/CURRENT-STATE.yaml");
+  const tasks = read(".ai/tasks/INDEX.yaml");
+
+  assert.match(current, /compatibility_mirror: true/);
+  assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
+  assert.match(tasks, /compatibility_mirror: true/);
+  assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
+});
