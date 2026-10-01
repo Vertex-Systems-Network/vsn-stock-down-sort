@@ -3,7 +3,8 @@ import optionsBank from "../config/ai/options-bank.json";
 
 export type PlanId = "starter" | "growth" | "pro" | "unlimited";
 
-export type BillingPlan = Omit<(typeof productPlan.plans)[number], "id"> & {\n  id: PlanId;
+export type BillingPlan = Omit<(typeof productPlan.plans)[number], "id"> & {
+  id: PlanId;
   featureNames: readonly string[];
   implementedOptionIds: readonly string[];
 };
@@ -15,7 +16,8 @@ const optionNameById = new Map(
 export const BILLING_PLANS: readonly BillingPlan[] = Object.freeze(
   productPlan.plans.map((plan) =>
     Object.freeze({
-      ...plan,\n      id: plan.id as PlanId,
+      ...plan,
+      id: plan.id as PlanId,
       featureNames: Object.freeze(
         plan.option_ids.map(
           (optionId) => optionNameById.get(optionId) ?? optionId,
