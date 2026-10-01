@@ -1,9 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
-import {
-  BILLING_PLAN_BY_ID,
-  type PlanId,
-} from "../billing-config";
+import type { PlanId } from "../billing-config";
 import {
   cancelSubscription,
   createSubscription,
