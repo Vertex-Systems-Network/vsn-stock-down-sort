@@ -62,9 +62,9 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 95,
-      "status": "in_progress",
+      "status": "blocked",
       "blockers": [
-        "Dedicated Neon project vsn-stock-down-sort-local is not provisioned or identified with a real project ID/endpoint. The connected Neon toolset exposes project inspection/update/branch/database operations but does not expose account-level project creation/listing, so the project cannot be truthfully provisioned from this workspace. Existing verified project nameless-breeze-35836648 is excluded because it is VSN Metafields Production."
+        "Real dedicated Neon project vsn-stock-down-sort-local is not provisioned/identified in repository or connected Neon account context. Repository-side enforcement is complete; actual project provisioning and workstation runtime remain external prerequisites."
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
@@ -85,7 +85,11 @@
         "PR #37 merged Local-first topology to development as d90dd87de3ca6605a7d97e3f7c8e9f592811c732.",
         "PR #38 promoted the identical certified Git tree fc6e44bf74de24f2d68890136bf75cd55069fe8c to protected main as c0320d5bcbb1057bd6100253e1b0664843ed0404.",
         "All Staging workflows bind to cloudflare-staging; all Production workflows bind to cloudflare-production.",
-        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup."
+        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup.",
+        "Local validator requires NEON_PROJECT_ID and NEON_PROJECT_NAME=vsn-stock-down-sort-local.",
+        "Local environment contract tests cover missing and wrong dedicated Neon identity.",
+        ".env.local.example documents the required real Local Neon project identity without secrets.",
+        "App Validation #216 run 36797501281 passed all validation steps on 7254d0b88992fdcdb878226e01779ae0d836df9c."
       ]
     },
     {
@@ -228,5 +232,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "c001725044d5eb5477658b9aceb3a20e84d48d8b"
+  "last_reconciled_repository_ref": "f7ea7a4682bfaa2690ec59a8f7837fa5c0da57f3"
 }
