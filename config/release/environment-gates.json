@@ -8,6 +8,7 @@
     "required_checks": [
       "Local Shopify app boot from development",
       "Local Neon pooled/direct connection validation",
+      "Neon project and endpoint ownership verification",
       "Prisma migrate deploy",
       "Four-plan billing catalog contract"
     ]

@@ -15,11 +15,13 @@ npm run dev
 
 The Local runner uses `shopify.app.local.toml`, validates the Dev Shopify identity and requires the dedicated Neon project identity `vsn-stock-down-sort-local`.
 
-Bootstrap the Local Neon project when the Neon API credential is available:
+Prepare the dedicated Local Neon environment with the canonical one-command flow:
 
 ```bash
-npm run local:provision-neon
+npm run local:prepare
 ```
+
+This provisions/reuses the exact Local Neon project, validates pooled/direct URL isolation, verifies the configured project and endpoint ownership through the Neon API, and applies Prisma migrations.
 
 Then:
 
@@ -28,7 +30,7 @@ npm run dev
 npm run local:certify -- http://127.0.0.1:3000/healthz
 ```
 
-Local certification is not satisfied by CI alone. It requires real Neon connectivity, Prisma migration, a running Dev Shopify app, the development health contract and a clean working tree.
+Local certification is not satisfied by CI alone. It requires real Neon project binding, Prisma migration, a running Dev Shopify app, the development health contract and a clean working tree.
 
 ## 2. Development CI
 
