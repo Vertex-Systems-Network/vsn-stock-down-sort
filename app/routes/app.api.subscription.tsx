@@ -14,7 +14,7 @@ function isPlanId(value: string): value is PlanId {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin, session, redirect } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   try {
     const current = await getCurrentSubscriptionPlan(admin);
@@ -45,7 +45,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, redirect } = await authenticate.admin(request);
 
   if (request.method.toUpperCase() !== "POST") {
     return Response.json(
