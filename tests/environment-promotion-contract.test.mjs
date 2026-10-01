@@ -170,11 +170,14 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("initial gate state cannot accidentally authorize promotion", () => {
-  assert.equal(gates.local_dev.status, "verification_required");
+test("accepted Local source still cannot accidentally authorize Staging or Live", () => {
+  assert.equal(gates.local_dev.status, "accepted");
+  assert.equal(
+    gates.local_dev.accepted_source_ref,
+    "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
+  );
   assert.equal(gates.staging.status, "blocked");
   assert.equal(gates.live.status, "blocked");
-  assert.equal(gates.local_dev.accepted_source_ref, null);
   assert.equal(gates.staging.accepted_source_ref, null);
   assert.equal(gates.live.authorized_source_ref, null);
 });
