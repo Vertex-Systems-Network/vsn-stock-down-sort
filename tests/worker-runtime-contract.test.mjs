@@ -332,22 +332,29 @@ test("production Shopify promotion is action driven and authorization gated", ()
 });
 
 
-test("plans page renders a responsive grid with single-dollar pricing and top-level billing approval", () => {
+test("plans page uses modern responsive cards and server-side Shopify billing redirect", () => {
   const plans = read("app/routes/app.plans.tsx");
+  const api = read("app/routes/app.api.subscription.tsx");
 
   assert.match(
     plans,
-    /gridTemplateColumns=.*repeat\(4, minmax\(0, 1fr\)\).*repeat\(2, minmax\(0, 1fr\)\)/,
+    /gridTemplateColumns="repeat\(auto-fit, minmax\(250px, 1fr\)\)"/,
   );
-  assert.match(plans, /plan\.amount\.toFixed\(2\).*USD \/ 30 days/);
+  assert.match(plans, /Most popular/);
+  assert.match(plans, /Unlimited catalog\. Simple plans\./);
+  assert.match(plans, /plan\.amount\.toFixed\(2\)/);
   assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
-  assert.ok(
-    plans.includes('window.open(fetcher.data.confirmationUrl, "_top")'),
-  );
+  assert.doesNotMatch(plans, /confirmationUrl/);
+  assert.doesNotMatch(plans, /window\.open/);
   assert.doesNotMatch(plans, /window\.top\.location\.href/);
-  assert.doesNotMatch(
-    plans,
-    /window\.location\.href = fetcher\.data\.confirmationUrl/,
+
+  assert.match(
+    api,
+    /const \{ admin, session, redirect \} = await authenticate\.admin\(request\)/,
+  );
+  assert.match(
+    api,
+    /return redirect\(result\.confirmationUrl, \{ target: "_top" \}\)/,
   );
 });
 
