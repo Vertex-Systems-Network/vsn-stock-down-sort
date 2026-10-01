@@ -3,8 +3,7 @@
   "status": "verification_required",
   "local_dev": {
     "status": "accepted",
-    "accepted_source_ref": "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
-    "accepted_at": "2026-10-01T18:43:00.000Z",
+    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
     "evidence_record": {
       "branch": "development",
       "database_provider": "sqlite",
@@ -20,7 +19,7 @@
         "billingTestMode": true,
         "database": "sqlite"
       },
-      "health_url": "http://localhost:60968/healthz",
+      "health_url": "http://localhost:51280/healthz",
       "billing_catalog": {
         "currencyCode": "USD",
         "interval": "EVERY_30_DAYS",
@@ -32,8 +31,9 @@
           "unlimited"
         ]
       },
-      "billing_runtime_activation": "passed_for_one_current_plan_on_dev_test_store",
-      "note": "Local SQLite acceptance is complete. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
+      "billing_runtime_acceptance": "all_current_plan_switches_passed_on_dev_test_store",
+      "certification_output": "accepted source_ref=ca5851561ab7979712f11580ab951fda4650ef19",
+      "note": "Latest Local/Dev source is accepted. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
     },
     "required_checks": [
       "Local Shopify app boot from development",
