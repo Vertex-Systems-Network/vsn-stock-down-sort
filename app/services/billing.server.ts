@@ -83,40 +83,157 @@ function normalizeBillingErrorMessage(message: string) {
   return value;
 }
 
-function firstMessageFromUnknown(value: unknown): string | null {
-  if (typeof value === "string" && value.trim()) return value.trim();
-  if (!value || typeof value !== "object") return null;
-
-  const record = value as Record<string, unknown>;
-  if (typeof record.message === "string" && record.message.trim()) {
-    return record.message.trim();
+function parseJsonString(value: string): unknown | null {
+  const trimmed = value.trim();
+  if (!trimmed || (!trimmed.startsWith("{") && !trimmed.startsWith("["))) {
+    return null;
   }
 
-  for (const key of ["graphQLErrors", "errors"]) {
-    const nested = record[key];
-    if (Array.isArray(nested)) {
-      for (const item of nested) {
-        const message = firstMessageFromUnknown(item);
-        if (message) return message;
-      }
-    } else {
-      const message = firstMessageFromUnknown(nested);
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return null;
+  }
+}
+
+function objectKeys(value: unknown) {
+  if (!value || typeof value !== "object") return [];
+
+  return [
+    ...new Set([
+      ...Object.keys(value as Record<string, unknown>),
+      ...Object.getOwnPropertyNames(value),
+    ]),
+  ];
+}
+
+function firstMessageFromUnknown(
+  value: unknown,
+  seen = new Set<unknown>(),
+  depth = 0,
+): string | null {
+  if (depth > 8 || value == null) return null;
+
+  if (typeof value === "string") {
+    const parsed = parseJsonString(value);
+    if (parsed !== null) {
+      const nested = firstMessageFromUnknown(parsed, seen, depth + 1);
+      if (nested) return nested;
+    }
+
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+
+  if (typeof value !== "object" || seen.has(value)) return null;
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const message = firstMessageFromUnknown(item, seen, depth + 1);
       if (message) return message;
     }
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  const preferredKeys = [
+    "graphQLErrors",
+    "errors",
+    "body",
+    "response",
+    "cause",
+    "extensions",
+    "message",
+  ];
+
+  for (const key of preferredKeys) {
+    if (!(key in record)) continue;
+    const message = firstMessageFromUnknown(record[key], seen, depth + 1);
+    if (message) return message;
+  }
+
+  for (const key of objectKeys(value)) {
+    if (preferredKeys.includes(key)) continue;
+
+    let nested: unknown;
+    try {
+      nested = record[key];
+    } catch {
+      continue;
+    }
+
+    const message = firstMessageFromUnknown(nested, seen, depth + 1);
+    if (message) return message;
   }
 
   return null;
 }
 
-export function describeShopifyBillingError(error: unknown) {
-  if (error instanceof GraphqlQueryError) {
-    const graphqlMessage = firstMessageFromUnknown(error.body?.errors);
+async function messageFromResponse(value: unknown) {
+  if (!(value instanceof Response)) return null;
+
+  try {
+    const clone = value.clone();
+    const text = await clone.text();
+    return firstMessageFromUnknown(text);
+  } catch {
+    return null;
+  }
+}
+
+export function getShopifyBillingErrorDiagnostic(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return {
+      type: typeof error,
+      keys: [] as string[],
+      bodyKeys: [] as string[],
+      responseType: null as string | null,
+    };
+  }
+
+  const record = error as Record<string, unknown>;
+  const body = record.body;
+
+  return {
+    type:
+      (error as { constructor?: { name?: string } }).constructor?.name ??
+      "Object",
+    keys: objectKeys(error).filter(
+      (key) =>
+        !/token|secret|authorization|cookie|header/i.test(key),
+    ),
+    bodyKeys: objectKeys(body).filter(
+      (key) =>
+        !/token|secret|authorization|cookie|header/i.test(key),
+    ),
+    responseType:
+      record.response && typeof record.response === "object"
+        ? (record.response as { constructor?: { name?: string } }).constructor
+            ?.name ?? "Object"
+        : null,
+  };
+}
+
+export async function describeShopifyBillingError(error: unknown) {
+  if (
+    error instanceof GraphqlQueryError ||
+    (error &&
+      typeof error === "object" &&
+      (error as { constructor?: { name?: string } }).constructor?.name ===
+        "GraphqlQueryError")
+  ) {
+    const record = error as unknown as Record<string, unknown>;
+    const graphqlMessage = firstMessageFromUnknown(record.body);
     if (graphqlMessage) {
       return normalizeBillingErrorMessage(graphqlMessage);
     }
+  }
 
-    if (error.message?.trim()) {
-      return normalizeBillingErrorMessage(error.message);
+  if (error instanceof Response) {
+    const responseMessage = await messageFromResponse(error);
+    if (responseMessage) {
+      return normalizeBillingErrorMessage(responseMessage);
     }
   }
 
@@ -127,15 +244,17 @@ export function describeShopifyBillingError(error: unknown) {
       record.errors,
       record.response,
       record.cause,
+      record.message,
     ];
 
     for (const candidate of nestedCandidates) {
+      const responseMessage = await messageFromResponse(candidate);
+      if (responseMessage) {
+        return normalizeBillingErrorMessage(responseMessage);
+      }
+
       const message = firstMessageFromUnknown(candidate);
       if (message) return normalizeBillingErrorMessage(message);
-    }
-
-    if (typeof record.message === "string" && record.message.trim()) {
-      return normalizeBillingErrorMessage(record.message);
     }
   }
 
@@ -147,7 +266,8 @@ export function describeShopifyBillingError(error: unknown) {
     return normalizeBillingErrorMessage(error);
   }
 
-  return "Shopify subscription request failed. Check the Local server log for the billing error category.";
+  const diagnostic = getShopifyBillingErrorDiagnostic(error);
+  return `Shopify subscription request failed (${diagnostic.type}; keys: ${diagnostic.keys.join(", ") || "none"}). See the Local server log for safe diagnostics.`;
 }
 
 function firstGraphqlError(payload: { errors?: Array<{ message?: string }> }) {
