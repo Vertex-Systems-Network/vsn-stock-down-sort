@@ -7,36 +7,30 @@ Canonical live state:
 - GitHub Issue #32
 - live Git/PR/CI/runtime evidence
 
-## Billing runtime accepted
+## Latest Local/Dev acceptance
 
-Final tested development source:
+Exact accepted source:
 
-`fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`
+`ca5851561ab7979712f11580ab951fda4650ef19`
 
-Real Dev-store evidence:
-- all current plan switches reached Shopify approval;
-- each selected plan returned successfully and became **Current plan**;
-- the merchant restored the original desired current plan;
-- PR #76 fixed the fetcher revalidation race;
-- App Validation #301 passed before merge.
+Real workstation evidence:
+- `/healthz` returned `ok=true`.
+- `environment=development`.
+- `billingTestMode=true`.
+- `database=sqlite`.
+- canonical Starter/Growth/Pro/Unlimited catalog with 10-day trial.
+- Prisma SQLite validate passed.
+- Prisma Client generation passed.
+- Prisma migrate deploy passed with no pending migrations.
+- `local:certify` accepted the exact source.
+- four-plan Dev-store billing acceptance is complete.
 
-`ISSUE-32-WU-BILLING-01` is complete.
+## Current active work
 
-## Current gate mismatch
+`ISSUE-32-WU-02` — **in_progress**.
 
-The repository Local gate still records:
-
-`45ce7a91d1d6385eda56c3a90a1ac12ba05417f5`
-
-The latest tested source is:
-
-`fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`
-
-Therefore Staging is still blocked.
-
-## Next work
-
-1. Run `local:certify` on exact source `fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`.
-2. Record/merge the refreshed Local acceptance evidence.
-3. Run `ISSUE-32-WU-02` Environment Secrets Audit for `cloudflare-staging`.
-4. Continue with Staging Readiness and manual Staging deployment only after that audit passes.
+Next:
+1. Run Environment Secrets Audit for `cloudflare-staging`.
+2. If it passes, run Staging Readiness using `ca5851561ab7979712f11580ab951fda4650ef19`.
+3. Only then manually deploy Cloudflare Staging.
+4. Production remains blocked until Staging acceptance is recorded.

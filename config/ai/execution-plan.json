@@ -242,17 +242,17 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
-      "status": "blocked",
-      "blockers": [
-        "Latest tested development source fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c is not yet the Local gate accepted_source_ref; current accepted source is 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5. Run and record local:certify on fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c before Staging audit."
-      ],
+      "status": "in_progress",
+      "blockers": [],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
       ],
       "required_checks": [
         "Environment Secrets Audit"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Dependencies satisfied: Local/Dev accepted_source_ref=ca5851561ab7979712f11580ab951fda4650ef19 and billing runtime work unit complete."
+      ]
     },
     {
       "id": "ISSUE-32-WU-03",

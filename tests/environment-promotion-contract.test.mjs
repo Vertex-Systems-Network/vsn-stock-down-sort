@@ -174,7 +174,7 @@ test("accepted Local source still cannot accidentally authorize Staging or Live"
   assert.equal(gates.local_dev.status, "accepted");
   assert.equal(
     gates.local_dev.accepted_source_ref,
-    "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
+    "ca5851561ab7979712f11580ab951fda4650ef19",
   );
   assert.equal(gates.staging.status, "blocked");
   assert.equal(gates.live.status, "blocked");
