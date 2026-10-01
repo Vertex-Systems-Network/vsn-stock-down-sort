@@ -154,3 +154,16 @@ test("Local certification is Windows-safe and requires SQLite health", () => {
   assert.doesNotMatch(source, /neon_project/);
   assert.match(source, /shell:\s*process\.platform\s*===\s*"win32"/);
 });
+
+
+test("generated Shopify Dev linked config is gitignored", () => {
+  const gitignore = fs.readFileSync(
+    new URL("../.gitignore", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    gitignore,
+    /^shopify\.app\.vsn-stock-down-sort-dev\.toml$/m,
+  );
+});
