@@ -14,13 +14,16 @@
     "database": {
       "provider": "neon_postgresql",
       "project_name": "vsn-stock-down-sort-local",
-      "provisioning_status": "required",
+      "provisioning_status": "tooling_ready_runtime_verification_required",
       "runtime_connection": "pooled",
       "migration_connection": "direct",
-      "isolated_from_staging_and_production": true
+      "isolated_from_staging_and_production": true,
+      "project_binding_verification": "neon_api_project_and_endpoint_ownership"
     },
     "cli_config_alias": "local",
-    "branch_policy": "development_only"
+    "branch_policy": "development_only",
+    "prepare_command": "npm run local:prepare",
+    "certify_command": "npm run local:certify -- <local-health-url>/healthz"
   },
   "staging": {
     "github_environment": "cloudflare-staging",
