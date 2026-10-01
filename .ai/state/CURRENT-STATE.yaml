@@ -8,8 +8,8 @@ repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-01
-current_module: staging-readiness
-current_work_unit: ISSUE-32-WU-03
+current_module: cloudflare-staging-deploy
+current_work_unit: ISSUE-32-WU-04
 note: >
-  Environment Secrets Audit #4 passed for cloudflare-staging.
-  Run Staging Readiness from development with accepted source ca5851561ab7979712f11580ab951fda4650ef19.
+  Staging Readiness #6 passed on accepted source ca5851561ab7979712f11580ab951fda4650ef19.
+  Manual Cloudflare Staging deployment is the active guarded step.

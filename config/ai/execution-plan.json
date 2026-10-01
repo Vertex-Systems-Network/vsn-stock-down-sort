@@ -269,7 +269,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 80,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Staging Readiness completes successfully."
@@ -277,7 +277,13 @@
       "required_checks": [
         "Staging Readiness"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Staging Readiness #6 (run 36929608192) passed on development.",
+        "Accepted source ca5851561ab7979712f11580ab951fda4650ef19 matched the Local/Dev gate.",
+        "Staging PostgreSQL migrations and migration status passed.",
+        "Staging runtime build and Cloudflare Worker dry-run passed.",
+        "Canonical four-plan / 10-day billing contract passed."
+      ]
     },
     {
       "id": "ISSUE-32-WU-04",
@@ -290,7 +296,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 70,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Cloudflare Staging Deploy passes.",
