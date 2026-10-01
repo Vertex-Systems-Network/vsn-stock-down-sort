@@ -48,11 +48,7 @@ export default function PlansPage() {
 
   useEffect(() => {
     if (!fetcher.data?.confirmationUrl) return;
-    if (window.top) {
-      window.top.location.href = fetcher.data.confirmationUrl;
-      return;
-    }
-    window.location.href = fetcher.data.confirmationUrl;
+    window.open(fetcher.data.confirmationUrl, "_top");
   }, [fetcher.data?.confirmationUrl]);
 
   useEffect(() => {
@@ -133,7 +129,7 @@ export default function PlansPage() {
 
           <s-query-container>
             <s-grid
-              gridTemplateColumns="@container (inline-size > 1050px) repeat(4, 1fr), @container (inline-size > 650px) repeat(2, 1fr), 1fr"
+              gridTemplateColumns="@container (inline-size > 1050px) 'repeat(4, minmax(0, 1fr))', (inline-size > 650px) 'repeat(2, minmax(0, 1fr))', 1fr"
               gap="base"
             >
               {BILLING_PLANS.map((plan) => {
@@ -163,7 +159,7 @@ export default function PlansPage() {
                         </s-stack>
 
                         <s-heading>
-                          ${"$"}{plan.amount.toFixed(2)} USD / 30 days
+                          {`${plan.amount.toFixed(2)} USD / 30 days`}
                         </s-heading>
 
                         <s-badge tone="info">
