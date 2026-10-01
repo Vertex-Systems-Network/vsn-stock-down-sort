@@ -20,8 +20,6 @@ jobs:
     timeout-minutes: 20
     env:
       APP_ENV: staging
-      NEON_PROJECT_NAME: vsn-stock-down-sort-local
-      NEON_PROJECT_ID: ci-test-project
       SHOPIFY_BILLING_TEST_MODE: "true"
       SHOPIFY_API_KEY: ci-test-key
       SHOPIFY_API_SECRET: ci-test-secret
@@ -48,7 +46,19 @@ jobs:
           NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: "10000"
         run: npm ci --no-audit --no-fund
 
-      - name: Validate PostgreSQL schema
+      - name: Validate Local SQLite schema
+        run: npm run prisma:validate:local
+
+      - name: Check Local/cloud Prisma model parity
+        run: npm run prisma:parity
+
+      - name: Apply Local SQLite migrations
+        run: npm run prisma:migrate:local
+
+      - name: Generate Local SQLite Prisma client
+        run: npm run prisma:generate:local
+
+      - name: Validate hosted PostgreSQL schema
         run: npx prisma validate --schema prisma/cloud/schema.prisma
 
       - name: Generate Worker Prisma client
