@@ -14,11 +14,17 @@
     "merchant_reinstall_allowed": false
   },
   "billing": {
-    "plan_id": "unlimited",
-    "amount": 55,
+    "catalog": "config/ai/product-plan.json",
+    "plan_ids": [
+      "starter",
+      "growth",
+      "pro",
+      "unlimited"
+    ],
     "currency": "USD",
     "interval": "EVERY_30_DAYS",
-    "trial_days": 5,
+    "trial_days": 10,
+    "legacy_compatibility": "VSN Stock Down Sort Pro / USD 55 / 5-day maps to unlimited until migrated",
     "mutate_during_release": false
   },
   "database": {
