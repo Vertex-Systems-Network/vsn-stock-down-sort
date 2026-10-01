@@ -7,6 +7,7 @@ import {
   getAnyActiveSubscription,
   getCurrentSubscriptionPlan,
   describeShopifyBillingError,
+  getEmbeddedAdminBillingReturnUrl,
   getShopifyBillingErrorDiagnostic,
 } from "../services/billing.server";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
@@ -93,24 +94,15 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      const appUrl = process.env.SHOPIFY_APP_URL;
-      if (!appUrl) {
-        return Response.json(
-          { ok: false, error: "SHOPIFY_APP_URL is not configured." },
-          { status: 500 },
-        );
-      }
-
-      const returnUrl = new URL("/app/plans", appUrl);
-      returnUrl.searchParams.set("shop", session.shop);
-
-      const host = String(formData.get("host") || "");
-      if (host) returnUrl.searchParams.set("host", host);
+      const returnUrl = await getEmbeddedAdminBillingReturnUrl(
+        admin,
+        session.shop,
+      );
 
       const result = await createSubscription(
         admin,
         requestedPlanId,
-        returnUrl.toString(),
+        returnUrl,
       );
 
       return Response.json({
