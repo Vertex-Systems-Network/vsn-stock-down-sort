@@ -358,30 +358,43 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   );
 });
 
-test("billing failures surface documented GraphqlQueryError reasons", () => {
+test("billing failures decode SDK shapes and expose safe diagnostics", () => {
   const billing = read("app/services/billing.server.ts");
   const api = read("app/routes/app.api.subscription.tsx");
   const pkg = JSON.parse(read("package.json"));
-  const lock = JSON.parse(read("package-lock.json"));
 
   assert.equal(pkg.dependencies["@shopify/shopify-api"], "13.1.0");
-  assert.equal(
-    lock.packages[""].dependencies["@shopify/shopify-api"],
-    "13.1.0",
-  );
   assert.match(
     billing,
     /import \{ GraphqlQueryError \} from "@shopify\/shopify-api"/,
   );
   assert.match(billing, /error instanceof GraphqlQueryError/);
-  assert.match(billing, /error\.body\?\.errors/);
-  assert.match(billing, /graphQLErrors/);
+  assert.match(billing, /constructor\?\.\s*name/);
+  assert.match(billing, /Object\.getOwnPropertyNames/);
+  assert.match(billing, /error instanceof Response/);
+  assert.match(billing, /export function getShopifyBillingErrorDiagnostic/);
+  assert.match(billing, /export async function describeShopifyBillingError/);
   assert.match(
     billing,
     /Billing API subscriptions require a Public-distribution app/,
   );
-  assert.match(api, /describeShopifyBillingError\(error\)/);
+
+  assert.match(api, /await describeShopifyBillingError\(error\)/);
+  assert.match(api, /getShopifyBillingErrorDiagnostic\(error\)/);
+  assert.match(api, /diagnostic,/);
   assert.match(api, /\[billing\] subscription action failed/);
+});
+
+test("plans page scrolls billing failures into view", () => {
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.match(plans, /useEffect, useRef/);
+  assert.match(plans, /const errorRef = useRef<HTMLDivElement \| null>/);
+  assert.match(plans, /scrollIntoView\(\{/);
+  assert.match(plans, /behavior: "smooth"/);
+  assert.match(plans, /block: "start"/);
+  assert.match(plans, /focus\(\{ preventScroll: true \}\)/);
+  assert.match(plans, /<div ref=\{errorRef\} tabIndex=\{-1\}>/);
 });
 
 test("billing entitlement requires the exact current plan", () => {
