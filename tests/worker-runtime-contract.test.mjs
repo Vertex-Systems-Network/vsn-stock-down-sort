@@ -772,11 +772,13 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "blocked");
   assert.equal(plan.work_units[2].status, "in_progress");
-  assert.equal(plan.work_units[3].status, "not_started");
+  assert.equal(plan.work_units[3].status, "complete");
+  assert.equal(plan.work_units[4].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
   assert.equal(plan.work_units[2].id, "ISSUE-32-WU-BILLING-01");
-  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-DATABASE-01");
+  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
