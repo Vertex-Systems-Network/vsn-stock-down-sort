@@ -55,7 +55,9 @@
       "Signed Shopify staging acceptance",
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
-    ]
+    ],
+    "deployed_source_ref": null,
+    "deployment_record": null
   },
   "live": {
     "status": "blocked",
