@@ -810,25 +810,27 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "local-development-certification");
-  assert.equal(state.current_work_unit, "ISSUE-32-WU-LOCAL-01");
+  assert.equal(state.current_module, "local-development-sqlite-conversion");
+  assert.equal(state.current_work_unit, "ISSUE-32-WU-LOCAL-SQLITE-01");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /local:prepare/);
-  assert.match(state.next_valid_work_unit, /local:certify/);
+  assert.match(state.next_valid_work_unit, /Prisma \+ SQLite/);
+  assert.match(state.next_valid_work_unit, /Staging\/Production/);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 8);
+  assert.ok(plan.work_units.length >= 9);
   assert.equal(plan.work_units[0].status, "complete");
-  assert.equal(plan.work_units[1].status, "blocked");
+  assert.equal(plan.work_units[1].status, "deprecated");
   assert.equal(plan.work_units[2].status, "in_progress");
-  assert.equal(plan.work_units[3].status, "complete");
-  assert.equal(plan.work_units[4].status, "not_started");
+  assert.equal(plan.work_units[3].status, "in_progress");
+  assert.equal(plan.work_units[4].status, "complete");
+  assert.equal(plan.work_units[5].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
-  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-BILLING-01");
-  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-DATABASE-01");
-  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-LOCAL-SQLITE-01");
+  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-BILLING-01");
+  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-DATABASE-01");
+  assert.equal(plan.work_units[5].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
@@ -849,6 +851,8 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
+  assert.match(current, /ISSUE-32-WU-LOCAL-SQLITE-01/);
+  assert.match(tasks, /ISSUE-32-WU-LOCAL-SQLITE-01/);
 });
 
 
@@ -941,36 +945,53 @@ test("local development requires isolated Neon pooled and direct connections", (
 });
 
 
-test("canonical Local module and runbook use the exact Dev identity and prepare flow", () => {
+test("accepted plan targets Local SQLite while operational runtime remains Neon until implementation", () => {
+  const adr = JSON.parse(read("config/architecture/decision-records.json"));
   const modules = JSON.parse(read("config/ai/modules-bank.json"));
   const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const flow = JSON.parse(read("config/development-flow.json"));
+  const topology = JSON.parse(read("config/database/environment-topology.json"));
   const runbook = read("docs/local-development.md");
 
+  const decision = adr.decisions.find((item) => item.id === "ADR-0001");
   const localModule = modules.modules.find((module) => module.id === "MOD-LOCAL");
-  const localWorkUnit = plan.work_units.find(
+  const oldLocal = plan.work_units.find(
     (workUnit) => workUnit.id === "ISSUE-32-WU-LOCAL-01",
   );
+  const sqliteLocal = plan.work_units.find(
+    (workUnit) => workUnit.id === "ISSUE-32-WU-LOCAL-SQLITE-01",
+  );
+
+  assert.ok(decision);
+  assert.equal(decision.status, "accepted");
+  assert.match(decision.decision, /Prisma.*SQLite/i);
+  assert.match(decision.decision, /Neon PostgreSQL/i);
 
   assert.ok(localModule);
-  assert.ok(localWorkUnit);
-  assert.ok(localModule.scope.includes("VSN | Stock Down Sort Dev"));
-  assert.ok(localModule.scope.includes("npm run local:prepare"));
-  assert.ok(localModule.scope.includes("npm run local:certify"));
+  assert.ok(sqliteLocal);
+  assert.equal(oldLocal.status, "deprecated");
+  assert.equal(
+    oldLocal.superseded_by_work_unit,
+    "ISSUE-32-WU-LOCAL-SQLITE-01",
+  );
+  assert.ok(localModule.scope.includes("Prisma Local SQLite schema"));
   assert.ok(
-    localModule.quality_gates.includes(
-      "Neon project/endpoint ownership verification",
+    sqliteLocal.acceptance_criteria.some((criterion) =>
+      /requires no NEON_API_KEY/i.test(criterion),
     ),
   );
-  assert.match(localWorkUnit.objective, /VSN \| Stock Down Sort Dev/);
   assert.ok(
-    localWorkUnit.acceptance_criteria.includes(
-      "npm run dev uses VSN | Stock Down Sort Dev.",
+    sqliteLocal.acceptance_criteria.some((criterion) =>
+      /schema-parity contract/i.test(criterion),
     ),
   );
+
+  // Planning changed first. Operational runtime remains truthful until the
+  // implementation work unit changes these files in a later PR.
+  assert.equal(flow.local.database.provider, "neon_postgresql");
+  assert.equal(topology.local.database.provider, "neon_postgresql");
   assert.match(runbook, /npm run local:prepare/);
-  assert.match(runbook, /npm run local:certify/);
-  assert.match(runbook, /project name and endpoint ownership/i);
-  assert.doesNotMatch(runbook, /VSN Stock Down Sort Dev/);
+  assert.match(runbook, /Neon/i);
 });
 
 test("GitHub workflows bind to exact Cloudflare environments", () => {
