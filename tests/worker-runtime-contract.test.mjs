@@ -358,12 +358,23 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   );
 });
 
-test("billing failures surface nested Shopify GraphQL reasons", () => {
+test("billing failures surface documented GraphqlQueryError reasons", () => {
   const billing = read("app/services/billing.server.ts");
   const api = read("app/routes/app.api.subscription.tsx");
+  const pkg = JSON.parse(read("package.json"));
+  const lock = JSON.parse(read("package-lock.json"));
 
-  assert.match(billing, /export function describeShopifyBillingError/);
-  assert.match(billing, /record\.body/);
+  assert.equal(pkg.dependencies["@shopify/shopify-api"], "13.1.0");
+  assert.equal(
+    lock.packages[""].dependencies["@shopify/shopify-api"],
+    "13.1.0",
+  );
+  assert.match(
+    billing,
+    /import \{ GraphqlQueryError \} from "@shopify\/shopify-api"/,
+  );
+  assert.match(billing, /error instanceof GraphqlQueryError/);
+  assert.match(billing, /error\.body\?\.errors/);
   assert.match(billing, /graphQLErrors/);
   assert.match(
     billing,
@@ -371,10 +382,6 @@ test("billing failures surface nested Shopify GraphQL reasons", () => {
   );
   assert.match(api, /describeShopifyBillingError\(error\)/);
   assert.match(api, /\[billing\] subscription action failed/);
-  assert.doesNotMatch(
-    api,
-    /error instanceof Error[\s\S]*Shopify subscription request failed/,
-  );
 });
 
 test("billing entitlement requires the exact current plan", () => {
