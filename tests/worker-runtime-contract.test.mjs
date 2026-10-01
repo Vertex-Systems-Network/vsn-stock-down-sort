@@ -995,11 +995,19 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 });
 
 
-test("environment gate requires SQLite Local evidence before Staging", () => {
+test("environment gate records accepted SQLite Local evidence before Staging", () => {
   const gates = JSON.parse(read("config/release/environment-gates.json"));
   const releaseFlow = read("docs/development-release-flow.md");
 
-  assert.equal(gates.local_dev.status, "verification_required");
+  assert.equal(gates.local_dev.status, "accepted");
+  assert.equal(
+    gates.local_dev.accepted_source_ref,
+    "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
+  );
+  assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
+  assert.equal(gates.local_dev.evidence_record.billing_catalog.trialDays, 10);
   assert.ok(
     gates.local_dev.required_checks.includes(
       "Local SQLite Prisma validation/generation/migration",
