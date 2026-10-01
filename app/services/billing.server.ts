@@ -1,4 +1,5 @@
 import {
+  BILLING_CATALOG,
   BILLING_PLAN_BY_ID,
   BILLING_PLANS,
   LEGACY_PLAN,
@@ -91,16 +92,11 @@ function hasPlanPricing(
 
   return (
     Number(pricing.price.amount) === plan.amount &&
-    pricing.price.currencyCode === planPlanCurrency() &&
-    pricing.interval === plan.interval
+    pricing.price.currencyCode === BILLING_CATALOG.currencyCode &&
+    pricing.interval === BILLING_CATALOG.interval
   );
 }
 
-function planPlanCurrency() {
-  return BILLING_PLAN_BY_ID.unlimited
-    ? BILLING_PLAN_BY_ID.unlimited.currency_code
-    : "USD";
-}
 
 function matchesPlan(
   subscription: AppSubscription,
