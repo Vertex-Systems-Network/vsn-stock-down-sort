@@ -14,7 +14,7 @@ function isPlanId(value: string): value is PlanId {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, redirect } = await authenticate.admin(request);
 
   try {
     const current = await getCurrentSubscriptionPlan(admin);
@@ -111,11 +111,7 @@ export async function action({ request }: ActionFunctionArgs) {
         returnUrl.toString(),
       );
 
-      return Response.json({
-        ok: true,
-        confirmationUrl: result.confirmationUrl,
-        planId: requestedPlanId,
-      });
+      return redirect(result.confirmationUrl, { target: "_top" });
     }
 
     if (actionType === "cancel") {
