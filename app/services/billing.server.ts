@@ -108,28 +108,31 @@ function firstMessageFromUnknown(value: unknown): string | null {
 }
 
 export function describeShopifyBillingError(error: unknown) {
-  if (error instanceof Error && error.message.trim()) {
-    return normalizeBillingErrorMessage(error.message);
-  }
-
-  if (typeof error === "string" && error.trim()) {
-    return normalizeBillingErrorMessage(error);
-  }
-
   if (error && typeof error === "object") {
     const record = error as Record<string, unknown>;
-    const candidates = [
-      record.message,
+    const nestedCandidates = [
       record.body,
       record.errors,
       record.response,
       record.cause,
     ];
 
-    for (const candidate of candidates) {
+    for (const candidate of nestedCandidates) {
       const message = firstMessageFromUnknown(candidate);
       if (message) return normalizeBillingErrorMessage(message);
     }
+
+    if (typeof record.message === "string" && record.message.trim()) {
+      return normalizeBillingErrorMessage(record.message);
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return normalizeBillingErrorMessage(error.message);
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return normalizeBillingErrorMessage(error);
   }
 
   return "Shopify subscription request failed. Check the Local server log for the billing error category.";
