@@ -218,12 +218,12 @@ jobs:
 
                   if payload.get("billingCatalog", {}).get("plans") != expected_plans:
                       raise RuntimeError(
-                          f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
+                          f"billing contract mismatch: expected={expected_plans!r} actual={payload.get('billingCatalog', {}).get('plans')!r}"
                       )
 
                   print("staging_runtime_health=pass")
                   print("staging_sort_queue=pass")
-                  print("staging_billing_contract=5_days_usd_55")
+                  print("staging_billing_contract=four_plans_10_day_trials")
                   break
               except Exception as exc:
                   last_error = exc
