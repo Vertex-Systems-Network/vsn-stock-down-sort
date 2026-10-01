@@ -64,6 +64,38 @@ test("staging readiness validates the current four-plan billing catalog", () => 
   assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
 });
 
+test("staging Shopify workflows reject both Local and Production client identities", () => {
+  const paths = [
+    ".github/workflows/environment-secrets-audit.yml",
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/shopify-staging-version.yml",
+    ".github/workflows/shopify-staging-release.yml",
+  ];
+
+  for (const path of paths) {
+    const workflow = read(path);
+
+    assert.match(workflow, /LOCAL_CLIENT_ID/);
+    assert.match(workflow, /PRODUCTION_CLIENT_ID/);
+    assert.match(workflow, /shopify\.app\.production\.toml/);
+    assert.match(
+      workflow,
+      /SHOPIFY_API_KEY" = "\$PRODUCTION_CLIENT_ID"/,
+    );
+  }
+
+  const audit = read(".github/workflows/environment-secrets-audit.yml");
+  assert.match(
+    audit,
+    /SHOPIFY_API_KEY matches the Production Shopify client ID/,
+  );
+  assert.match(
+    audit,
+    /Shopify identity isolated from Local\/Dev and Production: \*\*yes\*\*/,
+  );
+});
+
 test("all production operations require staging acceptance recorded on main", () => {
   const paths = [
     ".github/workflows/cloudflare-production-prepare.yml",

@@ -86,6 +86,18 @@ jobs:
             exit 1
           fi
 
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Refusing to create a staging Shopify version with the Production client ID." >&2
+            exit 1
+          fi
+
           if ! grep -q "__SHOPIFY_STAGING_CLIENT_ID__" shopify.app.staging.toml; then
             echo "Staging client ID placeholder must remain committed; the workflow injects it at runtime." >&2
             exit 1
