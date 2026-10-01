@@ -552,7 +552,8 @@ test("README reflects the active Stock Down Sort architecture", () => {
   assert.match(readme, /^# VSN Stock Down Sort/m);
   assert.match(readme, /npm run dev/);
   assert.match(readme, /npm run local:prepare/);
-  assert.match(readme, /project.*endpoint ownership/i);
+  assert.match(readme, /Prisma \+ SQLite/i);
+  assert.match(readme, /schema.*parity/i);
   assert.match(readme, /Cloudflare Workers/);
   assert.match(readme, /PostgreSQL/);
   assert.match(readme, /Four plan IDs/);
