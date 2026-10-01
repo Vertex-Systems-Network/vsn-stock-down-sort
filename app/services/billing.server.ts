@@ -288,9 +288,9 @@ export async function createSubscription(
               appRecurringPricingDetails: {
                 price: {
                   amount: plan.amount,
-                  currencyCode: plan.currency_code,
+                  currencyCode: BILLING_CATALOG.currencyCode,
                 },
-                interval: plan.billing_interval,
+                interval: BILLING_CATALOG.interval,
               },
             },
           },
