@@ -82,8 +82,8 @@ test("rejects a non-Dev Shopify client identity", () => {
 
 test("Local Neon provisioning helper is idempotent and secret-safe", () => {
   const source = fs.readFileSync(new URL("../scripts/provision-local-neon.mjs", import.meta.url), "utf8");
-  assert.match(source, /GET|\\/projects\\?/);
-  assert.match(source, /POST/);
+  assert.ok(source.includes("/projects?") || source.includes("/projects"));
+  assert.ok(source.includes('method: "POST"'));
   assert.match(source, /vsn-stock-down-sort-local/);
   assert.match(source, /NEON_API_KEY/);
   assert.doesNotMatch(source, /Bearer\\s+[A-Za-z0-9_-]{20,}/);
