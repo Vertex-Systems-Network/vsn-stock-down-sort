@@ -1,3 +1,4 @@
+import { GraphqlQueryError } from "@shopify/shopify-api";
 import {
   BILLING_CATALOG,
   BILLING_PLAN_BY_ID,
@@ -108,6 +109,17 @@ function firstMessageFromUnknown(value: unknown): string | null {
 }
 
 export function describeShopifyBillingError(error: unknown) {
+  if (error instanceof GraphqlQueryError) {
+    const graphqlMessage = firstMessageFromUnknown(error.body?.errors);
+    if (graphqlMessage) {
+      return normalizeBillingErrorMessage(graphqlMessage);
+    }
+
+    if (error.message?.trim()) {
+      return normalizeBillingErrorMessage(error.message);
+    }
+  }
+
   if (error && typeof error === "object") {
     const record = error as Record<string, unknown>;
     const nestedCandidates = [
