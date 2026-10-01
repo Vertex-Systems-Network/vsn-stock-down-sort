@@ -169,4 +169,3 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export const PLAN_IDS = Object.freeze(Object.keys(BILLING_PLAN_BY_ID));
