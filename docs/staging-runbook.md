@@ -1,156 +1,99 @@
 # Staging runtime runbook
 
-VSN Stock Down Sort keeps local development isolated from hosted environments.
+VSN Stock Down Sort keeps Local development isolated from hosted environments.
 
 ## Environment topology
 
 | Tier | Shopify config | Database | Billing |
 | --- | --- | --- | --- |
-| Local / dev | `shopify.app.local.toml` | Neon PostgreSQL (dedicated Local project) | Test |
-| Staging | `shopify.app.staging.toml` | Neon PostgreSQL (isolated) | Test |
-| Production | `shopify.app.production.toml` | Neon PostgreSQL (isolated) | Real |
+| Local / dev | `shopify.app.local.toml` | Dedicated Neon PostgreSQL | Test |
+| Staging | `shopify.app.staging.toml` | Isolated Neon PostgreSQL | Test |
+| Production | `shopify.app.production.toml` | Isolated Neon PostgreSQL | Real |
 
-The active Prisma schema for local, staging, and production is `prisma/cloud/schema.prisma`.
+The active Prisma schema for all three tiers is `prisma/cloud/schema.prisma`.
 
 ## GitHub staging environment
 
-Use the existing GitHub Environment `cloudflare-staging`:
-
-https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23050370538/edit
-
-Add these secrets:
+Use the existing `cloudflare-staging` GitHub Environment and keep all real credentials there:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `DATABASE_URL` — pooled/runtime PostgreSQL connection string.
-- `DIRECT_URL` — direct PostgreSQL connection string for Prisma migrations only; it is not uploaded to the Worker.
-- `SHOPIFY_API_KEY` — staging Shopify app client ID.
-- `SHOPIFY_API_SECRET` — staging Shopify app secret.
-- `SHOPIFY_APP_AUTOMATION_TOKEN` — Shopify CLI automation token used only by
-  the staging version/release Actions.
+- `DATABASE_URL` — pooled/runtime PostgreSQL connection
+- `DIRECT_URL` — direct PostgreSQL connection for Prisma migrations only
+- `SHOPIFY_API_KEY`
+- `SHOPIFY_API_SECRET`
+- `SHOPIFY_APP_AUTOMATION_TOKEN`
 
-Do not copy production values into the staging environment.
-
-## Shopify staging app
-
-The staging Workers URL is fixed to:
-
-- `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
-
-The dedicated Shopify staging app Client ID intentionally remains a placeholder
-in git:
-
-- `__SHOPIFY_STAGING_CLIENT_ID__`
-
-Do **not** replace or commit it. GitHub Actions inject the real
-`SHOPIFY_API_KEY` into a disposable checkout when creating or releasing a
-staging Shopify version.
-
-The staging Shopify app must be installed only on a development/test store.
+Do not copy Production credentials into Staging.
 
 ## Readiness gate
 
-Run the **Staging Readiness** workflow and enter `VALIDATE_STAGING`.
+Run **Staging Readiness** with `VALIDATE_STAGING`.
 
-It refuses to proceed when:
+Staging is blocked until Local/Dev acceptance exists for the exact development source commit. The workflow also checks staging secret presence, Shopify identity isolation, PostgreSQL schema/migrations, lint/typecheck/build and the four-plan billing catalog contract.
 
-- a required staging secret is missing;
-- the staging URL is not HTTPS;
-- the staging Shopify secret identity matches the Local/Dev app;
-- the committed staging config no longer contains the expected safe placeholder;
-- the PostgreSQL schema or migrations are invalid;
-- lint, typecheck, or build fails.
+Staging always uses `SHOPIFY_BILLING_TEST_MODE=true`.
 
-Staging always requires `SHOPIFY_BILLING_TEST_MODE=true`.
+## Billing contract
 
-## Production safety
+The canonical catalog is `config/ai/product-plan.json`:
 
-Production must use a separate database and separate Shopify app credentials.
-Runtime startup refuses production when
-`SHOPIFY_BILLING_TEST_MODE` is not explicitly `false`.
+| Plan | Price / 30 days | Trial |
+| --- | ---: | ---: |
+| Starter | USD 10.99 | 10 days |
+| Growth | USD 19.99 | 10 days |
+| Pro | USD 34.99 | 10 days |
+| Unlimited | USD 54.99 | 10 days |
 
+All four plans have unlimited products and collections. Capability differences are represented by option IDs in the catalog.
 
-## Worker deployment
+The runtime currently marks only the implemented base sorting capabilities as available. Planned capabilities remain explicitly labelled as planned until their own implementation and verification evidence exists.
 
-After **Staging Readiness** passes, run **Cloudflare Staging Deploy** and type
-`DEPLOY_DEVELOPMENT_TO_STAGING`.
+## Shopify staging app
 
-The deployment always checks out the `development` branch, applies staging
-migrations, builds and dry-runs the Worker bundle, then deploys with runtime
-secrets. The temporary secrets file is deleted even if deployment fails.
+Staging uses the separate **VSN | Stock Down Sort Staging** app and the fixed Worker URL:
 
+`https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
 
-## Public staging runtime values
+The staging Client ID remains a secret placeholder in git. GitHub Actions inject the real value only into the disposable runner.
 
-These values are intentionally committed as non-secret staging configuration:
+## Deployment
 
-- `SHOPIFY_APP_URL=https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev`
-- `SCOPES=read_products,write_products,read_inventory`
+After Local acceptance and **Staging Readiness** pass, manually run **Cloudflare Staging Deploy** with:
 
-They must not be duplicated as GitHub or Cloudflare secrets.
+`DEPLOY_DEVELOPMENT_TO_STAGING`
 
+The workflow checks out the accepted `development` source, provisions/verifies the Staging Queue and DLQ, applies migrations, builds and deploys the Worker, and verifies `/healthz`.
+
+The deployment does not release the Shopify Staging app version automatically.
 
 ## Post-deploy acceptance
 
-Every staging deployment verifies `/healthz` and requires the deployed runtime
-to report:
+The deployed `/healthz` must report:
 
-- service `vsn-stock-down-sort`;
-- environment `staging`;
-- PostgreSQL runtime;
-- Shopify test billing enabled;
-- the 5-day / USD 55 plan contract.
+- `service=vsn-stock-down-sort`
+- `environment=staging`
+- `database=postgresql`
+- `billingTestMode=true`
+- exactly four catalog plans with the approved IDs, prices, 30-day interval and 10-day trials.
 
-The deployment form also accepts an optional `staging_shop` value such as a
-`*.myshopify.com` development-store domain. After the staging Shopify app has
-been installed on that shop, provide this value to run the signed, read-only
-`/internal/staging-acceptance` probe.
-
-That probe proves:
-
-- an offline Shopify session is stored;
-- Shopify Admin GraphQL is readable;
-- `activeSubscriptions` can be read.
-
-The request is HMAC-signed with the staging Shopify API secret, expires after
-five minutes, and the endpoint is unavailable outside the fixed staging
-runtime. It never creates or cancels subscriptions.
-
+The optional signed `/internal/staging-acceptance` probe additionally checks Shopify Admin GraphQL and reports whether the active subscription matches one of the approved plans. It is read-only and never creates or cancels a subscription.
 
 ## Shopify staging promotion
 
-Before any Staging work, Local/Dev must pass using the dedicated Neon Local database.
+After Worker acceptance:
 
-Local development stays simple:
+1. Run **Shopify Staging Version** with `CREATE_STAGING_SHOPIFY_VERSION`.
+2. Record the exact unreleased candidate version and source SHA.
+3. Run **Shopify Staging Release** with `RELEASE_STAGING_SHOPIFY_VERSION` and the exact candidate name.
 
-`npm run dev`
+No Staging action may mutate the Live Shopify app identity.
 
-No manual Shopify config switching is required.
+## Queue
 
-After runtime readiness and Cloudflare staging deployment pass:
-
-1. Run **Shopify Staging Version** and enter
-   `CREATE_STAGING_SHOPIFY_VERSION`.
-2. The Action checks out `development`, injects the staging Client ID from
-   GitHub secrets only in that disposable runner, and creates an unreleased
-   version named like
-   `stock-down-sort-staging-<source-sha>-<run-number>`.
-3. Copy the exact candidate version name from the Action summary.
-4. Run **Shopify Staging Release**, enter
-   `RELEASE_STAGING_SHOPIFY_VERSION`, and provide that exact version name.
-
-This process does not modify `shopify.app.toml` or
-`shopify.app.production.toml`.
-
-
-## Staging sort queue
-
-Cloudflare Staging Deploy ensures these resources exist before deploying the
-Worker:
+Staging deploy ensures:
 
 - `vsn-stock-down-sort-staging-sort-jobs`
 - `vsn-stock-down-sort-staging-sort-jobs-dlq`
 
-The Worker both produces to and consumes from the main queue through the
-`STOCK_SORT_QUEUE` binding. Hosted webhook sorting and bulk enablement use the
-queue; local development retains the direct fallback.
+are available before the Worker is considered ready.
