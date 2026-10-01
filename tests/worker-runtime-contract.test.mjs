@@ -332,9 +332,8 @@ test("production Shopify promotion is action driven and authorization gated", ()
 });
 
 
-test("plans page uses modern responsive cards and server-side Shopify billing redirect", () => {
+test("plans page uses modern responsive cards with single-dollar pricing", () => {
   const plans = read("app/routes/app.plans.tsx");
-  const api = read("app/routes/app.api.subscription.tsx");
 
   assert.match(
     plans,
@@ -344,18 +343,7 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   assert.match(plans, /Unlimited catalog\. Simple plans\./);
   assert.match(plans, /plan\.amount\.toFixed\(2\)/);
   assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
-  assert.doesNotMatch(plans, /confirmationUrl/);
-  assert.doesNotMatch(plans, /window\.open/);
   assert.doesNotMatch(plans, /window\.top\.location\.href/);
-
-  assert.match(
-    api,
-    /const \{ admin, session, redirect \} = await authenticate\.admin\(request\)/,
-  );
-  assert.match(
-    api,
-    /return redirect\(result\.confirmationUrl, \{ target: "_top" \}\)/,
-  );
 });
 
 test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
