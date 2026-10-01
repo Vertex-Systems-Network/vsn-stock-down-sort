@@ -163,7 +163,7 @@ export default function PlansPage() {
                         </s-stack>
 
                         <s-heading>
-                          $${plan.amount.toFixed(2)} USD / 30 days
+                          ${"$"}{plan.amount.toFixed(2)} USD / 30 days
                         </s-heading>
 
                         <s-badge tone="info">
