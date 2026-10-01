@@ -6,6 +6,7 @@ import {
   createSubscription,
   getAnyActiveSubscription,
   getCurrentSubscriptionPlan,
+  describeShopifyBillingError,
 } from "../services/billing.server";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 
@@ -162,13 +163,17 @@ export async function action({ request }: ActionFunctionArgs) {
       { status: 400 },
     );
   } catch (error) {
+    const message = describeShopifyBillingError(error);
+    console.error("[billing] subscription action failed", {
+      shop: session.shop,
+      actionType,
+      message,
+    });
+
     return Response.json(
       {
         ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Shopify subscription request failed.",
+        error: message,
       },
       { status: 500 },
     );
