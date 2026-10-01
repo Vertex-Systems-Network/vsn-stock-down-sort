@@ -7,30 +7,36 @@ Canonical live state:
 - GitHub Issue #32
 - live Git/PR/CI/runtime evidence
 
-## Local/Dev accepted
+## Billing runtime accepted
 
-Exact accepted development source:
+Final tested development source:
+
+`fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`
+
+Real Dev-store evidence:
+- all current plan switches reached Shopify approval;
+- each selected plan returned successfully and became **Current plan**;
+- the merchant restored the original desired current plan;
+- PR #76 fixed the fetcher revalidation race;
+- App Validation #301 passed before merge.
+
+`ISSUE-32-WU-BILLING-01` is complete.
+
+## Current gate mismatch
+
+The repository Local gate still records:
 
 `45ce7a91d1d6385eda56c3a90a1ac12ba05417f5`
 
-Real workstation evidence:
-- Prisma SQLite validate/generate/migrate deploy passed.
-- `/healthz` returned `ok=true`.
-- `environment=development`.
-- `billingTestMode=true`.
-- `database=sqlite`.
-- canonical plan IDs: starter / growth / pro / unlimited.
-- USD / EVERY_30_DAYS / 10-day trial catalog passed.
-- `local:certify` wrote accepted evidence.
-- one current paid plan activated successfully on the Dev test store.
+The latest tested source is:
 
-SQLite Local acceptance is not PostgreSQL acceptance.
+`fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`
 
-## Current active work
+Therefore Staging is still blocked.
 
-`ISSUE-32-WU-BILLING-01` — **verification_required**.
+## Next work
 
-Remaining:
-- verify the remaining current plan / plan-change approval paths on the Shopify test store;
-- then start `ISSUE-32-WU-02` Staging Environment Secrets Audit;
-- Staging remains the first mandatory Neon/PostgreSQL runtime acceptance gate.
+1. Run `local:certify` on exact source `fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c`.
+2. Record/merge the refreshed Local acceptance evidence.
+3. Run `ISSUE-32-WU-02` Environment Secrets Audit for `cloudflare-staging`.
+4. Continue with Staging Readiness and manual Staging deployment only after that audit passes.
