@@ -4,7 +4,7 @@ canonical_plan: config/ai/execution-plan.json
 active_issue: 32
 project: VSN Stock Down Sort
 active_work_unit: ISSUE-32-WU-02
-status: blocked
+status: in_progress
 note: >
-  Billing runtime acceptance is complete. Re-certify Local/Dev on
-  fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c, then run the cloudflare-staging Environment Secrets Audit.
+  Run Environment Secrets Audit for cloudflare-staging. If it passes, continue
+  with Staging Readiness using accepted source ca5851561ab7979712f11580ab951fda4650ef19.
