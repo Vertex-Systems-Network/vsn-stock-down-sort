@@ -190,3 +190,31 @@ test("rejects Neon URLs whose endpoint is not owned by the configured project", 
     /endpoint does not belong to NEON_PROJECT_ID/,
   );
 });
+
+
+test("Local prepare command is Windows-safe and enforces the truth sequence", () => {
+  const source = fs.readFileSync(
+    new URL("../scripts/prepare-local-dev.mjs", import.meta.url),
+    "utf8",
+  );
+  const pkg = JSON.parse(
+    fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+  );
+
+  assert.equal(pkg.scripts["local:prepare"], "node scripts/prepare-local-dev.mjs");
+  assert.match(source, /branch !== "development"/);
+  assert.match(source, /run\("node", \["scripts\/provision-local-neon\.mjs"\]\)/);
+  assert.match(source, /loadLocalEnv\(\)/);
+  assert.match(source, /validateLocalNeonEnv\(\)/);
+  assert.match(source, /verifyLocalNeonProjectBinding\(\)/);
+  assert.match(source, /run\("npx", \[/);
+  assert.match(source, /"prisma",\s*"migrate",\s*"deploy"/s);
+  assert.match(source, /shell:\s*process\.platform\s*===\s*"win32"/);
+  assert.doesNotMatch(source, /npx\.cmd/);
+  assert.doesNotMatch(source, /npm\.cmd/);
+
+  const provision = source.indexOf('run("node", ["scripts/provision-local-neon.mjs"])');
+  const verify = source.indexOf("verifyLocalNeonProjectBinding()");
+  const migrate = source.indexOf('run("npx", [');
+  assert.ok(provision >= 0 && verify > provision && migrate > verify);
+});
