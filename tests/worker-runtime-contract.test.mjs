@@ -943,7 +943,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_work_unit, "ISSUE-32-WU-04");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
   assert.match(state.next_valid_work_unit, /Cloudflare Staging Deploy/i);
-  assert.match(state.next_valid_work_unit, /source_ref=ca5851561ab7979712f11580ab951fda4650ef19/);
+  assert.match(state.next_valid_work_unit, /accepted source ca5851561ab7979712f11580ab951fda4650ef19/);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
