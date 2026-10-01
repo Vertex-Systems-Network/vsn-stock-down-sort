@@ -80,6 +80,75 @@ function validateLocalShopifyConfig() {
   }
 }
 
+
+const NEON_API = "https://console.neon.tech/api/v2";
+
+async function neonApi(path) {
+  const token = process.env.NEON_API_KEY?.trim();
+  if (!token) {
+    fail("NEON_API_KEY is required for truth-backed Local certification and must remain only in the gitignored local environment.");
+  }
+
+  const response = await fetch(`${NEON_API}${path}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const text = await response.text();
+  let body;
+  try {
+    body = text ? JSON.parse(text) : {};
+  } catch {
+    body = {};
+  }
+
+  if (!response.ok) {
+    const detail = body?.message || body?.error || `HTTP ${response.status}`;
+    fail(`Neon API verification failed: ${detail}`);
+  }
+  return body;
+}
+
+export async function verifyLocalNeonProjectBinding() {
+  const projectId = process.env.NEON_PROJECT_ID?.trim();
+  const projectName = (process.env.NEON_PROJECT_NAME || "").trim();
+  if (!projectId || projectName !== "vsn-stock-down-sort-local") {
+    fail("Local Neon project identity must be validated before API binding verification.");
+  }
+
+  const runtime = parseUrl("DATABASE_URL");
+  const direct = parseUrl("DIRECT_URL");
+  const runtimeEndpoint = runtime.host.split(".", 1)[0].replace(/-pooler$/, "");
+  const directEndpoint = direct.host.split(".", 1)[0].replace(/-pooler$/, "");
+
+  if (runtimeEndpoint !== directEndpoint) {
+    fail("DATABASE_URL and DIRECT_URL must belong to the same Local Neon endpoint.");
+  }
+
+  const projectBody = await neonApi(`/projects/${encodeURIComponent(projectId)}`);
+  const project = projectBody?.project ?? projectBody;
+  if (project?.id !== projectId || project?.name !== "vsn-stock-down-sort-local") {
+    fail("NEON_PROJECT_ID does not resolve to the dedicated vsn-stock-down-sort-local project.");
+  }
+
+  const endpointBody = await neonApi(
+    `/projects/${encodeURIComponent(projectId)}/endpoints`,
+  );
+  const endpoints = Array.isArray(endpointBody?.endpoints)
+    ? endpointBody.endpoints
+    : [];
+  if (!endpoints.some((endpoint) => endpoint?.id === runtimeEndpoint)) {
+    fail("DATABASE_URL/DIRECT_URL endpoint does not belong to NEON_PROJECT_ID.");
+  }
+
+  return {
+    projectId,
+    projectName: project.name,
+    endpointId: runtimeEndpoint,
+  };
+}
+
 export function validateLocalNeonEnv() {
   validateLocalNeonProjectIdentity();
   validateLocalShopifyConfig();
