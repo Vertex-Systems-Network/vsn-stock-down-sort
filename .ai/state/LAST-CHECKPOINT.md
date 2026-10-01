@@ -1,34 +1,36 @@
 # Last Checkpoint
 
-This file is a compatibility mirror. Canonical live state is:
-
+Canonical live state:
 - `config/ai/project-state.json`
 - `config/ai/execution-plan.json`
-- `config/architecture/decision-records.json`
+- `config/release/environment-gates.json`
 - GitHub Issue #32
-- live Git/PR/CI evidence
+- live Git/PR/CI/runtime evidence
 
-## ADR-0001 implementation evidence
+## Local/Dev accepted
 
-The repository implementation for the accepted environment architecture has passed App Validation #271 on tree `b0970d0dbe4a0556543770f5755f72f529dc62aa`:
+Exact accepted development source:
 
-1. Local/Dev — **VSN | Stock Down Sort Dev** + Prisma + gitignored SQLite.
-2. Staging — **VSN | Stock Down Sort Staging** + Prisma + isolated Neon PostgreSQL.
-3. Production — **VSN | Stock Down Sort** + Prisma + isolated Neon PostgreSQL.
+`45ce7a91d1d6385eda56c3a90a1ac12ba05417f5`
 
-CI #271 passed Local SQLite schema validation, schema parity, SQLite migrations, Local client generation, hosted PostgreSQL schema validation, lint, typecheck, all contract tests, Worker build and both Cloudflare dry-runs.
+Real workstation evidence:
+- Prisma SQLite validate/generate/migrate deploy passed.
+- `/healthz` returned `ok=true`.
+- `environment=development`.
+- `billingTestMode=true`.
+- `database=sqlite`.
+- canonical plan IDs: starter / growth / pro / unlimited.
+- USD / EVERY_30_DAYS / 10-day trial catalog passed.
+- `local:certify` wrote accepted evidence.
+- one current paid plan activated successfully on the Dev test store.
+
+SQLite Local acceptance is not PostgreSQL acceptance.
 
 ## Current active work
 
-`ISSUE-32-WU-LOCAL-SQLITE-01` — **verification_required**.
+`ISSUE-32-WU-BILLING-01` — **verification_required**.
 
-Remaining evidence is real Local runtime acceptance on the merged `development` source:
-
-- create/clean `.env.local` with the dedicated Dev Shopify credentials and no Neon/hosted DB credentials;
-- run `npm run local:prepare`;
-- run `npm run dev`;
-- verify `/healthz` reports development + SQLite + billing test mode;
-- run `npm run local:certify -- <local-health-url>/healthz`;
-- commit the exact acceptance evidence.
-
-SQLite Local success is not PostgreSQL acceptance. Do not start Staging until the Local gate is accepted; Staging remains the first mandatory Neon/PostgreSQL runtime gate.
+Remaining:
+- verify the remaining current plan / plan-change approval paths on the Shopify test store;
+- then start `ISSUE-32-WU-02` Staging Environment Secrets Audit;
+- Staging remains the first mandatory Neon/PostgreSQL runtime acceptance gate.

@@ -119,10 +119,8 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 96,
-      "status": "verification_required",
-      "blockers": [
-        "Repository implementation passed App Validation #271. Remaining evidence is a real workstation boot/health/local:certify run on the merged development source."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "development remains the Local integration branch.",
         "VSN | Stock Down Sort Dev remains the Local Shopify identity.",
@@ -151,7 +149,11 @@
         "Operational development-flow/topology/gates now specify SQLite locally and Neon PostgreSQL when hosted.",
         "Obsolete Local Neon provision/validation scripts were removed.",
         "App Validation #271 run 36844916383 passed the implementation tree b0970d0dbe4a0556543770f5755f72f529dc62aa.",
-        "Real Local Shopify runtime acceptance is still required."
+        "Real workstation Local certification passed on development source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5.",
+        "Local /healthz returned ok=true, environment=development, billingTestMode=true, database=sqlite.",
+        "Local /healthz returned the canonical four-plan USD/EVERY_30_DAYS catalog with 10-day trials.",
+        "local:certify passed Prisma validate/generate/migrate deploy and wrote Local acceptance evidence.",
+        "One current paid plan was activated successfully on the Dev test store."
       ],
       "architecture_decision": "ADR-0001"
     },
@@ -165,10 +167,9 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 92,
-      "status": "in_progress",
+      "status": "verification_required",
       "blockers": [
-        "Real Shopify test-store approval for each plan is still required before billing runtime acceptance is complete.",
-        "Public App Pricing migration, if selected, requires Partner Dashboard configuration and Partner API verification."
+        "One current plan activation has passed on the Dev test store; remaining current plan/plan-change approval paths still require real Shopify test-store evidence before billing runtime acceptance is complete."
       ],
       "acceptance_criteria": [
         "Exactly starter/growth/pro/unlimited are canonical IDs.",
@@ -192,7 +193,8 @@
         "/app/plans exposes all four tiers and prevents unknown active subscription changes.",
         "Subscription API supports plan selection and replacement.",
         "Hosted health/release workflows validate the four-plan catalog.",
-        "App Validation #224 passed the previous billing contract before this implementation batch."
+        "App Validation #224 passed the previous billing contract before this implementation batch.",
+        "One current paid plan was activated successfully on the Dev test store after Shopify approval/return-flow fixes."
       ]
     },
     {
@@ -240,7 +242,7 @@
       "priority": 90,
       "status": "not_started",
       "blockers": [
-        "Local/Dev Prisma + SQLite certification must complete first."
+        "Four-plan billing runtime acceptance must complete before Staging Environment Secrets Audit starts."
       ],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."

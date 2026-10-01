@@ -2,9 +2,39 @@
   "schema_version": 1,
   "status": "verification_required",
   "local_dev": {
-    "status": "verification_required",
-    "accepted_source_ref": null,
-    "evidence_record": null,
+    "status": "accepted",
+    "accepted_source_ref": "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
+    "accepted_at": "2026-10-01T18:43:00.000Z",
+    "evidence_record": {
+      "branch": "development",
+      "database_provider": "sqlite",
+      "database_file": "prisma/dev.sqlite",
+      "sqlite_gitignored": true,
+      "prisma_validate": "passed",
+      "prisma_generate": "passed",
+      "prisma_migrate_deploy": "passed",
+      "shopify_app": "VSN | Stock Down Sort Dev",
+      "shopify_dev_health": {
+        "status": 200,
+        "environment": "development",
+        "billingTestMode": true,
+        "database": "sqlite"
+      },
+      "health_url": "http://localhost:60968/healthz",
+      "billing_catalog": {
+        "currencyCode": "USD",
+        "interval": "EVERY_30_DAYS",
+        "trialDays": 10,
+        "planIds": [
+          "starter",
+          "growth",
+          "pro",
+          "unlimited"
+        ]
+      },
+      "billing_runtime_activation": "passed_for_one_current_plan_on_dev_test_store",
+      "note": "Local SQLite acceptance is complete. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
+    },
     "required_checks": [
       "Local Shopify app boot from development",
       "Local SQLite Prisma validation/generation/migration",
