@@ -2,38 +2,41 @@
   "schema_version": 1,
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
-  "current_module": "local-development-certification",
-  "current_work_unit": "ISSUE-32-WU-LOCAL-01",
+  "current_module": "four-plan-billing-and-environment-certification",
+  "current_work_unit": "ISSUE-32-WU-BILLING-01",
   "active_issue": 32,
-  "last_verified_completion": "App Validation #216 passed on development commit 7254d0b88992fdcdb878226e01779ae0d836df9c. Dedicated Local Neon project identity is now enforced in the Local validator and CI contract tests. Actual Local Neon provisioning and workstation runtime certification remain blocked by missing real Neon project credentials/identity.",
-  "next_valid_work_unit": "Provision or identify the real dedicated Neon project vsn-stock-down-sort-local, then bind its real pooled/direct endpoints in the uncommitted local environment and run Local certification.",
+  "last_verified_completion": "Database architecture hardening and repository-side four-plan billing implementation are present on the active feature branch. App Validation #224 previously passed the Local Neon contract; a new validation run is required for this branch.",
+  "next_valid_work_unit": "Verify the four-plan billing implementation in CI, then perform real Local Neon provisioning and Local Shopify runtime certification. Staging remains blocked until Local acceptance evidence exists.",
   "progress": {
-    "total_work_units": 8,
-    "complete": 1,
-    "in_progress": 0,
+    "total_work_units": 10,
+    "complete": 2,
+    "in_progress": 1,
     "blocked": 1,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
+    "Run and pass App Validation for the four-plan billing/database branch.",
     "Provision or identify the real dedicated Neon project vsn-stock-down-sort-local.",
-    "Configure the uncommitted Local .env with the real pooled DATABASE_URL and matching direct DIRECT_URL for that project.",
+    "Configure uncommitted Local .env with the real pooled DATABASE_URL and matching direct DIRECT_URL.",
     "Run npm run dev from development and prove the VSN | Stock Down Sort Dev app boots.",
-    "Run npm run local:certify -- <local-health-url>/healthz; this performs Neon validation, Prisma migrate deploy, and health verification.",
-    "Commit the generated Local acceptance evidence on development before Staging work."
+    "Run npm run local:certify -- <local-health-url>/healthz and commit the acceptance evidence.",
+    "After Local acceptance, run Staging Readiness, Staging Deploy, Staging Shopify Version/Release and signed acceptance.",
+    "After Staging acceptance on main, run Production Readiness, Worker Prepare, Production Candidate and explicit Live release."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
     "Project Management provider remains unselected; repository/GitHub Issues are the active planning surface.",
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed.",
-    "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes."
+    "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes.",
+    "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "CI #216 green. Local/Dev acceptance remains verification_required because no real dedicated Neon project identity or Windows runtime evidence is available.",
+  "qa_readiness": "Awaiting App Validation for the active feature branch; Local runtime acceptance remains verification_required.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "7254d0b88992fdcdb878226e01779ae0d836df9c",
-  "last_reconciled_at": "2026-10-01T00:43:17Z",
+  "last_reconciled_repository_ref": "1572ce2dc10c984a58152f503c0b1068c1cb6637",
+  "last_reconciled_at": "2026-10-01T00:58:00Z",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
   "ci_evidence": {
     "workflow_run": 216,
@@ -43,5 +46,17 @@
     "head_sha": "7254d0b88992fdcdb878226e01779ae0d836df9c",
     "required_validation": "App Validation / validate",
     "all_validation_steps": "passed"
+  },
+  "batch_06_09": {
+    "scope": [
+      "6-database-architecture",
+      "7-staging",
+      "8-production-live",
+      "9-shopify-subscription-plans"
+    ],
+    "status": "in_progress",
+    "repository_implementation": "complete_for_currently_automatable_controls",
+    "runtime_acceptance": "blocked_by_real_environment_evidence",
+    "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   }
 }
