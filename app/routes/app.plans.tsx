@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
 import {
@@ -40,6 +40,7 @@ export default function PlansPage() {
   const { current, activeSubscription, environment, billingTestMode } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<SubscriptionActionResult>();
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const isLoading = fetcher.state !== "idle";
   const activeKnownPlan = current?.plan ?? null;
   const activeIsUnknown =
@@ -48,6 +49,18 @@ export default function PlansPage() {
   useEffect(() => {
     if (fetcher.data?.cancelled) window.location.reload();
   }, [fetcher.data?.cancelled]);
+
+  useEffect(() => {
+    if (!fetcher.data?.error || !errorRef.current) return;
+
+    window.requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      errorRef.current?.focus({ preventScroll: true });
+    });
+  }, [fetcher.data?.error]);
 
   function submitPlan(planId: PlanId) {
     const formData = new FormData();
@@ -108,9 +121,11 @@ export default function PlansPage() {
         ) : null}
 
         {fetcher.data?.error ? (
-          <s-banner tone="critical" heading="Subscription update failed">
-            {fetcher.data.error}
-          </s-banner>
+          <div ref={errorRef} tabIndex={-1}>
+            <s-banner tone="critical" heading="Subscription update failed">
+              {fetcher.data.error}
+            </s-banner>
+          </div>
         ) : null}
 
         <s-box
