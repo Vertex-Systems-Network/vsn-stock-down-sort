@@ -85,15 +85,16 @@
         "Shopify local dev boot",
         "Local certification"
       ],
-      "status": "verification_required",
+      "status": "complete",
       "completion_evidence": [
         "ADR-0001 accepted Local Prisma+SQLite.",
-        "Local SQLite runtime wiring, migration, validation and certification implemented on PR #64.",
-        "App Validation #271 passed Local SQLite migration/parity and all repository checks.",
-        "Real workstation Shopify Dev runtime acceptance remains pending."
+        "Local SQLite runtime wiring, migration, validation and certification implemented and CI-validated.",
+        "Real workstation Local certification accepted exact development source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5.",
+        "Local health passed development + SQLite + billing test mode + canonical four-plan catalog.",
+        "One current paid plan activation passed on the Dev test store."
       ],
       "update_notes": [
-        "Repository implementation is complete; runtime verification on merged development is the remaining Local gate."
+        "Local/Dev gate is accepted; further runtime work is in Billing then Staging."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -289,17 +290,18 @@
         "App Validation",
         "Billing catalog contract"
       ],
-      "status": "in_progress",
+      "status": "verification_required",
       "completion_evidence": [
         "config/ai/product-plan.json created.",
         "Server-side four-plan resolution implemented.",
         "Plans UI and subscription API updated.",
         "Legacy compatibility path preserved.",
-        "App Validation #224 passed before this batch."
+        "App Validation #224 passed before this batch.",
+        "One current paid plan activated successfully on the Dev test store."
       ],
       "update_notes": [
-        "Runtime plan approval still requires Shopify test-store evidence.",
-        "Public Shopify App Pricing migration remains a separate release decision."
+        "Repository billing implementation and one real Dev-store activation are proven.",
+        "Remaining current plan/plan-change approval paths require real Shopify test-store evidence before billing runtime acceptance is complete."
       ],
       "removal_or_deprecation_notes": []
     }
