@@ -7,28 +7,20 @@ Local/Dev is the first environment and must be certified before Staging.
 - Git branch: `development`
 - Shopify app: **VSN | Stock Down Sort Dev**
 - Shopify config: `shopify.app.local.toml`
+- Local database: Prisma + SQLite
+- SQLite file: `prisma/dev.sqlite` (gitignored)
 - prepare command: `npm run local:prepare`
 - runtime command: `npm run dev`
 - certification command: `npm run local:certify -- <local-health-url>/healthz`
 - billing: test mode only
 
-Do not run `shopify app config use` during the normal Local → Staging → Production flow. `npm run dev` explicitly uses the `local` config.
+Normal Local development does **not** require Neon credentials, a Neon project, `DATABASE_URL`, or `DIRECT_URL`.
 
-## Neon Local database
+## Environment file
 
-Local uses a dedicated Neon PostgreSQL project identity:
+Create `.env.local` from `.env.local.example`. It should contain the dedicated Dev Shopify identity and secret only, plus normal Local app settings.
 
-`vsn-stock-down-sort-local`
-
-Status: repository tooling is ready; real workstation preparation/certification remains required until the exact Neon project ID, endpoint ownership and runtime health evidence are recorded.
-
-Local database credentials must never be reused by Staging or Production.
-
-Use:
-- `DATABASE_URL` = pooled Neon runtime URL (hostname contains `-pooler`)
-- `DIRECT_URL` = matching direct Neon migration URL (same endpoint identity, no `-pooler`)
-
-Put real values in the uncommitted local `.env.local`. The runner loads `.env.local` first and falls back to `.env` only if `.env.local` is absent.
+Do not put Staging or Production database credentials in `.env.local`.
 
 ## Start sequence
 
@@ -40,7 +32,9 @@ npm run local:prepare
 npm run dev
 ```
 
-`local:prepare` provisions or reuses only `vsn-stock-down-sort-local`, validates pooled/direct connection separation, verifies the real Neon project name and endpoint ownership through the Neon API, and applies Prisma migrations before the Shopify runtime is certified.
+`local:prepare` validates the Local Shopify identity and SQLite contract, validates/generates Prisma from `prisma/schema.prisma`, applies the Local SQLite migrations, and creates `prisma/dev.sqlite` when needed.
+
+`npm run dev` explicitly uses `shopify.app.local.toml`. The Shopify web process runs `scripts/local-dev-runner.mjs`, which regenerates/migrates the Local SQLite schema before React Router starts.
 
 If the Shopify dev preview is still showing an old placeholder/default page, stop the current dev process and run once:
 
@@ -48,28 +42,37 @@ If the Shopify dev preview is still showing an old placeholder/default page, sto
 npm run dev:reset
 ```
 
-Then choose the dedicated Dev app/store when prompted. After that, normal `npm run dev` is enough.
+Then select the dedicated **VSN | Stock Down Sort Dev** app/store if Shopify CLI prompts.
 
-The Shopify web process runs `scripts/local-dev-runner.mjs`, which loads `.env.local`, validates Neon, and forwards the same environment to Prisma and React Router. It refuses to start when the database is not Neon, when the runtime URL is not pooled, when the migration URL is pooled, or when the two URLs do not belong to the same Neon endpoint.
+## Prisma split
 
-After preparation and runtime validation:
-1. `local:prepare` verifies the Neon project/endpoint and applies Prisma migrations.
-2. `npm run dev` validates the Local environment again and generates the cloud Prisma client.
-3. React Router starts under Shopify CLI.
-4. The exact **VSN | Stock Down Sort Dev** app is used.
-5. `npm run local:certify -- <local-health-url>/healthz` reruns migration safety checks, verifies the development health contract, and writes exact source-ref evidence to the Local gate.
+Local and hosted environments intentionally use different Prisma datasources:
 
-## Exit criteria
+- Local: `prisma/schema.prisma` → SQLite
+- Staging/Production: `prisma/cloud/schema.prisma` → PostgreSQL / Neon
 
-Local/Dev is complete only when:
-- `npm run local:prepare` succeeds on `development`;
-- the dedicated Neon project ID resolves to `vsn-stock-down-sort-local`;
-- the pooled/direct endpoint is verified as owned by that project;
-- migrations succeed;
-- `npm run dev` starts successfully;
-- the app opens through **VSN | Stock Down Sort Dev**;
-- `/healthz` reports development + PostgreSQL + billing test mode;
-- `local:certify` records the exact accepted source ref;
-- no Staging or Production credential is used.
+Shared application models, fields and indexes are protected by `npm run prisma:parity`.
 
-Only then may PHASE-01 resume with the `cloudflare-staging` environment.
+Local SQLite success is application-level Local evidence only. It is **not** PostgreSQL acceptance. Staging remains the first mandatory Neon/PostgreSQL runtime gate.
+
+## Certification
+
+After the app is running, certify the exact `development` source:
+
+```bash
+npm run local:certify -- http://127.0.0.1:3000/healthz
+```
+
+Use the actual Local health URL if Shopify CLI/React Router uses a different port.
+
+Local certification requires:
+
+- a clean `development` working tree;
+- Local SQLite validation/generation/migration to pass;
+- `prisma/dev.sqlite` to exist and remain gitignored;
+- `/healthz` to report `environment=development`;
+- `/healthz` to report `database=sqlite`;
+- Shopify billing test mode to be true;
+- the exact accepted source SHA to be recorded in `config/release/environment-gates.json`.
+
+Only after that acceptance evidence exists may PHASE-01 proceed to `cloudflare-staging`.
