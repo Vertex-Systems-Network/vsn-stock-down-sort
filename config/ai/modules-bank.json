@@ -159,6 +159,129 @@
       "completion_evidence": [],
       "update_notes": [],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-DATABASE",
+      "name": "Isolated PostgreSQL Data Architecture",
+      "objective": "Keep Local, Staging and Production database identities isolated while preserving a migration-first PostgreSQL runtime.",
+      "scope": [
+        "Neon PostgreSQL topology",
+        "Prisma cloud schema",
+        "session lookup indexing",
+        "pooled runtime connections",
+        "direct migration connections"
+      ],
+      "boundaries": [
+        "No Local credential reuse in Staging or Production.",
+        "No production migration during Shopify release."
+      ],
+      "dependencies": [
+        "MOD-MGMT"
+      ],
+      "option_ids": [],
+      "data_entities": [
+        "Session",
+        "CollectionSetting"
+      ],
+      "contracts": [
+        "DATABASE_URL=pooled",
+        "DIRECT_URL=direct",
+        "Local dedicated Neon project"
+      ],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Never commit database credentials.",
+        "Keep environment credentials isolated."
+      ],
+      "acceptance_criteria": [
+        "Cloud schema is PostgreSQL.",
+        "Local project identity is explicit.",
+        "Session shop lookup is indexed.",
+        "Role-separated connection contract passes."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Database architecture contract"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [
+        "PostgreSQL schema contract passes in App Validation.",
+        "Local topology requires dedicated vsn-stock-down-sort-local project.",
+        "Additive Session_shop_idx migration added."
+      ],
+      "update_notes": [
+        "Actual Local Neon project provisioning and runtime migration remain environment-dependent."
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-BILLING",
+      "name": "Four-Tier Shopify Billing and Entitlements",
+      "objective": "Provide four stable subscription tiers with a shared 10-day trial contract and server-side entitlement resolution.",
+      "scope": [
+        "Starter",
+        "Growth",
+        "Pro",
+        "Unlimited",
+        "legacy subscription compatibility",
+        "plan selection",
+        "subscription replacement",
+        "entitlement resolution"
+      ],
+      "boundaries": [
+        "Exactly four stable IDs: starter, growth, pro, unlimited.",
+        "Do not expose unimplemented options as available runtime capabilities.",
+        "Production real billing is only used after guarded release."
+      ],
+      "dependencies": [
+        "MOD-MGMT",
+        "MOD-DATABASE"
+      ],
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT"
+      ],
+      "data_entities": [
+        "Shopify AppSubscription"
+      ],
+      "contracts": [
+        "USD",
+        "EVERY_30_DAYS",
+        "10-day trial"
+      ],
+      "ui_surfaces": [
+        "/app/plans"
+      ],
+      "security_responsibilities": [
+        "Validate exact subscription identity, price, interval, trial and test mode.",
+        "Do not trust client-provided plan entitlements."
+      ],
+      "acceptance_criteria": [
+        "Four catalog plans are canonical.",
+        "New manual Billing API subscriptions use 10-day trials.",
+        "Plan changes use Shopify replacement behavior.",
+        "Legacy USD 55/5-day subscriptions retain compatible access."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Billing catalog contract"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [
+        "config/ai/product-plan.json created.",
+        "Server-side four-plan resolution implemented.",
+        "Plans UI and subscription API updated.",
+        "Legacy compatibility path preserved.",
+        "App Validation #224 passed before this batch."
+      ],
+      "update_notes": [
+        "Runtime plan approval still requires Shopify test-store evidence.",
+        "Public Shopify App Pricing migration remains a separate release decision."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
