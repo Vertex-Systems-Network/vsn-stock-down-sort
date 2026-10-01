@@ -102,6 +102,18 @@ jobs:
             exit 1
           fi
 
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Refusing staging readiness with the Production Shopify client ID." >&2
+            exit 1
+          fi
+
           if ! grep -q 'https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev' shopify.app.staging.toml; then
             echo "shopify.app.staging.toml does not match the expected Workers URL." >&2
             exit 1
