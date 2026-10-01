@@ -884,74 +884,64 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 });
 
 
-test("environment gate requires Neon ownership verification before Local acceptance", () => {
+test("environment gate requires SQLite Local evidence before Staging", () => {
   const gates = JSON.parse(read("config/release/environment-gates.json"));
   const releaseFlow = read("docs/development-release-flow.md");
 
   assert.equal(gates.local_dev.status, "verification_required");
   assert.ok(
     gates.local_dev.required_checks.includes(
-      "Neon project and endpoint ownership verification",
+      "Local SQLite Prisma validation/generation/migration",
     ),
   );
-  assert.match(releaseFlow, /npm run local:prepare/);
-  assert.match(releaseFlow, /project and endpoint ownership/i);
+  assert.ok(
+    gates.local_dev.required_checks.includes(
+      "Local/cloud Prisma model parity",
+    ),
+  );
+  assert.match(releaseFlow, /Prisma \+ SQLite/i);
+  assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
 
-test("local development requires isolated Neon pooled and direct connections", () => {
+test("local development uses SQLite while hosted environments remain Neon PostgreSQL", () => {
   const flow = JSON.parse(read("config/development-flow.json"));
   const topology = JSON.parse(read("config/database/environment-topology.json"));
   const web = read("shopify.web.toml");
-  const validator = read("scripts/validate-local-neon-env.mjs");
+  const validator = read("scripts/validate-local-sqlite-env.mjs");
   const localExample = read(".env.local.example");
-
-  assert.equal(flow.local.source_branch, "development");
-  assert.equal(flow.local.command, "npm run dev");
-  assert.equal(flow.local.database.provider, "neon_postgresql");
-  assert.equal(flow.local.database.project_name, "vsn-stock-down-sort-local");
-  assert.equal(flow.local.database.runtime_connection, "pooled");
-  assert.equal(flow.local.database.migration_connection, "direct");
-  assert.equal(
-    flow.local.database.project_binding_verification,
-    "neon_api_project_and_endpoint_ownership",
-  );
-  assert.equal(
-    flow.local.database.provisioning_status,
-    "tooling_ready_runtime_verification_required",
-  );
-  assert.equal(topology.order.join(","), "local,staging,production");
-  assert.equal(topology.local.database.provider, "neon_postgresql");
-  assert.equal(topology.local.database.reuse_staging_or_production, false);
-  assert.equal(topology.staging.github_environment, "cloudflare-staging");
-  assert.equal(topology.production.github_environment, "cloudflare-production");
-
   const runner = read("scripts/local-dev-runner.mjs");
   const envLoader = read("scripts/local-env.mjs");
 
+  assert.equal(flow.local.source_branch, "development");
+  assert.equal(flow.local.command, "npm run dev");
+  assert.equal(flow.local.database.provider, "sqlite");
+  assert.equal(flow.local.database.file, "prisma/dev.sqlite");
+  assert.equal(flow.local.database.gitignored, true);
+  assert.equal(flow.local.database.hosted_credentials_required, false);
+  assert.equal(flow.invariants.local_database_must_be_sqlite, true);
+  assert.equal(topology.local.database.provider, "sqlite");
+  assert.equal(topology.staging.database.provider, "neon_postgresql");
+  assert.equal(topology.production.database.provider, "neon_postgresql");
+  assert.equal(topology.local.database.reuse_staging_or_production, false);
+
   assert.match(web, /local-dev-runner\.mjs predev/);
   assert.match(web, /local-dev-runner\.mjs dev/);
-  assert.match(runner, /loadLocalEnv/);
-  assert.match(runner, /validateLocalNeonEnv/);
-  assert.match(runner, /prisma/);
-  assert.match(runner, /react-router/);
-  assert.match(envLoader, /\.env\.local/);
-  assert.match(envLoader, /process\.loadEnvFile/);
-  assert.match(validator, /loadLocalEnv/);
-  assert.match(envLoader, /\.neon\.tech/);
-  assert.match(envLoader, /-pooler\./);
-  assert.match(envLoader, /DIRECT_URL must be the Neon direct/);
-  assert.match(localExample, /vsn-stock-down-sort-local/);
-  assert.match(localExample, /-pooler/);
+  assert.match(runner, /validateLocalSqliteEnv/);
+  assert.match(runner, /prisma\/schema\.prisma/);
+  assert.doesNotMatch(runner, /prisma\/cloud\/schema\.prisma/);
+  assert.match(envLoader, /hosted database/i);
+  assert.match(validator, /validateLocalSqliteEnv/);
+  assert.match(localExample, /requires no Neon credentials/i);
+  assert.doesNotMatch(localExample, /NEON_API_KEY/);
+  assert.doesNotMatch(localExample, /DIRECT_URL/);
 });
 
-
-test("accepted plan targets Local SQLite while operational runtime remains Neon until implementation", () => {
+test("accepted ADR-0001 is now implemented in operational Local topology", () => {
   const adr = JSON.parse(read("config/architecture/decision-records.json"));
   const modules = JSON.parse(read("config/ai/modules-bank.json"));
   const plan = JSON.parse(read("config/ai/execution-plan.json"));
   const flow = JSON.parse(read("config/development-flow.json"));
   const topology = JSON.parse(read("config/database/environment-topology.json"));
-  const runbook = read("docs/local-development.md");
 
   const decision = adr.decisions.find((item) => item.id === "ADR-0001");
   const localModule = modules.modules.find((module) => module.id === "MOD-LOCAL");
@@ -964,9 +954,6 @@ test("accepted plan targets Local SQLite while operational runtime remains Neon 
 
   assert.ok(decision);
   assert.equal(decision.status, "accepted");
-  assert.match(decision.decision, /Prisma.*SQLite/i);
-  assert.match(decision.decision, /Neon PostgreSQL/i);
-
   assert.ok(localModule);
   assert.ok(sqliteLocal);
   assert.equal(oldLocal.status, "deprecated");
@@ -975,23 +962,10 @@ test("accepted plan targets Local SQLite while operational runtime remains Neon 
     "ISSUE-32-WU-LOCAL-SQLITE-01",
   );
   assert.ok(localModule.scope.includes("Prisma Local SQLite schema"));
-  assert.ok(
-    sqliteLocal.acceptance_criteria.some((criterion) =>
-      /requires no NEON_API_KEY/i.test(criterion),
-    ),
-  );
-  assert.ok(
-    sqliteLocal.acceptance_criteria.some((criterion) =>
-      /schema-parity contract/i.test(criterion),
-    ),
-  );
-
-  // Planning changed first. Operational runtime remains truthful until the
-  // implementation work unit changes these files in a later PR.
-  assert.equal(flow.local.database.provider, "neon_postgresql");
-  assert.equal(topology.local.database.provider, "neon_postgresql");
-  assert.match(runbook, /npm run local:prepare/);
-  assert.match(runbook, /Neon/i);
+  assert.equal(flow.local.database.provider, "sqlite");
+  assert.equal(topology.local.database.provider, "sqlite");
+  assert.equal(topology.staging.database.provider, "neon_postgresql");
+  assert.equal(topology.production.database.provider, "neon_postgresql");
 });
 
 test("GitHub workflows bind to exact Cloudflare environments", () => {
