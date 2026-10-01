@@ -35,9 +35,9 @@
   "critical_defects": [],
   "qa_readiness": "Repository implementation is CI-validated. Local/Staging/Production runtime acceptance and real four-plan Shopify billing approval remain verification_required.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "937c1315975da9818d25b911b753e4389eb2e7a4",
-  "last_reconciled_at": "2026-10-01T07:18:07Z",
-  "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
+  "last_reconciled_repository_ref": "e3e78b0d6f603267ebda3fa8e6028daa52a333b9",
+  "last_reconciled_at": "2026-10-01T07:20:00Z",
+  "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred. Live reconciliation on 2026-10-01 verified current development head e3e78b0d6f603267ebda3fa8e6028daa52a333b9; the two commits after the #245 merge only update canonical project-state/execution-plan files, with no runtime application change. App Validation #245 remains the latest runtime-code validation evidence; real Local Neon and Shopify billing acceptance remain outstanding.",
   "ci_evidence": {
     "workflow_run": 245,
     "run_id": 36829449673,
