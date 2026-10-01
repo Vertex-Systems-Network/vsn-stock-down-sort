@@ -60,7 +60,7 @@
       "phase_id": "PHASE-01",
       "module_id": "MOD-LOCAL",
       "title": "Set up and certify Local Dev with Neon",
-      "objective": "Run VSN Stock Down Sort Dev from development using an isolated Neon PostgreSQL database before any Staging work.",
+      "objective": "Run VSN | Stock Down Sort Dev from development using an isolated, API-verified Neon PostgreSQL project before any Staging work.",
       "dependencies": [
         "ISSUE-32-WU-01"
       ],
@@ -71,7 +71,8 @@
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
-        "npm run dev uses VSN Stock Down Sort Dev.",
+        "npm run local:prepare completes before the Dev Shopify runtime is certified.",
+        "npm run dev uses VSN | Stock Down Sort Dev.",
         "DATABASE_URL is a Neon pooled connection.",
         "DIRECT_URL is the matching Neon direct connection.",
         "NEON_PROJECT_ID resolves through the Neon API to vsn-stock-down-sort-local and the configured endpoint belongs to that project.",
