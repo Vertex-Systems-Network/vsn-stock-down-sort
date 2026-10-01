@@ -49,6 +49,21 @@ test("staging readiness is development-derived and source-bound", () => {
   assert.match(workflow, /accepted_source_ref/);
 });
 
+test("staging readiness validates the current four-plan billing catalog", () => {
+  const workflow = read(".github/workflows/staging-readiness.yml");
+
+  assert.match(workflow, /config\/ai\/product-plan\.json/);
+  assert.match(workflow, /\{"id": "starter", "amount": 10\.99, "trial_days": 10\}/);
+  assert.match(workflow, /\{"id": "growth", "amount": 19\.99, "trial_days": 10\}/);
+  assert.match(workflow, /\{"id": "pro", "amount": 34\.99, "trial_days": 10\}/);
+  assert.match(workflow, /\{"id": "unlimited", "amount": 54\.99, "trial_days": 10\}/);
+  assert.match(workflow, /billing_interval"\) != "EVERY_30_DAYS"/);
+  assert.match(workflow, /catalog trial_days must be 10/);
+  assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
+  assert.doesNotMatch(workflow, /5_days_usd_55/);
+  assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
+});
+
 test("all production operations require staging acceptance recorded on main", () => {
   const paths = [
     ".github/workflows/cloudflare-production-prepare.yml",
