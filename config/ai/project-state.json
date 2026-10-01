@@ -5,8 +5,8 @@
   "current_module": "local-development-certification",
   "current_work_unit": "ISSUE-32-WU-LOCAL-01",
   "active_issue": 32,
-  "last_verified_completion": "App Validation #208 completed successfully on the current development HEAD. All validation steps passed, including Local environment contract, environment promotion contract, Worker build, and both Cloudflare staging/production dry-runs.",
-  "next_valid_work_unit": "Provision/bind the dedicated Neon project vsn-stock-down-sort-local, use pooled DATABASE_URL plus matching direct DIRECT_URL in the uncommitted local .env, then run npm run dev from development. Only after Local/Dev certification may cloudflare-staging secret/readiness work resume.",
+  "last_verified_completion": "CI #208 passed. Local config/governance contracts are implemented. Dedicated Stock Down Sort Local Neon project remains unprovisioned/unidentified; Local milestone is therefore not complete.",
+  "next_valid_work_unit": "Provision or identify the dedicated Neon project vsn-stock-down-sort-local with a real project ID and endpoint. The currently connected Neon toolset has no account-level project creation/listing operation, so do not claim completion until a real project identity is available.",
   "progress": {
     "total_work_units": 8,
     "complete": 1,
@@ -18,14 +18,14 @@
   },
   "outstanding_updates": [
     "Install/verify Shopify CLI on the Local Windows workstation, then install project dependencies.",
-    "Provision or identify the dedicated Neon project vsn-stock-down-sort-local and record its real project/branch/endpoint identity.",
     "Configure the uncommitted Local .env with pooled DATABASE_URL and matching direct DIRECT_URL.",
     "Run npm run dev from development; the predev hook validates Neon pooled/direct separation before Shopify local development.",
     "With the local app running, execute npm run local:certify -- <local-health-url>/healthz. The command runs Neon validation, Prisma migrate deploy, verifies development + billing test mode + PostgreSQL health, and records the exact Git source ref in config/release/environment-gates.json.",
     "Commit the resulting Local acceptance evidence on development before Staging work.",
     "Pull the latest development commit containing the corrected Local Shopify config validator, then rerun npm run dev on the Windows Local/Dev workstation.",
     "If Local Neon validation passes, run npm run local:certify against the running local /healthz endpoint and commit the generated Local acceptance evidence on development.",
-    "Neon project identity audit: `nameless-breeze-35836648` is verified as `vsn-metafields-production`; it must not be reused for VSN Stock Down Sort Local."
+    "Provision or identify the dedicated Neon project vsn-stock-down-sort-local and record its real project/branch/endpoint identity.",
+    "The connected Neon toolset currently exposes project-scoped operations but no account-level project creation/listing; do not reuse nameless-breeze-35836648 (VSN Metafields Production)."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -37,7 +37,7 @@
   "qa_readiness": "App Validation is running against the corrected Local config contract; Local Neon binding and real workstation acceptance remain required.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
   "last_reconciled_repository_ref": "bb7b0122ec58f1a97313c753703d44672b5c71fb",
-  "last_reconciled_at": "2026-10-01T00:02:33+05:00",
+  "last_reconciled_at": "2026-10-01T00:10:00+05:00",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
   "ci_evidence": {
     "workflow_run": 208,
