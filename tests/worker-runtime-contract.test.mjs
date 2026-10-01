@@ -335,12 +335,20 @@ test("production Shopify promotion is action driven and authorization gated", ()
 test("plans page renders a responsive grid with single-dollar pricing and top-level billing approval", () => {
   const plans = read("app/routes/app.plans.tsx");
 
-  assert.match(plans, /gridTemplateColumns=.*repeat\\(4, minmax\\(0, 1fr\\)\\).*repeat\\(2, minmax\\(0, 1fr\\)\\)/);
-  assert.match(plans, /plan\\.amount\\.toFixed\\(2\\).*USD \\/ 30 days/);
-  assert.doesNotMatch(plans, /\\$\\{"\\$"\\}\\{plan\\.amount/);
-  assert.match(plans, /window\\.open\\(fetcher\\.data\\.confirmationUrl, "_top"\\)/);
-  assert.doesNotMatch(plans, /window\\.top\\.location\\.href/);
-  assert.doesNotMatch(plans, /window\\.location\\.href = fetcher\\.data\\.confirmationUrl/);
+  assert.match(
+    plans,
+    /gridTemplateColumns=.*repeat\(4, minmax\(0, 1fr\)\).*repeat\(2, minmax\(0, 1fr\)\)/,
+  );
+  assert.match(plans, /plan\.amount\.toFixed\(2\).*USD \/ 30 days/);
+  assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
+  assert.ok(
+    plans.includes('window.open(fetcher.data.confirmationUrl, "_top")'),
+  );
+  assert.doesNotMatch(plans, /window\.top\.location\.href/);
+  assert.doesNotMatch(
+    plans,
+    /window\.location\.href = fetcher\.data\.confirmationUrl/,
+  );
 });
 
 test("billing entitlement requires the exact current plan", () => {
