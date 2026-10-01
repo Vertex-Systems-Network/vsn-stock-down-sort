@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 20
     env:
       APP_ENV: staging
+      NEON_PROJECT_NAME: vsn-stock-down-sort-local
+      NEON_PROJECT_ID: ci-test-project
       SHOPIFY_BILLING_TEST_MODE: "true"
       SHOPIFY_API_KEY: ci-test-key
       SHOPIFY_API_SECRET: ci-test-secret
