@@ -15,7 +15,7 @@ Verified environment-topology completion:
 - Staging and Production were not deployed.
 
 Canonical environment order:
-1. Local/Dev — `development` + **VSN Stock Down Sort Dev** + dedicated Neon PostgreSQL.
+1. Local/Dev — `development` + **VSN | Stock Down Sort Dev** + dedicated Neon PostgreSQL.
 2. Staging — GitHub Environment `cloudflare-staging` (ID `23050370538`) + manual deployment.
 3. Production — GitHub Environment `cloudflare-production` (ID `23098399859`) + manual/authorized deployment.
 
@@ -23,10 +23,11 @@ Current active work:
 `ISSUE-32-WU-LOCAL-01` remains **in progress**.
 
 Remaining Local blocker:
-- provision/bind the real Neon project `vsn-stock-down-sort-local`;
-- record project/branch/endpoint identity;
-- configure pooled `DATABASE_URL` + matching direct `DIRECT_URL` in the uncommitted local `.env`;
-- run Prisma migrations and `npm run dev`;
-- prove the Dev Shopify app opens successfully.
+- run `npm run local:prepare` on the real development workstation using the local-only Neon API credential;
+- prove the exact `vsn-stock-down-sort-local` project and endpoint binding;
+- pass Prisma migrations;
+- run `npm run dev`;
+- verify `/healthz`;
+- run `npm run local:certify -- <local-health-url>/healthz` and commit the acceptance evidence.
 
 Do not start Staging until that Local evidence exists.
