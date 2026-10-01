@@ -353,7 +353,7 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(billing, /subscription\.lineItems\?\.length !== 1/);
 
   assert.match(api, /getAnyActiveSubscription/);
-  assert.match(api, /if \(activeSubscription\)/);
+  assert.match(api, /if \(activeSubscription && !current\)/);
   assert.match(api, /activeSubscription\.id !== subscriptionId/);
 
   assert.match(plans, /getAnyActiveSubscription/);
@@ -762,7 +762,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "local-development-certification");
+  assert.equal(state.current_module, "four-plan-billing-and-environment-certification");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
   assert.match(state.next_valid_work_unit, /Neon/i);
 
