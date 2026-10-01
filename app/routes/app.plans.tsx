@@ -81,6 +81,7 @@ export default function PlansPage() {
     fetcher.submit(formData, {
       method: "post",
       action: `/app/api/subscription${window.location.search}`,
+      defaultShouldRevalidate: false,
     });
   }
 

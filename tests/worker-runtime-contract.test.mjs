@@ -372,6 +372,24 @@ test("billing approval return URL uses the Shopify Admin app handle", () => {
   );
 });
 
+test("plan switching skips fetcher loader revalidation before approval navigation", () => {
+  const plans = read("app/routes/app.plans.tsx");
+  const api = read("app/routes/app.api.subscription.tsx");
+
+  assert.match(
+    plans,
+    /fetcher\.submit\(formData, \{[\s\S]*method: "post",[\s\S]*defaultShouldRevalidate: false,[\s\S]*\}\)/,
+  );
+  assert.match(
+    api,
+    /\[billing\] subscription confirmation created/,
+  );
+  assert.match(api, /currentPlanId: current\?\.plan\.id \?\? null/);
+  assert.match(api, /requestedPlanId,/);
+  assert.match(api, /confirmationHost: confirmation\.host/);
+  assert.match(api, /confirmationPath: confirmation\.pathname/);
+});
+
 test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
   const api = read("app/routes/app.api.subscription.tsx");
   const plans = read("app/routes/app.plans.tsx");

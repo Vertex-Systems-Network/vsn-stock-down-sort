@@ -105,6 +105,15 @@ export async function action({ request }: ActionFunctionArgs) {
         returnUrl,
       );
 
+      const confirmation = new URL(result.confirmationUrl);
+      console.info("[billing] subscription confirmation created", {
+        shop: session.shop,
+        currentPlanId: current?.plan.id ?? null,
+        requestedPlanId,
+        confirmationHost: confirmation.host,
+        confirmationPath: confirmation.pathname,
+      });
+
       return Response.json({
         ok: true,
         confirmationUrl: result.confirmationUrl,
