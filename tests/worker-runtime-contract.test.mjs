@@ -1200,3 +1200,12 @@ test("billing gate preserves embedded Shopify auth context", () => {
   assert.doesNotMatch(app, /throw redirect\(/);
   assert.doesNotMatch(app, /new URLSearchParams\(\)/);
 });
+
+
+test("Staging Readiness reads the canonical top-level billing catalog", () => {
+  const readiness = read(".github/workflows/staging-readiness.yml");
+
+  assert.match(readiness, /billing = product/);
+  assert.match(readiness, /plans = product\.get\("plans"\) or \[\]/);
+  assert.doesNotMatch(readiness, /product\.get\("billing"\)/);
+});

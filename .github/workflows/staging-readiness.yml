@@ -157,8 +157,8 @@ jobs:
           product = json.loads(
               Path("config/ai/product-plan.json").read_text(encoding="utf-8")
           )
-          billing = product.get("billing") or {}
-          plans = billing.get("plans") or []
+          billing = product
+          plans = product.get("plans") or []
 
           expected = [
               {"id": "starter", "amount": 10.99, "trial_days": 10},
