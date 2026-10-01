@@ -130,9 +130,12 @@
         "Staging Readiness",
         "Cloudflare Staging Deploy"
       ],
-      "status": "not_started",
+      "status": "blocked",
       "completion_evidence": [],
-      "update_notes": [],
+      "update_notes": [
+        "Next module is Staging, but Local accepted_source_ref must first be refreshed from 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5 to latest tested source fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c.",
+        "No Staging workflow or deployment has been executed yet."
+      ],
       "removal_or_deprecation_notes": []
     },
     {
@@ -290,18 +293,17 @@
         "App Validation",
         "Billing catalog contract"
       ],
-      "status": "verification_required",
+      "status": "complete",
       "completion_evidence": [
-        "config/ai/product-plan.json created.",
-        "Server-side four-plan resolution implemented.",
-        "Plans UI and subscription API updated.",
-        "Legacy compatibility path preserved.",
-        "App Validation #224 passed before this batch.",
-        "One current paid plan activated successfully on the Dev test store."
+        "Canonical four-plan billing configuration and server-side entitlement resolution are implemented and CI-validated.",
+        "Initial Dev-store paid-plan activation passed.",
+        "All current plan-switch approval/return paths passed real Dev-store runtime verification on fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c.",
+        "Selected plans were recognized as Current plan after Shopify approval.",
+        "Original desired plan was restored successfully after switch testing.",
+        "PR #76 / App Validation #301 validated the final plan-switch navigation fix."
       ],
       "update_notes": [
-        "Repository billing implementation and one real Dev-store activation are proven.",
-        "Remaining current plan/plan-change approval paths require real Shopify test-store evidence before billing runtime acceptance is complete."
+        "Billing runtime acceptance is complete; further work moves to the guarded Staging promotion sequence."
       ],
       "removal_or_deprecation_notes": []
     }
