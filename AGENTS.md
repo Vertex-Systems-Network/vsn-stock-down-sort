@@ -35,16 +35,17 @@ Never invent completion, tests, merges, deployments, approvals, subscriptions, e
 
 The product already has:
 
-- Local/Dev Shopify app: `VSN Stock Down Sort Dev`;
-- Staging Shopify app: `VSN Stock Down Sort Staging`;
-- Production Shopify app: `VSN Stock Down Sort`;
+- Local/Dev Shopify app: `VSN | Stock Down Sort Dev`;
+- Staging Shopify app: `VSN | Stock Down Sort Staging`;
+- Production Shopify app: `VSN | Stock Down Sort`;
 - `development` as integration branch;
 - `main` as release branch;
 - manual Staging promotion;
 - manual + explicitly authorized Production promotion;
 - Cloudflare Workers + Queues;
 - PostgreSQL/Prisma;
-- Shopify billing contract: plan id `unlimited`, USD 55 / 30 days, 5-day trial.
+- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 54.99 every 30 days, each with a 10-day trial;
+- legacy USD 55 / 5-day subscriptions are compatibility-only and must not be treated as the current new-subscription catalog.
 
 Do not restart this project as greenfield.
 
@@ -67,8 +68,11 @@ Do not mark a work unit complete merely because code exists. Completion requires
 
 ## Environment flow
 
-Local:
-`npm run dev`
+Local preparation:
+`npm run local:prepare`
+
+Local runtime:
+`npm run dev` followed by `npm run local:certify -- <local-health-url>/healthz`
 
 Development:
 pushes run validation only.
