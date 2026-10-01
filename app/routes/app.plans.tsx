@@ -232,7 +232,7 @@ export default function PlansPage() {
                 <s-button
                   tone="critical"
                   loading={isLoading}
-                  disabled={isLoading}
+                  disabled={isLoading || activeIsUnknown}
                   onClick={cancelActiveSubscription}
                 >
                   Cancel subscription
