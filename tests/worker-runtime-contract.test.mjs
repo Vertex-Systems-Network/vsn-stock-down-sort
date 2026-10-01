@@ -738,7 +738,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.equal(plan.work_units.length, 8);
   assert.equal(plan.work_units[0].status, "complete");
-  assert.equal(plan.work_units[1].status, "in_progress");
+  assert.equal(plan.work_units[1].status, "blocked");
   assert.equal(plan.work_units[2].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
