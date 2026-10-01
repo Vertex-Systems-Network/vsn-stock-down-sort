@@ -921,19 +921,19 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "local-development-sqlite-conversion");
-  assert.equal(state.current_work_unit, "ISSUE-32-WU-LOCAL-SQLITE-01");
+  assert.equal(state.current_module, "four-plan-billing-runtime-acceptance");
+  assert.equal(state.current_work_unit, "ISSUE-32-WU-BILLING-01");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /real development workstation/i);
-  assert.match(state.next_valid_work_unit, /database=sqlite/);
+  assert.match(state.next_valid_work_unit, /remaining current plan/i);
+  assert.match(state.next_valid_work_unit, /Staging Environment Secrets Audit/i);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 9);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "deprecated");
-  assert.equal(plan.work_units[2].status, "verification_required");
-  assert.equal(plan.work_units[3].status, "in_progress");
+  assert.equal(plan.work_units[2].status, "complete");
+  assert.equal(plan.work_units[3].status, "verification_required");
   assert.equal(plan.work_units[4].status, "complete");
   assert.equal(plan.work_units[5].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
@@ -962,8 +962,8 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
-  assert.match(current, /ISSUE-32-WU-LOCAL-SQLITE-01/);
-  assert.match(tasks, /ISSUE-32-WU-LOCAL-SQLITE-01/);
+  assert.match(current, /ISSUE-32-WU-BILLING-01/);
+  assert.match(tasks, /ISSUE-32-WU-BILLING-01/);
 });
 
 
