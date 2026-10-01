@@ -67,19 +67,21 @@
       "priority": 95,
       "status": "blocked",
       "blockers": [
-        "Real dedicated Neon project vsn-stock-down-sort-local is not identified with a repository-backed real project ID, and the actual workstation Dev boot/health/local:certify evidence is still missing. Repository-side validation and the prior Windows spawn regression are fixed and CI-covered."
+        "Repository-side Local preparation is complete and CI-validated. The remaining blocker is real workstation evidence: local:prepare must run with a real Neon account key, then the Dev Shopify app must boot, /healthz must pass, and local:certify must record acceptance."
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
         "npm run dev uses VSN Stock Down Sort Dev.",
         "DATABASE_URL is a Neon pooled connection.",
         "DIRECT_URL is the matching Neon direct connection.",
+        "NEON_PROJECT_ID resolves through the Neon API to vsn-stock-down-sort-local and the configured endpoint belongs to that project.",
         "Prisma migrations pass on the Local Neon database.",
         "Local credentials do not reuse Staging or Production database identities."
       ],
       "required_checks": [
         "App Validation",
         "Local Neon environment validation",
+        "Neon project/endpoint ownership verification",
         "Prisma migrate deploy",
         "Shopify local dev boot"
       ],
@@ -96,7 +98,13 @@
         "Previous real workstation validation reported pooled_runtime=pass and direct_migrations=pass, but that output did not record a real Neon project ID or a completed Dev health/certification gate and therefore is not sufficient for acceptance.",
         "PR #56 added a regression test for the Windows local certification spawn path.",
         "App Validation #253 run 36833332062 passed all validation steps for PR #56.",
-        "PR #56 merged to development as 2c2f63215f1575e695f075001d253858efcd27d7."
+        "PR #56 merged to development as 2c2f63215f1575e695f075001d253858efcd27d7.",
+        "PR #58 added fail-closed Neon API verification of the exact Local project name and database endpoint ownership.",
+        "App Validation #258 run 36834564803 passed all validation steps for PR #58.",
+        "PR #58 merged to development as 2a91aff0283a296ed128865a15aad536b1833a08.",
+        "PR #59 added the Windows-safe npm run local:prepare flow for exact project provision/reuse, env validation, ownership verification and Prisma migrations.",
+        "App Validation #260 run 36834835944 passed all validation steps for PR #59.",
+        "PR #59 merged to development as f2d9293f0050d3252085d29fb779ccb3e21cb8f9."
       ]
     },
     {
@@ -314,5 +322,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "2c2f63215f1575e695f075001d253858efcd27d7"
+  "last_reconciled_repository_ref": "f2d9293f0050d3252085d29fb779ccb3e21cb8f9"
 }
