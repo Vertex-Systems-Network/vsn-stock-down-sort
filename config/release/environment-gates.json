@@ -8,7 +8,8 @@
     "required_checks": [
       "Local Shopify app boot from development",
       "Local Neon pooled/direct connection validation",
-      "Prisma migrate deploy"
+      "Prisma migrate deploy",
+      "Four-plan billing catalog contract"
     ]
   },
   "staging": {
@@ -20,16 +21,26 @@
       "Staging runtime health",
       "Staging queue/DLQ readiness",
       "Signed Shopify staging acceptance",
-      "Staging Shopify subscription read"
+      "Staging Shopify subscription read",
+      "Four-plan billing catalog contract"
     ]
   },
   "live": {
     "status": "blocked",
     "authorized_source_ref": null,
-    "authorization_record": null
+    "authorization_record": null,
+    "required_checks": [
+      "Production Worker health",
+      "Four-plan billing catalog contract",
+      "Explicit Shopify candidate authorization"
+    ]
   },
   "rules": {
-    "promotion_order": ["local_dev", "staging", "live"],
+    "promotion_order": [
+      "local_dev",
+      "staging",
+      "live"
+    ],
     "staging_source_must_match_local_accepted_source": true,
     "staging_acceptance_must_be_recorded_on_main_before_live": true,
     "live_source_must_be_main": true,
