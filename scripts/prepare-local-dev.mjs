@@ -1,10 +1,7 @@
+import fs from "node:fs";
 import process from "node:process";
 import { execFileSync, spawnSync } from "node:child_process";
-import {
-  loadLocalEnv,
-  validateLocalNeonEnv,
-  verifyLocalNeonProjectBinding,
-} from "./local-env.mjs";
+import { loadLocalEnv, validateLocalSqliteEnv } from "./local-env.mjs";
 
 function fail(message) {
   throw new Error(`[local-prepare] ${message}`);
@@ -32,23 +29,27 @@ async function main() {
     );
   }
 
-  run("node", ["scripts/provision-local-neon.mjs"]);
-
   loadLocalEnv();
-  validateLocalNeonEnv();
-  const binding = await verifyLocalNeonProjectBinding();
+  validateLocalSqliteEnv();
 
+  run("npx", ["prisma", "validate", "--schema", "prisma/schema.prisma"]);
+  run("npx", ["prisma", "generate", "--schema", "prisma/schema.prisma"]);
   run("npx", [
     "prisma",
     "migrate",
     "deploy",
     "--schema",
-    "prisma/cloud/schema.prisma",
+    "prisma/schema.prisma",
   ]);
 
-  console.log("[local-prepare] neon_project_binding=verified");
-  console.log(`[local-prepare] project_id=${binding.projectId}`);
-  console.log(`[local-prepare] endpoint_id=${binding.endpointId}`);
+  if (!fs.existsSync("prisma/dev.sqlite")) {
+    fail("Prisma migration completed without creating prisma/dev.sqlite.");
+  }
+
+  console.log("[local-prepare] database=sqlite");
+  console.log("[local-prepare] database_file=prisma/dev.sqlite");
+  console.log("[local-prepare] prisma_validate=passed");
+  console.log("[local-prepare] prisma_generate=passed");
   console.log("[local-prepare] prisma_migrate_deploy=passed");
   console.log("[local-prepare] next=npm run dev");
 }

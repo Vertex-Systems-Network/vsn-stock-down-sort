@@ -43,7 +43,7 @@ The product already has:
 - manual Staging promotion;
 - manual + explicitly authorized Production promotion;
 - Cloudflare Workers + Queues;
-- PostgreSQL/Prisma;
+- Prisma with Local SQLite and isolated Neon PostgreSQL for Staging/Production;
 - current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 54.99 every 30 days, each with a 10-day trial;
 - legacy USD 55 / 5-day subscriptions are compatibility-only and must not be treated as the current new-subscription catalog.
 
@@ -69,7 +69,7 @@ Do not mark a work unit complete merely because code exists. Completion requires
 ## Environment flow
 
 Local preparation:
-`npm run local:prepare`
+`npm run local:prepare` (Prisma SQLite; no Neon credentials)
 
 Local runtime:
 `npm run dev` followed by `npm run local:certify -- <local-health-url>/healthz`

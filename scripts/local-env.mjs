@@ -2,7 +2,7 @@ import fs from "node:fs";
 import process from "node:process";
 
 function fail(message) {
-  throw new Error(`[local-neon] ${message}`);
+  throw new Error(`[local-sqlite] ${message}`);
 }
 
 export function loadLocalEnv() {
@@ -18,42 +18,6 @@ export function loadLocalEnv() {
   return selected;
 }
 
-function parseUrl(name) {
-  const value = process.env[name]?.trim();
-  if (!value) fail(`${name} is required for local development.`);
-
-  let url;
-  try {
-    url = new URL(value);
-  } catch {
-    fail(`${name} must be a valid PostgreSQL URL.`);
-  }
-
-  if (!["postgresql:", "postgres:"].includes(url.protocol)) {
-    fail(`${name} must use the PostgreSQL protocol.`);
-  }
-
-  const host = url.hostname.toLowerCase();
-  if (!host.endsWith(".neon.tech")) {
-    fail(`${name} must point to Neon for Local/Dev.`);
-  }
-
-  return { url, host };
-}
-
-function validateLocalNeonProjectIdentity() {
-  const projectId = process.env.NEON_PROJECT_ID?.trim();
-  if (!projectId) fail("NEON_PROJECT_ID is required for Local/Dev and must identify the dedicated vsn-stock-down-sort-local Neon project.");
-  if (!/^[a-z0-9-]{1,60}$/.test(projectId)) {
-    fail("NEON_PROJECT_ID must be a valid Neon project identifier.");
-  }
-
-  const projectName = (process.env.NEON_PROJECT_NAME || "vsn-stock-down-sort-local").trim();
-  if (projectName !== "vsn-stock-down-sort-local") {
-    fail("NEON_PROJECT_NAME must be vsn-stock-down-sort-local for Local/Dev.");
-  }
-}
-
 function validateLocalShopifyEnv() {
   const apiKey = process.env.SHOPIFY_API_KEY?.trim();
   if (!apiKey) fail("SHOPIFY_API_KEY is required for Local/Dev.");
@@ -67,7 +31,10 @@ function validateLocalShopifyEnv() {
 
 function validateLocalShopifyConfig() {
   const path = "shopify.app.local.toml";
-  if (!fs.existsSync(path)) fail("shopify.app.local.toml is required for Local/Dev when using --config local.");
+  if (!fs.existsSync(path)) {
+    fail("shopify.app.local.toml is required for Local/Dev when using --config local.");
+  }
+
   const config = fs.readFileSync(path, "utf8");
   if (!/name\s*=\s*"VSN \| Stock Down Sort Dev"/.test(config)) {
     fail("shopify.app.local.toml must use the dedicated VSN | Stock Down Sort Dev identity.");
@@ -80,79 +47,53 @@ function validateLocalShopifyConfig() {
   }
 }
 
+function validateLocalSqliteSchema() {
+  const schemaPath = "prisma/schema.prisma";
+  if (!fs.existsSync(schemaPath)) fail("prisma/schema.prisma is required for Local SQLite.");
 
-const NEON_API = "https://console.neon.tech/api/v2";
-
-async function neonApi(path) {
-  const token = process.env.NEON_API_KEY?.trim();
-  if (!token) {
-    fail("NEON_API_KEY is required for truth-backed Local certification and must remain only in the gitignored local environment.");
+  const schema = fs.readFileSync(schemaPath, "utf8");
+  if (!/provider\s*=\s*"sqlite"/.test(schema)) {
+    fail("prisma/schema.prisma must use the SQLite provider for Local/Dev.");
+  }
+  if (!/url\s*=\s*"file:dev\.sqlite"/.test(schema)) {
+    fail('prisma/schema.prisma must use the Local SQLite file "file:dev.sqlite".');
   }
 
-  const response = await fetch(`${NEON_API}${path}`, {
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const text = await response.text();
-  let body;
-  try {
-    body = text ? JSON.parse(text) : {};
-  } catch {
-    body = {};
+  const gitignore = fs.readFileSync(".gitignore", "utf8");
+  if (!gitignore.includes("/prisma/dev.sqlite")) {
+    fail("prisma/dev.sqlite must remain gitignored.");
   }
-
-  if (!response.ok) {
-    const detail = body?.message || body?.error || `HTTP ${response.status}`;
-    fail(`Neon API verification failed: ${detail}`);
+  if (!gitignore.includes("/prisma/dev.sqlite-journal")) {
+    fail("prisma/dev.sqlite-journal must remain gitignored.");
   }
-  return body;
 }
 
-export async function verifyLocalNeonProjectBinding() {
-  const projectId = process.env.NEON_PROJECT_ID?.trim();
-  const projectName = (process.env.NEON_PROJECT_NAME || "").trim();
-  if (!projectId || projectName !== "vsn-stock-down-sort-local") {
-    fail("Local Neon project identity must be validated before API binding verification.");
+function rejectHostedDatabaseCredentials() {
+  const hostedKeys = [
+    "NEON_API_KEY",
+    "NEON_ORG_ID",
+    "NEON_PROJECT_ID",
+    "NEON_PROJECT_NAME",
+    "DIRECT_URL",
+  ];
+
+  for (const key of hostedKeys) {
+    if (process.env[key]?.trim()) {
+      fail(`${key} must not be set for normal Local SQLite development.`);
+    }
   }
 
-  const runtime = parseUrl("DATABASE_URL");
-  const direct = parseUrl("DIRECT_URL");
-  const runtimeEndpoint = runtime.host.split(".", 1)[0].replace(/-pooler$/, "");
-  const directEndpoint = direct.host.split(".", 1)[0].replace(/-pooler$/, "");
-
-  if (runtimeEndpoint !== directEndpoint) {
-    fail("DATABASE_URL and DIRECT_URL must belong to the same Local Neon endpoint.");
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (databaseUrl && !databaseUrl.startsWith("file:")) {
+    fail("DATABASE_URL must not point to a hosted database during Local SQLite development.");
   }
-
-  const projectBody = await neonApi(`/projects/${encodeURIComponent(projectId)}`);
-  const project = projectBody?.project ?? projectBody;
-  if (project?.id !== projectId || project?.name !== "vsn-stock-down-sort-local") {
-    fail("NEON_PROJECT_ID does not resolve to the dedicated vsn-stock-down-sort-local project.");
-  }
-
-  const endpointBody = await neonApi(
-    `/projects/${encodeURIComponent(projectId)}/endpoints`,
-  );
-  const endpoints = Array.isArray(endpointBody?.endpoints)
-    ? endpointBody.endpoints
-    : [];
-  if (!endpoints.some((endpoint) => endpoint?.id === runtimeEndpoint)) {
-    fail("DATABASE_URL/DIRECT_URL endpoint does not belong to NEON_PROJECT_ID.");
-  }
-
-  return {
-    projectId,
-    projectName: project.name,
-    endpointId: runtimeEndpoint,
-  };
 }
 
-export function validateLocalNeonEnv() {
-  validateLocalNeonProjectIdentity();
+export function validateLocalSqliteEnv() {
   validateLocalShopifyConfig();
   validateLocalShopifyEnv();
+  validateLocalSqliteSchema();
+  rejectHostedDatabaseCredentials();
 
   const appEnv = (process.env.APP_ENV || "development").trim().toLowerCase();
   if (appEnv !== "development") {
@@ -166,30 +107,8 @@ export function validateLocalNeonEnv() {
     fail("Local/Dev billing must remain in Shopify test mode.");
   }
 
-  const runtime = parseUrl("DATABASE_URL");
-  const direct = parseUrl("DIRECT_URL");
-
-  if (!runtime.host.includes("-pooler.")) {
-    fail("DATABASE_URL must be the Neon pooled/runtime connection.");
-  }
-
-  if (direct.host.includes("-pooler.")) {
-    fail("DIRECT_URL must be the Neon direct/non-pooled migration connection.");
-  }
-
-  const runtimeEndpoint = runtime.host.split(".", 1)[0].replace(/-pooler$/, "");
-  const directEndpoint = direct.host.split(".", 1)[0].replace(/-pooler$/, "");
-
-  if (runtimeEndpoint !== directEndpoint) {
-    fail("DATABASE_URL and DIRECT_URL must belong to the same Local Neon endpoint.");
-  }
-
-  if (runtime.url.toString() === direct.url.toString()) {
-    fail("DATABASE_URL and DIRECT_URL must use pooled and direct Neon connections respectively.");
-  }
-
-  console.log("[local-neon] environment=development");
-  console.log("[local-neon] database=neon_postgresql");
-  console.log("[local-neon] pooled_runtime=pass");
-  console.log("[local-neon] direct_migrations=pass");
+  console.log("[local-sqlite] environment=development");
+  console.log("[local-sqlite] database=sqlite");
+  console.log("[local-sqlite] database_file=prisma/dev.sqlite");
+  console.log("[local-sqlite] hosted_database_credentials=absent");
 }

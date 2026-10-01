@@ -9,15 +9,15 @@
   "local": {
     "git_branch": "development",
     "shopify_app": "VSN | Stock Down Sort Dev",
-    "shopify_config": "shopify.app.toml",
+    "shopify_config": "shopify.app.local.toml",
     "runtime": "local_shopify_cli",
     "database": {
-      "provider": "neon_postgresql",
-      "project_name": "vsn-stock-down-sort-local",
-      "status": "provisioning_required",
-      "database_name": "neondb",
-      "database_url_role": "pooled_runtime",
-      "direct_url_role": "direct_migrations",
+      "provider": "sqlite",
+      "file": "prisma/dev.sqlite",
+      "schema": "prisma/schema.prisma",
+      "status": "local_file_runtime",
+      "gitignored": true,
+      "hosted_credentials_required": false,
       "reuse_staging_or_production": false
     },
     "command": "npm run dev",

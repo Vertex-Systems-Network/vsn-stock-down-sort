@@ -5,8 +5,8 @@
   "current_module": "local-development-sqlite-conversion",
   "current_work_unit": "ISSUE-32-WU-LOCAL-SQLITE-01",
   "active_issue": 32,
-  "last_verified_completion": "Repository governance, Local-Neon tooling, and canonical Local runbook were CI-validated through App Validation #265 on development head c90dd8c67704a2842c0eb065549a8cb7834975e7. That Local-Neon approach is now superseded at the planning level by ADR-0001; no SQLite runtime conversion has been claimed yet.",
-  "next_valid_work_unit": "Implement ISSUE-32-WU-LOCAL-SQLITE-01: convert Local/Dev to Prisma + SQLite while preserving Prisma + Neon PostgreSQL for Staging/Production, then certify the real Local Shopify Dev runtime before Staging.",
+  "last_verified_completion": "The Local Prisma+SQLite implementation tree on PR #64 passed App Validation #271 at b0970d0dbe4a0556543770f5755f72f529dc62aa. CI proved Local SQLite schema validation/migrations, Local/cloud schema parity, hosted PostgreSQL validation, lint, typecheck, runtime/promotion/Local/database contracts, Worker build, and both Cloudflare dry-runs. Real Local Shopify runtime acceptance remains pending.",
+  "next_valid_work_unit": "Merge the CI-validated Local SQLite implementation, then on the real development workstation run npm run local:prepare, npm run dev, verify /healthz reports database=sqlite, and run npm run local:certify -- <local-health-url>/healthz. Staging remains blocked until that exact source is accepted.",
   "progress": {
     "total_work_units": 11,
     "complete": 2,
@@ -18,11 +18,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Implement ADR-0001 by converting Local/Dev from Neon PostgreSQL to Prisma + SQLite without changing Staging/Production Neon PostgreSQL.",
-    "Make prisma/schema.prisma the Local SQLite schema and preserve prisma/cloud/schema.prisma as the hosted PostgreSQL schema.",
-    "Replace Local Neon preparation/certification requirements with SQLite setup, migration/generation, gitignore and health checks.",
-    "Add a Local-vs-cloud Prisma schema parity contract for shared models/fields/indexes while allowing provider-specific differences.",
-    "Run npm run dev against VSN | Stock Down Sort Dev using Local SQLite and record a real Local health/certification result.",
+    "Run the merged development source on the real workstation using the dedicated VSN | Stock Down Sort Dev app and a Local .env.local with no hosted database/Neon credentials.",
+    "Run npm run local:prepare and prove Local SQLite validation/generation/migrations create/use gitignored prisma/dev.sqlite.",
+    "Run npm run dev and verify the real Local /healthz response reports development, billing test mode and database=sqlite.",
+    "Run npm run local:certify -- <local-health-url>/healthz and commit the exact Local acceptance evidence.",
     "After Local SQLite acceptance, run Staging Environment Secrets Audit, Staging Readiness, Staging Deploy, Shopify Staging Version/Release and signed staging subscription acceptance.",
     "After Staging acceptance is recorded on main, run Production Readiness, Production Worker Prepare, Production Candidate and explicit Live release.",
     "Complete real Shopify billing approval tests for the four plans on a non-production test store before marking billing work complete."
@@ -35,19 +34,24 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Planning conversion to Local Prisma+SQLite is active under ADR-0001. Current operational runtime remains Neon-based until ISSUE-32-WU-LOCAL-SQLITE-01 is implemented and CI/runtime certified. Staging/Production remain blocked from promotion.",
-  "security_readiness": "main_ruleset_validate_required; target Local SQLite removes Neon Local secrets; hosted Neon isolation remains required",
+  "qa_readiness": "App Validation #271 passed the Local SQLite implementation tree. Repository-side SQLite/hosted-Neon dual architecture is CI-validated; real Local Shopify runtime acceptance and real four-plan Shopify approval remain verification_required.",
+  "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
   "last_reconciled_repository_ref": "c90dd8c67704a2842c0eb065549a8cb7834975e7",
   "last_reconciled_at": "2026-10-01T14:18:00+05:00",
-  "notes": "ADR-0001 is the accepted target architecture: Local/Dev uses Prisma + SQLite; Staging and Production continue using Prisma + isolated Neon PostgreSQL. The existing Local-Neon implementation and evidence remain repository history but are superseded for future Local work. Operational configs must not be treated as converted until the SQLite implementation work unit is merged and validated. Promotion order remains Local/Dev -> Staging -> Live.",
+  "notes": "ADR-0001 is implemented at repository level: Local/Dev uses Prisma + SQLite; Staging and Production continue using Prisma + isolated Neon PostgreSQL. Local Neon provisioning/validation scripts are removed from the active runtime. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first real Neon/PostgreSQL runtime gate. Real Local workstation boot/health/certification is still required before Staging.",
   "ci_evidence": {
-    "workflow_run": 260,
-    "run_id": 36834835944,
+    "workflow_run": 271,
+    "run_id": 36844916383,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "ee763f03dc8f57a6f9e68add5d0824632c32649f",
-    "merged_development_sha": "f2d9293f0050d3252085d29fb779ccb3e21cb8f9",
-    "all_validation_steps": "passed"
+    "validated_head_sha": "b0970d0dbe4a0556543770f5755f72f529dc62aa",
+    "all_validation_steps": "passed",
+    "local_sqlite_schema": "passed",
+    "local_cloud_schema_parity": "passed",
+    "local_sqlite_migrations": "passed",
+    "hosted_postgresql_schema": "passed",
+    "worker_build": "passed",
+    "cloudflare_dry_runs": "passed"
   },
   "batch_06_09": {
     "scope": [

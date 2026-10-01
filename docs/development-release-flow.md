@@ -4,33 +4,31 @@ VSN Stock Down Sort uses three isolated Shopify applications and a strict eviden
 
 ## 1. Local / Dev
 
-Local development is always on `development`:
+Local development is always on `development` and uses Prisma + SQLite:
 
 ```bash
 git switch development
-git pull
+git pull --ff-only origin development
 npm install
-npm run dev
-```
-
-The Local runner uses `shopify.app.local.toml`, validates the Dev Shopify identity and requires the dedicated Neon project identity `vsn-stock-down-sort-local`.
-
-Prepare the dedicated Local Neon environment with the canonical one-command flow:
-
-```bash
 npm run local:prepare
+npm run dev
 ```
 
-This provisions/reuses the exact Local Neon project, validates pooled/direct URL isolation, verifies the configured project and endpoint ownership through the Neon API, and applies Prisma migrations.
+The Local runner uses `shopify.app.local.toml` and the dedicated **VSN | Stock Down Sort Dev** identity. The Local database is the gitignored `prisma/dev.sqlite` file.
 
-Then:
+Normal Local development requires no Neon API key, Neon project ID, hosted `DATABASE_URL`, or `DIRECT_URL`.
+
+Local Prisma uses `prisma/schema.prisma` (SQLite). Staging and Production use `prisma/cloud/schema.prisma` (Neon PostgreSQL). CI checks shared model/index parity across both schemas.
+
+Then certify the running Local app:
 
 ```bash
-npm run dev
 npm run local:certify -- http://127.0.0.1:3000/healthz
 ```
 
-Local certification is not satisfied by CI alone. It requires real Neon project binding, Prisma migration, a running Dev Shopify app, the development health contract and a clean working tree.
+Local certification is not satisfied by CI alone. It requires a real Dev Shopify app boot, SQLite persistence, the development health contract, and the exact source-ref acceptance record.
+
+SQLite Local acceptance does not prove PostgreSQL behavior. Staging remains the first mandatory Neon/PostgreSQL runtime acceptance gate.
 
 ## 2. Development CI
 

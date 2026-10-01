@@ -1,7 +1,8 @@
 # VSN Stock Down Sort environments
 
-The app uses the same PostgreSQL-backed, engine-less Prisma runtime in all
-tiers. Credentials, Shopify identities, billing mode, and database instances
+The app uses an environment-aware Prisma data layer. Local/Dev uses SQLite for
+fast Shopify development, while Staging and Production use isolated Neon
+PostgreSQL databases. Shopify identities, billing mode, and hosted credentials
 remain isolated by environment.
 
 VSN Stock Down Sort uses **three separate Shopify app registrations**:
@@ -16,43 +17,45 @@ another tier.
 
 | Tier | Source flow | Shopify config | Database | Billing |
 | --- | --- | --- | --- | --- |
-| Development | local / `development` | `shopify.app.local.toml` | dedicated Neon PostgreSQL (`vsn-stock-down-sort-local`) | test |
+| Development | local / `development` | `shopify.app.local.toml` | Prisma SQLite (`prisma/dev.sqlite`, gitignored) | test |
 | Staging | `development` → manual deploy | `shopify.app.staging.toml` | isolated Neon PostgreSQL | test |
 | Production | protected `main` | `shopify.app.production.toml` | isolated Neon PostgreSQL | real |
 
 ## Runtime database
 
-The active schema is `prisma/cloud/schema.prisma`.
+Prisma is split intentionally by environment:
 
-It uses:
+- Local: `prisma/schema.prisma` → SQLite at `prisma/dev.sqlite`
+- Staging/Production: `prisma/cloud/schema.prisma` → Neon PostgreSQL
+- Shared application models, fields and indexes must pass `npm run prisma:parity`
 
-- Neon PostgreSQL as the environment database provider;
-- Prisma engine-less client;
-- `@prisma/adapter-pg`;
-- request-scoped Prisma clients;
-- request-scoped Shopify Prisma session storage.
+Local uses the normal Prisma client without `@prisma/adapter-pg`. Hosted
+Staging/Production use the engine-less cloud client with
+`@prisma/adapter-pg`.
 
-The original SQLite schema/migrations remain repository history only and are not
-used by the active runtime.
+The Local SQLite database and journal files are gitignored. Local must not
+require or reuse hosted database credentials.
 
 ## Required runtime values
 
-Every environment requires:
+Local requires:
 
-- `APP_ENV`
-- `SHOPIFY_BILLING_TEST_MODE`
-- `SHOPIFY_API_KEY`
-- `SHOPIFY_API_SECRET`
-- `SHOPIFY_APP_URL`
+- `APP_ENV=development`
+- `SHOPIFY_BILLING_TEST_MODE=true`
+- dedicated Dev `SHOPIFY_API_KEY`
+- dedicated Dev `SHOPIFY_API_SECRET`
 - `SCOPES`
-- `DATABASE_URL`
 
-Migration commands additionally require:
+Local does not require Neon credentials, `DATABASE_URL`, or `DIRECT_URL`.
 
-- `DIRECT_URL`
+Staging and Production additionally require their isolated hosted values:
 
-`DIRECT_URL` is not uploaded to the Cloudflare Worker. It remains restricted to
-migration/readiness jobs.
+- `SHOPIFY_APP_URL`
+- `DATABASE_URL` for pooled Neon runtime access
+- `DIRECT_URL` for direct Prisma migration/readiness access
+
+`DIRECT_URL` is not uploaded to the Cloudflare Worker. It remains restricted
+to hosted migration/readiness jobs.
 
 ## Billing contract
 
@@ -88,7 +91,7 @@ Staging Worker URL: `https://vsn-stock-down-sort-staging.vertexsystemsnetwork.wo
 
 Before staging deployment:
 
-1. complete Local/Dev Neon certification;
+1. complete Local/Dev SQLite certification;
 2. configure the GitHub `cloudflare-staging` environment;
 3. supply isolated staging Neon and Shopify credentials;
 4. keep the committed staging Client ID placeholder intact;
@@ -181,12 +184,14 @@ These names are authoritative for Actions bindings. Do not create parallel `stag
 ## Local-first order
 
 Local/Dev must be certified before Staging:
+
 1. checkout `development`;
 2. use **VSN | Stock Down Sort Dev**;
-3. run `npm run local:prepare` with the local-only Neon API credential;
-4. require pooled `DATABASE_URL` and matching direct `DIRECT_URL`;
-5. verify the real Neon project name and endpoint ownership;
-6. pass Prisma migrations;
-7. run `npm run dev`;
-8. run `npm run local:certify -- <local-health-url>/healthz`;
-9. record Local acceptance, then proceed to `cloudflare-staging`.
+3. keep `.env.local` free of hosted database/Neon credentials;
+4. run `npm run local:prepare` to validate/generate/migrate SQLite;
+5. run `npm run dev`;
+6. verify `/healthz` reports development + SQLite + billing test mode;
+7. run `npm run local:certify -- <local-health-url>/healthz`;
+8. record Local acceptance, then proceed to `cloudflare-staging`.
+
+Staging is the first required real Neon/PostgreSQL runtime acceptance gate.

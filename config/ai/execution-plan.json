@@ -119,8 +119,10 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 96,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Repository implementation passed App Validation #271. Remaining evidence is a real workstation boot/health/local:certify run on the merged development source."
+      ],
       "acceptance_criteria": [
         "development remains the Local integration branch.",
         "VSN | Stock Down Sort Dev remains the Local Shopify identity.",
@@ -141,7 +143,16 @@
         "Shopify local dev boot",
         "Local certification"
       ],
-      "completion_evidence": [],
+      "completion_evidence": [
+        "ADR-0001 accepted Local Prisma+SQLite with hosted Neon PostgreSQL.",
+        "prisma/schema.prisma is SQLite; prisma/cloud/schema.prisma remains PostgreSQL.",
+        "Local Session.shop index migration added and shared Local/cloud models are parity-checked.",
+        "Local prepare/dev/certify no longer require Neon credentials or hosted database URLs.",
+        "Operational development-flow/topology/gates now specify SQLite locally and Neon PostgreSQL when hosted.",
+        "Obsolete Local Neon provision/validation scripts were removed.",
+        "App Validation #271 run 36844916383 passed the implementation tree b0970d0dbe4a0556543770f5755f72f529dc62aa.",
+        "Real Local Shopify runtime acceptance is still required."
+      ],
       "architecture_decision": "ADR-0001"
     },
     {
@@ -211,7 +222,9 @@
         "config/database/environment-topology.json enforces Local -> Staging -> Production isolation.",
         "Session.shop index added to prisma/cloud/schema.prisma.",
         "Additive migration 20261001003000_session_shop_index added.",
-        "Database architecture contract test added to App Validation."
+        "Database architecture contract test added to App Validation.",
+        "Local/cloud Prisma shared-model parity contract added and passed in App Validation #271.",
+        "Local SQLite and hosted PostgreSQL providers are now explicitly separated under ADR-0001."
       ]
     },
     {
