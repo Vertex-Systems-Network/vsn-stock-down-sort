@@ -110,26 +110,28 @@ Local development uses the `development` branch and the dedicated Local Neon dat
 
 Do not manually switch the Local app to Staging or Production with `shopify app config use`.
 
-### Dedicated Local Neon bootstrap
+### Dedicated Local Neon preparation
 
-The repository includes an idempotent Local Neon bootstrap helper:
+The normal one-command preparation path is:
 
 ```bash
-npm run local:provision-neon
+npm run local:prepare
 ```
 
-It looks only for the exact project name `vsn-stock-down-sort-local`. If it does not exist, the helper creates it through the Neon API; if exactly one project already exists with that name, it reuses it. It then resolves the default branch/database/role and writes the real pooled `DATABASE_URL`, direct `DIRECT_URL`, `NEON_PROJECT_ID`, and `NEON_PROJECT_NAME` only to the gitignored `.env.local`.
+It requires `development`, provisions or reuses only the exact Neon project `vsn-stock-down-sort-local`, writes the real pooled `DATABASE_URL`, matching direct `DIRECT_URL`, `NEON_PROJECT_ID`, and `NEON_PROJECT_NAME` only to the gitignored `.env.local`, verifies through the Neon API that the configured project name and endpoint ownership are real, then runs `prisma migrate deploy`.
 
-The helper requires a Neon account API key in `NEON_API_KEY`. If the project belongs to a Neon organization and a personal key is used, set `NEON_ORG_ID` as well. Never commit either value.
+The command requires a local Neon account API key in `NEON_API_KEY`. If the project belongs to a Neon organization and a personal key is used, set `NEON_ORG_ID` as well. Never commit either value.
 
-After provisioning:
+After preparation:
 
 ```bash
 npm run dev
 npm run local:certify -- http://127.0.0.1:3000/healthz
 ```
 
-Local acceptance is not considered complete from CI contract tests alone; the real Neon project, migration, running Dev app, health response, and certification evidence must all pass.
+`local:provision-neon` remains available as the lower-level idempotent provisioning helper, but `local:prepare` is the canonical preparation command.
+
+Local acceptance is not considered complete from CI contract tests alone; the real Neon project binding, migration, running Dev app, health response, and certification evidence must all pass.
 
 ## Validation
 
