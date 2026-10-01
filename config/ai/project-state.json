@@ -5,8 +5,8 @@
   "current_module": "four-plan-billing-and-environment-certification",
   "current_work_unit": "ISSUE-32-WU-BILLING-01",
   "active_issue": 32,
-  "last_verified_completion": "Database architecture hardening and repository-side four-plan billing implementation are present on the active feature branch. App Validation #224 previously passed the Local Neon contract; a new validation run is required for this branch.",
-  "next_valid_work_unit": "Verify the four-plan billing implementation in CI, then perform real Local Neon provisioning and Local Shopify runtime certification. Staging remains blocked until Local acceptance evidence exists.",
+  "last_verified_completion": "AI-Native Batch 6-9 repository implementation merged to development as ce99dfcc126386b6947be62d42d7d5830e002975; App Validation #241 passed the merged tree.",
+  "next_valid_work_unit": "Complete external runtime evidence: provision the dedicated Local Neon project, certify npm run dev/local:certify, then execute Staging Readiness/Deploy/Shopify acceptance and only afterward Production/Live gates.",
   "progress": {
     "total_work_units": 10,
     "complete": 2,
@@ -33,17 +33,17 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Awaiting App Validation for the active feature branch; Local runtime acceptance remains verification_required.",
+  "qa_readiness": "App Validation #241 passed the merged Batch 6-9 repository tree. Billing runtime acceptance and Local/Staging/Production live evidence remain outstanding.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "1572ce2dc10c984a58152f503c0b1068c1cb6637",
-  "last_reconciled_at": "2026-10-01T00:58:00Z",
+  "last_reconciled_repository_ref": "ce99dfcc126386b6947be62d42d7d5830e002975",
+  "last_reconciled_at": "2026-10-01T01:19:28Z",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
   "ci_evidence": {
-    "workflow_run": 216,
-    "run_id": 36797501281,
+    "workflow_run": 241,
+    "run_id": 36800482628,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "7254d0b88992fdcdb878226e01779ae0d836df9c",
+    "head_sha": "ce99dfcc126386b6947be62d42d7d5830e002975",
     "required_validation": "App Validation / validate",
     "all_validation_steps": "passed"
   },
@@ -54,9 +54,17 @@
       "8-production-live",
       "9-shopify-subscription-plans"
     ],
-    "status": "in_progress",
+    "status": "verification_required",
     "repository_implementation": "complete_for_currently_automatable_controls",
     "runtime_acceptance": "blocked_by_real_environment_evidence",
+    "completed_repository_controls": [
+      "isolated PostgreSQL topology and additive Session.shop index",
+      "manual Staging and Production release gates bound to isolated environments",
+      "four stable billing IDs and 10-day trial catalog",
+      "plan selection/replacement runtime and legacy billing compatibility",
+      "hosted four-plan health/release validation",
+      "AI-Native state/execution/module registry reconciliation"
+    ],
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   }
 }
