@@ -41,22 +41,23 @@
     },
     {
       "id": "MOD-LOCAL",
-      "name": "Local Development and Neon",
-      "objective": "Certify development-branch local Shopify development against a dedicated Neon PostgreSQL database before Staging begins.",
+      "name": "Local Development on Prisma SQLite",
+      "objective": "Provide fast Shopify-default-style Local development on Prisma + SQLite before Staging begins.",
       "scope": [
         "development branch",
         "VSN | Stock Down Sort Dev",
-        "dedicated Local Neon project",
-        "npm run local:prepare",
-        "Neon project/endpoint ownership verification",
-        "Prisma migrations",
+        "Prisma Local SQLite schema",
+        "gitignored SQLite database file",
+        "Local Prisma migration/generation",
         "npm run dev",
-        "npm run local:certify"
+        "Local health/certification"
       ],
       "boundaries": [
+        "No Local Neon account/project credential requirement.",
         "No Staging deployment.",
         "No Production mutation.",
-        "Never reuse Staging or Production database credentials."
+        "Never reuse Staging or Production database credentials.",
+        "Local SQLite acceptance is not PostgreSQL acceptance."
       ],
       "dependencies": [
         "MOD-MGMT"
@@ -66,23 +67,21 @@
       "contracts": [],
       "ui_surfaces": [],
       "security_responsibilities": [
-        "Local Neon identity must be isolated.",
-        "NEON_PROJECT_ID and the configured endpoint must be verified through the Neon API.",
-        "Secrets remain uncommitted.",
+        "Local SQLite database files remain gitignored.",
+        "No hosted database credentials are required for normal Local development.",
         "Shopify billing remains test mode."
       ],
       "acceptance_criteria": [
-        "npm run local:prepare provisions/reuses only vsn-stock-down-sort-local and verifies project/endpoint ownership.",
-        "Local Neon pooled/direct connection contract passes.",
-        "Prisma migration succeeds.",
+        "Local Prisma datasource is SQLite.",
+        "Local SQLite setup/migration/generation succeeds.",
+        "Shared schema parity with cloud PostgreSQL is automatically checked.",
         "npm run dev reaches VSN | Stock Down Sort Dev.",
-        "npm run local:certify records a passing development health response and exact source ref."
+        "Local certification records a passing SQLite development health response and exact source ref."
       ],
       "quality_gates": [
         "App Validation",
-        "Local Neon validation",
-        "Neon project/endpoint ownership verification",
-        "Prisma migrate deploy",
+        "Local SQLite contract",
+        "Local/cloud schema parity",
         "Shopify local dev boot",
         "Local certification"
       ],
@@ -96,7 +95,7 @@
         "PR #60 reconciled Local prepare docs/state and App Validation #261 passed."
       ],
       "update_notes": [
-        "Repository-side Local preparation/certification tooling is complete; real workstation runtime acceptance remains pending."
+        "ADR-0001 supersedes the earlier Local-Neon target. Existing Neon Local tooling remains until the SQLite conversion implementation is merged, after which obsolete Local-Neon paths should be removed."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -177,17 +176,20 @@
     },
     {
       "id": "MOD-DATABASE",
-      "name": "Isolated PostgreSQL Data Architecture",
-      "objective": "Keep Local, Staging and Production database identities isolated while preserving a migration-first PostgreSQL runtime.",
+      "name": "Environment-Aware Prisma Data Architecture",
+      "objective": "Use Prisma SQLite for Local development and Prisma PostgreSQL on isolated Neon databases for Staging/Production, with automated shared-schema parity.",
       "scope": [
-        "Neon PostgreSQL topology",
-        "Prisma cloud schema",
-        "session lookup indexing",
-        "pooled runtime connections",
-        "direct migration connections"
+        "Local SQLite Prisma schema",
+        "Hosted Neon PostgreSQL Prisma schema",
+        "shared model/schema parity",
+        "hosted session lookup indexing",
+        "pooled hosted runtime connections",
+        "direct hosted migration connections"
       ],
       "boundaries": [
-        "No Local credential reuse in Staging or Production.",
+        "Local SQLite files must be gitignored.",
+        "No Local reuse of Staging or Production credentials.",
+        "No Staging/Production credential reuse across hosted environments.",
         "No production migration during Shopify release."
       ],
       "dependencies": [
@@ -199,9 +201,12 @@
         "CollectionSetting"
       ],
       "contracts": [
-        "DATABASE_URL=pooled",
-        "DIRECT_URL=direct",
-        "Local dedicated Neon project"
+        "Local=SQLite",
+        "Staging=Neon PostgreSQL",
+        "Production=Neon PostgreSQL",
+        "Hosted DATABASE_URL=pooled",
+        "Hosted DIRECT_URL=direct",
+        "Shared Prisma model parity required"
       ],
       "ui_surfaces": [],
       "security_responsibilities": [
@@ -209,10 +214,11 @@
         "Keep environment credentials isolated."
       ],
       "acceptance_criteria": [
-        "Cloud schema is PostgreSQL.",
-        "Local project identity is explicit.",
-        "Session shop lookup is indexed.",
-        "Role-separated connection contract passes."
+        "Local schema provider is SQLite.",
+        "Hosted schema provider is PostgreSQL.",
+        "Shared application models stay parity-checked.",
+        "Staging and Production Neon identities remain isolated.",
+        "Session shop lookup remains indexed in hosted PostgreSQL."
       ],
       "quality_gates": [
         "App Validation",
@@ -225,7 +231,7 @@
         "Additive Session_shop_idx migration added."
       ],
       "update_notes": [
-        "Actual Local Neon project provisioning and runtime migration remain environment-dependent."
+        "Cloud PostgreSQL hardening is already implemented; ADR-0001 adds the pending Local SQLite conversion and schema-parity requirement."
       ],
       "removal_or_deprecation_notes": []
     },

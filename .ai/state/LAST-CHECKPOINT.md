@@ -4,30 +4,36 @@ This file is a compatibility mirror. Canonical live state is:
 
 - `config/ai/project-state.json`
 - `config/ai/execution-plan.json`
+- `config/architecture/decision-records.json`
 - GitHub Issue #32
 - live Git/PR/CI evidence
 
-Verified environment-topology completion:
-- PR #37 App Validation run `36698394720` passed all checks on certified Git tree `fc6e44bf74de24f2d68890136bf75cd55069fe8c`.
-- PR #37 merged to `development` as `d90dd87de3ca6605a7d97e3f7c8e9f592811c732`.
-- PR #38 promoted the identical certified tree to protected `main` as `c0320d5bcbb1057bd6100253e1b0664843ed0404`.
-- `development` was fast-forwarded to the same protected-main baseline.
-- Staging and Production were not deployed.
+## Latest verified repository baseline
 
-Canonical environment order:
-1. Local/Dev — `development` + **VSN | Stock Down Sort Dev** + dedicated Neon PostgreSQL.
-2. Staging — GitHub Environment `cloudflare-staging` (ID `23050370538`) + manual deployment.
-3. Production — GitHub Environment `cloudflare-production` (ID `23098399859`) + manual/authorized deployment.
+- Development head before this planning change: `c90dd8c67704a2842c0eb065549a8cb7834975e7`.
+- App Validation #265 passed the latest canonical Local registry/runbook tree before PR #62 merged.
+- Staging and Production have not been promoted by this planning change.
 
-Current active work:
-`ISSUE-32-WU-LOCAL-01` remains **in progress**.
+## Accepted target architecture — ADR-0001
 
-Remaining Local blocker:
-- run `npm run local:prepare` on the real development workstation using the local-only Neon API credential;
-- prove the exact `vsn-stock-down-sort-local` project and endpoint binding;
-- pass Prisma migrations;
-- run `npm run dev`;
-- verify `/healthz`;
-- run `npm run local:certify -- <local-health-url>/healthz` and commit the acceptance evidence.
+1. Local/Dev — `development` + **VSN | Stock Down Sort Dev** + Prisma + gitignored SQLite.
+2. Staging — `cloudflare-staging` + Prisma + isolated Neon PostgreSQL + test billing.
+3. Production — `cloudflare-production` + Prisma + isolated Neon PostgreSQL + real billing.
 
-Do not start Staging until that Local evidence exists.
+The earlier Local-Neon work remains historical evidence but is superseded as the future Local target.
+
+## Current active work
+
+`ISSUE-32-WU-LOCAL-SQLITE-01` — **in progress**.
+
+Implementation must:
+
+- make `prisma/schema.prisma` the Local SQLite schema;
+- preserve `prisma/cloud/schema.prisma` for hosted PostgreSQL;
+- remove normal Local dependence on `NEON_API_KEY`, `NEON_PROJECT_ID`, hosted `DATABASE_URL` and `DIRECT_URL`;
+- keep the Local SQLite database file gitignored;
+- add Local/cloud schema-parity checks;
+- certify `npm run dev` against **VSN | Stock Down Sort Dev**;
+- keep Staging blocked until Local SQLite acceptance evidence exists.
+
+Do not claim the runtime is converted until the implementation PR is merged and verified.

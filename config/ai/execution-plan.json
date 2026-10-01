@@ -5,7 +5,7 @@
     {
       "id": "PHASE-01",
       "name": "Local-first environment certification and production-safe promotion",
-      "objective": "Certify Local/Dev on development with dedicated Neon first, then Staging end-to-end, before any Production promotion.",
+      "objective": "Certify Local/Dev on development using Prisma + SQLite, then certify Staging end-to-end on isolated Neon PostgreSQL before any Production promotion.",
       "module_ids": [
         "MOD-MGMT",
         "MOD-LOCAL",
@@ -17,10 +17,11 @@
       "dependencies": [],
       "status": "in_progress",
       "exit_criteria": [
-        "Local/Dev runs from development with a dedicated Neon database.",
+        "Local/Dev runs from development with Prisma + a gitignored SQLite database and VSN | Stock Down Sort Dev.",
+        "Local and hosted Prisma schemas have an explicit parity contract for shared application data.",
         "The four-plan billing catalog is implemented with stable IDs and 10-day trials.",
         "Dedicated Staging Shopify identity is verified.",
-        "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
+        "Staging Worker, Neon PostgreSQL and Queue/DLQ are healthy.",
         "Staging Shopify auth/session/Admin API reads pass.",
         "The four-plan billing catalog contract is verified in hosted environments.",
         "Production remains unmodified until Staging acceptance evidence exists."
@@ -65,10 +66,8 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 95,
-      "status": "blocked",
-      "blockers": [
-        "Repository-side Local preparation is complete and CI-validated. The remaining blocker is real workstation evidence: local:prepare must run with a real Neon account key, then the Dev Shopify app must boot, /healthz must pass, and local:certify must record acceptance."
-      ],
+      "status": "deprecated",
+      "blockers": [],
       "acceptance_criteria": [
         "development is the Local integration branch.",
         "npm run local:prepare completes before the Dev Shopify runtime is certified.",
@@ -106,7 +105,44 @@
         "PR #59 added the Windows-safe npm run local:prepare flow for exact project provision/reuse, env validation, ownership verification and Prisma migrations.",
         "App Validation #260 run 36834835944 passed all validation steps for PR #59.",
         "PR #59 merged to development as f2d9293f0050d3252085d29fb779ccb3e21cb8f9."
-      ]
+      ],
+      "superseded_by_work_unit": "ISSUE-32-WU-LOCAL-SQLITE-01",
+      "deprecation_reason": "Superseded by accepted ADR-0001. Historical Local-Neon implementation/evidence is retained for traceability but is no longer the target Local architecture."
+    },
+    {
+      "id": "ISSUE-32-WU-LOCAL-SQLITE-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-LOCAL",
+      "title": "Convert and certify Local Dev on Prisma SQLite",
+      "objective": "Convert VSN | Stock Down Sort Dev on development to Shopify-default-style Prisma + SQLite while preserving Prisma + Neon PostgreSQL for Staging and Production.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 96,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "development remains the Local integration branch.",
+        "VSN | Stock Down Sort Dev remains the Local Shopify identity.",
+        "Local Prisma datasource uses SQLite and a gitignored local database file.",
+        "Normal Local development requires no NEON_API_KEY, NEON_PROJECT_ID, DATABASE_URL to Neon, DIRECT_URL to Neon, or Staging/Production database credentials.",
+        "prisma/schema.prisma is the Local SQLite schema and prisma/cloud/schema.prisma remains the hosted PostgreSQL schema.",
+        "Shared application models, required fields, relations and indexes are covered by an automated schema-parity contract.",
+        "Local setup/generation/migration succeeds on Windows.",
+        "npm run dev boots successfully against Local SQLite.",
+        "Local health/certification proves development environment, test billing, SQLite persistence and exact source ref.",
+        "SQLite Local success is not treated as PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime acceptance gate."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Local SQLite Prisma contract",
+        "Local/cloud schema parity contract",
+        "Local SQLite migration/generation",
+        "Shopify local dev boot",
+        "Local certification"
+      ],
+      "completion_evidence": [],
+      "architecture_decision": "ADR-0001"
     },
     {
       "id": "ISSUE-32-WU-BILLING-01",
@@ -152,8 +188,8 @@
       "id": "ISSUE-32-WU-DATABASE-01",
       "phase_id": "PHASE-01",
       "module_id": "MOD-DATABASE",
-      "title": "Harden isolated PostgreSQL data architecture",
-      "objective": "Verify the active cloud PostgreSQL schema and add safe lookup indexing without changing environment boundaries.",
+      "title": "Harden hosted PostgreSQL data architecture",
+      "objective": "Verify and harden the Staging/Production cloud PostgreSQL schema and indexing while Local uses a separate SQLite development schema.",
       "dependencies": [
         "ISSUE-32-WU-01"
       ],
@@ -161,10 +197,11 @@
       "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
-        "Active Prisma schema uses PostgreSQL.",
-        "Local/Staging/Production database identities remain isolated.",
-        "Shopify Session lookup by shop is indexed.",
-        "Migration is additive and reversible by standard migration rollback/forward procedure."
+        "Hosted Prisma schema uses PostgreSQL.",
+        "Staging and Production database identities remain isolated.",
+        "Shopify Session lookup by shop is indexed in the hosted schema.",
+        "Migration is additive and reversible by standard migration rollback/forward procedure.",
+        "Local SQLite does not reuse hosted database credentials."
       ],
       "required_checks": [
         "App Validation",
@@ -184,13 +221,13 @@
       "title": "Verify staging environment secret contract",
       "objective": "After Local certification, prove required cloudflare-staging GitHub Environment values are configured without exposing values.",
       "dependencies": [
-        "ISSUE-32-WU-LOCAL-01",
+        "ISSUE-32-WU-LOCAL-SQLITE-01",
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
       "status": "not_started",
       "blockers": [
-        "Local/Dev Neon certification must complete first."
+        "Local/Dev Prisma + SQLite certification must complete first."
       ],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
@@ -323,5 +360,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "f2d9293f0050d3252085d29fb779ccb3e21cb8f9"
+  "last_reconciled_repository_ref": "c90dd8c67704a2842c0eb065549a8cb7834975e7"
 }
