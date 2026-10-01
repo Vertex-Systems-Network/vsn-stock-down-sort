@@ -2,15 +2,15 @@
   "schema_version": 1,
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
-  "current_module": "local-development-sqlite-conversion",
-  "current_work_unit": "ISSUE-32-WU-LOCAL-SQLITE-01",
+  "current_module": "four-plan-billing-runtime-acceptance",
+  "current_work_unit": "ISSUE-32-WU-BILLING-01",
   "active_issue": 32,
-  "last_verified_completion": "The Local Prisma+SQLite implementation tree on PR #64 passed App Validation #271 at b0970d0dbe4a0556543770f5755f72f529dc62aa. CI proved Local SQLite schema validation/migrations, Local/cloud schema parity, hosted PostgreSQL validation, lint, typecheck, runtime/promotion/Local/database contracts, Worker build, and both Cloudflare dry-runs. Real Local Shopify runtime acceptance remains pending.",
-  "next_valid_work_unit": "Merge the CI-validated Local SQLite implementation, then on the real development workstation run npm run local:prepare, npm run dev, verify /healthz reports database=sqlite, and run npm run local:certify -- <local-health-url>/healthz. Staging remains blocked until that exact source is accepted.",
+  "last_verified_completion": "Local/Dev certification passed on exact development source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5: SQLite validation/generation/migrations passed, /healthz returned development + billing test mode + database=sqlite + canonical four-plan/10-day catalog, and local:certify wrote accepted evidence. One current paid plan was also activated successfully on the Dev test store.",
+  "next_valid_work_unit": "Complete real Shopify test-store billing acceptance for the remaining current plan/plan-change paths. After billing runtime acceptance is complete, start ISSUE-32-WU-02 Staging Environment Secrets Audit.",
   "progress": {
     "total_work_units": 11,
-    "complete": 2,
-    "in_progress": 2,
+    "complete": 3,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
@@ -18,13 +18,12 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run the merged development source on the real workstation using the dedicated VSN | Stock Down Sort Dev app and a Local .env.local with no hosted database/Neon credentials.",
-    "Run npm run local:prepare and prove Local SQLite validation/generation/migrations create/use gitignored prisma/dev.sqlite.",
-    "Run npm run dev and verify the real Local /healthz response reports development, billing test mode and database=sqlite.",
-    "Run npm run local:certify -- <local-health-url>/healthz and commit the exact Local acceptance evidence.",
-    "After Local SQLite acceptance, run Staging Environment Secrets Audit, Staging Readiness, Staging Deploy, Shopify Staging Version/Release and signed staging subscription acceptance.",
-    "After Staging acceptance is recorded on main, run Production Readiness, Production Worker Prepare, Production Candidate and explicit Live release.",
-    "Complete real Shopify billing approval tests for the four plans on a non-production test store before marking billing work complete."
+    "Complete real Shopify test-store approval/plan-change acceptance across the remaining current plans before marking billing runtime complete.",
+    "After billing runtime acceptance, run Staging Environment Secrets Audit.",
+    "Run Staging Readiness and verify the exact Local-accepted development source is eligible for Staging.",
+    "Manually deploy Cloudflare Staging from the accepted development source.",
+    "Complete Staging Shopify/Worker/Neon/Queue/billing acceptance.",
+    "Only after Staging acceptance is recorded on main, prepare Production candidate and explicit Live release."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -34,11 +33,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "App Validation #271 passed the Local SQLite implementation tree. Repository-side SQLite/hosted-Neon dual architecture is CI-validated; real Local Shopify runtime acceptance and real four-plan Shopify approval remain verification_required.",
+  "qa_readiness": "Local/Dev is accepted on exact source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5. Repository CI and real Local SQLite/runtime evidence pass. Billing flow is proven for one current plan; remaining current plan/plan-change runtime acceptance is still verification_required before Staging.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "c90dd8c67704a2842c0eb065549a8cb7834975e7",
-  "last_reconciled_at": "2026-10-01T14:18:00+05:00",
-  "notes": "ADR-0001 is implemented at repository level: Local/Dev uses Prisma + SQLite; Staging and Production continue using Prisma + isolated Neon PostgreSQL. Local Neon provisioning/validation scripts are removed from the active runtime. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first real Neon/PostgreSQL runtime gate. Real Local workstation boot/health/certification is still required before Staging.",
+  "last_reconciled_repository_ref": "45ce7a91d1d6385eda56c3a90a1ac12ba05417f5",
+  "last_reconciled_at": "2026-10-01T23:43:00+05:00",
+  "notes": "ADR-0001 Local/Dev acceptance is complete and repository-backed. Local uses Prisma + SQLite; Staging/Production remain Prisma + isolated Neon PostgreSQL. One current plan activation passed on the Dev test store. Billing runtime acceptance remains the active work unit until the remaining current plan/plan-change paths are evidenced.",
   "ci_evidence": {
     "workflow_run": 271,
     "run_id": 36844916383,
