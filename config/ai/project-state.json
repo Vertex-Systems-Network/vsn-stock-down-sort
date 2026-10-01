@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-32-WU-04",
   "active_issue": 32,
   "last_verified_completion": "Staging Readiness #6 (run 36929608192) passed on development using accepted source ca5851561ab7979712f11580ab951fda4650ef19: Local gate verification, isolated staging secrets, cloud Prisma validation/generation, PostgreSQL migration deploy/status, lint/typecheck, staging build, Cloudflare Worker dry-run and canonical four-plan billing contract all passed.",
-  "next_valid_work_unit": "Run ISSUE-32-WU-04 Cloudflare Staging Deploy from development using the Local-accepted source. After deployment evidence is recorded, run ISSUE-32-WU-06 Shopify Staging Version/Release, install the staging app and activate a test plan, then run ISSUE-32-WU-05 Staging Runtime Acceptance.",
+  "next_valid_work_unit": "Run ISSUE-32-WU-04 Cloudflare Staging Deploy from development using Local-accepted source ca5851561ab7979712f11580ab951fda4650ef19. After deployment evidence is recorded, run ISSUE-32-WU-06 Shopify Staging Version/Release, install the staging app and activate a test plan, then run ISSUE-32-WU-05 Staging Runtime Acceptance.",
   "progress": {
     "total_work_units": 11,
     "complete": 6,
