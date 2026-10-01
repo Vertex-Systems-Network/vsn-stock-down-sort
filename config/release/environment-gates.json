@@ -7,9 +7,10 @@
     "evidence_record": null,
     "required_checks": [
       "Local Shopify app boot from development",
-      "Local Neon pooled/direct connection validation",
-      "Neon project and endpoint ownership verification",
-      "Prisma migrate deploy",
+      "Local SQLite Prisma validation/generation/migration",
+      "Local/cloud Prisma model parity",
+      "Local SQLite database file remains gitignored",
+      "Local health reports SQLite + test billing",
       "Four-plan billing catalog contract"
     ]
   },
