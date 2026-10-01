@@ -242,7 +242,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
@@ -251,7 +251,11 @@
         "Environment Secrets Audit"
       ],
       "completion_evidence": [
-        "Dependencies satisfied: Local/Dev accepted_source_ref=ca5851561ab7979712f11580ab951fda4650ef19 and billing runtime work unit complete."
+        "Dependencies satisfied: Local/Dev accepted_source_ref=ca5851561ab7979712f11580ab951fda4650ef19 and billing runtime work unit complete.",
+        "Environment Secrets Audit #4 (run 36926183663) passed on development.",
+        "All seven required cloudflare-staging secrets were present.",
+        "Staging Shopify client identity was isolated from Local/Dev and Production.",
+        "Committed staging client ID remained a secret-only placeholder."
       ]
     },
     {
@@ -265,7 +269,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 80,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Staging Readiness completes successfully."

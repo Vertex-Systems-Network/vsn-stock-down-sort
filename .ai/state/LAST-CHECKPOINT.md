@@ -7,30 +7,30 @@ Canonical live state:
 - GitHub Issue #32
 - live Git/PR/CI/runtime evidence
 
-## Latest Local/Dev acceptance
+## Staging secret audit accepted
 
-Exact accepted source:
+Environment Secrets Audit #4:
 
-`ca5851561ab7979712f11580ab951fda4650ef19`
-
-Real workstation evidence:
-- `/healthz` returned `ok=true`.
-- `environment=development`.
-- `billingTestMode=true`.
-- `database=sqlite`.
-- canonical Starter/Growth/Pro/Unlimited catalog with 10-day trial.
-- Prisma SQLite validate passed.
-- Prisma Client generation passed.
-- Prisma migrate deploy passed with no pending migrations.
-- `local:certify` accepted the exact source.
-- four-plan Dev-store billing acceptance is complete.
+- run id: `36926183663`
+- branch: `development`
+- conclusion: **success**
+- DATABASE_URL: present
+- DIRECT_URL: present
+- SHOPIFY_API_KEY: present
+- SHOPIFY_API_SECRET: present
+- SHOPIFY_APP_AUTOMATION_TOKEN: present
+- CLOUDFLARE_API_TOKEN: present
+- CLOUDFLARE_ACCOUNT_ID: present
+- Shopify identity isolated from Local/Dev and Production: yes
+- committed staging client ID remains secret-only placeholder: yes
 
 ## Current active work
 
-`ISSUE-32-WU-02` — **in_progress**.
+`ISSUE-32-WU-03` — **in_progress**
 
-Next:
-1. Run Environment Secrets Audit for `cloudflare-staging`.
-2. If it passes, run Staging Readiness using `ca5851561ab7979712f11580ab951fda4650ef19`.
-3. Only then manually deploy Cloudflare Staging.
-4. Production remains blocked until Staging acceptance is recorded.
+Run Staging Readiness from `development` with:
+
+- `confirm=VALIDATE_STAGING`
+- `source_ref=ca5851561ab7979712f11580ab951fda4650ef19`
+
+No Staging deployment has run yet.

@@ -131,11 +131,13 @@
         "Cloudflare Staging Deploy"
       ],
       "status": "in_progress",
-      "completion_evidence": [],
+      "completion_evidence": [
+        "Environment Secrets Audit #4 passed on development for cloudflare-staging."
+      ],
       "update_notes": [
-        "Local accepted_source_ref now matches latest certified source ca5851561ab7979712f11580ab951fda4650ef19.",
-        "Billing runtime acceptance is complete.",
-        "Environment Secrets Audit is the active Staging gate; no Staging deployment has run yet."
+        "Staging secret contract is accepted.",
+        "Staging Readiness is active and must use Local accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
+        "No Staging deployment has run yet."
       ],
       "removal_or_deprecation_notes": []
     },
