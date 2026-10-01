@@ -1210,3 +1210,29 @@ test("Staging Readiness reads the canonical top-level billing catalog", () => {
   assert.match(readiness, /plans = product\.get\("plans"\) or \[\]/);
   assert.doesNotMatch(readiness, /product\.get\("billing"\)/);
 });
+
+
+test("staging bootstrap deploy is separated from signed Shopify acceptance", () => {
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const gates = JSON.parse(read("config/release/environment-gates.json"));
+
+  assert.doesNotMatch(deploy, /staging_shop:/);
+  assert.doesNotMatch(deploy, /billing_plan_id:/);
+  assert.doesNotMatch(deploy, /Verify Shopify session and subscription reads/);
+  assert.match(deploy, /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/);
+
+  assert.match(acceptance, /CERTIFY_STAGING_RUNTIME/);
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /staging\.get\("deployed_source_ref"\)/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+
+  const wu05 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-05");
+  const wu06 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-06");
+  assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
+  assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
+  assert.equal(gates.staging.deployed_source_ref, null);
+  assert.equal(gates.staging.deployment_record, null);
+});
