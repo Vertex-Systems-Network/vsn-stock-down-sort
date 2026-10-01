@@ -27,7 +27,8 @@
     "dev:reset": "npx --yes shopify@4.8.2 app dev --reset",
     "predev": "node scripts/local-dev-runner.mjs predev",
     "local:validate": "node scripts/validate-local-neon-env.mjs",
-    "local:certify": "node scripts/certify-local-dev.mjs"
+    "local:certify": "node scripts/certify-local-dev.mjs",
+    "local:provision-neon": "node scripts/provision-local-neon.mjs"
   },
   "type": "module",
   "engines": {
