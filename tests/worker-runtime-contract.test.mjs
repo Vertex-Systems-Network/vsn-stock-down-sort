@@ -539,7 +539,7 @@ test("authoritative product docs match the current four-plan contract", () => {
     production.match(/^client_id = "([^"]+)"$/m)?.[1];
   assert.ok(productionClientId);
   assert.notEqual(productionClientId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
-  assert.match(environments, /committed Live Shopify client\s+ID/i);
+  assert.match(environments, /contains the Live Shopify client\s+ID by design/i);
   assert.doesNotMatch(
     environments,
     /shopify\.app\.production\.toml.*__SHOPIFY_PRODUCTION_CLIENT_ID__/s,
