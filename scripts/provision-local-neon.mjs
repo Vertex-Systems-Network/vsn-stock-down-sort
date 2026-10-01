@@ -85,8 +85,13 @@ async function createProject(token) {
     pg_version: PG_VERSION,
   };
   const body = { project };
-  if (process.env.NEON_ORG_ID?.trim()) body.org_id = process.env.NEON_ORG_ID.trim();
-  return api(token, "/projects", { method: "POST", body: JSON.stringify(body) });
+  const query = process.env.NEON_ORG_ID?.trim()
+    ? `?org_id=${encodeURIComponent(process.env.NEON_ORG_ID.trim())}`
+    : "";
+  return api(token, `/projects${query}`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 }
 
 async function getDefaultBranch(token, projectId) {
