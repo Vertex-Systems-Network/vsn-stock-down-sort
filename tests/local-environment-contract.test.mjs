@@ -1,20 +1,23 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { validateLocalNeonEnv } from "../scripts/local-env.mjs";
+import { validateLocalNeonEnv, verifyLocalNeonProjectBinding } from "../scripts/local-env.mjs";
 
 const ORIGINAL_ENV = { ...process.env };
+const ORIGINAL_FETCH = globalThis.fetch;
 
 function restoreEnv() {
   for (const key of Object.keys(process.env)) {
     if (!(key in ORIGINAL_ENV)) delete process.env[key];
   }
   Object.assign(process.env, ORIGINAL_ENV);
+  globalThis.fetch = ORIGINAL_FETCH;
 }
 
 function setValidLocalEnv() {
   process.env.NEON_PROJECT_ID = "local-stock-down-sort";
   process.env.NEON_PROJECT_NAME = "vsn-stock-down-sort-local";
+  process.env.NEON_API_KEY = "local-neon-test-token";
   process.env.SHOPIFY_API_KEY = "675de0e3834ce61a75473de19df457c4";
   process.env.SHOPIFY_API_SECRET = "local-secret";
   process.env.APP_ENV = "development";
@@ -100,4 +103,90 @@ test("Local certification runner preserves Windows-safe npm/npx spawning", () =>
   assert.match(source, /run\("npx"/);
   assert.doesNotMatch(source, /npx\.cmd/);
   assert.doesNotMatch(source, /npm\.cmd/);
+});
+
+
+function neonResponse(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    async text() {
+      return JSON.stringify(body);
+    },
+  };
+}
+
+test("verifies the project name and endpoint ownership through Neon API", async () => {
+  setValidLocalEnv();
+  globalThis.fetch = async (url) => {
+    const value = String(url);
+    if (value.endsWith("/projects/local-stock-down-sort")) {
+      return neonResponse({
+        project: {
+          id: "local-stock-down-sort",
+          name: "vsn-stock-down-sort-local",
+        },
+      });
+    }
+    if (value.endsWith("/projects/local-stock-down-sort/endpoints")) {
+      return neonResponse({
+        endpoints: [{ id: "ep-stock-down-sort" }],
+      });
+    }
+    return neonResponse({ message: "unexpected request" }, 404);
+  };
+
+  const binding = await verifyLocalNeonProjectBinding();
+  assert.deepEqual(binding, {
+    projectId: "local-stock-down-sort",
+    projectName: "vsn-stock-down-sort-local",
+    endpointId: "ep-stock-down-sort",
+  });
+});
+
+test("rejects a project ID that resolves to a different Neon project", async () => {
+  setValidLocalEnv();
+  globalThis.fetch = async (url) => {
+    const value = String(url);
+    if (value.endsWith("/projects/local-stock-down-sort")) {
+      return neonResponse({
+        project: {
+          id: "local-stock-down-sort",
+          name: "some-other-project",
+        },
+      });
+    }
+    return neonResponse({ endpoints: [{ id: "ep-stock-down-sort" }] });
+  };
+
+  await assert.rejects(
+    () => verifyLocalNeonProjectBinding(),
+    /does not resolve to the dedicated/,
+  );
+});
+
+test("rejects Neon URLs whose endpoint is not owned by the configured project", async () => {
+  setValidLocalEnv();
+  globalThis.fetch = async (url) => {
+    const value = String(url);
+    if (value.endsWith("/projects/local-stock-down-sort")) {
+      return neonResponse({
+        project: {
+          id: "local-stock-down-sort",
+          name: "vsn-stock-down-sort-local",
+        },
+      });
+    }
+    if (value.endsWith("/projects/local-stock-down-sort/endpoints")) {
+      return neonResponse({
+        endpoints: [{ id: "ep-different-endpoint" }],
+      });
+    }
+    return neonResponse({ message: "unexpected request" }, 404);
+  };
+
+  await assert.rejects(
+    () => verifyLocalNeonProjectBinding(),
+    /endpoint does not belong to NEON_PROJECT_ID/,
+  );
 });
