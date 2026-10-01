@@ -26,10 +26,13 @@
     "worker:dry-run": "npx wrangler@4.141.0 deploy --dry-run --config wrangler.staging.jsonc",
     "dev:reset": "npx --yes shopify@4.8.2 app dev --reset",
     "predev": "node scripts/local-dev-runner.mjs predev",
-    "local:validate": "node scripts/validate-local-neon-env.mjs",
+    "local:validate": "node scripts/validate-local-sqlite-env.mjs",
     "local:certify": "node scripts/certify-local-dev.mjs",
-    "local:provision-neon": "node scripts/provision-local-neon.mjs",
-    "local:prepare": "node scripts/prepare-local-dev.mjs"
+    "local:prepare": "node scripts/prepare-local-dev.mjs",
+    "prisma:validate:local": "prisma validate --schema prisma/schema.prisma",
+    "prisma:generate:local": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate:local": "prisma migrate deploy --schema prisma/schema.prisma",
+    "prisma:parity": "node scripts/check-prisma-schema-parity.mjs"
   },
   "type": "module",
   "engines": {
