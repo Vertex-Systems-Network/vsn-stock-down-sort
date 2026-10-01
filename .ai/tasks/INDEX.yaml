@@ -3,8 +3,8 @@ compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
 active_issue: 32
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-32-WU-02
+active_work_unit: ISSUE-32-WU-03
 status: in_progress
 note: >
-  Run Environment Secrets Audit for cloudflare-staging. If it passes, continue
-  with Staging Readiness using accepted source ca5851561ab7979712f11580ab951fda4650ef19.
+  Run Staging Readiness from development using confirm=VALIDATE_STAGING and
+  source_ref=ca5851561ab7979712f11580ab951fda4650ef19.
