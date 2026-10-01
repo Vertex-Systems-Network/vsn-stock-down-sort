@@ -67,7 +67,7 @@
       "priority": 95,
       "status": "blocked",
       "blockers": [
-        "Real dedicated Neon project vsn-stock-down-sort-local is not provisioned/identified in repository or connected Neon account context. Repository-side enforcement is complete; actual project provisioning and workstation runtime remain external prerequisites."
+        "Real dedicated Neon project vsn-stock-down-sort-local is not identified with a repository-backed real project ID, and the actual workstation Dev boot/health/local:certify evidence is still missing. Repository-side validation and the prior Windows spawn regression are fixed and CI-covered."
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
@@ -92,7 +92,11 @@
         "Local validator requires NEON_PROJECT_ID and NEON_PROJECT_NAME=vsn-stock-down-sort-local.",
         "Local environment contract tests cover missing and wrong dedicated Neon identity.",
         ".env.local.example documents the required real Local Neon project identity without secrets.",
-        "App Validation #216 run 36797501281 passed all validation steps on 7254d0b88992fdcdb878226e01779ae0d836df9c."
+        "App Validation #216 run 36797501281 passed all validation steps on 7254d0b88992fdcdb878226e01779ae0d836df9c.",
+        "Previous real workstation validation reported pooled_runtime=pass and direct_migrations=pass, but that output did not record a real Neon project ID or a completed Dev health/certification gate and therefore is not sufficient for acceptance.",
+        "PR #56 added a regression test for the Windows local certification spawn path.",
+        "App Validation #253 run 36833332062 passed all validation steps for PR #56.",
+        "PR #56 merged to development as 2c2f63215f1575e695f075001d253858efcd27d7."
       ]
     },
     {
@@ -310,5 +314,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "e3e78b0d6f603267ebda3fa8e6028daa52a333b9"
+  "last_reconciled_repository_ref": "2c2f63215f1575e695f075001d253858efcd27d7"
 }
