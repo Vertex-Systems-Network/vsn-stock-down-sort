@@ -513,6 +513,8 @@ test("README reflects the active Stock Down Sort architecture", () => {
 
   assert.match(readme, /^# VSN Stock Down Sort/m);
   assert.match(readme, /npm run dev/);
+  assert.match(readme, /npm run local:prepare/);
+  assert.match(readme, /project.*endpoint ownership/i);
   assert.match(readme, /Cloudflare Workers/);
   assert.match(readme, /PostgreSQL/);
   assert.match(readme, /Four plan IDs/);
@@ -717,6 +719,11 @@ test("manual development flow keeps development pushes away from staging and pro
   assert.equal(flow.development_branch, "development");
   assert.equal(flow.release_branch, "main");
   assert.equal(flow.local.command, "npm run dev");
+  assert.equal(flow.local.prepare_command, "npm run local:prepare");
+  assert.equal(
+    flow.local.certify_command,
+    "npm run local:certify -- <local-health-url>/healthz",
+  );
   assert.equal(flow.staging.source_branch, "development");
   assert.equal(flow.staging.auto_deploy_runtime_changes, false);
   assert.equal(flow.staging.deploy_mode, "manual_dispatch_from_development");
@@ -768,7 +775,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_module, "local-development-certification");
   assert.equal(state.current_work_unit, "ISSUE-32-WU-LOCAL-01");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Neon/i);
+  assert.match(state.next_valid_work_unit, /local:prepare/);
+  assert.match(state.next_valid_work_unit, /local:certify/);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
@@ -834,6 +842,20 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 });
 
 
+test("environment gate requires Neon ownership verification before Local acceptance", () => {
+  const gates = JSON.parse(read("config/release/environment-gates.json"));
+  const releaseFlow = read("docs/development-release-flow.md");
+
+  assert.equal(gates.local_dev.status, "verification_required");
+  assert.ok(
+    gates.local_dev.required_checks.includes(
+      "Neon project and endpoint ownership verification",
+    ),
+  );
+  assert.match(releaseFlow, /npm run local:prepare/);
+  assert.match(releaseFlow, /project and endpoint ownership/i);
+});
+
 test("local development requires isolated Neon pooled and direct connections", () => {
   const flow = JSON.parse(read("config/development-flow.json"));
   const topology = JSON.parse(read("config/database/environment-topology.json"));
@@ -847,6 +869,14 @@ test("local development requires isolated Neon pooled and direct connections", (
   assert.equal(flow.local.database.project_name, "vsn-stock-down-sort-local");
   assert.equal(flow.local.database.runtime_connection, "pooled");
   assert.equal(flow.local.database.migration_connection, "direct");
+  assert.equal(
+    flow.local.database.project_binding_verification,
+    "neon_api_project_and_endpoint_ownership",
+  );
+  assert.equal(
+    flow.local.database.provisioning_status,
+    "tooling_ready_runtime_verification_required",
+  );
   assert.equal(topology.order.join(","), "local,staging,production");
   assert.equal(topology.local.database.provider, "neon_postgresql");
   assert.equal(topology.local.database.reuse_staging_or_production, false);
