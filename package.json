@@ -28,7 +28,8 @@
     "predev": "node scripts/local-dev-runner.mjs predev",
     "local:validate": "node scripts/validate-local-neon-env.mjs",
     "local:certify": "node scripts/certify-local-dev.mjs",
-    "local:provision-neon": "node scripts/provision-local-neon.mjs"
+    "local:provision-neon": "node scripts/provision-local-neon.mjs",
+    "local:prepare": "node scripts/prepare-local-dev.mjs"
   },
   "type": "module",
   "engines": {
