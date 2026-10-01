@@ -167,10 +167,8 @@
         "ISSUE-32-WU-01"
       ],
       "priority": 92,
-      "status": "verification_required",
-      "blockers": [
-        "One current plan activation has passed on the Dev test store; remaining current plan/plan-change approval paths still require real Shopify test-store evidence before billing runtime acceptance is complete."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Exactly starter/growth/pro/unlimited are canonical IDs.",
         "Prices are 10.99/19.99/34.99/54.99 USD every 30 days.",
@@ -194,7 +192,11 @@
         "Subscription API supports plan selection and replacement.",
         "Hosted health/release workflows validate the four-plan catalog.",
         "App Validation #224 passed the previous billing contract before this implementation batch.",
-        "One current paid plan was activated successfully on the Dev test store after Shopify approval/return-flow fixes."
+        "Real Dev-store four-plan runtime acceptance passed on development source fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c.",
+        "Starter/Growth/Pro/Unlimited plan-change approvals were exercised across the current plan flow.",
+        "Each selected plan returned from Shopify approval and was recognized as Current plan.",
+        "The merchant restored the original desired current plan after the switch checks.",
+        "PR #76 plan-switch fetcher revalidation fix passed App Validation #301 before merge."
       ]
     },
     {
@@ -240,9 +242,9 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
-      "status": "not_started",
+      "status": "blocked",
       "blockers": [
-        "Four-plan billing runtime acceptance must complete before Staging Environment Secrets Audit starts."
+        "Latest tested development source fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c is not yet the Local gate accepted_source_ref; current accepted source is 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5. Run and record local:certify on fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c before Staging audit."
       ],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
