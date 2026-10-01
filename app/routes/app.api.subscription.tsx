@@ -47,7 +47,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { admin, session, redirect } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   if (request.method.toUpperCase() !== "POST") {
     return Response.json(
@@ -113,7 +113,11 @@ export async function action({ request }: ActionFunctionArgs) {
         returnUrl.toString(),
       );
 
-      return redirect(result.confirmationUrl, { target: "_top" });
+      return Response.json({
+        ok: true,
+        confirmationUrl: result.confirmationUrl,
+        planId: requestedPlanId,
+      });
     }
 
     if (actionType === "cancel") {
