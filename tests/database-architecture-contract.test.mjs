@@ -31,7 +31,7 @@ test("active Prisma architecture is PostgreSQL and session lookup is indexed by 
 test("database URLs remain role-separated", () => {
   const localEnv = read("scripts/local-env.mjs");
 
-  assert.match(localEnv, /DATABASE_URL must be Neon/);
+  assert.match(localEnv, /DATABASE_URL must point to Neon/);
   assert.match(localEnv, /DIRECT_URL must be the Neon direct/);
   assert.match(localEnv, /DATABASE_URL.*pooled/i);
   assert.match(localEnv, /DIRECT_URL.*direct/i);
