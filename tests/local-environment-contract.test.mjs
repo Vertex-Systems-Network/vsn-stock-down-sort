@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 import { validateLocalNeonEnv } from "../scripts/local-env.mjs";
 
@@ -77,4 +78,14 @@ test("rejects a non-Dev Shopify client identity", () => {
   setValidLocalEnv();
   process.env.SHOPIFY_API_KEY = "wrong-client";
   expectFailure("SHOPIFY_API_KEY must match");
+});
+
+test("Local Neon provisioning helper is idempotent and secret-safe", () => {
+  const source = fs.readFileSync(new URL("../scripts/provision-local-neon.mjs", import.meta.url), "utf8");
+  assert.match(source, /GET|\\/projects\\?/);
+  assert.match(source, /POST/);
+  assert.match(source, /vsn-stock-down-sort-local/);
+  assert.match(source, /NEON_API_KEY/);
+  assert.doesNotMatch(source, /Bearer\\s+[A-Za-z0-9_-]{20,}/);
+  assert.match(source, /\.env\.local/);
 });
