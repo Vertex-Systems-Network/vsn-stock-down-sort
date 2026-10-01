@@ -358,21 +358,35 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   );
 });
 
-test("billing redirect responses bubble to Shopify boundary", () => {
+test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
   const api = read("app/routes/app.api.subscription.tsx");
-  const app = read("app/routes/app.tsx");
+  const plans = read("app/routes/app.plans.tsx");
 
   assert.match(
     api,
-    /catch \(error\) \{\s*if \(error instanceof Response\) \{\s*throw error;/s,
+    /confirmationUrl: result\.confirmationUrl/,
   );
   assert.match(
     api,
-    /return redirect\(result\.confirmationUrl, \{ target: "_top" \}\)/,
+    /planId: requestedPlanId/,
   );
-  assert.match(app, /export function ErrorBoundary\(\)/);
-  assert.match(app, /boundary\.error\(useRouteError\(\)\)/);
-  assert.match(app, /boundary\.headers\(headersArgs\)/);
+  assert.doesNotMatch(
+    api,
+    /return redirect\(result\.confirmationUrl/,
+  );
+
+  assert.match(
+    plans,
+    /confirmationUrl\?: string/,
+  );
+  assert.match(
+    plans,
+    /open\(fetcher\.data\.confirmationUrl, "_top"\)/,
+  );
+  assert.doesNotMatch(
+    plans,
+    /window\.top\.location\.href/,
+  );
 });
 
 test("billing failures decode SDK shapes and expose safe diagnostics", () => {
