@@ -41,6 +41,19 @@ function parseUrl(name) {
   return { url, host };
 }
 
+function validateLocalNeonProjectIdentity() {
+  const projectId = process.env.NEON_PROJECT_ID?.trim();
+  if (!projectId) fail("NEON_PROJECT_ID is required for Local/Dev and must identify the dedicated vsn-stock-down-sort-local Neon project.");
+  if (!/^[a-z0-9-]{1,60}$/.test(projectId)) {
+    fail("NEON_PROJECT_ID must be a valid Neon project identifier.");
+  }
+
+  const projectName = (process.env.NEON_PROJECT_NAME || "vsn-stock-down-sort-local").trim();
+  if (projectName !== "vsn-stock-down-sort-local") {
+    fail("NEON_PROJECT_NAME must be vsn-stock-down-sort-local for Local/Dev.");
+  }
+}
+
 function validateLocalShopifyEnv() {
   const apiKey = process.env.SHOPIFY_API_KEY?.trim();
   if (!apiKey) fail("SHOPIFY_API_KEY is required for Local/Dev.");
@@ -68,6 +81,7 @@ function validateLocalShopifyConfig() {
 }
 
 export function validateLocalNeonEnv() {
+  validateLocalNeonProjectIdentity();
   validateLocalShopifyConfig();
   validateLocalShopifyEnv();
 
