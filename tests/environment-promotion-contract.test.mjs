@@ -83,19 +83,21 @@ test("main branch merge protection contract is explicit", () => {
   assert.equal(developmentFlow.main_branch_protection.bypass, "never");
 });
 
-test("Local/Dev entrypoint enforces Neon environment validation", () => {
+test("Local/Dev entrypoint enforces SQLite environment validation", () => {
   assert.equal(packageJson.scripts.predev, "node scripts/local-dev-runner.mjs predev");
-  assert.equal(packageJson.scripts["local:validate"], "node scripts/validate-local-neon-env.mjs");
+  assert.equal(packageJson.scripts["local:validate"], "node scripts/validate-local-sqlite-env.mjs");
   assert.equal(packageJson.scripts["local:certify"], "node scripts/certify-local-dev.mjs");
   assert.match(packageJson.scripts.dev, /--config local/);
   const runner = read("scripts/local-dev-runner.mjs");
-  assert.match(runner, /validateLocalNeonEnv\(\)/);
+  assert.match(runner, /validateLocalSqliteEnv\(\)/);
   assert.match(runner, /branch !== "development"/);
   assert.match(runner, /npm run dev is restricted to development/);
-  assert.match(runner, /prisma/);
+  assert.match(runner, /prisma\/schema\.prisma/);
+  assert.doesNotMatch(runner, /prisma\/cloud\/schema\.prisma/);
   const certifier = read("scripts/certify-local-dev.mjs");
   assert.match(certifier, /branch !== "development"/);
-  assert.match(certifier, /prisma/);
+  assert.match(certifier, /prisma\/schema\.prisma/);
+  assert.match(certifier, /database_provider: "sqlite"/);
   assert.match(certifier, /health endpoint did not report ok=true/);
   assert.match(certifier, /gates\.local_dev/);
   assert.match(certifier, /git\", \["status", "--porcelain"\]/);
@@ -109,6 +111,8 @@ test("Local/Dev entrypoint enforces Neon environment validation", () => {
   assert.match(localEnv, /VSN \| Stock Down Sort Dev/);
   assert.match(localEnv, /675de0e3834ce61a75473de19df457c4/);
   assert.match(localEnv, /validateLocalShopifyEnv/);
+  assert.match(localEnv, /validateLocalSqliteSchema/);
+  assert.match(localEnv, /hosted database/i);
 });
 
 test("production release policy references the staging acceptance gate", () => {
