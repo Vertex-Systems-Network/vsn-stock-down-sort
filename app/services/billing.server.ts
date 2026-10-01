@@ -70,6 +70,74 @@ type CancelSubscriptionPayload = {
   errors?: Array<{ message?: string }>;
 };
 
+
+function normalizeBillingErrorMessage(message: string) {
+  const value = message.trim();
+  if (
+    /without public distribution.*billing api/i.test(value) ||
+    /billing api.*public distribution/i.test(value)
+  ) {
+    return "Shopify Billing API is unavailable for this app identity because it does not use Public distribution. Billing API subscriptions require a Public-distribution app.";
+  }
+  return value;
+}
+
+function firstMessageFromUnknown(value: unknown): string | null {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.message === "string" && record.message.trim()) {
+    return record.message.trim();
+  }
+
+  for (const key of ["graphQLErrors", "errors"]) {
+    const nested = record[key];
+    if (Array.isArray(nested)) {
+      for (const item of nested) {
+        const message = firstMessageFromUnknown(item);
+        if (message) return message;
+      }
+    } else {
+      const message = firstMessageFromUnknown(nested);
+      if (message) return message;
+    }
+  }
+
+  return null;
+}
+
+export function describeShopifyBillingError(error: unknown) {
+  if (error && typeof error === "object") {
+    const record = error as Record<string, unknown>;
+    const nestedCandidates = [
+      record.body,
+      record.errors,
+      record.response,
+      record.cause,
+    ];
+
+    for (const candidate of nestedCandidates) {
+      const message = firstMessageFromUnknown(candidate);
+      if (message) return normalizeBillingErrorMessage(message);
+    }
+
+    if (typeof record.message === "string" && record.message.trim()) {
+      return normalizeBillingErrorMessage(record.message);
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return normalizeBillingErrorMessage(error.message);
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return normalizeBillingErrorMessage(error);
+  }
+
+  return "Shopify subscription request failed. Check the Local server log for the billing error category.";
+}
+
 function firstGraphqlError(payload: { errors?: Array<{ message?: string }> }) {
   return payload.errors?.find((error) => error.message)?.message;
 }

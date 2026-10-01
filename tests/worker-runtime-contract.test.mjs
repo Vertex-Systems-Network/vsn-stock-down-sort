@@ -358,6 +358,25 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   );
 });
 
+test("billing failures surface nested Shopify GraphQL reasons", () => {
+  const billing = read("app/services/billing.server.ts");
+  const api = read("app/routes/app.api.subscription.tsx");
+
+  assert.match(billing, /export function describeShopifyBillingError/);
+  assert.match(billing, /record\.body/);
+  assert.match(billing, /graphQLErrors/);
+  assert.match(
+    billing,
+    /Billing API subscriptions require a Public-distribution app/,
+  );
+  assert.match(api, /describeShopifyBillingError\(error\)/);
+  assert.match(api, /\[billing\] subscription action failed/);
+  assert.doesNotMatch(
+    api,
+    /error instanceof Error[\s\S]*Shopify subscription request failed/,
+  );
+});
+
 test("billing entitlement requires the exact current plan", () => {
   const billing = read("app/services/billing.server.ts");
   const api = read("app/routes/app.api.subscription.tsx");
