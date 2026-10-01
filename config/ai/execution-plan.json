@@ -64,7 +64,7 @@
       "priority": 95,
       "status": "in_progress",
       "blockers": [
-        "Dedicated Neon project vsn-stock-down-sort-local is not yet provisioned/bound with a real project ID and endpoint."
+        "Dedicated Neon project vsn-stock-down-sort-local is not provisioned or identified with a real project ID/endpoint. The connected Neon toolset exposes project inspection/update/branch/database operations but does not expose account-level project creation/listing, so the project cannot be truthfully provisioned from this workspace. Existing verified project nameless-breeze-35836648 is excluded because it is VSN Metafields Production."
       ],
       "acceptance_criteria": [
         "development is the Local integration branch.",
@@ -227,5 +227,6 @@
     "complete",
     "deferred",
     "deprecated"
-  ]
+  ],
+  "last_reconciled_repository_ref": "c001725044d5eb5477658b9aceb3a20e84d48d8b"
 }
