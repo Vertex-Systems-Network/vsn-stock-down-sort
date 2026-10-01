@@ -12,13 +12,12 @@
     "direct_live_deploy": false,
     "source_branch": "development",
     "database": {
-      "provider": "neon_postgresql",
-      "project_name": "vsn-stock-down-sort-local",
-      "provisioning_status": "tooling_ready_runtime_verification_required",
-      "runtime_connection": "pooled",
-      "migration_connection": "direct",
-      "isolated_from_staging_and_production": true,
-      "project_binding_verification": "neon_api_project_and_endpoint_ownership"
+      "provider": "sqlite",
+      "file": "prisma/dev.sqlite",
+      "schema": "prisma/schema.prisma",
+      "gitignored": true,
+      "hosted_credentials_required": false,
+      "isolated_from_staging_and_production": true
     },
     "cli_config_alias": "local",
     "branch_policy": "development_only",
@@ -63,13 +62,13 @@
     "main_push_cannot_deploy_production": true,
     "staging_cannot_change_live_shopify_identity": true,
     "production_release_requires_explicit_authorization": true,
-    "local_database_must_be_neon": true,
     "local_database_must_be_isolated": true,
     "production_environment_client_id_must_match_committed_live_config": true,
     "staging_requires_local_dev_acceptance_record": true,
     "staging_source_ref_must_match_local_accepted_ref": true,
     "live_requires_staging_acceptance_record_on_main": true,
-    "local_shopify_identity_must_match_committed_local_config": true
+    "local_shopify_identity_must_match_committed_local_config": true,
+    "local_database_must_be_sqlite": true
   },
   "development_ci": {
     "automatic_on_push": true,
