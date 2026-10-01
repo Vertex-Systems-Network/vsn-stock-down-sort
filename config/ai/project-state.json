@@ -5,7 +5,7 @@
   "current_module": "four-plan-billing-and-environment-certification",
   "current_work_unit": "ISSUE-32-WU-BILLING-01",
   "active_issue": 32,
-  "last_verified_completion": "AI-Native Batch 6-9 repository implementation merged to development as ce99dfcc126386b6947be62d42d7d5830e002975; App Validation #241 passed the merged tree.",
+  "last_verified_completion": "AI-Native Batch 6-9 repository implementation is merged to development at accca70133250158e6f0b7ad3ce609de9936fa11; App Validation #241 passed the merged implementation tree.",
   "next_valid_work_unit": "Complete external runtime evidence: provision the dedicated Local Neon project, certify npm run dev/local:certify, then execute Staging Readiness/Deploy/Shopify acceptance and only afterward Production/Live gates.",
   "progress": {
     "total_work_units": 10,
@@ -17,13 +17,13 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run and pass App Validation for the four-plan billing/database branch.",
     "Provision or identify the real dedicated Neon project vsn-stock-down-sort-local.",
-    "Configure uncommitted Local .env with the real pooled DATABASE_URL and matching direct DIRECT_URL.",
-    "Run npm run dev from development and prove the VSN | Stock Down Sort Dev app boots.",
+    "Configure the uncommitted Local .env with the real pooled DATABASE_URL and matching direct DIRECT_URL.",
+    "Run npm run dev from development against the dedicated Dev Shopify app and record a real health response.",
     "Run npm run local:certify -- <local-health-url>/healthz and commit the acceptance evidence.",
-    "After Local acceptance, run Staging Readiness, Staging Deploy, Staging Shopify Version/Release and signed acceptance.",
-    "After Staging acceptance on main, run Production Readiness, Worker Prepare, Production Candidate and explicit Live release."
+    "After Local acceptance, run Staging Readiness, Staging Deploy, Shopify Staging Version/Release and signed staging subscription acceptance.",
+    "After Staging acceptance is recorded on main, run Production Readiness, Production Worker Prepare, Production Candidate and explicit Live release.",
+    "Complete real Shopify billing approval tests for the four plans on a non-production test store before marking billing work complete."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -35,8 +35,8 @@
   "critical_defects": [],
   "qa_readiness": "App Validation #241 passed the merged Batch 6-9 repository tree. Billing runtime acceptance and Local/Staging/Production live evidence remain outstanding.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "ce99dfcc126386b6947be62d42d7d5830e002975",
-  "last_reconciled_at": "2026-10-01T01:19:28Z",
+  "last_reconciled_repository_ref": "accca70133250158e6f0b7ad3ce609de9936fa11",
+  "last_reconciled_at": "2026-10-01T01:20:17Z",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
   "ci_evidence": {
     "workflow_run": 241,
@@ -44,7 +44,6 @@
     "status": "completed",
     "conclusion": "success",
     "head_sha": "ce99dfcc126386b6947be62d42d7d5830e002975",
-    "required_validation": "App Validation / validate",
     "all_validation_steps": "passed"
   },
   "batch_06_09": {
