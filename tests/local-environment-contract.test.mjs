@@ -89,3 +89,15 @@ test("Local Neon provisioning helper is idempotent and secret-safe", () => {
   assert.doesNotMatch(source, /Bearer\\s+[A-Za-z0-9_-]{20,}/);
   assert.match(source, /\.env\.local/);
 });
+
+test("Local certification runner preserves Windows-safe npm/npx spawning", () => {
+  const source = fs.readFileSync(
+    new URL("../scripts/certify-local-dev.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(source, /shell:\s*process\.platform\s*===\s*"win32"/);
+  assert.match(source, /run\("npx"/);
+  assert.doesNotMatch(source, /npx\.cmd/);
+  assert.doesNotMatch(source, /npm\.cmd/);
+});
