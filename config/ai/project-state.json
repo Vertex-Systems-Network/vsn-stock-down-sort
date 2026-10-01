@@ -10,8 +10,8 @@
   "progress": {
     "total_work_units": 8,
     "complete": 1,
-    "in_progress": 1,
-    "blocked": 0,
+    "in_progress": 0,
+    "blocked": 1,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
@@ -34,10 +34,10 @@
     "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes."
   ],
   "critical_defects": [],
-  "qa_readiness": "App Validation is running against the corrected Local config contract; Local Neon binding and real workstation acceptance remain required.",
+  "qa_readiness": "CI validation is green. Local/Dev acceptance remains blocked by missing dedicated Neon project identity and real workstation runtime evidence.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "bb7b0122ec58f1a97313c753703d44672b5c71fb",
-  "last_reconciled_at": "2026-10-01T00:10:00+05:00",
+  "last_reconciled_repository_ref": "425d02b503837767f12b5c49e494e78c88fd072b",
+  "last_reconciled_at": "2026-10-01T00:25:00Z",
   "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred.",
   "ci_evidence": {
     "workflow_run": 208,
