@@ -432,6 +432,61 @@ export async function getCurrentSubscriptionPlan(admin: AdminClient) {
   };
 }
 
+type CurrentAppHandlePayload = {
+  data?: {
+    currentAppInstallation?: {
+      app?: {
+        handle?: string | null;
+      } | null;
+    } | null;
+  };
+  errors?: Array<{ message?: string }>;
+};
+
+function shopAdminStoreSlug(shop: string) {
+  const suffix = ".myshopify.com";
+  if (!shop.endsWith(suffix)) {
+    throw new Error("Shop domain is not a valid myshopify.com domain.");
+  }
+
+  const slug = shop.slice(0, -suffix.length);
+  if (!slug) {
+    throw new Error("Unable to derive Shopify Admin store slug.");
+  }
+
+  return slug;
+}
+
+export async function getEmbeddedAdminBillingReturnUrl(
+  admin: AdminClient,
+  shop: string,
+) {
+  const response = await admin.graphql(`
+    #graphql
+    query StockDownSortCurrentAppHandle {
+      currentAppInstallation {
+        app {
+          handle
+        }
+      }
+    }
+  `);
+
+  const payload = (await response.json()) as CurrentAppHandlePayload;
+  const graphQlError = firstGraphqlError(payload);
+  if (graphQlError) throw new Error(graphQlError);
+
+  const handle = payload.data?.currentAppInstallation?.app?.handle?.trim();
+  if (!handle) {
+    throw new Error("Shopify did not return the current app handle.");
+  }
+
+  const storeSlug = shopAdminStoreSlug(shop);
+  return `https://admin.shopify.com/store/${encodeURIComponent(
+    storeSlug,
+  )}/apps/${encodeURIComponent(handle)}/app/plans`;
+}
+
 export async function createSubscription(
   admin: AdminClient,
   planId: PlanId,
