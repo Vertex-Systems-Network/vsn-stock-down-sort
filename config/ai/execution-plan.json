@@ -10,16 +10,19 @@
         "MOD-MGMT",
         "MOD-LOCAL",
         "MOD-STAGING",
-        "MOD-PRODUCTION"
+        "MOD-PRODUCTION",
+        "MOD-DATABASE",
+        "MOD-BILLING"
       ],
       "dependencies": [],
       "status": "in_progress",
       "exit_criteria": [
         "Local/Dev runs from development with a dedicated Neon database.",
+        "The four-plan billing catalog is implemented with stable IDs and 10-day trials.",
         "Dedicated Staging Shopify identity is verified.",
         "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
         "Staging Shopify auth/session/Admin API reads pass.",
-        "Exact unlimited USD 55 every 30 days with 5-day test trial contract is verified.",
+        "The four-plan billing catalog contract is verified in hosted environments.",
         "Production remains unmodified until Staging acceptance evidence exists."
       ]
     }
@@ -93,13 +96,83 @@
       ]
     },
     {
+      "id": "ISSUE-32-WU-BILLING-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-BILLING",
+      "title": "Implement four-plan billing contract",
+      "objective": "Replace the single-plan runtime with four stable plan IDs, 10-day trials, capability-aware entitlements and legacy subscription compatibility.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 92,
+      "status": "in_progress",
+      "blockers": [
+        "Real Shopify test-store approval for each plan is still required before billing runtime acceptance is complete.",
+        "Public App Pricing migration, if selected, requires Partner Dashboard configuration and Partner API verification."
+      ],
+      "acceptance_criteria": [
+        "Exactly starter/growth/pro/unlimited are canonical IDs.",
+        "Prices are 10.99/19.99/34.99/54.99 USD every 30 days.",
+        "Every plan has a 10-day trial.",
+        "Plan changes use Shopify replacement behavior.",
+        "Legacy USD 55/5-day subscription remains recognized.",
+        "Unimplemented capabilities are not represented as available runtime entitlements.",
+        "CI verifies the catalog and billing implementation contracts."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Billing catalog contract",
+        "Shopify development-store billing acceptance"
+      ],
+      "completion_evidence": [
+        "config/ai/product-plan.json is canonical.",
+        "config/ai/options-bank.json contains all referenced options and runtime implementation status.",
+        "app/billing-config.ts derives runtime catalog from the canonical files.",
+        "app/services/billing.server.ts resolves all four plans and legacy compatibility.",
+        "/app/plans exposes all four tiers and prevents unknown active subscription changes.",
+        "Subscription API supports plan selection and replacement.",
+        "Hosted health/release workflows validate the four-plan catalog.",
+        "App Validation #224 passed the previous billing contract before this implementation batch."
+      ]
+    },
+    {
+      "id": "ISSUE-32-WU-DATABASE-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-DATABASE",
+      "title": "Harden isolated PostgreSQL data architecture",
+      "objective": "Verify the active cloud PostgreSQL schema and add safe lookup indexing without changing environment boundaries.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 88,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Active Prisma schema uses PostgreSQL.",
+        "Local/Staging/Production database identities remain isolated.",
+        "Shopify Session lookup by shop is indexed.",
+        "Migration is additive and reversible by standard migration rollback/forward procedure."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Database architecture contract"
+      ],
+      "completion_evidence": [
+        "config/database/environment-topology.json enforces Local -> Staging -> Production isolation.",
+        "Session.shop index added to prisma/cloud/schema.prisma.",
+        "Additive migration 20261001003000_session_shop_index added.",
+        "Database architecture contract test added to App Validation."
+      ]
+    },
+    {
       "id": "ISSUE-32-WU-02",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Verify staging environment secret contract",
       "objective": "After Local certification, prove required cloudflare-staging GitHub Environment values are configured without exposing values.",
       "dependencies": [
-        "ISSUE-32-WU-LOCAL-01"
+        "ISSUE-32-WU-LOCAL-01",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
       "status": "not_started",
@@ -121,7 +194,8 @@
       "title": "Run Staging Readiness",
       "objective": "Validate migrations, build, identity isolation and staging contract before deployment.",
       "dependencies": [
-        "ISSUE-32-WU-02"
+        "ISSUE-32-WU-02",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 80,
       "status": "not_started",
@@ -141,7 +215,8 @@
       "title": "Manually deploy Cloudflare Staging",
       "objective": "Deploy exact development source through the guarded manual staging workflow.",
       "dependencies": [
-        "ISSUE-32-WU-03"
+        "ISSUE-32-WU-03",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 70,
       "status": "not_started",
@@ -162,7 +237,8 @@
       "title": "Certify staging runtime and Shopify acceptance",
       "objective": "Verify health, database, queues, sessions, Admin GraphQL and billing reads.",
       "dependencies": [
-        "ISSUE-32-WU-04"
+        "ISSUE-32-WU-04",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 60,
       "status": "not_started",
@@ -184,7 +260,8 @@
       "title": "Create and release Staging Shopify version",
       "objective": "Release the exact verified staging Shopify configuration only.",
       "dependencies": [
-        "ISSUE-32-WU-05"
+        "ISSUE-32-WU-05",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 50,
       "status": "not_started",
@@ -206,7 +283,8 @@
       "title": "Prepare reviewed production candidate after Staging acceptance",
       "objective": "Allow production preparation only after all Staging acceptance evidence is recorded.",
       "dependencies": [
-        "ISSUE-32-WU-06"
+        "ISSUE-32-WU-06",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 40,
       "status": "not_started",
@@ -232,5 +310,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "f7ea7a4682bfaa2690ec59a8f7837fa5c0da57f3"
+  "last_reconciled_repository_ref": "573be02bbdc510e77c1945b0ebe7c1ce00fe2aa5"
 }
