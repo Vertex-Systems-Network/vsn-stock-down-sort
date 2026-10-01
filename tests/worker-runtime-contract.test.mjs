@@ -126,25 +126,30 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
 
 test("health and staging deployment produce post-deploy evidence", () => {
   const health = read("app/routes/healthz.tsx");
-  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
 
   assert.match(health, /"Cache-Control": "no-store"/);
   assert.match(health, /service: "vsn-stock-down-sort"/);
   assert.match(health, /billingCatalog/);
   assert.match(health, /BILLING_PLANS/);
 
-  assert.match(workflow, /Verify deployed health and billing contract/);
-  assert.match(workflow, /staging_runtime_health=pass/);
-  assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
-  assert.match(workflow, /staging_shop:/);
-  assert.match(workflow, /billing_plan_id:/);
-  assert.match(workflow, /EXPECTED_BILLING_PLAN_ID/);
-  assert.match(workflow, /recognizedPlanIds/);
-  assert.match(workflow, /Verify Shopify session and subscription reads/);
-  assert.match(workflow, /staging_offline_session=pass/);
-  assert.match(workflow, /staging_admin_graphql=pass/);
-  assert.match(workflow, /staging_subscription_read=pass/);
-  assert.match(workflow, /deferred_until_app_install/);
+  assert.match(deploy, /Verify deployed health and billing contract/);
+  assert.match(deploy, /staging_runtime_health=pass/);
+  assert.match(deploy, /staging_billing_contract=four_plans_10_day_trials/);
+  assert.match(
+    deploy,
+    /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/,
+  );
+
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /EXPECTED_BILLING_PLAN_ID/);
+  assert.match(acceptance, /recognizedPlanIds/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+  assert.match(acceptance, /staging_offline_session=pass/);
+  assert.match(acceptance, /staging_admin_graphql=pass/);
+  assert.match(acceptance, /staging_subscription_read=pass/);
 });
 
 
@@ -943,7 +948,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_work_unit, "ISSUE-32-WU-04");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
   assert.match(state.next_valid_work_unit, /Cloudflare Staging Deploy/i);
-  assert.match(state.next_valid_work_unit, /accepted source ca5851561ab7979712f11580ab951fda4650ef19/);
+  assert.match(state.next_valid_work_unit, /ca5851561ab7979712f11580ab951fda4650ef19/);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
@@ -1209,4 +1214,30 @@ test("Staging Readiness reads the canonical top-level billing catalog", () => {
   assert.match(readiness, /billing = product/);
   assert.match(readiness, /plans = product\.get\("plans"\) or \[\]/);
   assert.doesNotMatch(readiness, /product\.get\("billing"\)/);
+});
+
+
+test("staging bootstrap deploy is separated from signed Shopify acceptance", () => {
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const gates = JSON.parse(read("config/release/environment-gates.json"));
+
+  assert.doesNotMatch(deploy, /staging_shop:/);
+  assert.doesNotMatch(deploy, /billing_plan_id:/);
+  assert.doesNotMatch(deploy, /Verify Shopify session and subscription reads/);
+  assert.match(deploy, /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/);
+
+  assert.match(acceptance, /CERTIFY_STAGING_RUNTIME/);
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /staging\.get\("deployed_source_ref"\)/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+
+  const wu05 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-05");
+  const wu06 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-06");
+  assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
+  assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
+  assert.equal(gates.staging.deployed_source_ref, null);
+  assert.equal(gates.staging.deployment_record, null);
 });

@@ -312,12 +312,12 @@
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Certify staging runtime and Shopify acceptance",
-      "objective": "Verify health, database, queues, sessions, Admin GraphQL and billing reads.",
+      "objective": "After the staging Shopify version is released and installed, verify deployed health, database, queues, sessions, Admin GraphQL and billing reads.",
       "dependencies": [
-        "ISSUE-32-WU-04",
+        "ISSUE-32-WU-06",
         "ISSUE-32-WU-BILLING-01"
       ],
-      "priority": 60,
+      "priority": 50,
       "status": "not_started",
       "blockers": [],
       "acceptance_criteria": [
@@ -325,8 +325,7 @@
         "Signed staging acceptance passes against isolated test shop."
       ],
       "required_checks": [
-        "Post-deploy health",
-        "Signed Shopify staging acceptance"
+        "Staging Runtime Acceptance"
       ],
       "completion_evidence": []
     },
@@ -335,12 +334,12 @@
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Create and release Staging Shopify version",
-      "objective": "Release the exact verified staging Shopify configuration only.",
+      "objective": "After the Staging Worker URL is live, create and release the exact staging Shopify configuration so the staging app can be installed on the isolated test store.",
       "dependencies": [
-        "ISSUE-32-WU-05",
+        "ISSUE-32-WU-04",
         "ISSUE-32-WU-BILLING-01"
       ],
-      "priority": 50,
+      "priority": 60,
       "status": "not_started",
       "blockers": [],
       "acceptance_criteria": [
