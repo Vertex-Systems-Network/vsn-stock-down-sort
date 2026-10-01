@@ -128,13 +128,26 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
+      if (activeSubscription && !current) {
+        return Response.json(
+          {
+            ok: false,
+            error:
+              "An active subscription exists but does not match an approved VSN plan. Cancellation is blocked until it is reviewed.",
+          },
+          { status: 409 },
+        );
+      }
+
       if (
         !activeSubscription ||
+        !current ||
         activeSubscription.id !== subscriptionId ||
-        activeSubscription.status !== "ACTIVE"
+        activeSubscription.status !== "ACTIVE" ||
+        current.subscription.id !== subscriptionId
       ) {
         return Response.json(
-          { ok: false, error: "Active subscription not found." },
+          { ok: false, error: "Active VSN subscription not found." },
           { status: 404 },
         );
       }
