@@ -358,6 +358,23 @@ test("plans page uses modern responsive cards and server-side Shopify billing re
   );
 });
 
+test("billing redirect responses bubble to Shopify boundary", () => {
+  const api = read("app/routes/app.api.subscription.tsx");
+  const app = read("app/routes/app.tsx");
+
+  assert.match(
+    api,
+    /catch \(error\) \{\s*if \(error instanceof Response\) \{\s*throw error;/s,
+  );
+  assert.match(
+    api,
+    /return redirect\(result\.confirmationUrl, \{ target: "_top" \}\)/,
+  );
+  assert.match(app, /export function ErrorBoundary\(\)/);
+  assert.match(app, /boundary\.error\(useRouteError\(\)\)/);
+  assert.match(app, /boundary\.headers\(headersArgs\)/);
+});
+
 test("billing failures decode SDK shapes and expose safe diagnostics", () => {
   const billing = read("app/services/billing.server.ts");
   const api = read("app/routes/app.api.subscription.tsx");

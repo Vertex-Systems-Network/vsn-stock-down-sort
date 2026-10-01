@@ -164,6 +164,10 @@ export async function action({ request }: ActionFunctionArgs) {
       { status: 400 },
     );
   } catch (error) {
+    if (error instanceof Response) {
+      throw error;
+    }
+
     const message = await describeShopifyBillingError(error);
     const diagnostic = getShopifyBillingErrorDiagnostic(error);
     console.error("[billing] subscription action failed", {
