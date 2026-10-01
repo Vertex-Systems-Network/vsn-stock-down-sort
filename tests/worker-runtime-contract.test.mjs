@@ -355,10 +355,13 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(api, /getAnyActiveSubscription/);
   assert.match(api, /if \(activeSubscription && !current\)/);
   assert.match(api, /activeSubscription\.id !== subscriptionId/);
+  assert.match(api, /current\.subscription\.id !== subscriptionId/);
+  assert.match(api, /Cancellation is blocked until it is reviewed/);
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
   assert.match(plans, /Cancel subscription/);
+  assert.match(plans, /disabled=\{isLoading \|\| activeIsUnknown\}/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
 });
 
