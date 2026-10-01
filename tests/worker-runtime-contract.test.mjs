@@ -323,9 +323,9 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.equal(policy.authorized_version, null);
   assert.equal(policy.authorized_source_ref, null);
   assert.equal(policy.shopify.separate_live_app_identity, true);
-  assert.equal(policy.billing.plan_id, "unlimited");
-  assert.equal(policy.billing.amount, 55);
-  assert.equal(policy.billing.trial_days, 5);
+  assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
+  assert.equal(policy.billing.interval, "EVERY_30_DAYS");
+  assert.equal(policy.billing.trial_days, 10);
 });
 
 
@@ -344,7 +344,7 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(billing, /replacementBehavior/);
   assert.match(billing, /pricingDetails/);
   assert.match(billing, /\.\.\. on AppRecurringPricing/);
-  assert.match(billing, /Number\(pricing\.price\.amount\) === PRO_PLAN\.amount/);
+  assert.match(billing, /Number\(pricing\.price\.amount\) === plan\.amount/);
   assert.match(billing, /pricing\.price\.currencyCode === BILLING_CATALOG\.currencyCode/);
   assert.match(billing, /pricing\.interval === BILLING_CATALOG\.interval/);
   assert.match(billing, /subscription\.lineItems\?\.length !== 1/);
