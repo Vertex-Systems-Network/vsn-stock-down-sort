@@ -508,6 +508,44 @@ test("direct deploy paths reject the Local Shopify identity", () => {
 });
 
 
+
+test("authoritative product docs match the current four-plan contract", () => {
+  const agents = read("AGENTS.md");
+  const idea = read("PROJECT-IDEA.md");
+  const environments = read("docs/environments.md");
+  const production = read("shopify.app.production.toml");
+
+  for (const source of [agents, idea, environments]) {
+    assert.match(source, /starter/);
+    assert.match(source, /growth/);
+    assert.match(source, /pro/);
+    assert.match(source, /unlimited/);
+    assert.match(source, /10-day/);
+  }
+
+  assert.match(agents, /VSN \| Stock Down Sort Dev/);
+  assert.match(agents, /VSN \| Stock Down Sort Staging/);
+  assert.match(agents, /VSN \| Stock Down Sort/);
+  assert.doesNotMatch(
+    agents,
+    /Shopify billing contract:\s*plan id `unlimited`, USD 55 \/ 30 days, 5-day trial/,
+  );
+
+  assert.doesNotMatch(idea, /Shopify plan ID:\s*unlimited/);
+  assert.doesNotMatch(environments, /The Pro plan remains:/);
+  assert.match(environments, /legacy USD 55 \/ 5-day/i);
+
+  const productionClientId =
+    production.match(/^client_id = "([^"]+)"$/m)?.[1];
+  assert.ok(productionClientId);
+  assert.notEqual(productionClientId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
+  assert.match(environments, /contains the Live Shopify client\s+ID by design/i);
+  assert.doesNotMatch(
+    environments,
+    /shopify\.app\.production\.toml.*__SHOPIFY_PRODUCTION_CLIENT_ID__/s,
+  );
+});
+
 test("README reflects the active Stock Down Sort architecture", () => {
   const readme = read("README.md");
 
