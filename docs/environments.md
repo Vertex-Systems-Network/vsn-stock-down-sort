@@ -8,7 +8,7 @@ VSN Stock Down Sort uses **three separate Shopify app registrations**:
 
 - Local / Development: `VSN | Stock Down Sort Dev` → `shopify.app.local.toml`
 - Staging: `VSN | Stock Down Sort Staging` → `shopify.app.staging.toml`
-- Live / Production: `VSN Stock Down Sort` → `shopify.app.production.toml`
+- Live / Production: `VSN | Stock Down Sort` → `shopify.app.production.toml`
 
 The three apps must have different Shopify client IDs and secrets. A client ID,
 secret, install, subscription, or session from one tier must never be reused in
@@ -56,17 +56,19 @@ migration/readiness jobs.
 
 ## Billing contract
 
-The Pro plan remains:
+The current catalog contains four stable plan IDs:
 
-- USD 55 every 30 days;
-- 5-day free trial;
-- unlimited products;
-- unlimited collections;
-- automatic sold-out sorting;
-- automatic inventory/product re-sorting;
-- manual and bulk controls;
-- previous Shopify sort-order restore;
-- 24/7 support.
+- `starter` — USD 10.99 every 30 days / 10-day trial;
+- `growth` — USD 19.99 every 30 days / 10-day trial;
+- `pro` — USD 34.99 every 30 days / 10-day trial;
+- `unlimited` — USD 54.99 every 30 days / 10-day trial.
+
+All four current plans include unlimited products and collections. Capability
+differences are capability-based, and unimplemented capabilities must fail
+closed.
+
+Existing legacy USD 55 / 5-day subscriptions remain recognized only for
+compatibility until an approved merchant plan change.
 
 Development and staging must use test billing. Production startup requires real
 billing mode explicitly.
@@ -137,16 +139,17 @@ Live is also Action-driven; there is no normal manual config switch.
    Shopify identity.
 2. **Cloudflare Production Prepare** deploys and certifies the isolated
    production Worker without Shopify cutover.
-3. **Shopify Production Candidate** injects the Live Client ID from the GitHub
-   `cloudflare-production` Environment only in the disposable runner and creates an
-   unreleased candidate from protected `main`.
+3. **Shopify Production Candidate** verifies that the
+   `cloudflare-production` `SHOPIFY_API_KEY` matches the committed Live client
+   ID in `shopify.app.production.toml`, then creates an unreleased candidate
+   from protected `main`.
 4. `config/shopify/production-release.json` must explicitly authorize that
    exact candidate and source SHA.
 5. **Shopify Production Release** releases only that exact authorized version.
 
-The committed `shopify.app.production.toml` keeps
-`__SHOPIFY_PRODUCTION_CLIENT_ID__`; the real Live Client ID must not be
-committed.
+The committed `shopify.app.production.toml` contains the Live Shopify client
+ID by design. The `cloudflare-production` `SHOPIFY_API_KEY` must match it;
+the API secret remains environment-scoped and must never be committed.
 
 Local development and staging actions must never select or mutate the Live
 Shopify app identity.
@@ -180,8 +183,10 @@ These names are authoritative for Actions bindings. Do not create parallel `stag
 Local/Dev must be certified before Staging:
 1. checkout `development`;
 2. use **VSN | Stock Down Sort Dev**;
-3. connect only to the dedicated Neon Local database;
-4. use pooled `DATABASE_URL` and matching direct `DIRECT_URL`;
-5. run Prisma migrations;
-6. run `npm run dev`;
-7. record Local acceptance, then proceed to `cloudflare-staging`.
+3. run `npm run local:prepare` with the local-only Neon API credential;
+4. require pooled `DATABASE_URL` and matching direct `DIRECT_URL`;
+5. verify the real Neon project name and endpoint ownership;
+6. pass Prisma migrations;
+7. run `npm run dev`;
+8. run `npm run local:certify -- <local-health-url>/healthz`;
+9. record Local acceptance, then proceed to `cloudflare-staging`.
