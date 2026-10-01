@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import process from "node:process";
 import { execFileSync, spawnSync } from "node:child_process";
-import { loadLocalEnv, validateLocalNeonEnv } from "./local-env.mjs";
+import { loadLocalEnv, validateLocalNeonEnv, verifyLocalNeonProjectBinding } from "./local-env.mjs";
 
 function fail(message) {
   throw new Error(`[local-certification] ${message}`);
@@ -59,6 +59,7 @@ async function main() {
 
   loadLocalEnv();
   validateLocalNeonEnv();
+  const neonBinding = await verifyLocalNeonProjectBinding();
 
   const status = execFileSync("git", ["status", "--porcelain"], {
     encoding: "utf8",
@@ -97,6 +98,10 @@ async function main() {
       branch,
       neon_environment: "development",
       local_neon_validation: "passed",
+      neon_project_binding: "verified",
+      neon_project_id: neonBinding.projectId,
+      neon_project_name: neonBinding.projectName,
+      neon_endpoint_id: neonBinding.endpointId,
       prisma_migrate_deploy: "passed",
       shopify_dev_health: health,
       health_url: new URL(healthUrl).origin + "/healthz",
