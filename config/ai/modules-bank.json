@@ -45,10 +45,13 @@
       "objective": "Certify development-branch local Shopify development against a dedicated Neon PostgreSQL database before Staging begins.",
       "scope": [
         "development branch",
-        "VSN Stock Down Sort Dev",
+        "VSN | Stock Down Sort Dev",
         "dedicated Local Neon project",
+        "npm run local:prepare",
+        "Neon project/endpoint ownership verification",
         "Prisma migrations",
-        "npm run dev"
+        "npm run dev",
+        "npm run local:certify"
       ],
       "boundaries": [
         "No Staging deployment.",
@@ -64,25 +67,37 @@
       "ui_surfaces": [],
       "security_responsibilities": [
         "Local Neon identity must be isolated.",
+        "NEON_PROJECT_ID and the configured endpoint must be verified through the Neon API.",
         "Secrets remain uncommitted.",
         "Shopify billing remains test mode."
       ],
       "acceptance_criteria": [
+        "npm run local:prepare provisions/reuses only vsn-stock-down-sort-local and verifies project/endpoint ownership.",
         "Local Neon pooled/direct connection contract passes.",
         "Prisma migration succeeds.",
-        "npm run dev reaches the dedicated Dev Shopify app."
+        "npm run dev reaches VSN | Stock Down Sort Dev.",
+        "npm run local:certify records a passing development health response and exact source ref."
       ],
       "quality_gates": [
         "App Validation",
-        "Local Neon validation"
+        "Local Neon validation",
+        "Neon project/endpoint ownership verification",
+        "Prisma migrate deploy",
+        "Shopify local dev boot",
+        "Local certification"
       ],
       "status": "in_progress",
       "completion_evidence": [
         "Environment topology policy and Local Neon validator merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404.",
         "PR #37 App Validation run 36698394720 passed all repository checks.",
-        "Actual Neon Local project binding and live npm run dev acceptance remain pending."
+        "Actual Neon Local project binding and live npm run dev acceptance remain pending.",
+        "PR #58 added fail-closed Neon project/endpoint ownership verification; App Validation #258 passed.",
+        "PR #59 added npm run local:prepare; App Validation #260 passed.",
+        "PR #60 reconciled Local prepare docs/state and App Validation #261 passed."
       ],
-      "update_notes": [],
+      "update_notes": [
+        "Repository-side Local preparation/certification tooling is complete; real workstation runtime acceptance remains pending."
+      ],
       "removal_or_deprecation_notes": []
     },
     {

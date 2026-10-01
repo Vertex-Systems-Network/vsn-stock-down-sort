@@ -940,6 +940,39 @@ test("local development requires isolated Neon pooled and direct connections", (
   assert.match(localExample, /-pooler/);
 });
 
+
+test("canonical Local module and runbook use the exact Dev identity and prepare flow", () => {
+  const modules = JSON.parse(read("config/ai/modules-bank.json"));
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const runbook = read("docs/local-development.md");
+
+  const localModule = modules.modules.find((module) => module.id === "MOD-LOCAL");
+  const localWorkUnit = plan.work_units.find(
+    (workUnit) => workUnit.id === "ISSUE-32-WU-LOCAL-01",
+  );
+
+  assert.ok(localModule);
+  assert.ok(localWorkUnit);
+  assert.ok(localModule.scope.includes("VSN | Stock Down Sort Dev"));
+  assert.ok(localModule.scope.includes("npm run local:prepare"));
+  assert.ok(localModule.scope.includes("npm run local:certify"));
+  assert.ok(
+    localModule.quality_gates.includes(
+      "Neon project/endpoint ownership verification",
+    ),
+  );
+  assert.match(localWorkUnit.objective, /VSN \| Stock Down Sort Dev/);
+  assert.ok(
+    localWorkUnit.acceptance_criteria.includes(
+      "npm run dev uses VSN | Stock Down Sort Dev.",
+    ),
+  );
+  assert.match(runbook, /npm run local:prepare/);
+  assert.match(runbook, /npm run local:certify/);
+  assert.match(runbook, /project name and endpoint ownership/i);
+  assert.doesNotMatch(runbook, /VSN Stock Down Sort Dev/);
+});
+
 test("GitHub workflows bind to exact Cloudflare environments", () => {
   const stagingFiles = [
     ".github/workflows/environment-secrets-audit.yml",
