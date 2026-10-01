@@ -346,6 +346,32 @@ test("plans page uses modern responsive cards with single-dollar pricing", () =>
   assert.doesNotMatch(plans, /window\.top\.location\.href/);
 });
 
+test("billing approval return URL uses the Shopify Admin app handle", () => {
+  const billing = read("app/services/billing.server.ts");
+  const api = read("app/routes/app.api.subscription.tsx");
+
+  assert.match(
+    billing,
+    /query StockDownSortCurrentAppHandle[\s\S]*currentAppInstallation[\s\S]*app \{[\s\S]*handle/s,
+  );
+  assert.match(
+    billing,
+    /https:\/\/admin\.shopify\.com\/store\/\$\{encodeURIComponent\([\s\S]*storeSlug[\s\S]*\)\}\/apps\/\$\{encodeURIComponent\(handle\)\}\/app\/plans/,
+  );
+  assert.match(
+    api,
+    /getEmbeddedAdminBillingReturnUrl\([\s\S]*admin,[\s\S]*session\.shop,[\s\S]*\)/s,
+  );
+  assert.doesNotMatch(
+    api,
+    /new URL\("\/app\/plans", appUrl\)/,
+  );
+  assert.doesNotMatch(
+    api,
+    /SHOPIFY_APP_URL is not configured/,
+  );
+});
+
 test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
   const api = read("app/routes/app.api.subscription.tsx");
   const plans = read("app/routes/app.plans.tsx");
