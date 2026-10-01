@@ -85,17 +85,15 @@
         "Shopify local dev boot",
         "Local certification"
       ],
-      "status": "in_progress",
+      "status": "verification_required",
       "completion_evidence": [
-        "Environment topology policy and Local Neon validator merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404.",
-        "PR #37 App Validation run 36698394720 passed all repository checks.",
-        "Actual Neon Local project binding and live npm run dev acceptance remain pending.",
-        "PR #58 added fail-closed Neon project/endpoint ownership verification; App Validation #258 passed.",
-        "PR #59 added npm run local:prepare; App Validation #260 passed.",
-        "PR #60 reconciled Local prepare docs/state and App Validation #261 passed."
+        "ADR-0001 accepted Local Prisma+SQLite.",
+        "Local SQLite runtime wiring, migration, validation and certification implemented on PR #64.",
+        "App Validation #271 passed Local SQLite migration/parity and all repository checks.",
+        "Real workstation Shopify Dev runtime acceptance remains pending."
       ],
       "update_notes": [
-        "ADR-0001 supersedes the earlier Local-Neon target. Existing Neon Local tooling remains until the SQLite conversion implementation is merged, after which obsolete Local-Neon paths should be removed."
+        "Repository implementation is complete; runtime verification on merged development is the remaining Local gate."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -224,14 +222,15 @@
         "App Validation",
         "Database architecture contract"
       ],
-      "status": "in_progress",
+      "status": "complete",
       "completion_evidence": [
-        "PostgreSQL schema contract passes in App Validation.",
-        "Local topology requires dedicated vsn-stock-down-sort-local project.",
-        "Additive Session_shop_idx migration added."
+        "Hosted PostgreSQL schema contract and Session.shop index are CI-validated.",
+        "Local SQLite schema and migration path are CI-validated.",
+        "Shared Local/cloud Prisma model parity is CI-validated by App Validation #271.",
+        "Staging and Production retain isolated Neon PostgreSQL identities."
       ],
       "update_notes": [
-        "Cloud PostgreSQL hardening is already implemented; ADR-0001 adds the pending Local SQLite conversion and schema-parity requirement."
+        "Database architecture is complete at repository level; environment runtime acceptance is handled by Local/Staging promotion gates."
       ],
       "removal_or_deprecation_notes": []
     },
