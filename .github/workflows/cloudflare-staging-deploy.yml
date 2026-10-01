@@ -15,6 +15,15 @@ on:
         description: "myshopify.com shop required for signed Shopify acceptance"
         required: true
         type: string
+      billing_plan_id:
+        description: "Plan to verify on the supplied staging shop"
+        required: true
+        type: choice
+        options:
+          - starter
+          - growth
+          - pro
+          - unlimited
 
 permissions:
   contents: read
@@ -41,6 +50,7 @@ jobs:
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
       STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
+      EXPECTED_BILLING_PLAN_ID: ${{ github.event.inputs.billing_plan_id }}
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
       SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
@@ -176,13 +186,12 @@ jobs:
           import urllib.request
 
           url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
-          expected_plan = {
-              "id": "unlimited",
-              "amount": 55,
-              "currencyCode": "USD",
-              "interval": "EVERY_30_DAYS",
-              "trialDays": 5,
-          }
+          expected_plans = [
+              {"id": "starter", "amount": 10.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "growth", "amount": 19.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "pro", "amount": 34.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "unlimited", "amount": 54.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+          ]
 
           last_error = None
           for attempt in range(1, 7):
@@ -217,14 +226,14 @@ jobs:
                   if sort_queue.get("mode") != "cloudflare-queue":
                       raise RuntimeError("unexpected staging sort queue mode")
 
-                  if payload.get("plan") != expected_plan:
+                  if payload.get("billingCatalog", {}).get("plans") != expected_plans:
                       raise RuntimeError(
-                          f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
+                          f"billing contract mismatch: expected={expected_plans!r} actual={payload.get('billingCatalog', {}).get('plans')!r}"
                       )
 
                   print("staging_runtime_health=pass")
                   print("staging_sort_queue=pass")
-                  print("staging_billing_contract=5_days_usd_55")
+                  print("staging_billing_contract=four_plans_10_day_trials")
                   break
               except Exception as exc:
                   last_error = exc
@@ -305,12 +314,18 @@ jobs:
           subscriptions = payload.get("subscriptions") or {}
           if subscriptions.get("readOk") is not True:
               raise RuntimeError("activeSubscriptions read did not return an array")
+          recognized = subscriptions.get("recognizedPlanIds") or []
+          if os.environ["EXPECTED_BILLING_PLAN_ID"] not in recognized:
+              raise RuntimeError(
+                  f"expected active plan {os.environ['EXPECTED_BILLING_PLAN_ID']} was not recognized"
+              )
 
           print("staging_offline_session=pass")
           print("staging_admin_graphql=pass")
           print("staging_subscription_read=pass")
           print(f"staging_stored_sessions={session.get('storedSessionCount')}")
           print(f"staging_active_subscriptions={subscriptions.get('activeCount')}")
+          print(f"staging_verified_plan={os.environ['EXPECTED_BILLING_PLAN_ID']}")
           PY
 
       - name: Report deferred Shopify acceptance

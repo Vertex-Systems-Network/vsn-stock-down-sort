@@ -130,13 +130,16 @@ test("health and staging deployment produce post-deploy evidence", () => {
 
   assert.match(health, /"Cache-Control": "no-store"/);
   assert.match(health, /service: "vsn-stock-down-sort"/);
-  assert.match(health, /amount: PRO_PLAN\.amount/);
-  assert.match(health, /trialDays: PRO_PLAN\.trialDays/);
+  assert.match(health, /billingCatalog/);
+  assert.match(health, /BILLING_PLANS/);
 
   assert.match(workflow, /Verify deployed health and billing contract/);
   assert.match(workflow, /staging_runtime_health=pass/);
-  assert.match(workflow, /staging_billing_contract=5_days_usd_55/);
+  assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
   assert.match(workflow, /staging_shop:/);
+  assert.match(workflow, /billing_plan_id:/);
+  assert.match(workflow, /EXPECTED_BILLING_PLAN_ID/);
+  assert.match(workflow, /recognizedPlanIds/);
   assert.match(workflow, /Verify Shopify session and subscription reads/);
   assert.match(workflow, /staging_offline_session=pass/);
   assert.match(workflow, /staging_admin_graphql=pass/);
@@ -167,15 +170,17 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
 });
 
 
-test("billing plan id stays unlimited across runtime contracts", () => {
+test("four stable billing plan IDs stay consistent across runtime contracts", () => {
   const billing = read("app/billing-config.ts");
   const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
   const production = read(".github/workflows/cloudflare-production-prepare.yml");
 
-  assert.match(billing, /id:\s*"unlimited"/);
+  for (const id of ["starter", "growth", "pro", "unlimited"]) {
+    assert.match(billing, new RegExp(`"${id}"`));
+    assert.match(staging, new RegExp(`"id": "${id}"`));
+    assert.match(production, new RegExp(`"id": "${id}"`));
+  }
   assert.doesNotMatch(billing, /id:\s*"pro-plan"/);
-  assert.match(staging, /"id": "unlimited"/);
-  assert.match(production, /"id": "unlimited"/);
 });
 
 
@@ -321,9 +326,9 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.equal(policy.authorized_version, null);
   assert.equal(policy.authorized_source_ref, null);
   assert.equal(policy.shopify.separate_live_app_identity, true);
-  assert.equal(policy.billing.plan_id, "unlimited");
-  assert.equal(policy.billing.amount, 55);
-  assert.equal(policy.billing.trial_days, 5);
+  assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
+  assert.equal(policy.billing.interval, "EVERY_30_DAYS");
+  assert.equal(policy.billing.trial_days, 10);
 });
 
 
@@ -334,29 +339,56 @@ test("billing entitlement requires the exact current plan", () => {
 
   assert.match(billing, /export async function getAnyActiveSubscription/);
   assert.match(billing, /subscription\.status === "ACTIVE"/);
-  assert.match(billing, /subscription\.name === PRO_PLAN\.name/);
+  assert.match(billing, /resolveSubscriptionPlan/);
+  assert.match(billing, /subscription\.name === plan\.shopify_name/);
   assert.match(billing, /subscription\.test === isBillingTestMode\(\)/);
-  assert.match(billing, /subscription\.trialDays === PRO_PLAN\.trialDays/);
+  assert.match(billing, /subscription\.trialDays === plan\.trial_days/);
+  assert.match(billing, /LEGACY_PLAN/);
+  assert.match(billing, /replacementBehavior/);
   assert.match(billing, /pricingDetails/);
   assert.match(billing, /\.\.\. on AppRecurringPricing/);
-  assert.match(billing, /Number\(pricing\.price\.amount\) === PRO_PLAN\.amount/);
-  assert.match(
-    billing,
-    /pricing\.price\.currencyCode === PRO_PLAN\.currencyCode/,
-  );
-  assert.match(billing, /pricing\.interval === PRO_PLAN\.interval/);
+  assert.match(billing, /Number\(pricing\.price\.amount\) === plan\.amount/);
+  assert.match(billing, /pricing\.price\.currencyCode === BILLING_CATALOG\.currencyCode/);
+  assert.match(billing, /pricing\.interval === BILLING_CATALOG\.interval/);
   assert.match(billing, /subscription\.lineItems\?\.length !== 1/);
 
   assert.match(api, /getAnyActiveSubscription/);
-  assert.match(api, /if \(activeSubscription\)/);
+  assert.match(api, /if \(activeSubscription && !current\)/);
   assert.match(api, /activeSubscription\.id !== subscriptionId/);
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
-  assert.match(plans, /Cancel existing subscription/);
+  assert.match(plans, /Cancel subscription/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
 });
 
+
+
+
+test("four-plan product catalog is canonical and all paid plans have 10-day trials", () => {
+  const catalog = JSON.parse(read("config/ai/product-plan.json"));
+  const plans = catalog.plans;
+
+  assert.deepEqual(
+    plans.map((plan) => plan.id),
+    ["starter", "growth", "pro", "unlimited"],
+  );
+  assert.deepEqual(
+    plans.map((plan) => plan.amount),
+    [10.99, 19.99, 34.99, 54.99],
+  );
+  assert.deepEqual(plans.map((plan) => plan.trial_days), [10, 10, 10, 10]);
+  assert.deepEqual(
+    plans.map((plan) => plan.catalog_limits.products),
+    ["unlimited", "unlimited", "unlimited", "unlimited"],
+  );
+  assert.deepEqual(
+    plans.map((plan) => plan.catalog_limits.collections),
+    ["unlimited", "unlimited", "unlimited", "unlimited"],
+  );
+  assert.equal(catalog.currency_code, "USD");
+  assert.equal(catalog.billing_interval, "EVERY_30_DAYS");
+});
 
 test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
   const sorter = read("app/services/collection-sorter.server.ts");
@@ -480,7 +512,7 @@ test("README reflects the active Stock Down Sort architecture", () => {
   assert.match(readme, /npm run dev/);
   assert.match(readme, /Cloudflare Workers/);
   assert.match(readme, /PostgreSQL/);
-  assert.match(readme, /Plan ID: `unlimited`/);
+  assert.match(readme, /Four plan IDs/);
   assert.match(readme, /Shopify Staging Version/);
   assert.match(readme, /Shopify Production Candidate/);
   assert.doesNotMatch(readme, /^# Shopify App Template/m);
@@ -730,19 +762,23 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "local-development-certification");
+  assert.equal(state.current_module, "four-plan-billing-and-environment-certification");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
   assert.match(state.next_valid_work_unit, /Neon/i);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.equal(plan.work_units.length, 8);
+  assert.ok(plan.work_units.length >= 8);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "blocked");
-  assert.equal(plan.work_units[2].status, "not_started");
+  assert.equal(plan.work_units[2].status, "in_progress");
+  assert.equal(plan.work_units[3].status, "complete");
+  assert.equal(plan.work_units[4].status, "not_started");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
-  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-BILLING-01");
+  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-DATABASE-01");
+  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));

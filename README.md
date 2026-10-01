@@ -6,9 +6,10 @@ VSN Stock Down Sort is an embedded Shopify app by Vertex Systems Network that ke
 
 The Shopify plan is:
 
-- Plan ID: `unlimited`
-- Price: USD 55 every 30 days
-- Free trial: 5 days
+- Four plan IDs: `starter`, `growth`, `pro`, `unlimited`
+- Prices: USD 10.99 / 19.99 / 34.99 / 54.99 every 30 days
+- Free trial: 10 days on every paid plan
+- Products and collections: unlimited on every plan
 - Unlimited products
 - Unlimited collections
 - Automatic sold-out product sorting

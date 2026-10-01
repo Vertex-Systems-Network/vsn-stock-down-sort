@@ -69,6 +69,9 @@ jobs:
       - name: Local environment contract
         run: node --test tests/local-environment-contract.test.mjs
 
+      - name: Database architecture contracts
+        run: node --test tests/database-architecture-contract.test.mjs
+
       - name: Build Worker runtime
         run: npm run build:worker
 

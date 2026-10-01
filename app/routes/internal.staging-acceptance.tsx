@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
+import { BILLING_CATALOG, BILLING_PLANS } from "../billing-config";
 import { sessionStorage, unauthenticated } from "../shopify.server";
 
 const EXPECTED_STAGING_APP_URL =
@@ -15,6 +16,15 @@ type SubscriptionRead = {
   status: string;
   test: boolean;
   trialDays: number | null;
+  lineItems?: Array<{
+    plan: {
+      pricingDetails: {
+        __typename: string;
+        interval?: string;
+        price?: { amount: string; currencyCode: string };
+      };
+    };
+  }>;
 };
 
 type SubscriptionPayload = {
@@ -135,6 +145,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
             status
             test
             trialDays
+            lineItems {
+              plan {
+                pricingDetails {
+                  __typename
+                  ... on AppRecurringPricing {
+                    interval
+                    price { amount currencyCode }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -149,6 +170,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const subscriptions =
       payload.data?.currentAppInstallation?.activeSubscriptions ?? [];
+
+    const activeSubscriptions = subscriptions.filter(
+      (subscription) => subscription.status === "ACTIVE",
+    );
+
+    const recognizedPlanIds = activeSubscriptions.map((subscription) => {
+      const pricing = subscription.lineItems?.[0]?.plan.pricingDetails;
+      const plan = BILLING_PLANS.find(
+        (candidate) =>
+          subscription.name === candidate.shopify_name &&
+          subscription.test === true &&
+          subscription.trialDays === candidate.trial_days &&
+          pricing?.__typename === "AppRecurringPricing" &&
+          pricing.interval === BILLING_CATALOG.interval &&
+          pricing.price?.currencyCode === BILLING_CATALOG.currencyCode &&
+          Number(pricing.price?.amount) === candidate.amount,
+      );
+      return plan?.id ?? null;
+    });
 
     return noStoreJson({
       ok: true,
@@ -165,9 +205,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
       subscriptions: {
         readOk: Array.isArray(subscriptions),
-        activeCount: subscriptions.filter(
-          (subscription) => subscription.status === "ACTIVE",
-        ).length,
+        activeCount: activeSubscriptions.length,
+        recognizedPlanIds,
+        recognizedActiveCount: recognizedPlanIds.filter(Boolean).length,
+        catalog: BILLING_PLANS.map((plan) => ({
+          id: plan.id,
+          amount: plan.amount,
+          currencyCode: BILLING_CATALOG.currencyCode,
+          interval: BILLING_CATALOG.interval,
+          trialDays: plan.trial_days,
+        })),
         statuses: subscriptions.map((subscription) => ({
           name: subscription.name,
           status: subscription.status,

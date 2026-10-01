@@ -46,7 +46,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (!subscription) {
     return {
       ok: false,
-      message: "An active Pro subscription is required to manage collection sorting.",
+      message: "An active VSN Stock Down Sort subscription is required to manage collection sorting.",
     };
   }
 

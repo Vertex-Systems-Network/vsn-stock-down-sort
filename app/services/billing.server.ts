@@ -1,4 +1,10 @@
-import { PRO_PLAN } from "../billing-config";
+import {
+  BILLING_CATALOG,
+  BILLING_PLAN_BY_ID,
+  BILLING_PLANS,
+  LEGACY_PLAN,
+  type PlanId,
+} from "../billing-config";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
 
@@ -27,6 +33,11 @@ export type AppSubscription = {
   currentPeriodEnd?: string | null;
   trialDays?: number | null;
   lineItems?: AppSubscriptionLineItem[];
+};
+
+export type ResolvedSubscriptionPlan = {
+  planId: PlanId;
+  source: "current" | "legacy";
 };
 
 type SubscriptionQueryPayload = {
@@ -63,6 +74,84 @@ function firstGraphqlError(payload: { errors?: Array<{ message?: string }> }) {
   return payload.errors?.find((error) => error.message)?.message;
 }
 
+function hasPlanPricing(
+  subscription: AppSubscription,
+  plan: (typeof BILLING_PLANS)[number],
+) {
+  if (subscription.lineItems?.length !== 1) return false;
+
+  const pricing = subscription.lineItems[0]?.plan.pricingDetails;
+
+  if (
+    pricing?.__typename !== "AppRecurringPricing" ||
+    !pricing.price ||
+    !pricing.interval
+  ) {
+    return false;
+  }
+
+  return (
+    Number(pricing.price.amount) === plan.amount &&
+    pricing.price.currencyCode === BILLING_CATALOG.currencyCode &&
+    pricing.interval === BILLING_CATALOG.interval
+  );
+}
+
+
+function matchesPlan(
+  subscription: AppSubscription,
+  plan: (typeof BILLING_PLANS)[number],
+) {
+  return (
+    subscription.status === "ACTIVE" &&
+    subscription.name === plan.shopify_name &&
+    subscription.test === isBillingTestMode() &&
+    subscription.trialDays === plan.trial_days &&
+    hasPlanPricing(subscription, plan)
+  );
+}
+
+function matchesLegacyUnlimited(subscription: AppSubscription) {
+  if (subscription.status !== "ACTIVE") return false;
+  if (subscription.name !== LEGACY_PLAN.legacy_name) return false;
+  if (subscription.test !== isBillingTestMode()) return false;
+  if (subscription.trialDays !== LEGACY_PLAN.legacy_trial_days) return false;
+
+  if (subscription.lineItems?.length !== 1) return false;
+  const pricing = subscription.lineItems[0]?.plan.pricingDetails;
+
+  return (
+    pricing?.__typename === "AppRecurringPricing" &&
+    pricing.price?.currencyCode === "USD" &&
+    Number(pricing.price.amount) === LEGACY_PLAN.legacy_amount &&
+    pricing.interval === "EVERY_30_DAYS"
+  );
+}
+
+export function resolveSubscriptionPlan(
+  subscription: AppSubscription,
+): ResolvedSubscriptionPlan | null {
+  const current = BILLING_PLANS.find((plan) => matchesPlan(subscription, plan));
+  if (current) return { planId: current.id, source: "current" };
+
+  if (matchesLegacyUnlimited(subscription)) {
+    return {
+      planId: LEGACY_PLAN.maps_to_plan_id as PlanId,
+      source: "legacy",
+    };
+  }
+
+  return null;
+}
+
+export function getPlanForSubscription(
+  subscription: AppSubscription | null | undefined,
+) {
+  if (!subscription) return null;
+  const resolved = resolveSubscriptionPlan(subscription);
+  return resolved ? BILLING_PLAN_BY_ID[resolved.planId] : null;
+}
+
 export async function getActiveSubscriptions(admin: AdminClient) {
   const response = await admin.graphql(`
     #graphql
@@ -97,9 +186,7 @@ export async function getActiveSubscriptions(admin: AdminClient) {
   const payload = (await response.json()) as SubscriptionQueryPayload;
   const graphQlError = firstGraphqlError(payload);
 
-  if (graphQlError) {
-    throw new Error(graphQlError);
-  }
+  if (graphQlError) throw new Error(graphQlError);
 
   const subscriptions =
     payload.data?.currentAppInstallation?.activeSubscriptions ?? [];
@@ -118,48 +205,43 @@ export async function getAnyActiveSubscription(admin: AdminClient) {
   );
 }
 
-function hasCurrentPlanPricing(subscription: AppSubscription) {
-  if (subscription.lineItems?.length !== 1) {
-    return false;
-  }
-
-  const pricing = subscription.lineItems[0]?.plan.pricingDetails;
-
-  if (
-    pricing?.__typename !== "AppRecurringPricing" ||
-    !pricing.price ||
-    !pricing.interval
-  ) {
-    return false;
-  }
-
-  return (
-    Number(pricing.price.amount) === PRO_PLAN.amount &&
-    pricing.price.currencyCode === PRO_PLAN.currencyCode &&
-    pricing.interval === PRO_PLAN.interval
-  );
-}
-
 export function isCurrentPlanSubscription(subscription: AppSubscription) {
-  return (
-    subscription.status === "ACTIVE" &&
-    subscription.name === PRO_PLAN.name &&
-    subscription.test === isBillingTestMode() &&
-    subscription.trialDays === PRO_PLAN.trialDays &&
-    hasCurrentPlanPricing(subscription)
-  );
+  return resolveSubscriptionPlan(subscription) !== null;
 }
 
 export async function getCurrentSubscription(admin: AdminClient) {
   const subscriptions = await getActiveSubscriptions(admin);
 
-  return subscriptions.find(isCurrentPlanSubscription) ?? null;
+  return (
+    subscriptions.find((subscription) => isCurrentPlanSubscription(subscription)) ??
+    null
+  );
 }
 
-export async function createProSubscription(
+export async function getCurrentSubscriptionPlan(admin: AdminClient) {
+  const subscription = await getCurrentSubscription(admin);
+  if (!subscription) return null;
+
+  const resolved = resolveSubscriptionPlan(subscription);
+  if (!resolved) return null;
+
+  return {
+    subscription,
+    plan: BILLING_PLAN_BY_ID[resolved.planId],
+    source: resolved.source,
+  };
+}
+
+export async function createSubscription(
   admin: AdminClient,
+  planId: PlanId,
   returnUrl: string,
 ) {
+  const plan = BILLING_PLAN_BY_ID[planId];
+  if (!plan) {
+    throw new Error(`Unknown billing plan: ${planId}`);
+  }
+
   const response = await admin.graphql(
     `#graphql
       mutation StockDownSortCreateSubscription(
@@ -167,6 +249,7 @@ export async function createProSubscription(
         $returnUrl: URL!
         $test: Boolean!
         $trialDays: Int
+        $replacementBehavior: AppSubscriptionReplacementBehavior
         $lineItems: [AppSubscriptionLineItemInput!]!
       ) {
         appSubscriptionCreate(
@@ -174,6 +257,7 @@ export async function createProSubscription(
           returnUrl: $returnUrl
           test: $test
           trialDays: $trialDays
+          replacementBehavior: $replacementBehavior
           lineItems: $lineItems
         ) {
           confirmationUrl
@@ -193,19 +277,20 @@ export async function createProSubscription(
       }`,
     {
       variables: {
-        name: PRO_PLAN.name,
+        name: plan.shopify_name,
         returnUrl,
         test: isBillingTestMode(),
-        trialDays: PRO_PLAN.trialDays,
+        trialDays: plan.trial_days,
+        replacementBehavior: "STANDARD",
         lineItems: [
           {
             plan: {
               appRecurringPricingDetails: {
                 price: {
-                  amount: PRO_PLAN.amount,
-                  currencyCode: PRO_PLAN.currencyCode,
+                  amount: plan.amount,
+                  currencyCode: BILLING_CATALOG.currencyCode,
                 },
-                interval: PRO_PLAN.interval,
+                interval: BILLING_CATALOG.interval,
               },
             },
           },
@@ -216,17 +301,11 @@ export async function createProSubscription(
 
   const payload = (await response.json()) as CreateSubscriptionPayload;
   const graphQlError = firstGraphqlError(payload);
-
-  if (graphQlError) {
-    throw new Error(graphQlError);
-  }
+  if (graphQlError) throw new Error(graphQlError);
 
   const result = payload.data?.appSubscriptionCreate;
   const userError = result?.userErrors?.[0]?.message;
-
-  if (userError) {
-    throw new Error(userError);
-  }
+  if (userError) throw new Error(userError);
 
   if (!result?.confirmationUrl) {
     throw new Error("Shopify did not return a subscription confirmation URL.");
@@ -235,7 +314,15 @@ export async function createProSubscription(
   return {
     confirmationUrl: result.confirmationUrl,
     subscription: result.appSubscription ?? null,
+    plan,
   };
+}
+
+export async function createProSubscription(
+  admin: AdminClient,
+  returnUrl: string,
+) {
+  return createSubscription(admin, "unlimited", returnUrl);
 }
 
 export async function cancelSubscription(
@@ -265,17 +352,11 @@ export async function cancelSubscription(
 
   const payload = (await response.json()) as CancelSubscriptionPayload;
   const graphQlError = firstGraphqlError(payload);
-
-  if (graphQlError) {
-    throw new Error(graphQlError);
-  }
+  if (graphQlError) throw new Error(graphQlError);
 
   const result = payload.data?.appSubscriptionCancel;
   const userError = result?.userErrors?.[0]?.message;
-
-  if (userError) {
-    throw new Error(userError);
-  }
+  if (userError) throw new Error(userError);
 
   return result?.appSubscription ?? null;
 }

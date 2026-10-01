@@ -1,10 +1,10 @@
 # Development, Staging, and Live Release Flow
 
-VSN Stock Down Sort uses three isolated Shopify app identities and a manual promotion model.
+VSN Stock Down Sort uses three isolated Shopify applications and a strict evidence-gated promotion path.
 
-## 1. Local development
+## 1. Local / Dev
 
-Normal Local development runs from the `development` branch. The Local runner rejects other branches.
+Local development is always on `development`:
 
 ```bash
 git switch development
@@ -13,95 +13,81 @@ npm install
 npm run dev
 ```
 
-`npm run dev` runs Shopify CLI with `--config local`, so the authoritative Local config is `shopify.app.local.toml`, belonging only to **VSN | Stock Down Sort Dev**.
+The Local runner uses `shopify.app.local.toml`, validates the Dev Shopify identity and requires the dedicated Neon project identity `vsn-stock-down-sort-local`.
 
-Local development never deploys Staging or Production.
+Bootstrap the Local Neon project when the Neon API credential is available:
 
-Local secret files such as `.env`, `.env.local`, and `.dev.vars` are ignored and must never be committed.
+```bash
+npm run local:provision-neon
+```
 
-Local database policy:
-- provider: Neon PostgreSQL
-- project identity: `vsn-stock-down-sort-local`
-- `DATABASE_URL`: pooled Neon connection
-- `DIRECT_URL`: matching direct Neon connection
-- Local must never reuse Staging or Production database credentials.
+Then:
 
-## 2. Development branch
+```bash
+npm run dev
+npm run local:certify -- http://127.0.0.1:3000/healthz
+```
 
-Pushes and pull requests run validation only.
+Local certification is not satisfied by CI alone. It requires real Neon connectivity, Prisma migration, a running Dev Shopify app, the development health contract and a clean working tree.
 
-A push to `development` must not deploy Cloudflare Staging and must never deploy Production.
+## 2. Development CI
 
-## 3. Manual Staging
+Pushes to `development` run validation only. They do not deploy Staging or Production.
 
-Staging uses:
+## 3. Staging
 
-- Shopify app: **VSN | Stock Down Sort Staging**
-- Shopify config: `shopify.app.staging.toml`
-- GitHub Environment: `cloudflare-staging`
-- Cloudflare Worker: `vsn-stock-down-sort-staging`
-- billing mode: test
-- source branch: `development`
+Staging is manually promoted from an accepted `development` source:
 
-To deploy, manually run **Cloudflare Staging Deploy** and type:
+```text
+Local acceptance
+    ↓
+Staging Readiness
+    ↓
+Cloudflare Staging Deploy
+    ↓
+Shopify Staging Version
+    ↓
+Shopify Staging Release
+```
 
-`DEPLOY_DEVELOPMENT_TO_STAGING`
+Staging uses test billing and its own Shopify identity, Neon database, Cloudflare Worker and Queue.
 
-The workflow always checks out `development`, provisions/verifies the staging sort Queue and DLQ, applies staging database migrations, builds and deploys the Worker, then verifies health, Queue readiness, billing, and optional signed Shopify acceptance.
+## 4. Main / release
 
-There is no separate required staging-bootstrap workflow.
+The release path is:
 
-## 4. Release branch
+`development → reviewed PR → main`
 
-`main` is the release branch.
-
-Release path:
-
-`development -> reviewed PR -> main`
-
-Merging to `main` does not automatically deploy Production.
+Main remains protected and is the only Production source.
 
 ## 5. Live / Production
 
 Production uses:
 
-- Shopify app: **VSN | Stock Down Sort**
-- Shopify config: `shopify.app.production.toml`
-- GitHub Environment: `cloudflare-production`
-- Cloudflare Worker: `vsn-stock-down-sort-production`
-- billing mode: real
-- source branch: `main`
+- separate Shopify app identity
+- separate Neon PostgreSQL
+- separate Cloudflare Worker
+- real billing
+- manual Worker preparation
+- unreleased Shopify candidate
+- explicit candidate authorization
+- final manual Shopify release
 
-Production Worker preparation is manual. Shopify production candidate creation is also manual, and the exact candidate must be explicitly authorized in repository policy before final Shopify release.
+## Billing catalog
 
-## Daily flow
+The approved catalog contains exactly four stable IDs:
 
-```text
-Local Neon setup
-   ↓
-Local app verification
-   ↓
-development branch
-   ↓
-automatic validation only
-   ↓
-manual DEPLOY_DEVELOPMENT_TO_STAGING
-   ↓
-Cloudflare Staging + Staging Shopify app
-   ↓
-verify
-   ↓
-PR: development → main
-   ↓
-main
-   ↓
-manual Production Worker preparation
-   ↓
-manual unreleased Shopify production candidate
-   ↓
-exact repository authorization
-   ↓
-manual Shopify production release
-```
+| ID | Price / 30 days | Trial |
+| --- | ---: | ---: |
+| `starter` | USD 10.99 | 10 days |
+| `growth` | USD 19.99 | 10 days |
+| `pro` | USD 34.99 | 10 days |
+| `unlimited` | USD 54.99 | 10 days |
 
-Core rule: **development never becomes staging or live automatically.**
+Products and collections are unlimited for all four tiers. Capability differences are capability-based rather than catalog-count limits.
+
+## Core invariant
+
+**Local/Dev → Staging → Live.**
+
+Missing, stale or failed evidence blocks promotion. A deployment is not itself an acceptance record.

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "status": "approved_for_implementation",
+  "currency_code": "USD",
+  "billing_interval": "EVERY_30_DAYS",
+  "trial_days": 10,
+  "billing_provider": "shopify_billing_api_legacy_compatibility",
+  "invariants": [
+    "Stable plan IDs are starter, growth, pro, unlimited and must not be repurposed.",
+    "Every paid plan uses a 10-day trial.",
+    "All four plans have no VSN-imposed product or collection count limit; differentiation is capability-based.",
+    "Local and Staging use Shopify test billing; Production uses real billing only after guarded release authorization.",
+    "The plan catalog is not evidence that every listed capability is already implemented."
+  ],
+  "runtime_implemented_option_ids": [
+    "OPT-UNLIMITED-CATALOGS",
+    "OPT-SOLD-OUT-PUSH-DOWN",
+    "OPT-REALTIME-RESORT",
+    "OPT-RESTORE-ORIGINAL-POSITION",
+    "OPT-MANUAL-BULK-SORT"
+  ],
+  "plans": [
+    {
+      "id": "starter",
+      "name": "Starter",
+      "shopify_name": "VSN Stock Down Sort — Starter",
+      "amount": 10.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 30,
+      "support": "standard",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL"
+      ]
+    },
+    {
+      "id": "growth",
+      "name": "Growth",
+      "shopify_name": "VSN Stock Down Sort — Growth",
+      "amount": 19.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 90,
+      "support": "standard",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS"
+      ]
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "shopify_name": "VSN Stock Down Sort — Pro",
+      "amount": 34.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": 365,
+      "support": "priority",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS",
+        "OPT-MULTI-LOCATION",
+        "OPT-RULE-BUILDER",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-PRIORITY-SUPPORT"
+      ]
+    },
+    {
+      "id": "unlimited",
+      "name": "Unlimited",
+      "shopify_name": "VSN Stock Down Sort — Unlimited",
+      "amount": 54.99,
+      "trial_days": 10,
+      "catalog_limits": {
+        "products": "unlimited",
+        "collections": "unlimited"
+      },
+      "history_retention_days": null,
+      "support": "24/7 priority",
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-SLACK-ALERTS",
+        "OPT-MULTI-LOCATION",
+        "OPT-RULE-BUILDER",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES",
+        "OPT-API-INTEGRATIONS",
+        "OPT-PRIORITY-SUPPORT"
+      ]
+    }
+  ],
+  "legacy_compatibility": {
+    "legacy_id": "legacy-unlimited",
+    "legacy_name": "VSN Stock Down Sort Pro",
+    "legacy_amount": 55,
+    "legacy_trial_days": 5,
+    "maps_to_plan_id": "unlimited",
+    "access_policy": "preserve existing active legacy entitlement until the merchant changes plan"
+  },
+  "migration_notes": [
+    "Existing legacy USD 55 / 5-day subscriptions are recognized as Unlimited-compatible access so existing merchants are not stranded.",
+    "New subscriptions use the stable four-plan names and 10-day trial.",
+    "The catalog does not claim future options are runtime-implemented; entitlement checks must fail closed for unimplemented capabilities."
+  ]
+}

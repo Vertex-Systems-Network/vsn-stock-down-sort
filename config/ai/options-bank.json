@@ -1,11 +1,511 @@
 {
-  "schema_version": 1,
-  "options": [],
+  "schema_version": 2,
+  "options": [
+    {
+      "id": "OPT-UNLIMITED-CATALOGS",
+      "name": "Unlimited product and collection counts",
+      "category": "commercial",
+      "description": "Unlimited product and collection counts",
+      "status": "selected",
+      "runtime_status": "implemented",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-SOLD-OUT-PUSH-DOWN",
+      "name": "Sold-out push down",
+      "category": "sorting",
+      "description": "Sold-out push down",
+      "status": "selected",
+      "runtime_status": "implemented",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-REALTIME-RESORT",
+      "name": "Realtime inventory re-sort",
+      "category": "sorting",
+      "description": "Realtime inventory re-sort",
+      "status": "selected",
+      "runtime_status": "implemented",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-RESTORE-ORIGINAL-POSITION",
+      "name": "Restore original position",
+      "category": "sorting",
+      "description": "Restore original position",
+      "status": "selected",
+      "runtime_status": "implemented",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-MANUAL-BULK-SORT",
+      "name": "Manual and bulk sort controls",
+      "category": "sorting",
+      "description": "Manual and bulk sort controls",
+      "status": "selected",
+      "runtime_status": "implemented",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-TAG-EXCLUSIONS",
+      "name": "Tag/vendor/product exclusions",
+      "category": "sorting",
+      "description": "Tag/vendor/product exclusions",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-PINNED-PRODUCTS",
+      "name": "Pinned products",
+      "category": "sorting",
+      "description": "Pinned products",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-ADVANCED-SORT-RULES",
+      "name": "Advanced collection sorting",
+      "category": "automation",
+      "description": "Advanced collection sorting",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-LOW-STOCK-EMAIL",
+      "name": "Low-stock email alerts",
+      "category": "alerts",
+      "description": "Low-stock email alerts",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-SLACK-ALERTS",
+      "name": "Slack alerts",
+      "category": "alerts",
+      "description": "Slack alerts",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-AUTO-HIDE-PRODUCTS",
+      "name": "Automatic product hide/unpublish",
+      "category": "visibility",
+      "description": "Automatic product hide/unpublish",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-AUTO-REPUBLISH",
+      "name": "Automatic republish on restock",
+      "category": "visibility",
+      "description": "Automatic republish on restock",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-SEO-SAFE-HIDE",
+      "name": "SEO-safe soft hide",
+      "category": "visibility",
+      "description": "SEO-safe soft hide",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-HIDE-SOLD-OUT-VARIANTS",
+      "name": "Hide sold-out variants",
+      "category": "visibility",
+      "description": "Hide sold-out variants",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-VARIANT-RESTORE",
+      "name": "Restore variants on restock",
+      "category": "variant_visibility",
+      "description": "Restore variants on restock",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-SCHEDULED-AUTOMATION",
+      "name": "Scheduled automation",
+      "category": "automation",
+      "description": "Scheduled automation",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-MULTI-LOCATION",
+      "name": "Multi-location inventory rules",
+      "category": "sorting",
+      "description": "Multi-location inventory rules",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-RULE-BUILDER",
+      "name": "Advanced IF/AND/THEN rule builder",
+      "category": "automation",
+      "description": "Advanced IF/AND/THEN rule builder",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-ANALYTICS",
+      "name": "Inventory and automation analytics",
+      "category": "analytics",
+      "description": "Inventory and automation analytics",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-ACTIVITY-HISTORY",
+      "name": "Activity and audit history",
+      "category": "sorting",
+      "description": "Activity and audit history",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-CSV-EXPORT",
+      "name": "CSV export",
+      "category": "analytics",
+      "description": "CSV export",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-MARKETS",
+      "name": "Shopify Markets rules",
+      "category": "enterprise",
+      "description": "Shopify Markets rules",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-B2B-CATALOGS",
+      "name": "B2B catalog rules",
+      "category": "enterprise",
+      "description": "B2B catalog rules",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-SALES-CHANNEL-RULES",
+      "name": "Sales-channel visibility rules",
+      "category": "automation",
+      "description": "Sales-channel visibility rules",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-API-INTEGRATIONS",
+      "name": "API and webhook integrations",
+      "category": "enterprise",
+      "description": "API and webhook integrations",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    },
+    {
+      "id": "OPT-PRIORITY-SUPPORT",
+      "name": "Priority support entitlement",
+      "category": "commercial",
+      "description": "Priority support entitlement",
+      "status": "selected",
+      "runtime_status": "planned",
+      "requirement_source": [
+        "Owner-approved four-plan product expansion",
+        "Competitor capability audit"
+      ],
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [],
+      "ux_implications": [],
+      "data_implications": [],
+      "security_implications": [],
+      "qa_implications": []
+    }
+  ],
   "status_values": [
     "candidate",
     "selected",
     "rejected",
     "deferred",
+    "deprecated"
+  ],
+  "runtime_status_values": [
+    "planned",
+    "implemented",
     "deprecated"
   ],
   "option_template": {
@@ -14,15 +514,14 @@
     "category": "example",
     "description": "Reusable capability definition.",
     "status": "candidate",
+    "runtime_status": "planned",
     "requirement_source": [],
-    "priority": null,
     "dependencies": [],
     "conflicts": [],
     "technical_implications": [],
     "ux_implications": [],
     "data_implications": [],
     "security_implications": [],
-    "qa_implications": [],
-    "rationale": null
+    "qa_implications": []
   }
 }
