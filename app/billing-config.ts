@@ -1,11 +1,11 @@
 import productPlan from "../config/ai/product-plan.json";
 import optionsBank from "../config/ai/options-bank.json";
 
-export type PlanId = (typeof productPlan.plans)[number]["id"];
+export type PlanId = "starter" | "growth" | "pro" | "unlimited";
 
 export type BillingPlan = (typeof productPlan.plans)[number] & {
-  featureNames: string[];
-  implementedOptionIds: string[];
+  featureNames: readonly string[];
+  implementedOptionIds: readonly string[];
 };
 
 const optionNameById = new Map(
