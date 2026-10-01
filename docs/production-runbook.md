@@ -58,3 +58,7 @@ This prepares the isolated Production Worker, verifies PostgreSQL, real billing 
 Production release re-checks the Worker health and four-plan billing catalog before Shopify release.
 
 No Production release may bypass the Local → Staging → main → Live evidence chain.
+
+## Billing fail-closed rule
+
+The subscription API and Plans UI must not cancel or replace an active Shopify subscription when its name, test flag, trial, interval, currency, or recurring amount does not match an approved VSN plan. Such subscriptions require review first. This protects existing or unexpected merchant billing from an automated plan mutation.
