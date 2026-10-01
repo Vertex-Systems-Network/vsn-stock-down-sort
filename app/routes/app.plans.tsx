@@ -18,6 +18,7 @@ type SubscriptionActionResult = {
   ok?: boolean;
   cancelled?: boolean;
   planId?: PlanId;
+  confirmationUrl?: string;
   error?: string;
 };
 
@@ -49,6 +50,12 @@ export default function PlansPage() {
   useEffect(() => {
     if (fetcher.data?.cancelled) window.location.reload();
   }, [fetcher.data?.cancelled]);
+
+  useEffect(() => {
+    if (!fetcher.data?.confirmationUrl) return;
+
+    open(fetcher.data.confirmationUrl, "_top");
+  }, [fetcher.data?.confirmationUrl]);
 
   useEffect(() => {
     if (!fetcher.data?.error || !errorRef.current) return;
