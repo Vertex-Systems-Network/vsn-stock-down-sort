@@ -12,6 +12,8 @@ function restoreEnv() {
 }
 
 function setValidLocalEnv() {
+  process.env.NEON_PROJECT_ID = "local-stock-down-sort";
+  process.env.NEON_PROJECT_NAME = "vsn-stock-down-sort-local";
   process.env.SHOPIFY_API_KEY = "675de0e3834ce61a75473de19df457c4";
   process.env.SHOPIFY_API_SECRET = "local-secret";
   process.env.APP_ENV = "development";
@@ -31,6 +33,18 @@ test.afterEach(restoreEnv);
 test("accepts the dedicated Local Shopify identity and paired Neon URLs", () => {
   setValidLocalEnv();
   assert.doesNotThrow(() => validateLocalNeonEnv());
+});
+
+test("rejects a missing dedicated Local Neon project identity", () => {
+  setValidLocalEnv();
+  delete process.env.NEON_PROJECT_ID;
+  expectFailure("NEON_PROJECT_ID is required");
+});
+
+test("rejects a non-Local Neon project name", () => {
+  setValidLocalEnv();
+  process.env.NEON_PROJECT_NAME = "vsn-metafields-production";
+  expectFailure("NEON_PROJECT_NAME must be vsn-stock-down-sort-local");
 });
 
 test("rejects a non-development APP_ENV", () => {
