@@ -5,8 +5,8 @@
   "current_module": "local-development-certification",
   "current_work_unit": "ISSUE-32-WU-LOCAL-01",
   "active_issue": 32,
-  "last_verified_completion": "Local certification Windows spawn regression is covered by PR #56; App Validation #253 passed all checks and PR #56 merged to development as 2c2f63215f1575e695f075001d253858efcd27d7. Real Local runtime acceptance remains unverified.",
-  "next_valid_work_unit": "Complete external runtime evidence: provision the dedicated Local Neon project, certify npm run dev/local:certify, then execute Staging Readiness/Deploy/Shopify acceptance and only afterward Production/Live gates.",
+  "last_verified_completion": "Local preparation hardening is merged: PR #58 added Neon project/endpoint ownership verification with App Validation #258 success, and PR #59 added the Windows-safe one-command local:prepare flow with App Validation #260 success, merged to development as f2d9293f0050d3252085d29fb779ccb3e21cb8f9. Real Local runtime acceptance remains unverified.",
+  "next_valid_work_unit": "Run npm run local:prepare on the real development workstation, then npm run dev and npm run local:certify -- <local-health-url>/healthz. Only after that evidence is committed may Staging Readiness/Deploy/Shopify acceptance begin.",
   "progress": {
     "total_work_units": 10,
     "complete": 2,
@@ -17,11 +17,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Provision or identify the real dedicated Neon project vsn-stock-down-sort-local.",
-    "Configure the uncommitted Local .env with the real pooled DATABASE_URL and matching direct DIRECT_URL.",
+    "Run npm run local:prepare from development using a real local-only NEON_API_KEY; the command must provision/reuse vsn-stock-down-sort-local, verify project/endpoint ownership, and pass Prisma migrate deploy.",
     "Run npm run dev from development against the dedicated Dev Shopify app and record a real health response.",
     "Run npm run local:certify -- <local-health-url>/healthz and commit the acceptance evidence.",
-    "After Local acceptance, run Staging Readiness, Staging Deploy, Shopify Staging Version/Release and signed staging subscription acceptance.",
+    "After Local acceptance, run Staging Environment Secrets Audit, Staging Readiness, Staging Deploy, Shopify Staging Version/Release and signed staging subscription acceptance.",
     "After Staging acceptance is recorded on main, run Production Readiness, Production Worker Prepare, Production Candidate and explicit Live release.",
     "Complete real Shopify billing approval tests for the four plans on a non-production test store before marking billing work complete."
   ],
@@ -33,18 +32,18 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "App Validation #253 passed the latest development tree including Windows Local-certification regression coverage. Real Local Neon/Shopify runtime acceptance and real four-plan Shopify approval remain verification_required.",
+  "qa_readiness": "App Validation #260 passed the latest Local preparation tree, including Neon project/endpoint ownership verification, Windows-safe preparation, Local contracts, Worker build, and both Cloudflare dry-runs. Real Local Shopify/Neon runtime acceptance and real four-plan Shopify approval remain verification_required.",
   "security_readiness": "main_ruleset_validate_required_and_verified_local_neon_isolation_enforced",
-  "last_reconciled_repository_ref": "2c2f63215f1575e695f075001d253858efcd27d7",
-  "last_reconciled_at": "2026-10-01T08:10:00Z",
-  "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred. Live reconciliation on 2026-10-01 verified current development head e3e78b0d6f603267ebda3fa8e6028daa52a333b9; the two commits after the #245 merge only update canonical project-state/execution-plan files, with no runtime application change. App Validation #245 remains the latest runtime-code validation evidence; real Local Neon and Shopify billing acceptance remain outstanding. PR #56 adds regression coverage for the prior Windows local certification spawn failure; CI #253 passed and the fix/test are merged. Local remains blocked only on real Neon project identity plus actual Dev boot/health/certification evidence.",
+  "last_reconciled_repository_ref": "f2d9293f0050d3252085d29fb779ccb3e21cb8f9",
+  "last_reconciled_at": "2026-10-01T08:20:00Z",
+  "notes": "Local-first order is authoritative. The owner updated the Shopify identities on development at a935ddc793bf068d5b1e5099cf034efa1a0a1f25: Dev and Live now use distinct committed client IDs, Staging retains the injected placeholder, and display names use the VSN | Stock Down Sort convention. Local uses development + dedicated Neon PostgreSQL. Staging is cloudflare-staging; Production is cloudflare-production. Local Neon binding remains pending. The governance PR also wires npm run dev through the existing local Neon validator before Shopify local development; Staging/Production remain deferred. Live reconciliation on 2026-10-01 verified current development head e3e78b0d6f603267ebda3fa8e6028daa52a333b9; the two commits after the #245 merge only update canonical project-state/execution-plan files, with no runtime application change. App Validation #245 remains the latest runtime-code validation evidence; real Local Neon and Shopify billing acceptance remain outstanding. PR #56 adds regression coverage for the prior Windows local certification spawn failure; CI #253 passed and the fix/test are merged. Local remains blocked only on real Neon project identity plus actual Dev boot/health/certification evidence. PR #58 and PR #59 harden the Local truth boundary: local:certify verifies the real Neon project/endpoint ownership, and local:prepare is now the canonical one-command provisioning/validation/migration path. Local remains blocked only on actual workstation prepare/dev/health/certification evidence.",
   "ci_evidence": {
-    "workflow_run": 253,
-    "run_id": 36833332062,
+    "workflow_run": 260,
+    "run_id": 36834835944,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "c3950524bf6df17058ce4a76ba9a1f187cd14a42",
-    "merged_development_sha": "2c2f63215f1575e695f075001d253858efcd27d7",
+    "validated_head_sha": "ee763f03dc8f57a6f9e68add5d0824632c32649f",
+    "merged_development_sha": "f2d9293f0050d3252085d29fb779ccb3e21cb8f9",
     "all_validation_steps": "passed"
   },
   "batch_06_09": {
