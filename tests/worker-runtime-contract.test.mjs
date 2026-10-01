@@ -137,6 +137,9 @@ test("health and staging deployment produce post-deploy evidence", () => {
   assert.match(workflow, /staging_runtime_health=pass/);
   assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
   assert.match(workflow, /staging_shop:/);
+  assert.match(workflow, /billing_plan_id:/);
+  assert.match(workflow, /EXPECTED_BILLING_PLAN_ID/);
+  assert.match(workflow, /recognizedPlanIds/);
   assert.match(workflow, /Verify Shopify session and subscription reads/);
   assert.match(workflow, /staging_offline_session=pass/);
   assert.match(workflow, /staging_admin_graphql=pass/);
