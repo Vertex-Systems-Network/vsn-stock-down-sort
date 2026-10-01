@@ -163,13 +163,12 @@ jobs:
           with urllib.request.urlopen(request, timeout=20) as response:
               payload = json.loads(response.read().decode("utf-8"))
 
-          expected_plan = {
-              "id": "unlimited",
-              "amount": 55,
-              "currencyCode": "USD",
-              "interval": "EVERY_30_DAYS",
-              "trialDays": 5,
-          }
+          expected_plans = [
+              {"id": "starter", "amount": 10.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "growth", "amount": 19.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "pro", "amount": 34.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "unlimited", "amount": 54.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+          ]
 
           if payload.get("ok") is not True:
               raise SystemExit("Production Worker health check failed")
@@ -177,7 +176,7 @@ jobs:
               raise SystemExit("Production Worker reports the wrong environment")
           if payload.get("billingTestMode") is not False:
               raise SystemExit("Production Worker is not in real billing mode")
-          if payload.get("plan") != expected_plan:
+          if payload.get("billingCatalog", {}).get("plans") != expected_plans:
               raise SystemExit("Production billing contract mismatch")
           PY
 
