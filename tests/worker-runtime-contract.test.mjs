@@ -336,9 +336,15 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, false);
-  assert.equal(policy.authorized_version, null);
-  assert.equal(policy.authorized_source_ref, null);
+  assert.equal(policy.release_authorized, true);
+  assert.equal(
+    policy.authorized_version,
+    "stock-down-sort-production-516ab92a2d1a-1",
+  );
+  assert.equal(
+    policy.authorized_source_ref,
+    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+  );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
@@ -957,7 +963,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
   assert.match(state.next_valid_work_unit, /Shopify Production Release/i);
-  assert.match(state.next_valid_work_unit, /ca5851561ab7979712f11580ab951fda4650ef19/);
+  assert.match(
+    state.next_valid_work_unit,
+    /516ab92a2d1a4a74fc9624dfc56d3fcc3f624182/,
+  );
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
