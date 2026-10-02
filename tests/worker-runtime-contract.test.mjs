@@ -336,7 +336,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, true);
+  assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.authorized_version,
     "stock-down-sort-production-516ab92a2d1a-1",
@@ -1010,7 +1010,7 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
   assert.match(current, /ISSUE-32-WU-07/);
   assert.match(tasks, /ISSUE-32-WU-07/);
-  assert.match(tasks, /status: in_progress/);
+  assert.match(tasks, /status: complete/);
 });
 
 
