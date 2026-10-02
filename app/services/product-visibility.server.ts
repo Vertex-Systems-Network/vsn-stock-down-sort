@@ -102,6 +102,83 @@ export function assertVisibilityEntitlements(
   }
 }
 
+async function currentAppInstallationId(admin: AdminClient) {
+  const data = await gql<{
+    currentAppInstallation: { id: string } | null;
+  }>(
+    admin,
+    `#graphql
+      query CurrentAppInstallationForVisibility {
+        currentAppInstallation {
+          id
+        }
+      }
+    `,
+  );
+
+  if (!data.currentAppInstallation?.id) {
+    throw new Error("Shopify did not return the current app installation.");
+  }
+
+  return data.currentAppInstallation.id;
+}
+
+export async function syncVariantVisibilityEntitlement(
+  admin: AdminClient,
+  optionIds: readonly string[],
+) {
+  const entitled =
+    hasEntitlement(optionIds, PHASE3_OPTION_IDS.hideSoldOutVariants) &&
+    hasEntitlement(optionIds, PHASE3_OPTION_IDS.variantRestore);
+  const ownerId = await currentAppInstallationId(admin);
+
+  const data = await gql<{
+    metafieldsSet: {
+      metafields: Array<{
+        namespace: string;
+        key: string;
+        value: string;
+      }>;
+      userErrors: Array<{ field?: string[] | null; message: string }>;
+    };
+  }>(
+    admin,
+    `#graphql
+      mutation SetVariantVisibilityEntitlement(
+        $metafields: [MetafieldsSetInput!]!
+      ) {
+        metafieldsSet(metafields: $metafields) {
+          metafields {
+            namespace
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `,
+    {
+      metafields: [
+        {
+          ownerId,
+          namespace: "vsn",
+          key: "variant_visibility_entitled",
+          type: "boolean",
+          value: entitled ? "true" : "false",
+        },
+      ],
+    },
+  );
+
+  const userError = data.metafieldsSet.userErrors[0]?.message;
+  if (userError) throw new Error(userError);
+
+  return entitled;
+}
+
 export async function getVisibilitySetting(shop: string) {
   const setting = await withPrismaClient((db) =>
     db.visibilitySetting.findUnique({ where: { shop } }),
