@@ -1,6 +1,7 @@
 name: Cloudflare Production Prepare
 
 on:
+  workflow_call:
   workflow_dispatch:
     inputs:
       confirm:
@@ -17,7 +18,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.event.inputs.confirm == 'PREPARE_PRODUCTION_WORKER_ONLY'
+    if: github.event_name == 'workflow_call' || github.event.inputs.confirm == 'PREPARE_PRODUCTION_WORKER_ONLY'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: cloudflare-production
@@ -127,9 +128,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate production migration status
+      - name: Apply production database migrations
         run: |
           npx prisma validate --schema prisma/cloud/schema.prisma
+          npx prisma migrate deploy --schema prisma/cloud/schema.prisma
           npx prisma migrate status --schema prisma/cloud/schema.prisma
 
       - name: Build production Worker
@@ -211,7 +213,7 @@ jobs:
 
                   if payload.get("billingCatalog", {}).get("plans") != expected_plans:
                       raise RuntimeError(
-                          f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
+                          f"billing contract mismatch: expected={expected_plans!r} actual={payload.get('billingCatalog', {}).get('plans')!r}"
                       )
 
                   print("production_worker_prepare=pass")
