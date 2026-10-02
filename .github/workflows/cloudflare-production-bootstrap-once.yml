@@ -13,4 +13,6 @@ permissions:
 jobs:
   prepare-production:
     uses: ./.github/workflows/cloudflare-production-prepare.yml
+    with:
+      confirm: PREPARE_PRODUCTION_WORKER_ONLY
     secrets: inherit
