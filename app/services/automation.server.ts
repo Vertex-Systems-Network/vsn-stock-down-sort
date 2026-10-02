@@ -105,7 +105,7 @@ export async function saveAutomationRule(
           collectionId: normalized.collectionId,
         },
       },
-      select: { collectionId: true },
+      select: { collectionId: true, enabled: true },
     }),
   );
 
