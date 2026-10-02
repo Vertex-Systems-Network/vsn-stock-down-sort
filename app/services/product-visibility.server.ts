@@ -1,5 +1,10 @@
 import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
+import {
+  PHASE3_OPTION_IDS,
+  parseProductVisibilityMode,
+  type ProductVisibilityMode,
+} from "./product-visibility";
 
 type AdminClient = {
   graphql: (
@@ -7,23 +12,6 @@ type AdminClient = {
     options?: { variables?: Record<string, unknown> },
   ) => Promise<Response>;
 };
-
-export const PHASE3_OPTION_IDS = Object.freeze({
-  autoHideProducts: "OPT-AUTO-HIDE-PRODUCTS",
-  autoRepublish: "OPT-AUTO-REPUBLISH",
-  seoSafeHide: "OPT-SEO-SAFE-HIDE",
-  hideSoldOutVariants: "OPT-HIDE-SOLD-OUT-VARIANTS",
-  variantRestore: "OPT-VARIANT-RESTORE",
-} as const);
-
-export const PRODUCT_VISIBILITY_MODES = Object.freeze([
-  "OFF",
-  "DRAFT",
-  "UNLISTED",
-] as const);
-
-export type ProductVisibilityMode =
-  (typeof PRODUCT_VISIBILITY_MODES)[number];
 
 type ProductStatus = "ACTIVE" | "ARCHIVED" | "DRAFT" | "UNLISTED";
 
@@ -80,14 +68,6 @@ async function gql<T>(
 
 function hasEntitlement(optionIds: readonly string[], optionId: string) {
   return optionIds.includes(optionId);
-}
-
-export function parseProductVisibilityMode(
-  value: string | null | undefined,
-): ProductVisibilityMode {
-  return PRODUCT_VISIBILITY_MODES.includes(value as ProductVisibilityMode)
-    ? (value as ProductVisibilityMode)
-    : "OFF";
 }
 
 export function assertVisibilityEntitlements(
