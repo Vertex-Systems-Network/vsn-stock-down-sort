@@ -108,7 +108,7 @@
     }
   },
   "live": {
-    "status": "blocked",
+    "status": "accepted",
     "authorized_source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
     "authorization_record": {
       "workflow": "Shopify Production Candidate",
@@ -157,6 +157,22 @@
         "run_attempt": 2,
         "conclusion": "success"
       }
+    },
+    "release_record": {
+      "workflow": "Shopify Production Release",
+      "run_number": 1,
+      "run_id": 37002956869,
+      "branch": "main",
+      "control_head_sha": "f7ed64bdd7f158d954950ca753525a8de489a7ba",
+      "version": "stock-down-sort-production-516ab92a2d1a-1",
+      "source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+      "release_step": "passed",
+      "released_version_visibility": "passed",
+      "remote_app_name": "VSN | Stock Down Sort",
+      "app_name_output_observed": "passed",
+      "verification_command_issue": "stdout_stderr_capture_bug",
+      "production_worker_health": "passed",
+      "billing_contract": "four_plans_10_day_trials"
     }
   },
   "rules": {
