@@ -66,6 +66,18 @@ export async function listAutomationRules(shop: string) {
   );
 }
 
+export async function listConfiguredAutomationCollectionIds(shop: string) {
+  const settings = await withPrismaClient((db) =>
+    db.collectionSetting.findMany({
+      where: { shop },
+      select: { collectionId: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  );
+
+  return settings.map((setting) => setting.collectionId);
+}
+
 export async function saveAutomationRule(
   admin: AdminClient,
   shop: string,
