@@ -138,7 +138,8 @@ test("PHASE-06 alerts use hosted Queue jobs and Local direct evaluation", () => 
     "app/routes/webhooks.products-update.tsx",
   );
 
-  assert.ok(queue.includes('kind: "visibility" | "alert"'));
+  assert.ok(queue.includes('kind: "visibility"'));
+  assert.ok(queue.includes('kind: "alert"'));
   assert.ok(consumer.includes('job.kind === "visibility" || job.kind === "alert"'));
   assert.ok(consumer.includes('payload.kind === "alert"'));
   assert.ok(consumer.includes("processLowStockAlert("));
