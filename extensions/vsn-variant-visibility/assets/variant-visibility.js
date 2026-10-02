@@ -1,6 +1,7 @@
 (() => {
   const DATA_SELECTOR = "script[data-vsn-variant-visibility]";
   const MANAGED_ATTR = "data-vsn-variant-managed";
+  const DISABLED_BY_US_ATTR = "data-vsn-disabled-by-us";
 
   function readVariants() {
     const node = document.querySelector(DATA_SELECTOR);
@@ -65,12 +66,19 @@
   function concealVariant(variantId) {
     document.querySelectorAll(selectorForVariant(variantId)).forEach((control) => {
       const container = managedContainer(control);
+
+      // Never claim ownership of visibility already controlled by the theme.
+      if (container.hidden || container.getAttribute("aria-hidden") === "true") {
+        return;
+      }
+
       container.hidden = true;
       container.setAttribute(MANAGED_ATTR, "true");
       container.setAttribute("aria-hidden", "true");
 
-      if ("disabled" in control) {
+      if ("disabled" in control && !control.disabled) {
         control.disabled = true;
+        control.setAttribute(DISABLED_BY_US_ATTR, "true");
       }
       control.setAttribute("aria-disabled", "true");
     });
