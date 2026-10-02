@@ -209,18 +209,22 @@
       "category": "visibility",
       "description": "Automatic product hide/unpublish",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-03 product visibility engine using Shopify product status transitions with app-owned restore state."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 product visibility contract and App Validation."
+      ]
     },
     {
       "id": "OPT-AUTO-REPUBLISH",
@@ -228,18 +232,22 @@
       "category": "visibility",
       "description": "Automatic republish on restock",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-03 restore guard; only products previously changed by VSN are restored after inventory returns."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 merchant-override and safe-restore contracts."
+      ]
     },
     {
       "id": "OPT-SEO-SAFE-HIDE",
@@ -247,18 +255,22 @@
       "category": "visibility",
       "description": "SEO-safe soft hide",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented with Shopify UNLISTED product status for direct-URL access while reducing Shopify storefront discovery surfaces."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 product visibility contract and App Validation."
+      ]
     },
     {
       "id": "OPT-HIDE-SOLD-OUT-VARIANTS",
@@ -266,18 +278,22 @@
       "category": "visibility",
       "description": "Hide sold-out variants",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by entitlement-gated Shopify theme app extension using storefront variant availability."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 storefront extension contract; Shopify deployment validation remains a promotion gate."
+      ]
     },
     {
       "id": "OPT-VARIANT-RESTORE",
@@ -285,18 +301,22 @@
       "category": "variant_visibility",
       "description": "Restore variants on restock",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by the storefront extension's availability-driven reconciliation; available variants are restored on subsequent storefront renders."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 storefront extension contract; Shopify deployment validation remains a promotion gate."
+      ]
     },
     {
       "id": "OPT-SCHEDULED-AUTOMATION",
