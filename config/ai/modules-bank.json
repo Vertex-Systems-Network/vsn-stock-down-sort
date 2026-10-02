@@ -376,10 +376,18 @@
         "App Validation",
         "PHASE-02 sorting contract"
       ],
-      "status": "in_progress",
-      "completion_evidence": [],
+      "status": "complete",
+      "completion_evidence": [
+        "Tag/vendor/product exclusions implemented with fixed-position exclusion semantics.",
+        "Pinned products implemented with configured priority.",
+        "Advanced available-product sorting modes implemented.",
+        "Multi-location ANY_SELECTED and ALL_SELECTED inventory rules implemented.",
+        "Per-collection embedded Rules UI implemented.",
+        "Active-plan server-side entitlement enforcement implemented.",
+        "App Validation #366 / run 37007055080 passed all checks on implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08."
+      ],
       "update_notes": [
-        "Issue #97 is active."
+        "Repository/development implementation is complete. Hosted promotion remains a separate guarded release concern."
       ],
       "removal_or_deprecation_notes": []
     }
