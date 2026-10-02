@@ -34,10 +34,10 @@ test("PHASE-02 rule fields are additive and parity-safe", () => {
     "inventoryMode",
     "inventoryLocationIds",
   ]) {
-    assert.match(local, new RegExp("\\b" + field + "\\b"));
-    assert.match(cloud, new RegExp("\\b" + field + "\\b"));
-    assert.match(localMigration, new RegExp('"' + field + '"'));
-    assert.match(cloudMigration, new RegExp('"' + field + '"'));
+    assert.ok(local.includes(field));
+    assert.ok(cloud.includes(field));
+    assert.ok(localMigration.includes('"' + field + '"'));
+    assert.ok(cloudMigration.includes('"' + field + '"'));
   }
 
   assert.doesNotMatch(localMigration, /\bDROP\b/i);
@@ -97,8 +97,8 @@ test("sorting engine implements exclusion, pin, advanced and location precedence
   const sorter = read("app/services/collection-sorter.server.ts");
 
   assert.match(sorter, /listAllLocations/);
-  assert.match(sorter, /inventoryLevels\\(first: \\$levelsFirst\\)/);
-  assert.match(sorter, /quantities\\(names: \\["available"\\]\\)/);
+  assert.ok(sorter.includes('inventoryLevels(first: $levelsFirst)'));
+  assert.ok(sorter.includes('quantities(names: ["available"])'));
   assert.match(sorter, /appendRemainingInventoryLevels/);
   assert.match(sorter, /LOCATION_INVENTORY_CONCURRENCY = 5/);
   assert.match(sorter, /Excluded products stay fixed at their exact original indices/);
@@ -110,7 +110,7 @@ test("sorting engine implements exclusion, pin, advanced and location precedence
   assert.match(sorter, /ALL_SELECTED_LOCATIONS/);
   assert.match(sorter, /buildSequentialMoves/);
   assert.match(sorter, /MAX_REORDER_MOVES = 250/);
-  assert.match(sorter, /moves\\.slice\\(index, index \\+ MAX_REORDER_MOVES\\)/);
+  assert.ok(sorter.includes("moves.slice(index, index + MAX_REORDER_MOVES)"));
   assert.match(sorter, /sortEnabledCollections/);
   assert.match(sorter, /currentEntitledOptionIds/);
 });
@@ -135,7 +135,7 @@ test("merchant UI persists PHASE-02 rules and hosted re-sorts use Queue", () => 
   assert.match(index, /canUseAdvancedSort/);
   assert.match(index, /canUseMultiLocation/);
   assert.match(queue, /"rules-update"/);
-  assert.match(consumer, /job\\.reason === "rules-update"/);
+  assert.ok(consumer.includes('job.reason === "rules-update"'));
 });
 
 test("PHASE-02 is repository-tracked under Issue 97 while implementation is active", () => {
