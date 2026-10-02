@@ -324,18 +324,22 @@
       "category": "automation",
       "description": "Scheduled automation",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-05 AutomationRule persistence, due-rule leasing, hourly Cloudflare Cron Trigger execution and authenticated manual run-now."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-05 automation contract, Cloudflare scheduled-handler contract and App Validation."
+      ]
     },
     {
       "id": "OPT-MULTI-LOCATION",
@@ -366,18 +370,22 @@
       "category": "automation",
       "description": "Advanced IF/AND/THEN rule builder",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-05 Pro+ IF/AND stock predicates evaluated from live Shopify collection inventory before invoking the certified sorting engine."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-05 entitlement, live-condition evaluation and scheduled execution contracts."
+      ]
     },
     {
       "id": "OPT-ANALYTICS",
