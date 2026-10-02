@@ -544,6 +544,88 @@
         "Repository/development implementation is complete and CI-certified. Staging/Production promotion remains a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-AUTOMATION-RULES",
+      "name": "Rule Builder & Scheduled Automation",
+      "objective": "Run the certified collection sorting engine on merchant schedules and Pro+ live-stock IF/AND conditions with bounded hosted execution.",
+      "scope": [
+        "AutomationRule persistence",
+        "Growth+ scheduled automation",
+        "Pro+ live-stock IF/AND conditions",
+        "manual Run now",
+        "hourly Cloudflare Cron Trigger",
+        "due-rule lease and bounded execution",
+        "ActivityEvent execution history"
+      ],
+      "boundaries": [
+        "Only collections already enabled in VSN Stock Down Sort may be targeted.",
+        "Starter must fail closed for scheduled automation.",
+        "Growth may schedule rules but cannot use advanced stock predicates.",
+        "Pro/Unlimited may use advanced stock predicates.",
+        "Local development does not claim a background scheduler.",
+        "Scheduled runner must not be publicly invocable as a normal HTTP route.",
+        "No Staging or Production deployment is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "option_ids": [
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-RULE-BUILDER"
+      ],
+      "data_entities": [
+        "AutomationRule",
+        "ActivityEvent",
+        "CollectionSetting"
+      ],
+      "contracts": [
+        "Growth+: scheduled automation",
+        "Pro+: IF/AND live-stock rule builder",
+        "Hosted cron: hourly UTC check",
+        "DB lease: 15 minutes",
+        "Max due rules per tick: 25"
+      ],
+      "ui_surfaces": [
+        "/app/automation"
+      ],
+      "security_responsibilities": [
+        "Resolve entitlements from the current Shopify subscription server-side.",
+        "Scope merchant rule CRUD by session.shop.",
+        "Require scheduled Cloudflare runtime context for the internal cron runner.",
+        "Use DB leasing to reduce duplicate concurrent rule execution.",
+        "Do not create or enable collection sorting configuration implicitly."
+      ],
+      "acceptance_criteria": [
+        "Both PHASE-05 option IDs are runtime-implemented and entitlement-gated.",
+        "Local SQLite and hosted PostgreSQL AutomationRule schemas remain parity-validated.",
+        "Rule conditions are evaluated from live Shopify collection inventory.",
+        "Matched rules invoke the existing certified collection sorting engine.",
+        "Hosted scheduled execution is bounded and lease-protected.",
+        "Merchant UI supports create/edit/pause/run/delete for shop-scoped rules.",
+        "App Validation, PHASE-05 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "App Validation #413 / run 37057803474 passed the complete validation chain.",
+        "AutomationRule persistence is implemented in Local SQLite and hosted PostgreSQL with parity indexes.",
+        "Growth+ schedule entitlement and Pro+ rule-builder entitlement are enforced server-side.",
+        "Cloudflare Worker scheduled() handler and hourly cron configs are repository-implemented.",
+        "Due rules use a 15-minute DB lease and batch limit 25.",
+        "No PHASE-05 Staging/Production deployment is claimed."
+      ],
+      "update_notes": [
+        "Repository/development implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
