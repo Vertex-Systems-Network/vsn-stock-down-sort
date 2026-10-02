@@ -157,7 +157,9 @@ async function gql<T>(
 }
 
 async function currentEntitledOptionIds(admin: AdminClient) {
-  const current = await getCurrentSubscriptionPlan(admin);
+  const current = await getCurrentSubscriptionPlan(
+    admin as Parameters<typeof getCurrentSubscriptionPlan>[0],
+  );
   return current?.plan.option_ids ?? null;
 }
 
@@ -197,7 +199,7 @@ export async function listAllCollections(admin: AdminClient) {
   let after: string | null = null;
 
   do {
-    const data = await gql<CollectionListResponse>(
+    const data: CollectionListResponse = await gql<CollectionListResponse>(
       admin,
       `#graphql
         query CollectionsForStockSorter($first: Int!, $after: String) {
@@ -237,7 +239,12 @@ export async function listAllLocations(
   let after: string | null = null;
 
   do {
-    const data = await gql<{
+    const data: {
+      locations: {
+        nodes: ShopLocation[];
+        pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      };
+    } = await gql<{
       locations: {
         nodes: ShopLocation[];
         pageInfo: { hasNextPage: boolean; endCursor: string | null };
@@ -357,7 +364,8 @@ async function appendRemainingInventoryLevels(
   let cursor: string | null = after;
 
   while (cursor) {
-    const data = await gql<InventoryItemLevelsResponse>(
+    const data: InventoryItemLevelsResponse =
+      await gql<InventoryItemLevelsResponse>(
       admin,
       `#graphql
         query InventoryItemLevelsForStockSorter(
@@ -395,7 +403,8 @@ async function appendRemainingInventoryLevels(
       throw new Error(`Inventory item not found: ${inventoryItemId}`);
     }
 
-    const connection = data.inventoryItem.inventoryLevels;
+    const connection: InventoryLevelsConnection =
+      data.inventoryItem.inventoryLevels;
     addSelectedInventoryLevels(
       totals,
       selectedLocationIds,
@@ -417,7 +426,8 @@ async function selectedLocationInventoryForProduct(
   let after: string | null = null;
 
   do {
-    const data = await gql<ProductInventoryResponse>(
+    const data: ProductInventoryResponse =
+      await gql<ProductInventoryResponse>(
       admin,
       `#graphql
         query ProductLocationInventoryForStockSorter(
