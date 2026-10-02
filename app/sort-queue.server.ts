@@ -10,7 +10,13 @@ export type SortQueueJob =
         | "rules-update";
     }
   | {
-      kind: "visibility" | "alert";
+      kind: "visibility";
+      shop: string;
+      productId: string;
+      reason: "inventory-update" | "product-update";
+    }
+  | {
+      kind: "alert";
       shop: string;
       productId: string;
       reason: "inventory-update" | "product-update";
