@@ -185,7 +185,10 @@ test("signed Staging acceptance still cannot authorize Live until recorded on ma
     gates.staging.accepted_source_ref,
     "ca5851561ab7979712f11580ab951fda4650ef19",
   );
-  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.accepted_main_ref,
+    "8bff7a1ecb8adca7592997fc74ffe10837e4ae2d",
+  );
   assert.equal(gates.staging.evidence_record?.run_id, 36989726911);
   assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
   assert.equal(gates.live.status, "blocked");
