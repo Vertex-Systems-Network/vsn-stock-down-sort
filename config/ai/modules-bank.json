@@ -455,13 +455,13 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
-        "App Validation #394 / run 37016155170 passed the complete validation chain.",
-        "Local SQLite and hosted PostgreSQL visibility persistence are schema-parity validated.",
-        "Product DRAFT/UNLISTED transitions and app-owned safe restore state are implemented.",
-        "Variant visibility theme app extension is entitlement-gated by app-data metafield and uses Liquid variant.available.",
-        "Merchant activation deep link is exposed from /app/visibility.",
-        "No Staging/Production deployment of PHASE-03 is claimed."
+        "All five PHASE-03 option IDs are runtime-implemented in canonical product/options registries.",
+        "Additive Local/cloud visibility schema migrations, server-side plan entitlements, product visibility engine, Queue/webhook integration and merchant UI are implemented.",
+        "Shopify theme app extension provides entitlement-gated sold-out variant storefront behavior using Liquid variant.available.",
+        "PR #101 exact head 8dafd702a15c39b0b9613fd3aad4839bb72545f3 passed App Validation #398.",
+        "PR #101 merged to development as e428ab8b3df4f3832b32abde76014fc3daad1ea0.",
+        "Post-merge App Validation #399 / run 37031133345 passed the full validation chain.",
+        "No PHASE-03 Staging/Production deployment is claimed."
       ],
       "update_notes": [
         "Repository/development implementation is complete; environment promotion and theme app embed activation remain guarded release activities."

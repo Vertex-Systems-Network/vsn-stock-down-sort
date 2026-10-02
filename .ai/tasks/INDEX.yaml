@@ -6,6 +6,6 @@ project: VSN Stock Down Sort
 active_work_unit: ISSUE-100-WU-04
 status: complete
 note: >
-  PHASE-03 implementation is certified on PR #101 implementation head by
-  App Validation #394. Final repository-state reconciliation and latest-head
-  validation are required before merge and Issue #100 closure.
+  PHASE-03 repository implementation is merged and post-merge CI-certified
+  on development. Issue #100 may close after this completion-evidence
+  reconciliation merges. Staging/Production promotion remains separate.
