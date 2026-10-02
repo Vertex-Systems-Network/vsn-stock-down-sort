@@ -191,7 +191,7 @@ test("signed Staging acceptance still cannot authorize Live until recorded on ma
   );
   assert.equal(gates.staging.evidence_record?.run_id, 36989726911);
   assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
-  assert.equal(gates.live.status, "blocked");
+  assert.equal(gates.live.status, "accepted");
   assert.equal(
     gates.live.authorized_source_ref,
     "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
@@ -213,8 +213,8 @@ test("production readiness validates the canonical four-plan billing contract", 
 
 test("production release is pinned to the exact authorized candidate and verifies the final app name", () => {
   const workflow = read(".github/workflows/shopify-production-release.yml");
-  assert.equal(productionRelease.status, "authorized_pending_release");
-  assert.equal(productionRelease.release_authorized, true);
+  assert.equal(productionRelease.status, "released");
+  assert.equal(productionRelease.release_authorized, false);
   assert.equal(
     productionRelease.authorized_version,
     "stock-down-sort-production-516ab92a2d1a-1",
@@ -228,4 +228,15 @@ test("production release is pinned to the exact authorized candidate and verifie
   assert.match(workflow, /Verify released Production app name/);
   assert.match(workflow, /app info/);
   assert.match(workflow, /production_shopify_app_name=VSN \| Stock Down Sort/);
+});
+
+test("successful Production release is recorded and future name verification captures all CLI output", () => {
+  const workflow = read(".github/workflows/shopify-production-release.yml");
+  assert.equal(productionRelease.release_record?.run_id, 37002956869);
+  assert.equal(productionRelease.release_record?.version_released_to_users, true);
+  assert.equal(productionRelease.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.equal(gates.live.status, "accepted");
+  assert.equal(gates.live.release_record?.run_id, 37002956869);
+  assert.equal(gates.live.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.match(workflow, /shopify-production-info\.txt 2>&1/);
 });
