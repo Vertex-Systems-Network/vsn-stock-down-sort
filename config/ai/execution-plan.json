@@ -397,8 +397,15 @@
       "completion_evidence": [
         "Staging acceptance was promoted to protected main at 8bff7a1ecb8adca7592997fc74ffe10837e4ae2d.",
         "Protected-main App Validation #339 (run 36990532771) passed all checks.",
-        "Staging accepted source remains ca5851561ab7979712f11580ab951fda4650ef19.",
-        "Production deployment remains blocked pending Production Readiness and later explicit candidate/release actions."
+        "Production Environment Secrets Audit #6 (run 36993302635 rerun) passed with all required values present and Live Shopify identity matching committed Production config.",
+        "Cloudflare Production bootstrap #2 (run 36995482853) passed from main c0e0ad47d5ea55aa19c8a049d36b2e696945af0c.",
+        "Production Queue and DLQ were created.",
+        "Production PostgreSQL migrations 20260929150000_cloud_baseline and 20261001003000_session_shop_index were applied and migration status became up to date.",
+        "Worker vsn-stock-down-sort-production deployed to https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev.",
+        "Production /healthz passed PostgreSQL, Queue readiness, real-billing mode and canonical four-plan / 10-day billing contract.",
+        "Shopify cutover was explicitly not performed.",
+        "Production Readiness #1 rerun attempt 2 (run 36994646886) passed migration status, lint, typecheck, Worker build/dry-run and production billing contract.",
+        "Shopify Production candidate and release remain pending."
       ]
     }
   ],
