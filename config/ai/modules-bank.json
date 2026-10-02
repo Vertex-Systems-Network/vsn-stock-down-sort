@@ -130,15 +130,13 @@
         "Staging Readiness",
         "Cloudflare Staging Deploy"
       ],
-      "status": "in_progress",
+      "status": "complete",
       "completion_evidence": [
-        "Environment Secrets Audit #4 passed on development for cloudflare-staging.",
-        "Staging Readiness #6 passed on development using the Local-accepted source."
+        "Staging Runtime Acceptance #1 / run 36989726911 passed end-to-end.",
+        "Staging release and protected-main acceptance evidence were recorded before Production promotion."
       ],
       "update_notes": [
-        "Secret audit and Staging Readiness are accepted.",
-        "Manual Cloudflare Staging deployment is now active.",
-        "Production remains blocked until Staging runtime acceptance is complete."
+        "Staging remains the required acceptance environment for future feature promotion."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -175,9 +173,16 @@
       "quality_gates": [
         "Production Readiness"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
-      "update_notes": [],
+      "status": "complete",
+      "completion_evidence": [
+        "Cloudflare Production bootstrap #2 / run 36995482853 passed.",
+        "Production Readiness run 36994646886 attempt 2 passed.",
+        "Shopify Production Release #1 / run 37002956869 released the authorized candidate and remote app name VSN | Stock Down Sort was observed.",
+        "PR #96 reconciled Live acceptance; post-merge App Validation #356 passed."
+      ],
+      "update_notes": [
+        "Production is live and accepted; future feature releases must use the same guarded promotion model."
+      ],
       "removal_or_deprecation_notes": []
     },
     {
@@ -308,6 +313,69 @@
       ],
       "update_notes": [
         "Billing runtime acceptance is complete; further work moves to the guarded Staging promotion sequence."
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-SORTING-CONTROLS",
+      "name": "Core Sorting Controls",
+      "objective": "Provide collection-level exclusions, pinned products, deterministic advanced ordering and location-aware inventory evaluation.",
+      "scope": [
+        "tag/vendor/product exclusions",
+        "pinned products",
+        "advanced collection sorting",
+        "multi-location inventory rules",
+        "merchant rule controls"
+      ],
+      "boundaries": [
+        "No product or collection count limits.",
+        "Plan-tier capabilities must fail closed server-side.",
+        "Excluded products stay fixed at their original collection positions.",
+        "Shopify collection reorders remain MANUAL and respect the 250-move mutation limit."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "option_ids": [
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-MULTI-LOCATION"
+      ],
+      "data_entities": [
+        "CollectionSetting",
+        "Shopify Product",
+        "Shopify Location",
+        "Shopify InventoryLevel"
+      ],
+      "contracts": [
+        "Starter+: exclusions",
+        "Growth+: pinned products",
+        "Growth+: advanced sorting",
+        "Pro+: multi-location inventory"
+      ],
+      "ui_surfaces": [
+        "/app"
+      ],
+      "security_responsibilities": [
+        "Do not trust client-provided plan access.",
+        "Use existing read_inventory/read_products scopes only.",
+        "Persist shop-scoped rules only."
+      ],
+      "acceptance_criteria": [
+        "All four PHASE-02 options are runtime-implemented and entitlement-gated.",
+        "Webhook/queue and manual sorts share the same rule engine.",
+        "App Validation and PHASE-02 contracts pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [],
+      "update_notes": [
+        "Issue #97 is active."
       ],
       "removal_or_deprecation_notes": []
     }
