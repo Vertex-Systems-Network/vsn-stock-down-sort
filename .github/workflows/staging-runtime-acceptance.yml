@@ -1,0 +1,247 @@
+name: Staging Runtime Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type CERTIFY_STAGING_RUNTIME"
+        required: true
+        type: string
+      source_ref:
+        description: "Exact Local-accepted source deployed to Staging"
+        required: true
+        type: string
+      staging_shop:
+        description: "Dedicated staging Shopify test-store domain (*.myshopify.com)"
+        required: true
+        type: string
+      billing_plan_id:
+        description: "Active plan expected on the staging test store"
+        required: true
+        type: choice
+        options:
+          - starter
+          - growth
+          - pro
+          - unlimited
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-staging-runtime-acceptance
+  cancel-in-progress: true
+
+jobs:
+  certify-staging:
+    if: github.event.inputs.confirm == 'CERTIFY_STAGING_RUNTIME'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: cloudflare-staging
+    env:
+      APP_ENV: staging
+      SHOPIFY_BILLING_TEST_MODE: "true"
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
+      STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
+      EXPECTED_BILLING_PLAN_ID: ${{ github.event.inputs.billing_plan_id }}
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
+
+    steps:
+      - name: Checkout repository control state
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          persist-credentials: false
+
+      - name: Verify deployed staging source record
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+
+          source_ref = os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+
+          gates = json.loads(
+              Path("config/release/environment-gates.json").read_text(encoding="utf-8")
+          )
+          local = gates.get("local_dev") or {}
+          staging = gates.get("staging") or {}
+
+          if local.get("status") != "accepted":
+              raise SystemExit("Local/Dev acceptance gate is not accepted.")
+          if local.get("accepted_source_ref") != source_ref:
+              raise SystemExit("source_ref does not match Local/Dev accepted source.")
+          if staging.get("status") != "verification_required":
+              raise SystemExit("Staging deployment evidence is not recorded for verification.")
+          if staging.get("deployed_source_ref") != source_ref:
+              raise SystemExit("source_ref does not match recorded Staging deployment.")
+          if not staging.get("deployment_record"):
+              raise SystemExit("Staging deployment record is missing.")
+
+          print(f"staging_deployed_source=verified source_ref={source_ref}")
+          PY
+
+      - name: Require valid staging acceptance inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SHOPIFY_API_SECRET:-}" ]; then
+            echo "SHOPIFY_API_SECRET is required." >&2
+            exit 1
+          fi
+
+          if ! [[ "$STAGING_SHOP_DOMAIN" =~ ^[a-z0-9][a-z0-9-]*\.myshopify\.com$ ]]; then
+            echo "staging_shop must be a valid *.myshopify.com domain." >&2
+            exit 1
+          fi
+
+      - name: Verify deployed health and billing contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
+          expected_plans = [
+              {"id": "starter", "amount": 10.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "growth", "amount": 19.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "pro", "amount": 34.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "unlimited", "amount": 54.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+          ]
+
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-stock-down-sort-staging-acceptance/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      if response.status != 200:
+                          raise RuntimeError(f"unexpected HTTP status: {response.status}")
+                      payload = json.loads(response.read().decode("utf-8"))
+
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("health ok flag is not true")
+                  if payload.get("service") != "vsn-stock-down-sort":
+                      raise RuntimeError("unexpected service identity")
+                  if payload.get("environment") != "staging":
+                      raise RuntimeError("unexpected environment")
+                  if payload.get("billingTestMode") is not True:
+                      raise RuntimeError("staging billing is not in test mode")
+                  if payload.get("database") != "postgresql":
+                      raise RuntimeError("unexpected database mode")
+
+                  sort_queue = payload.get("sortQueue") or {}
+                  if sort_queue.get("required") is not True:
+                      raise RuntimeError("staging sort queue is not marked required")
+                  if sort_queue.get("configured") is not True:
+                      raise RuntimeError("staging sort queue binding is missing")
+                  if sort_queue.get("ready") is not True:
+                      raise RuntimeError("staging sort queue is not ready")
+                  if sort_queue.get("mode") != "cloudflare-queue":
+                      raise RuntimeError("unexpected staging sort queue mode")
+
+                  if payload.get("billingCatalog", {}).get("plans") != expected_plans:
+                      raise RuntimeError("staging billing catalog mismatch")
+
+                  print("staging_runtime_health=pass")
+                  print("staging_sort_queue=pass")
+                  print("staging_billing_contract=four_plans_10_day_trials")
+                  break
+              except Exception:
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+          PY
+
+      - name: Verify signed Shopify session and subscription reads
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import hmac
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
+
+          shop = os.environ["STAGING_SHOP_DOMAIN"].strip().lower()
+          path = "/internal/staging-acceptance"
+          timestamp = str(int(time.time()))
+          message = f"{timestamp}\n{shop}\n{path}".encode("utf-8")
+          signature = hmac.new(
+              os.environ["SHOPIFY_API_SECRET"].encode("utf-8"),
+              message,
+              hashlib.sha256,
+          ).hexdigest()
+
+          url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + path
+          request = urllib.request.Request(
+              url,
+              headers={
+                  "User-Agent": "vsn-stock-down-sort-staging-acceptance/1.0",
+                  "X-VSN-Shop": shop,
+                  "X-VSN-Timestamp": timestamp,
+                  "X-VSN-Signature": signature,
+              },
+          )
+
+          payload = None
+          last_error = None
+          for attempt in range(1, 4):
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  break
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", errors="replace")
+                  last_error = RuntimeError(
+                      f"staging acceptance HTTP {exc.code}: {body[:500]}"
+                  )
+                  if attempt == 3:
+                      raise last_error
+                  time.sleep(attempt * 2)
+
+          if payload is None:
+              raise last_error or RuntimeError("staging acceptance returned no payload")
+          if payload.get("ok") is not True:
+              raise RuntimeError("staging acceptance returned ok=false")
+
+          session = payload.get("session") or {}
+          if session.get("offlineSessionAvailable") is not True:
+              raise RuntimeError("offline Shopify session is unavailable")
+          if int(session.get("storedSessionCount", 0)) < 1:
+              raise RuntimeError("no stored Shopify sessions were found")
+
+          admin = payload.get("adminGraphql") or {}
+          if admin.get("ok") is not True:
+              raise RuntimeError("Shopify Admin GraphQL read did not pass")
+
+          subscriptions = payload.get("subscriptions") or {}
+          if subscriptions.get("readOk") is not True:
+              raise RuntimeError("activeSubscriptions read did not return an array")
+          recognized = subscriptions.get("recognizedPlanIds") or []
+          if os.environ["EXPECTED_BILLING_PLAN_ID"] not in recognized:
+              raise RuntimeError(
+                  f"expected active plan {os.environ['EXPECTED_BILLING_PLAN_ID']} was not recognized"
+              )
+
+          print("staging_offline_session=pass")
+          print("staging_admin_graphql=pass")
+          print("staging_subscription_read=pass")
+          print(f"staging_stored_sessions={session.get('storedSessionCount')}")
+          print(f"staging_active_subscriptions={subscriptions.get('activeCount')}")
+          print(f"staging_verified_plan={os.environ['EXPECTED_BILLING_PLAN_ID']}")
+          PY
