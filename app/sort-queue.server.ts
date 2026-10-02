@@ -1,9 +1,20 @@
-export type SortQueueJob = {
-  kind: "sort" | "enable";
-  shop: string;
-  collectionId: string;
-  reason: "inventory-update" | "product-update" | "bulk-enable" | "rules-update";
-};
+export type SortQueueJob =
+  | {
+      kind: "sort" | "enable";
+      shop: string;
+      collectionId: string;
+      reason:
+        | "inventory-update"
+        | "product-update"
+        | "bulk-enable"
+        | "rules-update";
+    }
+  | {
+      kind: "visibility";
+      shop: string;
+      productId: string;
+      reason: "inventory-update" | "product-update";
+    };
 
 type QueueBindingLike = {
   sendBatch(
@@ -26,8 +37,8 @@ function getCloudflareQueueContext(context: unknown) {
 }
 
 /**
- * Enqueue hosted sorting work. Local development has no Queue binding and
- * returns false so callers can use the deterministic direct fallback.
+ * Enqueue hosted stock automation work. Local development has no Queue binding
+ * and returns false so callers can use the deterministic direct fallback.
  */
 export async function enqueueSortJobs(
   context: unknown,
