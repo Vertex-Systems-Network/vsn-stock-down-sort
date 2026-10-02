@@ -275,7 +275,11 @@
         "OPT-SOLD-OUT-PUSH-DOWN",
         "OPT-REALTIME-RESORT",
         "OPT-RESTORE-ORIGINAL-POSITION",
-        "OPT-MANUAL-BULK-SORT"
+        "OPT-MANUAL-BULK-SORT",
+        "OPT-TAG-EXCLUSIONS",
+        "OPT-PINNED-PRODUCTS",
+        "OPT-ADVANCED-SORT-RULES",
+        "OPT-MULTI-LOCATION"
       ],
       "data_entities": [
         "Shopify AppSubscription"
@@ -312,7 +316,7 @@
         "PR #76 / App Validation #301 validated the final plan-switch navigation fix."
       ],
       "update_notes": [
-        "Billing runtime acceptance is complete; further work moves to the guarded Staging promotion sequence."
+        "PHASE-02 runtime entitlements now include exclusions, pinned products, advanced sorting and multi-location inventory according to the canonical plan tiers."
       ],
       "removal_or_deprecation_notes": []
     },
