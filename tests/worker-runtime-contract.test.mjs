@@ -175,11 +175,12 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
   assert.doesNotMatch(workflow, /shopify app deploy/);
   assert.doesNotMatch(workflow, /shopify app config push/);
 
-  const bootstrap = read(".github/workflows/cloudflare-production-bootstrap-once.yml");
-  assert.match(bootstrap, /branches:\s*\n\s*- main/);
-  assert.match(bootstrap, /cloudflare-production-prepare\.yml/);
-  assert.match(bootstrap, /confirm: PREPARE_PRODUCTION_WORKER_ONLY/);
-  assert.match(bootstrap, /secrets: inherit/);
+  assert.equal(
+    fs.existsSync(
+      path.join(root, ".github/workflows/cloudflare-production-bootstrap-once.yml"),
+    ),
+    false,
+  );
 });
 
 
@@ -952,10 +953,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "production-readiness");
+  assert.equal(state.current_module, "shopify-production-candidate");
   assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Production Readiness/i);
+  assert.match(state.next_valid_work_unit, /Shopify Production Candidate/i);
   assert.match(state.next_valid_work_unit, /ca5851561ab7979712f11580ab951fda4650ef19/);
 
   assert.equal(plan.active_issue, 32);
