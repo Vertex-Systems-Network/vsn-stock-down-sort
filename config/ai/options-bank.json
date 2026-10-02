@@ -102,18 +102,22 @@
       "category": "sorting",
       "description": "Tag/vendor/product exclusions",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-PINNED-PRODUCTS",
@@ -121,18 +125,22 @@
       "category": "sorting",
       "description": "Pinned products",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-ADVANCED-SORT-RULES",
@@ -140,18 +148,22 @@
       "category": "automation",
       "description": "Advanced collection sorting",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-LOW-STOCK-EMAIL",
@@ -311,18 +323,22 @@
       "category": "sorting",
       "description": "Multi-location inventory rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-RULE-BUILDER",
