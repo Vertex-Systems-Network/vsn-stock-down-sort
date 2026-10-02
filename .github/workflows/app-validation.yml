@@ -76,6 +76,9 @@ jobs:
       - name: PHASE-02 sorting contract
         run: node --test tests/phase-02-sorting-contract.test.mjs
 
+      - name: PHASE-03 product visibility contract
+        run: node --test tests/phase-03-product-visibility-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 

@@ -157,7 +157,7 @@ test("merchant UI persists PHASE-02 rules and hosted re-sorts use Queue", () => 
   assert.ok(consumer.includes('job.reason === "rules-update"'));
 });
 
-test("PHASE-02 completion is repository-tracked under Issue 97", () => {
+test("PHASE-02 completion remains repository-tracked after later phases advance", () => {
   const plan = JSON.parse(read("config/ai/execution-plan.json"));
   const state = JSON.parse(read("config/ai/project-state.json"));
   const modules = JSON.parse(read("config/ai/modules-bank.json"));
@@ -167,15 +167,18 @@ test("PHASE-02 completion is repository-tracked under Issue 97", () => {
     (item) => item.id === "MOD-SORTING-CONTROLS",
   );
 
-  assert.equal(plan.active_issue, 97);
-  assert.equal(state.active_issue, 97);
-  assert.equal(state.current_phase, "PHASE-02");
-  assert.match(state.next_valid_work_unit, /PHASE-03 Product & Variant Visibility/);
-  assert.match(state.qa_readiness, /not.*Staging\/Production|No PHASE-02 Staging\/Production/i);
   assert.ok(phase);
   assert.ok(module);
   assert.equal(phase.status, "complete");
   assert.equal(module.status, "complete");
+
+  assert.ok(
+    plan.phases.some(
+      (item) => item.id === state.current_phase && item.status === "complete",
+    ),
+  );
+  assert.ok(Number.isInteger(state.active_issue));
+  assert.ok(state.active_issue >= 97);
 
   for (const id of [
     "ISSUE-97-WU-01",
@@ -186,5 +189,6 @@ test("PHASE-02 completion is repository-tracked under Issue 97", () => {
     const workUnit = plan.work_units.find((item) => item.id === id);
     assert.ok(workUnit);
     assert.equal(workUnit.status, "complete");
+    assert.match(workUnit.phase_id, /^PHASE-02$/);
   }
 });

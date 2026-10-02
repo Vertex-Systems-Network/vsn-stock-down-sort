@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 97,
+  "active_issue": 100,
   "phases": [
     {
       "id": "PHASE-01",
@@ -60,6 +60,27 @@
         "Merchant collection Rules UI is implemented.",
         "Worker build plus Staging and Production Cloudflare dry-runs passed.",
         "No PHASE-02 Staging or Production deployment/promotion occurred in this implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-03",
+      "name": "Product & Variant Visibility",
+      "objective": "Automate sold-out product visibility safely and provide an entitlement-gated storefront mechanism for sold-out variants.",
+      "module_ids": [
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-02"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "All five PHASE-03 visibility option IDs are repository-implemented and fail closed by current Shopify plan.",
+        "Merchant-owned product status is never blindly overwritten during hide/restore reconciliation.",
+        "Products and inventory webhooks use the shared visibility engine in hosted Queue and Local fallback paths.",
+        "A real Shopify theme app extension handles storefront sold-out variant visibility and restore.",
+        "Latest implementation-head App Validation, Worker build and staging/production dry-runs pass."
       ]
     }
   ],
@@ -570,6 +591,121 @@
         "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
         "Post-merge App Validation #377 / run 37007855200 passed on development."
       ]
+    },
+    {
+      "id": "ISSUE-100-WU-01",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement product visibility state and entitlement-safe engine",
+      "objective": "Persist visibility settings/state and reconcile sold-out products without overwriting merchant-owned statuses.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching additive visibility models.",
+        "DRAFT and UNLISTED modes are plan-gated.",
+        "Only VSN-managed product states are restored on restock."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "App Validation #394 / run 37016155170 passed.",
+        "VisibilitySetting and ProductVisibilityState migrations validated in Local SQLite and hosted PostgreSQL.",
+        "Merchant status override and safe ACTIVE restore guards are enforced."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-02",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Integrate product visibility with webhooks, Queue and merchant controls",
+      "objective": "Run the same visibility engine from product/inventory events and expose plan-aware merchant configuration.",
+      "dependencies": [
+        "ISSUE-100-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Products/update and inventory_levels/update enqueue visibility work in hosted runtime.",
+        "Local runtime has deterministic direct fallback.",
+        "/app/visibility saves only entitled settings."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "Hosted Queue visibility job validation and consumer path implemented.",
+        "Product/inventory webhook direct fallback uses the same reconciliation engine.",
+        "Visibility settings UI is current-plan gated."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-03",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement entitlement-gated storefront variant visibility",
+      "objective": "Hide unavailable variant-linked storefront controls through a Shopify theme app extension and restore them when available.",
+      "dependencies": [
+        "ISSUE-100-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Theme app extension exists under extensions/ and does not edit merchant theme source.",
+        "Extension uses Shopify variant availability rather than Admin-only metadata.",
+        "Extension availability is plan-gated using an app-data metafield.",
+        "Merchant can open Shopify theme editor activation flow from the app."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "extensions/vsn-variant-visibility implements product-template app embed plus storefront runtime.",
+        "Liquid variant.available drives sold-out detection.",
+        "AppInstallation metafield variant_visibility_entitled gates extension availability.",
+        "Runtime preserves theme-owned hidden/disabled states.",
+        "Shopify extension deployment/activation remains a separate Staging/Production promotion gate."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-04",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Certify PHASE-03 and reconcile repository truth",
+      "objective": "Keep product/options/state registries aligned with only verified PHASE-03 implementation.",
+      "dependencies": [
+        "ISSUE-100-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product plan runtime IDs include exactly implemented PHASE-03 capabilities.",
+        "Options bank marks the five implemented capabilities truthfully.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head f50c666dec44bc1c479bbbbfdb8eddec3ef4a844 passed App Validation #394 / run 37016155170.",
+        "All validation steps including Worker build and staging/production Cloudflare dry-runs passed.",
+        "No PHASE-03 Staging or Production runtime promotion is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -584,5 +720,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "ae2c5a93846725683ba4e6c2516bda1463dc2278"
+  "last_reconciled_repository_ref": "f50c666dec44bc1c479bbbbfdb8eddec3ef4a844"
 }

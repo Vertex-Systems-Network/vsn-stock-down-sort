@@ -1,10 +1,11 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: 97
+active_issue: 100
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-97-WU-04
+active_work_unit: ISSUE-100-WU-04
 status: complete
 note: >
-  PHASE-02 Core Sorting Controls is merged and CI-certified on development.
-  Issue #97 may close after this final evidence reconciliation merges.
+  PHASE-03 implementation is certified on PR #101 implementation head by
+  App Validation #394. Final repository-state reconciliation and latest-head
+  validation are required before merge and Issue #100 closure.

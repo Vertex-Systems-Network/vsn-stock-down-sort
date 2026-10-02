@@ -32,23 +32,46 @@ model Session {
 }
 
 model CollectionSetting {
-  id                String   @id @default(cuid())
-  shop              String
-  collectionId      String
-  enabled           Boolean  @default(false)
-  previousSortOrder String?
-  lastSortedAt      DateTime?
-  lastError         String?
-  excludedTags        String   @default("")
-  excludedVendors     String   @default("")
-  excludedProducts    String   @default("")
-  pinnedProducts      String   @default("")
-  availableSortMode   String   @default("PRESERVE")
-  inventoryMode       String   @default("ALL_LOCATIONS")
-  inventoryLocationIds String  @default("")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  shop                 String
+  collectionId         String
+  enabled              Boolean  @default(false)
+  previousSortOrder    String?
+  lastSortedAt         DateTime?
+  lastError            String?
+  excludedTags         String   @default("")
+  excludedVendors      String   @default("")
+  excludedProducts     String   @default("")
+  pinnedProducts       String   @default("")
+  availableSortMode    String   @default("PRESERVE")
+  inventoryMode        String   @default("ALL_LOCATIONS")
+  inventoryLocationIds String   @default("")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@unique([shop, collectionId])
   @@index([shop, enabled])
+}
+
+model VisibilitySetting {
+  shop          String   @id
+  productMode   String   @default("OFF")
+  autoRepublish Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProductVisibilityState {
+  id             String    @id @default(cuid())
+  shop           String
+  productId      String
+  previousStatus String?
+  managedStatus  String?
+  hiddenAt       DateTime?
+  restoredAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([shop, productId])
+  @@index([shop, managedStatus])
 }

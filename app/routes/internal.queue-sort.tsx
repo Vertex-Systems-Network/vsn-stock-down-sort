@@ -4,6 +4,7 @@ import {
   enableCollection,
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
+import { reconcileProductVisibility } from "../services/product-visibility.server";
 import type { SortQueueJob } from "../sort-queue.server";
 
 type QueueConsumerContextLike = {
@@ -19,17 +20,35 @@ function isQueueConsumer(context: unknown) {
   );
 }
 
+function validShop(shop: unknown) {
+  return (
+    typeof shop === "string" &&
+    /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop)
+  );
+}
+
 function isValidJob(value: unknown): value is SortQueueJob {
   if (!value || typeof value !== "object") return false;
 
   const job = value as Partial<SortQueueJob>;
+  if (!validShop(job.shop)) return false;
+
+  if (job.kind === "visibility") {
+    return (
+      typeof (job as { productId?: unknown }).productId === "string" &&
+      (job as { productId: string }).productId.startsWith(
+        "gid://shopify/Product/",
+      ) &&
+      (job.reason === "inventory-update" || job.reason === "product-update")
+    );
+  }
 
   return (
     (job.kind === "sort" || job.kind === "enable") &&
-    typeof job.shop === "string" &&
-    /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(job.shop) &&
-    typeof job.collectionId === "string" &&
-    job.collectionId.startsWith("gid://shopify/Collection/") &&
+    typeof (job as { collectionId?: unknown }).collectionId === "string" &&
+    (job as { collectionId: string }).collectionId.startsWith(
+      "gid://shopify/Collection/",
+    ) &&
     (job.reason === "inventory-update" ||
       job.reason === "product-update" ||
       job.reason === "bulk-enable" ||
@@ -52,6 +71,15 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   const { admin } = await unauthenticated.admin(payload.shop);
+
+  if (payload.kind === "visibility") {
+    const result = await reconcileProductVisibility(
+      admin,
+      payload.shop,
+      payload.productId,
+    );
+    return Response.json({ ok: true, result });
+  }
 
   if (payload.kind === "enable") {
     const result = await enableCollection(

@@ -2,15 +2,17 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: 97
+active_issue: 100
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-02
-current_module: core-sorting-controls
-current_work_unit: ISSUE-97-WU-04
+current_phase: PHASE-03
+current_module: product-variant-visibility
+current_work_unit: ISSUE-100-WU-04
 note: >
-  PHASE-02 Core Sorting Controls merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.
-  Post-merge App Validation #377 / run 37007855200 passed. No PHASE-02
-  Staging or Production promotion is claimed.
+  PHASE-03 Product & Variant Visibility implementation head
+  f50c666dec44bc1c479bbbbfdb8eddec3ef4a844 passed App Validation #394 /
+  run 37016155170. PR #101 final state-reconciliation head still requires
+  latest-head validation before merge. No PHASE-03 Staging or Production
+  promotion is claimed.

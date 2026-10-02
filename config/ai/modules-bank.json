@@ -388,6 +388,85 @@
         "Repository/development implementation is complete and merged. Staging/Production promotion remains a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-PRODUCT-VISIBILITY",
+      "name": "Product & Variant Visibility",
+      "objective": "Provide entitlement-safe sold-out product visibility automation and a real storefront variant visibility mechanism.",
+      "scope": [
+        "automatic sold-out product hide/unpublish",
+        "automatic product restore on restock",
+        "SEO-safe Shopify Unlisted soft hide",
+        "sold-out variant storefront visibility",
+        "variant restore on restock",
+        "merchant visibility controls and theme-app activation flow"
+      ],
+      "boundaries": [
+        "Never restore a merchant-owned product status that VSN did not set.",
+        "Untracked inventory is not treated as sold out.",
+        "Variant visibility uses a Shopify theme app extension rather than direct theme-file mutation.",
+        "Theme extension deployment/activation remains a separate environment promotion activity.",
+        "No VSN product or collection count limits are introduced."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "option_ids": [
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE"
+      ],
+      "data_entities": [
+        "VisibilitySetting",
+        "ProductVisibilityState",
+        "Shopify Product",
+        "Shopify ProductVariant",
+        "Shopify AppInstallation app-data metafield"
+      ],
+      "contracts": [
+        "Growth+: automatic product hide/unpublish",
+        "Growth+: automatic product restore",
+        "Growth+: SEO-safe soft hide",
+        "Growth+: sold-out variant visibility",
+        "Growth+: variant restore"
+      ],
+      "ui_surfaces": [
+        "/app/visibility",
+        "Online Store product template app embed"
+      ],
+      "security_responsibilities": [
+        "Do not trust client-provided plan access.",
+        "Gate storefront extension availability with app-data entitlement state.",
+        "Preserve merchant-owned product status changes.",
+        "Use existing write_products/read_inventory permissions; do not mutate theme source files."
+      ],
+      "acceptance_criteria": [
+        "All five PHASE-03 option IDs are runtime-implemented and entitlement-gated.",
+        "Products/update and inventory_levels/update share the same visibility engine through Queue or Local fallback.",
+        "Sold-out variant handling has a real Shopify theme app extension storefront mechanism.",
+        "App Validation, PHASE-03 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-03 product visibility contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "App Validation #394 / run 37016155170 passed the complete validation chain.",
+        "Local SQLite and hosted PostgreSQL visibility persistence are schema-parity validated.",
+        "Product DRAFT/UNLISTED transitions and app-owned safe restore state are implemented.",
+        "Variant visibility theme app extension is entitlement-gated by app-data metafield and uses Liquid variant.available.",
+        "Merchant activation deep link is exposed from /app/visibility.",
+        "No Staging/Production deployment of PHASE-03 is claimed."
+      ],
+      "update_notes": [
+        "Repository/development implementation is complete; environment promotion and theme app embed activation remain guarded release activities."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
