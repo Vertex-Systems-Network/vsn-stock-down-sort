@@ -73,6 +73,9 @@ jobs:
       - name: Worker runtime contracts
         run: node --test tests/worker-runtime-contract.test.mjs
 
+      - name: PHASE-02 sorting contract
+        run: node --test tests/phase-02-sorting-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 
