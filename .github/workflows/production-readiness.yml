@@ -147,9 +147,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
-          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
-          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
-          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
-          echo "production_billing_contract=5_days_usd_55"
-          echo "production_billing_test_mode=false"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          product = json.loads(
+              Path("config/ai/product-plan.json").read_text(encoding="utf-8")
+          )
+          expected = [
+              {"id": "starter", "amount": 10.99, "trial_days": 10},
+              {"id": "growth", "amount": 19.99, "trial_days": 10},
+              {"id": "pro", "amount": 34.99, "trial_days": 10},
+              {"id": "unlimited", "amount": 54.99, "trial_days": 10},
+          ]
+
+          if product.get("currency_code") != "USD":
+              raise SystemExit("production billing currency must be USD")
+          if product.get("billing_interval") != "EVERY_30_DAYS":
+              raise SystemExit("production billing interval mismatch")
+          if product.get("trial_days") != 10:
+              raise SystemExit("production catalog trial_days must be 10")
+
+          actual = [
+              {
+                  "id": plan.get("id"),
+                  "amount": plan.get("amount"),
+                  "trial_days": plan.get("trial_days"),
+              }
+              for plan in product.get("plans") or []
+          ]
+          if actual != expected:
+              raise SystemExit(f"production billing catalog mismatch: {actual}")
+
+          print("production_billing_contract=four_plans_10_day_trials")
+          print("production_billing_test_mode=false")
+          PY
