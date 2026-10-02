@@ -2,17 +2,17 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: 103
+active_issue: 106
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-04
-current_module: analytics-activity-history
-current_work_unit: ISSUE-103-WU-04
+current_phase: PHASE-05
+current_module: rule-builder-scheduled-automation
+current_work_unit: ISSUE-106-WU-04
 note: >
-  PHASE-04 Analytics, Activity History & CSV Export merged to development as
-  a4f2472fe7e6d52ca5e02502ed9c6c461a758699. PR #104 exact-head
-  App Validation #407 / run 37033732199 passed, and post-merge
-  App Validation #408 / run 37033942983 passed the full chain.
-  No PHASE-04 Staging or Production promotion is claimed.
+  PHASE-05 Rule Builder & Scheduled Automation implementation head
+  7244f4f00e26bd045eaa76e73a61b220e3d901c6 passed App Validation #413 /
+  run 37057803474. PR #107 final state-reconciliation head still requires
+  latest-head validation before merge. No PHASE-05 Staging or Production
+  promotion is claimed.
