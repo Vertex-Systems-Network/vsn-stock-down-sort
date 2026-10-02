@@ -9,29 +9,53 @@ import { useMemo, useState } from "react";
 import { authenticate } from "../shopify.server";
 import { enqueueSortJobs } from "../sort-queue.server";
 import { withPrismaClient } from "../db.server";
-import { getCurrentSubscription } from "../services/billing.server";
+import { getCurrentSubscriptionPlan } from "../services/billing.server";
+import {
+  AVAILABLE_SORT_MODES,
+  INVENTORY_MODES,
+  PHASE2_OPTION_IDS,
+  parseRuleList,
+} from "../services/collection-sort-rules";
 import {
   disableCollection,
   enableCollection,
   listAllCollections,
+  listAllLocations,
+  saveCollectionRules,
   sortCollection,
 } from "../services/collection-sorter.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
-  const collections = await listAllCollections(admin);
-
-  const settings = await withPrismaClient((db) =>
-    db.collectionSetting.findMany({
-      where: { shop: session.shop },
-    }),
+  const current = await getCurrentSubscriptionPlan(admin);
+  const planOptionIds = current?.plan.option_ids ?? [];
+  const canUseMultiLocation = planOptionIds.includes(
+    PHASE2_OPTION_IDS.multiLocation,
   );
+
+  const [collections, settings, locations] = await Promise.all([
+    listAllCollections(admin),
+    withPrismaClient((db) =>
+      db.collectionSetting.findMany({
+        where: { shop: session.shop },
+      }),
+    ),
+    canUseMultiLocation ? listAllLocations(admin) : Promise.resolve([]),
+  ]);
 
   const settingsMap = Object.fromEntries(
     settings.map((setting) => [setting.collectionId, setting]),
   );
 
   return {
+    currentPlan: current
+      ? {
+          id: current.plan.id,
+          name: current.plan.name,
+        }
+      : null,
+    planOptionIds,
+    locations,
     collections: collections.map((collection) => ({
       ...collection,
       setting: settingsMap[collection.id] ?? null,
@@ -41,25 +65,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request, context }: ActionFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
-  const subscription = await getCurrentSubscription(admin);
+  const current = await getCurrentSubscriptionPlan(admin);
 
-  if (!subscription) {
+  if (!current) {
     return {
       ok: false,
-      message: "An active VSN Stock Down Sort subscription is required to manage collection sorting.",
+      message:
+        "An active VSN Stock Down Sort subscription is required to manage collection sorting.",
     };
   }
 
+  const entitlements = current.plan.option_ids;
   const formData = await request.formData();
   const intent = String(formData.get("intent") || "");
   const collectionId = String(formData.get("collectionId") || "");
 
   try {
     if (intent === "enable" && collectionId) {
-      const result = await enableCollection(admin, session.shop, collectionId);
+      const result = await enableCollection(
+        admin,
+        session.shop,
+        collectionId,
+        entitlements,
+      );
       return {
         ok: true,
-        message: "Collection enabled. Sold-out products are being moved to the end.",
+        message:
+          "Collection enabled. Its saved sorting rules were applied immediately.",
         result,
       };
     }
@@ -76,12 +108,82 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
 
     if (intent === "sort" && collectionId) {
-      const result = await sortCollection(admin, session.shop, collectionId);
+      const result = await sortCollection(
+        admin,
+        session.shop,
+        collectionId,
+        entitlements,
+      );
       return {
         ok: true,
         message: result.alreadySorted
-          ? "This collection is already correctly sorted."
-          : "Collection sorting started.",
+          ? "This collection already matches its configured rules."
+          : \`Collection sorted. \${result.movedProducts} product position\${result.movedProducts === 1 ? "" : "s"} changed.\`,
+        result,
+      };
+    }
+
+    if (intent === "saveRules" && collectionId) {
+      const saved = await saveCollectionRules(
+        admin,
+        session.shop,
+        collectionId,
+        {
+          excludedTags: String(formData.get("excludedTags") || ""),
+          excludedVendors: String(formData.get("excludedVendors") || ""),
+          excludedProducts: String(formData.get("excludedProducts") || ""),
+          pinnedProducts: String(formData.get("pinnedProducts") || ""),
+          availableSortMode: String(
+            formData.get("availableSortMode") || "PRESERVE",
+          ),
+          inventoryMode: String(
+            formData.get("inventoryMode") || "ALL_LOCATIONS",
+          ),
+          inventoryLocationIds: formData
+            .getAll("inventoryLocationIds")
+            .map(String)
+            .join("\n"),
+        },
+        entitlements,
+      );
+
+      if (!saved.enabled) {
+        return {
+          ok: true,
+          message:
+            "Rules saved. They will apply when this collection is enabled.",
+        };
+      }
+
+      const queued = await enqueueSortJobs(context, [
+        {
+          kind: "sort",
+          shop: session.shop,
+          collectionId,
+          reason: "rules-update",
+        },
+      ]);
+
+      if (queued) {
+        return {
+          ok: true,
+          message:
+            "Rules saved. The enabled collection was queued for re-sorting.",
+        };
+      }
+
+      const result = await sortCollection(
+        admin,
+        session.shop,
+        collectionId,
+        entitlements,
+      );
+
+      return {
+        ok: true,
+        message: result.alreadySorted
+          ? "Rules saved. The collection already matches them."
+          : "Rules saved and applied to the collection.",
         result,
       };
     }
@@ -101,7 +203,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       if (queued) {
         return {
           ok: true,
-          message: `Queued auto-sort enablement for ${collections.length} collection${collections.length === 1 ? "" : "s"}.`,
+          message: \`Queued auto-sort enablement for \${collections.length} collection\${collections.length === 1 ? "" : "s"}.\`,
         };
       }
 
@@ -110,7 +212,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
       for (const collection of collections) {
         try {
           results.push(
-            await enableCollection(admin, session.shop, collection.id),
+            await enableCollection(
+              admin,
+              session.shop,
+              collection.id,
+              entitlements,
+            ),
           );
         } catch (error) {
           results.push({
@@ -129,7 +236,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         message:
           failed === 0
             ? "Auto-sort enabled for all collections."
-            : `Finished with ${failed} collection${failed === 1 ? "" : "s"} needing attention.`,
+            : \`Finished with \${failed} collection\${failed === 1 ? "" : "s"} needing attention.\`,
         results,
       };
     }
@@ -150,7 +257,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         message:
           result.count === 0
             ? "No enabled collections needed to be disabled."
-            : `Auto-sort disabled for ${result.count} collection${result.count === 1 ? "" : "s"}.`,
+            : \`Auto-sort disabled for \${result.count} collection\${result.count === 1 ? "" : "s"}.\`,
       };
     }
 
@@ -170,14 +277,46 @@ function formatDate(value?: string | Date | null) {
 
 type StatusFilter = "all" | "enabled" | "disabled" | "attention";
 
+const SORT_MODE_LABELS = {
+  PRESERVE: "Preserve current in-stock order",
+  TITLE_ASC: "Title A → Z",
+  TITLE_DESC: "Title Z → A",
+  INVENTORY_DESC: "Inventory high → low",
+  INVENTORY_ASC: "Inventory low → high",
+  NEWEST: "Newest products first",
+  OLDEST: "Oldest products first",
+} as const;
+
+const INVENTORY_MODE_LABELS = {
+  ALL_LOCATIONS: "Aggregate inventory across all locations",
+  ANY_SELECTED_LOCATION: "In stock at any selected location",
+  ALL_SELECTED_LOCATIONS: "In stock at every selected location",
+} as const;
+
+function fieldStyle() {
+  return {
+    width: "100%",
+    boxSizing: "border-box" as const,
+    padding: "10px 12px",
+    border: "1px solid #8c9196",
+    borderRadius: "8px",
+    font: "inherit",
+    background: "white",
+  };
+}
+
 export default function AppIndex() {
-  const { collections } = useLoaderData<typeof loader>();
+  const { collections, currentPlan, planOptionIds, locations } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [editingCollectionId, setEditingCollectionId] = useState<string | null>(
+    null,
+  );
 
   const busy = navigation.state !== "idle";
   const submittedIntent = navigation.formData?.get("intent");
@@ -190,6 +329,19 @@ export default function AppIndex() {
   const attentionCount = collections.filter(
     (collection) => Boolean(collection.setting?.lastError),
   ).length;
+
+  const canUseExclusions = planOptionIds.includes(
+    PHASE2_OPTION_IDS.exclusions,
+  );
+  const canUsePinnedProducts = planOptionIds.includes(
+    PHASE2_OPTION_IDS.pinnedProducts,
+  );
+  const canUseAdvancedSort = planOptionIds.includes(
+    PHASE2_OPTION_IDS.advancedSort,
+  );
+  const canUseMultiLocation = planOptionIds.includes(
+    PHASE2_OPTION_IDS.multiLocation,
+  );
 
   const filteredCollections = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -212,6 +364,15 @@ export default function AppIndex() {
       return matchesQuery && matchesStatus;
     });
   }, [collections, query, statusFilter]);
+
+  const editingCollection =
+    collections.find(
+      (collection) => collection.id === editingCollectionId,
+    ) ?? null;
+
+  const selectedLocationIds = new Set(
+    parseRuleList(editingCollection?.setting?.inventoryLocationIds),
+  );
 
   function runAction(
     intent: string,
@@ -260,13 +421,17 @@ export default function AppIndex() {
       <s-section>
         <s-stack gap="base">
           <s-text>
-            Keep available products first and automatically push sold-out
-            products to the end of selected Shopify collections.
+            Keep available products first, pin priority products, exclude
+            products from automation, and choose how in-stock products are
+            ordered in each Shopify collection.
           </s-text>
 
           <s-stack direction="inline" gap="base">
             <s-badge tone="info">{collections.length} collections</s-badge>
             <s-badge tone="success">{enabledCount} enabled</s-badge>
+            {currentPlan ? (
+              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+            ) : null}
             {attentionCount > 0 ? (
               <s-badge tone="critical">{attentionCount} need attention</s-badge>
             ) : (
@@ -360,51 +525,69 @@ export default function AppIndex() {
                   </s-table-cell>
 
                   <s-table-cell>
-                    {enabled ? (
-                      <s-button-group>
-                        <s-button
-                          variant="secondary"
-                          onClick={() => runAction("sort", collection.id)}
-                          loading={rowBusy && submittedIntent === "sort"}
-                          disabled={busy}
-                        >
-                          Sort now
-                        </s-button>
-
-                        <s-button
-                          variant="tertiary"
-                          tone="critical"
-                          onClick={() =>
-                            runAction("disable", collection.id, false)
-                          }
-                          loading={rowBusy && submittedIntent === "disable"}
-                          disabled={busy}
-                        >
-                          Disable
-                        </s-button>
-
-                        {collection.setting?.previousSortOrder ? (
+                    <s-button-group>
+                      {enabled ? (
+                        <>
                           <s-button
-                            variant="tertiary"
-                            onClick={() =>
-                              runAction("disable", collection.id, true)
-                            }
+                            variant="secondary"
+                            onClick={() => runAction("sort", collection.id)}
+                            loading={rowBusy && submittedIntent === "sort"}
                             disabled={busy}
                           >
-                            Disable & restore
+                            Sort now
                           </s-button>
-                        ) : null}
-                      </s-button-group>
-                    ) : (
+
+                          <s-button
+                            variant="tertiary"
+                            tone="critical"
+                            onClick={() =>
+                              runAction("disable", collection.id, false)
+                            }
+                            loading={rowBusy && submittedIntent === "disable"}
+                            disabled={busy}
+                          >
+                            Disable
+                          </s-button>
+
+                          {collection.setting?.previousSortOrder ? (
+                            <s-button
+                              variant="tertiary"
+                              onClick={() =>
+                                runAction("disable", collection.id, true)
+                              }
+                              disabled={busy}
+                            >
+                              Disable & restore
+                            </s-button>
+                          ) : null}
+                        </>
+                      ) : (
+                        <s-button
+                          variant="primary"
+                          onClick={() => runAction("enable", collection.id)}
+                          loading={rowBusy && submittedIntent === "enable"}
+                          disabled={busy}
+                        >
+                          Enable
+                        </s-button>
+                      )}
+
                       <s-button
-                        variant="primary"
-                        onClick={() => runAction("enable", collection.id)}
-                        loading={rowBusy && submittedIntent === "enable"}
+                        variant="secondary"
+                        onClick={() =>
+                          setEditingCollectionId(
+                            editingCollectionId === collection.id
+                              ? null
+                              : collection.id,
+                          )
+                        }
                         disabled={busy}
                       >
-                        Enable
+                        {editingCollectionId === collection.id
+                          ? "Close rules"
+                          : "Rules"}
                       </s-button>
-                    )}
+                    </s-button-group>
                   </s-table-cell>
                 </s-table-row>
               );
@@ -422,16 +605,240 @@ export default function AppIndex() {
         ) : null}
       </s-section>
 
-      <s-section heading="How it works">
+      {editingCollection ? (
+        <s-section heading={\`Rules — \${editingCollection.title}\`}>
+          <form
+            key={\`\${editingCollection.id}:\${String(
+              editingCollection.setting?.updatedAt ?? "new",
+            )}\`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              submit(new FormData(event.currentTarget), { method: "post" });
+            }}
+          >
+            <input type="hidden" name="intent" value="saveRules" />
+            <input
+              type="hidden"
+              name="collectionId"
+              value={editingCollection.id}
+            />
+
+            <s-stack gap="large-200">
+              <s-box
+                background="subdued"
+                borderRadius="large"
+                padding="base"
+              >
+                <s-stack gap="small-200">
+                  <s-text type="strong">Rule precedence</s-text>
+                  <s-text>
+                    Excluded products stay fixed. Pinned products come next.
+                    Remaining in-stock products use the advanced sort mode, then
+                    sold-out products are placed last.
+                  </s-text>
+                </s-stack>
+              </s-box>
+
+              <s-grid
+                gridTemplateColumns="repeat(auto-fit, minmax(260px, 1fr))"
+                gap="base"
+              >
+                <div>
+                  <label htmlFor="excludedTags">
+                    <strong>Excluded tags</strong>
+                  </label>
+                  <textarea
+                    id="excludedTags"
+                    name="excludedTags"
+                    defaultValue={editingCollection.setting?.excludedTags ?? ""}
+                    disabled={!canUseExclusions}
+                    placeholder="clearance, preorder"
+                    style={{ ...fieldStyle(), minHeight: "90px" }}
+                  />
+                  <small>
+                    One value per line or comma separated. Starter and above.
+                  </small>
+                </div>
+
+                <div>
+                  <label htmlFor="excludedVendors">
+                    <strong>Excluded vendors</strong>
+                  </label>
+                  <textarea
+                    id="excludedVendors"
+                    name="excludedVendors"
+                    defaultValue={
+                      editingCollection.setting?.excludedVendors ?? ""
+                    }
+                    disabled={!canUseExclusions}
+                    placeholder="Vendor A, Vendor B"
+                    style={{ ...fieldStyle(), minHeight: "90px" }}
+                  />
+                  <small>Matching is case-insensitive.</small>
+                </div>
+
+                <div>
+                  <label htmlFor="excludedProducts">
+                    <strong>Excluded products</strong>
+                  </label>
+                  <textarea
+                    id="excludedProducts"
+                    name="excludedProducts"
+                    defaultValue={
+                      editingCollection.setting?.excludedProducts ?? ""
+                    }
+                    disabled={!canUseExclusions}
+                    placeholder="product-handle or gid://shopify/Product/..."
+                    style={{ ...fieldStyle(), minHeight: "90px" }}
+                  />
+                  <small>Use product handles or Shopify product GIDs.</small>
+                </div>
+
+                <div>
+                  <label htmlFor="pinnedProducts">
+                    <strong>Pinned products</strong>
+                  </label>
+                  <textarea
+                    id="pinnedProducts"
+                    name="pinnedProducts"
+                    defaultValue={
+                      editingCollection.setting?.pinnedProducts ?? ""
+                    }
+                    disabled={!canUsePinnedProducts}
+                    placeholder="first-product&#10;second-product"
+                    style={{ ...fieldStyle(), minHeight: "90px" }}
+                  />
+                  <small>
+                    Order in this list is pin priority. Growth and above.
+                  </small>
+                </div>
+              </s-grid>
+
+              <div>
+                <label htmlFor="availableSortMode">
+                  <strong>In-stock product order</strong>
+                </label>
+                <select
+                  id="availableSortMode"
+                  name="availableSortMode"
+                  defaultValue={
+                    editingCollection.setting?.availableSortMode ?? "PRESERVE"
+                  }
+                  disabled={!canUseAdvancedSort}
+                  style={fieldStyle()}
+                >
+                  {AVAILABLE_SORT_MODES.map((mode) => (
+                    <option key={mode} value={mode}>
+                      {SORT_MODE_LABELS[mode]}
+                    </option>
+                  ))}
+                </select>
+                <small>
+                  Advanced sorting is available on Growth and above.
+                </small>
+              </div>
+
+              <div>
+                <label htmlFor="inventoryMode">
+                  <strong>Inventory rule</strong>
+                </label>
+                <select
+                  id="inventoryMode"
+                  name="inventoryMode"
+                  defaultValue={
+                    editingCollection.setting?.inventoryMode ?? "ALL_LOCATIONS"
+                  }
+                  disabled={!canUseMultiLocation}
+                  style={fieldStyle()}
+                >
+                  {INVENTORY_MODES.map((mode) => (
+                    <option key={mode} value={mode}>
+                      {INVENTORY_MODE_LABELS[mode]}
+                    </option>
+                  ))}
+                </select>
+                <small>
+                  Selected-location rules are available on Pro and Unlimited.
+                  Aggregate inventory remains the default for every plan.
+                </small>
+              </div>
+
+              {canUseMultiLocation ? (
+                <s-box
+                  border="base base solid"
+                  borderRadius="large"
+                  padding="base"
+                >
+                  <s-stack gap="small-300">
+                    <s-text type="strong">Inventory locations</s-text>
+                    {locations.length ? (
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns:
+                            "repeat(auto-fit, minmax(220px, 1fr))",
+                          gap: "10px",
+                        }}
+                      >
+                        {locations.map((location) => (
+                          <label key={location.id}>
+                            <input
+                              type="checkbox"
+                              name="inventoryLocationIds"
+                              value={location.id}
+                              defaultChecked={selectedLocationIds.has(
+                                location.id,
+                              )}
+                            />{" "}
+                            {location.name}
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <s-text>No active Shopify locations were returned.</s-text>
+                    )}
+                  </s-stack>
+                </s-box>
+              ) : null}
+
+              <s-stack direction="inline" gap="base">
+                <s-button
+                  type="submit"
+                  variant="primary"
+                  loading={
+                    busy &&
+                    submittedIntent === "saveRules" &&
+                    submittedCollectionId === editingCollection.id
+                  }
+                  disabled={busy}
+                >
+                  Save rules
+                </s-button>
+                <s-text>
+                  Saved rules are re-applied automatically when an enabled
+                  collection receives inventory/product webhooks.
+                </s-text>
+              </s-stack>
+            </s-stack>
+          </form>
+        </s-section>
+      ) : null}
+
+      <s-section heading="How PHASE-02 sorting works">
         <s-stack gap="base">
           <s-text>
-            Enabling a collection stores its previous Shopify sort order,
-            changes the collection to Manual, preserves the relative order of
-            available products, and moves sold-out products to the end.
+            Exclusion rules keep matching products at their exact collection
+            positions. Pinned products take priority among all other products.
           </s-text>
           <s-text>
-            Inventory and product webhooks keep enabled collections updated
-            after the initial sort.
+            Remaining available products can preserve their current order or
+            sort by title, inventory, or product age. Sold-out products remain
+            at the end.
+          </s-text>
+          <s-text>
+            Pro and Unlimited plans can evaluate stock using any or every
+            selected Shopify inventory location. Inventory and product webhooks
+            re-run the same server-side rule engine.
           </s-text>
         </s-stack>
       </s-section>
