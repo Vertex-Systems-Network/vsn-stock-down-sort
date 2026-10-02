@@ -378,16 +378,12 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Tag/vendor/product exclusions implemented with fixed-position exclusion semantics.",
-        "Pinned products implemented with configured priority.",
-        "Advanced available-product sorting modes implemented.",
-        "Multi-location ANY_SELECTED and ALL_SELECTED inventory rules implemented.",
-        "Per-collection embedded Rules UI implemented.",
-        "Active-plan server-side entitlement enforcement implemented.",
-        "App Validation #366 / run 37007055080 passed all checks on implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08."
+        "PHASE-02 implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08 passed App Validation #366 / run 37007055080.",
+        "All four PHASE-02 option IDs are marked runtime-implemented in canonical product/options registries.",
+        "Additive Local/cloud schema migrations, server-side entitlements, sorting engine, Queue integration and merchant UI are implemented."
       ],
       "update_notes": [
-        "Repository/development implementation is complete. Hosted promotion remains a separate guarded release concern."
+        "Repository implementation complete on development; environment promotion is a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
     }
