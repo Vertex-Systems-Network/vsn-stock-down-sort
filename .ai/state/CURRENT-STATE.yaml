@@ -11,8 +11,8 @@ current_phase: PHASE-03
 current_module: product-variant-visibility
 current_work_unit: ISSUE-100-WU-04
 note: >
-  PHASE-03 Product & Variant Visibility implementation head
-  f50c666dec44bc1c479bbbbfdb8eddec3ef4a844 passed App Validation #394 /
-  run 37016155170. PR #101 final state-reconciliation head still requires
-  latest-head validation before merge. No PHASE-03 Staging or Production
-  promotion is claimed.
+  PHASE-03 Product & Variant Visibility merged to development as
+  e428ab8b3df4f3832b32abde76014fc3daad1ea0. PR #101 exact-head
+  App Validation #398 / run 37030996617 passed, and post-merge
+  App Validation #399 / run 37031133345 passed the full chain.
+  No PHASE-03 Staging or Production promotion is claimed.
