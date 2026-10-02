@@ -326,8 +326,10 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 50,
-      "status": "not_started",
-      "blockers": [],
+      "status": "in_progress",
+      "blockers": [
+        "Dedicated staging Shopify test store must have the released staging app installed and one test billing plan active before signed runtime acceptance can pass."
+      ],
       "acceptance_criteria": [
         "Runtime health passes.",
         "Signed staging acceptance passes against isolated test shop."
@@ -348,7 +350,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 60,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Exact staging candidate created and released.",
@@ -359,10 +361,11 @@
         "Shopify Staging Release"
       ],
       "completion_evidence": [
-        "Shopify Staging Version #1 (run 36985767671) passed on development.",
-        "Unreleased candidate stock-down-sort-staging-ca5851561ab7-1 was created for accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
-        "Staging Shopify identity isolation checks passed and Local/Production configs remained untouched.",
-        "Candidate remains unreleased; Shopify Staging Release is still required."
+        "Shopify Staging Version #1 (run 36985767671) passed and created unreleased candidate stock-down-sort-staging-ca5851561ab7-1.",
+        "Shopify Staging Release #1 (run 36987141830) verified and released exact candidate stock-down-sort-staging-ca5851561ab7-1.",
+        "Candidate was bound to accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
+        "Staging Shopify identity isolation checks passed.",
+        "Local and Production configs remained untouched."
       ]
     },
     {
