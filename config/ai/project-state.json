@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-97-WU-04",
   "active_issue": 97,
   "last_verified_completion": "PHASE-02 Core Sorting Controls merged to development via PR #98 as ae2c5a93846725683ba4e6c2516bda1463dc2278; post-merge App Validation #377 / run 37007855200 passed the full validation chain.",
-  "next_valid_work_unit": "PHASE-02 is complete on development and Issue #97 can close after this final evidence reconciliation merges. Next planned feature phase is PHASE-03 Product & Variant Visibility; it is not started or promoted. PHASE-02 is not claimed as deployed to Staging or Production.",
+  "next_valid_work_unit": "PHASE-02 implementation is complete on development and merged via PR #98. Issue #97 can close after this final evidence reconciliation merges. Next planned feature phase is PHASE-03 Product & Variant Visibility; it is not started or promoted. PHASE-02 is not claimed as deployed to Staging or Production.",
   "progress": {
     "total_work_units": 15,
     "complete": 14,
