@@ -358,7 +358,12 @@
         "Shopify Staging Version",
         "Shopify Staging Release"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Shopify Staging Version #1 (run 36985767671) passed on development.",
+        "Unreleased candidate stock-down-sort-staging-ca5851561ab7-1 was created for accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
+        "Staging Shopify identity isolation checks passed and Local/Production configs remained untouched.",
+        "Candidate remains unreleased; Shopify Staging Release is still required."
+      ]
     },
     {
       "id": "ISSUE-32-WU-07",
