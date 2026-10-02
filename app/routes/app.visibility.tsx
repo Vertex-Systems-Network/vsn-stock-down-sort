@@ -138,7 +138,7 @@ export default function VisibilityPage() {
               </label>
 
               <s-text color="subdued">
-                SEO-safe mode uses Shopify's Unlisted product status, keeping the
+                SEO-safe mode uses Shopify Unlisted product status, keeping the
                 direct product URL available while removing the product from
                 Shopify-powered collections, search, recommendations and sitemap
                 discovery.
