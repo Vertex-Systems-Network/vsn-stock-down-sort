@@ -37,6 +37,13 @@ model CollectionSetting {
   previousSortOrder String?
   lastSortedAt      DateTime?
   lastError         String?
+  excludedTags        String   @default("")
+  excludedVendors     String   @default("")
+  excludedProducts    String   @default("")
+  pinnedProducts      String   @default("")
+  availableSortMode   String   @default("PRESERVE")
+  inventoryMode       String   @default("ALL_LOCATIONS")
+  inventoryLocationIds String  @default("")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

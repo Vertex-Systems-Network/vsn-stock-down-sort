@@ -2,16 +2,15 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: 32
+active_issue: 97
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-01
-current_module: production-live
-current_work_unit: ISSUE-32-WU-07
+current_phase: PHASE-02
+current_module: core-sorting-controls
+current_work_unit: ISSUE-97-WU-04
 note: >
-  PHASE-01 is complete. Shopify Production Release #1 released
-  stock-down-sort-production-516ab92a2d1a-1 and Shopify CLI reported the exact app name
-  VSN | Stock Down Sort. The workflow failure was only a post-release
-  output-capture bug and must not trigger a duplicate release.
+  PHASE-02 repository implementation is complete and CI-certified on development.
+  It is not yet claimed as promoted to Staging or Production. Next planned
+  feature phase is PHASE-03 Product & Variant Visibility.

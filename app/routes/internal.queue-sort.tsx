@@ -32,7 +32,8 @@ function isValidJob(value: unknown): value is SortQueueJob {
     job.collectionId.startsWith("gid://shopify/Collection/") &&
     (job.reason === "inventory-update" ||
       job.reason === "product-update" ||
-      job.reason === "bulk-enable")
+      job.reason === "bulk-enable" ||
+      job.reason === "rules-update")
   );
 }
 

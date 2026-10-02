@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 32,
+  "active_issue": 97,
   "phases": [
     {
       "id": "PHASE-01",
@@ -25,6 +25,38 @@
         "Staging Shopify auth/session/Admin API reads pass.",
         "The four-plan billing catalog contract is verified in hosted environments.",
         "Production remains unmodified until Staging acceptance evidence exists."
+      ]
+    },
+    {
+      "id": "PHASE-02",
+      "name": "Core Sorting Controls",
+      "objective": "Extend the production sorting engine with merchant-configurable exclusions, pinned products, advanced available-product ordering, and multi-location inventory rules while enforcing plan-tier capabilities at runtime.",
+      "module_ids": [
+        "MOD-SORTING-CONTROLS",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-01"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Tag/vendor/product exclusions are configurable per collection and excluded products remain fixed at their original positions.",
+        "Pinned products are configurable per collection and take priority over stock-state ordering for entitled plans.",
+        "Advanced available-product sorting modes are configurable and deterministic.",
+        "Multi-location inventory rules can use selected Shopify locations to decide stock state.",
+        "Current Shopify subscription entitlements are enforced server-side for all four capabilities, including webhook/queue-triggered sorts.",
+        "Local SQLite and hosted PostgreSQL migrations are additive and schema parity passes.",
+        "Merchant UI can configure all PHASE-02 rules.",
+        "Phase contract tests, lint, typecheck, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #98 implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08 passed App Validation #366 / run 37007055080.",
+        "Local SQLite and hosted PostgreSQL PHASE-02 migrations are additive and schema parity passed.",
+        "Server-side entitlement gates cover exclusions, pinned products, advanced sorting and multi-location rules.",
+        "Manual, webhook and Queue sorts share the same PHASE-02 sorting engine.",
+        "Merchant collection Rules UI is implemented.",
+        "Worker build plus Staging and Production Cloudflare dry-runs passed."
       ]
     }
   ],
@@ -416,6 +448,117 @@
         "Workflow conclusion was failure only because the verification command redirected the wrong output stream before grep; the release and remote-name evidence themselves passed.",
         "Live gate reconciled to accepted without rerunning the already-successful release."
       ]
+    },
+    {
+      "id": "ISSUE-97-WU-01",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Add sorting-rule data model and entitlement contract",
+      "objective": "Persist collection sorting rules in Local/hosted schemas and fail closed on plan-tier entitlements.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local and cloud CollectionSetting models contain identical additive PHASE-02 rule fields.",
+        "Runtime rules are limited by the current Shopify plan rather than client input."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "Local/cloud CollectionSetting rule fields and additive migrations are parity-validated.",
+        "Server-side current-plan entitlement enforcement fails closed."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-02",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement exclusions and pinned products",
+      "objective": "Keep excluded products fixed and place configured pinned products ahead of other movable products.",
+      "dependencies": [
+        "ISSUE-97-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Tag, vendor and product selectors are supported.",
+        "Pinned product priority follows merchant-configured order.",
+        "Rules work in manual and webhook/queue-triggered sorts."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "Tag/vendor/product exclusions and ordered pinned product selectors are implemented in the shared sorting engine.",
+        "Enabled collection rule changes are re-sorted through Cloudflare Queue with Local direct fallback."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-03",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement advanced collection sorting",
+      "objective": "Sort in-stock movable products deterministically while preserving sold-out grouping and exclusion/pin precedence.",
+      "dependencies": [
+        "ISSUE-97-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Preserve, title, inventory and created-date ordering modes are supported.",
+        "Only changed product positions are sent to Shopify and move batches remain within Shopify's 250-move limit."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "PRESERVE, TITLE_ASC, TITLE_DESC, INVENTORY_DESC, INVENTORY_ASC, NEWEST and OLDEST available-product modes are implemented.",
+        "Shopify collection move mutations are chunked to the documented 250-move maximum and only generated for changed target positions."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-04",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement multi-location rules and merchant controls",
+      "objective": "Use selected Shopify inventory locations for stock-state evaluation and expose complete per-collection configuration in the embedded UI.",
+      "dependencies": [
+        "ISSUE-97-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Active Shopify locations are discoverable with existing read_inventory scope.",
+        "ANY_SELECTED and ALL_SELECTED location modes are supported.",
+        "UI saves rules and immediately reapplies them for enabled collections.",
+        "Options/product-plan runtime status and docs/state reflect only verified implementation."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "ALL_LOCATIONS, ANY_SELECTED_LOCATION and ALL_SELECTED_LOCATIONS stock evaluation modes are implemented.",
+        "Shopify locations and available inventory quantities are read with existing inventory scope.",
+        "Embedded merchant UI exposes rule controls according to current plan entitlements."
+      ]
     }
   ],
   "status_values": [
@@ -430,5 +573,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f"
+  "last_reconciled_repository_ref": "8f47fbc86e44da94eff316e0d84b68a4717e1b08"
 }

@@ -1,4 +1,14 @@
 import { withPrismaClient } from "../db.server";
+import { getCurrentSubscriptionPlan } from "./billing.server";
+import {
+  assertCollectionRuleEntitlements,
+  effectiveCollectionRules,
+  normalizeCollectionRuleInput,
+  parseRuleList,
+  type AvailableSortMode,
+  type CollectionRuleInput,
+  type InventoryMode,
+} from "./collection-sort-rules";
 
 type AdminClient = {
   graphql: (
@@ -10,6 +20,11 @@ type AdminClient = {
 type CollectionProduct = {
   id: string;
   title: string;
+  handle: string;
+  vendor: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
   totalInventory: number | null;
   tracksInventory: boolean;
 };
@@ -20,6 +35,11 @@ type CollectionListItem = {
   handle: string;
   sortOrder: string;
   productsCount: { count: number };
+};
+
+export type ShopLocation = {
+  id: string;
+  name: string;
 };
 
 type CollectionListResponse = {
@@ -47,13 +67,60 @@ type ProductCollectionsResponse = {
   };
 };
 
+type InventoryLevelNode = {
+  location: { id: string };
+  quantities: Array<{ name: string; quantity: number }>;
+};
+
+type InventoryLevelsConnection = {
+  nodes: InventoryLevelNode[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+};
+
+type ProductInventoryResponse = {
+  product: null | {
+    variants: {
+      nodes: Array<{
+        inventoryItem: {
+          id: string;
+          inventoryLevels: InventoryLevelsConnection;
+        };
+      }>;
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
+  };
+};
+
+type InventoryItemLevelsResponse = {
+  inventoryItem: null | {
+    inventoryLevels: InventoryLevelsConnection;
+  };
+};
+
+type EvaluatedProduct = {
+  product: CollectionProduct;
+  originalIndex: number;
+  inStock: boolean;
+  effectiveInventory: number;
+  excluded: boolean;
+  pinnedRank: number | null;
+};
+
+type ReorderMove = {
+  id: string;
+  newPosition: string;
+};
+
 const PRODUCTS_PAGE_SIZE = 250;
+const VARIANTS_PAGE_SIZE = 250;
+const INVENTORY_LEVELS_PAGE_SIZE = 250;
 const MAX_REORDER_MOVES = 250;
 const JOB_POLL_INTERVAL_MS = 500;
 const MAX_JOB_POLL_ATTEMPTS = 40;
+const LOCATION_INVENTORY_CONCURRENCY = 5;
 
 /**
- * Inventory-first business rule.
+ * Aggregate inventory-first base rule.
  *
  * Untracked products remain in the available group.
  * Tracked products are considered in stock only when aggregate inventory > 0.
@@ -89,6 +156,13 @@ async function gql<T>(
   return json.data;
 }
 
+async function currentEntitledOptionIds(admin: AdminClient) {
+  const current = await getCurrentSubscriptionPlan(
+    admin as Parameters<typeof getCurrentSubscriptionPlan>[0],
+  );
+  return current?.plan.option_ids ?? null;
+}
+
 export async function getCollection(
   admin: AdminClient,
   collectionId: string,
@@ -122,7 +196,6 @@ export async function getCollection(
 
 export async function listAllCollections(admin: AdminClient) {
   const all: CollectionListItem[] = [];
-
   let after: string | null = null;
 
   do {
@@ -159,6 +232,51 @@ export async function listAllCollections(admin: AdminClient) {
   return all;
 }
 
+export async function listAllLocations(
+  admin: AdminClient,
+): Promise<ShopLocation[]> {
+  const locations: ShopLocation[] = [];
+  let after: string | null = null;
+
+  do {
+    const data: {
+      locations: {
+        nodes: ShopLocation[];
+        pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      };
+    } = await gql<{
+      locations: {
+        nodes: ShopLocation[];
+        pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      };
+    }>(
+      admin,
+      `#graphql
+        query StockSorterLocations($first: Int!, $after: String) {
+          locations(first: $first, after: $after) {
+            nodes {
+              id
+              name
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      `,
+      { first: 250, after },
+    );
+
+    locations.push(...data.locations.nodes);
+    after = data.locations.pageInfo.hasNextPage
+      ? data.locations.pageInfo.endCursor
+      : null;
+  } while (after);
+
+  return locations;
+}
+
 async function listCollectionProducts(
   admin: AdminClient,
   collectionId: string,
@@ -169,35 +287,40 @@ async function listCollectionProducts(
   do {
     const data: CollectionProductsResponse =
       await gql<CollectionProductsResponse>(
-      admin,
-      `#graphql
-        query CollectionProductsForStockSorter(
-          $id: ID!
-          $first: Int!
-          $after: String
-        ) {
-          collection(id: $id) {
-            products(first: $first, after: $after) {
-              nodes {
-                id
-                title
-                totalInventory
-                tracksInventory
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
+        admin,
+        `#graphql
+          query CollectionProductsForStockSorter(
+            $id: ID!
+            $first: Int!
+            $after: String
+          ) {
+            collection(id: $id) {
+              products(first: $first, after: $after) {
+                nodes {
+                  id
+                  title
+                  handle
+                  vendor
+                  tags
+                  createdAt
+                  updatedAt
+                  totalInventory
+                  tracksInventory
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
               }
             }
           }
-        }
-      `,
-      {
-        id: collectionId,
-        first: PRODUCTS_PAGE_SIZE,
-        after,
-      },
-    );
+        `,
+        {
+          id: collectionId,
+          first: PRODUCTS_PAGE_SIZE,
+          after,
+        },
+      );
 
     if (!data.collection) throw new Error("Collection not found");
 
@@ -208,6 +331,444 @@ async function listCollectionProducts(
   } while (after);
 
   return products;
+}
+
+function availableQuantity(level: InventoryLevelNode) {
+  return (
+    level.quantities.find((quantity) => quantity.name === "available")
+      ?.quantity ?? 0
+  );
+}
+
+function addSelectedInventoryLevels(
+  totals: Map<string, number>,
+  selectedLocationIds: Set<string>,
+  levels: InventoryLevelNode[],
+) {
+  for (const level of levels) {
+    if (!selectedLocationIds.has(level.location.id)) continue;
+    totals.set(
+      level.location.id,
+      (totals.get(level.location.id) ?? 0) + availableQuantity(level),
+    );
+  }
+}
+
+async function appendRemainingInventoryLevels(
+  admin: AdminClient,
+  inventoryItemId: string,
+  after: string,
+  selectedLocationIds: Set<string>,
+  totals: Map<string, number>,
+) {
+  let cursor: string | null = after;
+
+  while (cursor) {
+    const data: InventoryItemLevelsResponse =
+      await gql<InventoryItemLevelsResponse>(
+      admin,
+      `#graphql
+        query InventoryItemLevelsForStockSorter(
+          $id: ID!
+          $first: Int!
+          $after: String
+        ) {
+          inventoryItem(id: $id) {
+            inventoryLevels(first: $first, after: $after) {
+              nodes {
+                location {
+                  id
+                }
+                quantities(names: ["available"]) {
+                  name
+                  quantity
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        }
+      `,
+      {
+        id: inventoryItemId,
+        first: INVENTORY_LEVELS_PAGE_SIZE,
+        after: cursor,
+      },
+    );
+
+    if (!data.inventoryItem) {
+      throw new Error(`Inventory item not found: ${inventoryItemId}`);
+    }
+
+    const connection: InventoryLevelsConnection =
+      data.inventoryItem.inventoryLevels;
+    addSelectedInventoryLevels(
+      totals,
+      selectedLocationIds,
+      connection.nodes,
+    );
+    cursor = connection.pageInfo.hasNextPage
+      ? connection.pageInfo.endCursor
+      : null;
+  }
+}
+
+async function selectedLocationInventoryForProduct(
+  admin: AdminClient,
+  productId: string,
+  locationIds: string[],
+) {
+  const selectedLocationIds = new Set(locationIds);
+  const totals = new Map(locationIds.map((id) => [id, 0]));
+  let after: string | null = null;
+
+  do {
+    const data: ProductInventoryResponse =
+      await gql<ProductInventoryResponse>(
+      admin,
+      `#graphql
+        query ProductLocationInventoryForStockSorter(
+          $id: ID!
+          $variantsFirst: Int!
+          $variantsAfter: String
+          $levelsFirst: Int!
+        ) {
+          product(id: $id) {
+            variants(first: $variantsFirst, after: $variantsAfter) {
+              nodes {
+                inventoryItem {
+                  id
+                  inventoryLevels(first: $levelsFirst) {
+                    nodes {
+                      location {
+                        id
+                      }
+                      quantities(names: ["available"]) {
+                        name
+                        quantity
+                      }
+                    }
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        }
+      `,
+      {
+        id: productId,
+        variantsFirst: VARIANTS_PAGE_SIZE,
+        variantsAfter: after,
+        levelsFirst: INVENTORY_LEVELS_PAGE_SIZE,
+      },
+    );
+
+    if (!data.product) {
+      throw new Error(`Product not found while resolving inventory: ${productId}`);
+    }
+
+    for (const variant of data.product.variants.nodes) {
+      const connection = variant.inventoryItem.inventoryLevels;
+      addSelectedInventoryLevels(
+        totals,
+        selectedLocationIds,
+        connection.nodes,
+      );
+
+      if (
+        connection.pageInfo.hasNextPage &&
+        connection.pageInfo.endCursor
+      ) {
+        await appendRemainingInventoryLevels(
+          admin,
+          variant.inventoryItem.id,
+          connection.pageInfo.endCursor,
+          selectedLocationIds,
+          totals,
+        );
+      }
+    }
+
+    after = data.product.variants.pageInfo.hasNextPage
+      ? data.product.variants.pageInfo.endCursor
+      : null;
+  } while (after);
+
+  return totals;
+}
+
+function normalized(value: string) {
+  return value.trim().toLocaleLowerCase();
+}
+
+function productMatchesSelector(product: CollectionProduct, selector: string) {
+  const value = normalized(selector);
+  return value === normalized(product.id) || value === normalized(product.handle);
+}
+
+function isExcludedProduct(
+  product: CollectionProduct,
+  rules: CollectionRuleInput,
+) {
+  const tags = new Set(product.tags.map(normalized));
+  const vendor = normalized(product.vendor);
+
+  if (
+    parseRuleList(rules.excludedTags).some((tag) => tags.has(normalized(tag)))
+  ) {
+    return true;
+  }
+
+  if (
+    parseRuleList(rules.excludedVendors).some(
+      (excludedVendor) => normalized(excludedVendor) === vendor,
+    )
+  ) {
+    return true;
+  }
+
+  return parseRuleList(rules.excludedProducts).some((selector) =>
+    productMatchesSelector(product, selector),
+  );
+}
+
+function pinnedRankForProduct(
+  product: CollectionProduct,
+  rules: CollectionRuleInput,
+) {
+  const selectors = parseRuleList(rules.pinnedProducts);
+  const index = selectors.findIndex((selector) =>
+    productMatchesSelector(product, selector),
+  );
+  return index >= 0 ? index : null;
+}
+
+function compareAvailableProducts(
+  left: EvaluatedProduct,
+  right: EvaluatedProduct,
+  mode: AvailableSortMode,
+) {
+  let result = 0;
+
+  switch (mode) {
+    case "TITLE_ASC":
+      result = left.product.title.localeCompare(right.product.title);
+      break;
+    case "TITLE_DESC":
+      result = right.product.title.localeCompare(left.product.title);
+      break;
+    case "INVENTORY_DESC":
+      result = right.effectiveInventory - left.effectiveInventory;
+      break;
+    case "INVENTORY_ASC":
+      result = left.effectiveInventory - right.effectiveInventory;
+      break;
+    case "NEWEST":
+      result =
+        new Date(right.product.createdAt).getTime() -
+        new Date(left.product.createdAt).getTime();
+      break;
+    case "OLDEST":
+      result =
+        new Date(left.product.createdAt).getTime() -
+        new Date(right.product.createdAt).getTime();
+      break;
+    case "PRESERVE":
+    default:
+      result = 0;
+      break;
+  }
+
+  return result || left.originalIndex - right.originalIndex;
+}
+
+function stockProfile(
+  product: CollectionProduct,
+  inventoryMode: InventoryMode,
+  selectedLocationIds: string[],
+  locationInventory?: Map<string, number>,
+) {
+  if (!product.tracksInventory) {
+    return { inStock: true, effectiveInventory: 0 };
+  }
+
+  if (
+    inventoryMode === "ALL_LOCATIONS" ||
+    selectedLocationIds.length === 0 ||
+    !locationInventory
+  ) {
+    const effectiveInventory = product.totalInventory ?? 0;
+    return {
+      inStock: effectiveInventory > 0,
+      effectiveInventory,
+    };
+  }
+
+  const quantities = selectedLocationIds.map(
+    (locationId) => locationInventory.get(locationId) ?? 0,
+  );
+
+  return {
+    inStock:
+      inventoryMode === "ALL_SELECTED_LOCATIONS"
+        ? quantities.every((quantity) => quantity > 0)
+        : quantities.some((quantity) => quantity > 0),
+    effectiveInventory: quantities.reduce(
+      (sum, quantity) => sum + quantity,
+      0,
+    ),
+  };
+}
+
+async function evaluateProducts(
+  admin: AdminClient,
+  products: CollectionProduct[],
+  rules: CollectionRuleInput,
+) {
+  const selectedLocationIds = parseRuleList(rules.inventoryLocationIds);
+  const locationInventory = new Map<string, Map<string, number>>();
+
+  if (
+    rules.inventoryMode !== "ALL_LOCATIONS" &&
+    selectedLocationIds.length > 0
+  ) {
+    const trackedProducts = products.filter(
+      (product) => product.tracksInventory,
+    );
+
+    for (
+      let index = 0;
+      index < trackedProducts.length;
+      index += LOCATION_INVENTORY_CONCURRENCY
+    ) {
+      const batch = trackedProducts.slice(
+        index,
+        index + LOCATION_INVENTORY_CONCURRENCY,
+      );
+
+      await Promise.all(
+        batch.map(async (product) => {
+          locationInventory.set(
+            product.id,
+            await selectedLocationInventoryForProduct(
+              admin,
+              product.id,
+              selectedLocationIds,
+            ),
+          );
+        }),
+      );
+    }
+  }
+
+  return products.map((product, originalIndex): EvaluatedProduct => {
+    const profile = stockProfile(
+      product,
+      rules.inventoryMode,
+      selectedLocationIds,
+      locationInventory.get(product.id),
+    );
+
+    return {
+      product,
+      originalIndex,
+      inStock: profile.inStock,
+      effectiveInventory: profile.effectiveInventory,
+      excluded: isExcludedProduct(product, rules),
+      pinnedRank: pinnedRankForProduct(product, rules),
+    };
+  });
+}
+
+/**
+ * Rule precedence:
+ * 1. Excluded products stay fixed at their exact original indices.
+ * 2. Pinned movable products come first, ordered by configured pin priority.
+ * 3. Remaining in-stock movable products use the selected advanced sort mode.
+ * 4. Remaining sold-out movable products keep their relative order at the end.
+ */
+export function buildTargetProductOrder(
+  evaluated: EvaluatedProduct[],
+  availableSortMode: AvailableSortMode,
+) {
+  const movable = evaluated.filter((item) => !item.excluded);
+
+  const pinned = movable
+    .filter((item) => item.pinnedRank !== null)
+    .sort(
+      (left, right) =>
+        (left.pinnedRank ?? Number.MAX_SAFE_INTEGER) -
+          (right.pinnedRank ?? Number.MAX_SAFE_INTEGER) ||
+        left.originalIndex - right.originalIndex,
+    );
+
+  const unpinned = movable.filter((item) => item.pinnedRank === null);
+  const available = unpinned
+    .filter((item) => item.inStock)
+    .sort((left, right) =>
+      compareAvailableProducts(left, right, availableSortMode),
+    );
+  const soldOut = unpinned
+    .filter((item) => !item.inStock)
+    .sort((left, right) => left.originalIndex - right.originalIndex);
+
+  const orderedMovable = [...pinned, ...available, ...soldOut];
+  let movableIndex = 0;
+
+  return evaluated.map((item) => {
+    if (item.excluded) return item.product;
+    const replacement = orderedMovable[movableIndex];
+    movableIndex += 1;
+    return replacement.product;
+  });
+}
+
+/**
+ * Build the minimal left-to-right move sequence needed to transform the
+ * current order into the target order. Shopify applies moves sequentially,
+ * so positions here are valid even when the list is split into 250-move jobs.
+ */
+export function buildSequentialMoves(
+  currentIds: string[],
+  targetIds: string[],
+): ReorderMove[] {
+  if (currentIds.length !== targetIds.length) {
+    throw new Error("Current and target collection orders have different lengths.");
+  }
+
+  const working = [...currentIds];
+  const moves: ReorderMove[] = [];
+
+  for (let targetIndex = 0; targetIndex < targetIds.length; targetIndex += 1) {
+    const targetId = targetIds[targetIndex];
+    if (working[targetIndex] === targetId) continue;
+
+    const currentIndex = working.indexOf(targetId, targetIndex + 1);
+    if (currentIndex < 0) {
+      throw new Error(`Target product is missing from the collection: ${targetId}`);
+    }
+
+    moves.push({
+      id: targetId,
+      newPosition: String(targetIndex),
+    });
+
+    working.splice(currentIndex, 1);
+    working.splice(targetIndex, 0, targetId);
+  }
+
+  return moves;
 }
 
 async function setCollectionSortOrder(
@@ -292,18 +853,17 @@ async function waitForJob(admin: AdminClient, jobId: string) {
 async function reorderChunk(
   admin: AdminClient,
   collectionId: string,
-  productIds: string[],
-  endPosition: number,
+  moves: ReorderMove[],
 ) {
-  if (!productIds.length) {
-    throw new Error("Cannot reorder an empty product chunk.");
+  if (!moves.length) {
+    throw new Error("Cannot reorder an empty move chunk.");
   }
 
-  const moves = productIds.map((id) => ({
-    id,
-    // Move to >= product count => Shopify places it at the end.
-    newPosition: String(endPosition),
-  }));
+  if (moves.length > MAX_REORDER_MOVES) {
+    throw new Error(
+      `Shopify supports at most ${MAX_REORDER_MOVES} collection moves per mutation.`,
+    );
+  }
 
   const data = await gql<{
     collectionReorderProducts: {
@@ -313,7 +873,7 @@ async function reorderChunk(
   }>(
     admin,
     `#graphql
-      mutation PushSoldOutProductsDown(
+      mutation ApplyStockSorterMoves(
         $id: ID!
         $moves: [MoveInput!]!
       ) {
@@ -348,18 +908,11 @@ async function reorderChunk(
   return jobId;
 }
 
-/**
- * Sorts one collection while preserving relative order:
- *
- * before: [stock A, sold B, stock C, sold D]
- * after:  [stock A, stock C, sold B, sold D]
- *
- * Only sold-out products are sent as moves.
- */
-export async function sortCollection(
+async function sortCollectionWithEntitlements(
   admin: AdminClient,
   shop: string,
   collectionId: string,
+  entitledOptionIds: readonly string[],
 ) {
   try {
     const collection = await getCollection(admin, collectionId);
@@ -371,36 +924,41 @@ export async function sortCollection(
       );
     }
 
+    const setting = await withPrismaClient((db) =>
+      db.collectionSetting.findUnique({
+        where: { shop_collectionId: { shop, collectionId } },
+      }),
+    );
+
+    if (!setting) {
+      throw new Error("Collection sorting settings were not found.");
+    }
+
+    const rules = effectiveCollectionRules(setting, entitledOptionIds);
     const products = await listCollectionProducts(admin, collectionId);
-    const soldOut = products.filter((product) => !isInStock(product));
+    const evaluated = await evaluateProducts(admin, products, rules);
+    const targetProducts = buildTargetProductOrder(
+      evaluated,
+      rules.availableSortMode,
+    );
 
-    // They are already all at the bottom in the same relative order.
-    const expectedSoldOutIds = products
-      .slice(products.length - soldOut.length)
-      .map((p) => p.id);
-
-    const alreadySorted =
-      soldOut.length === 0 ||
-      soldOut.every((p, index) => p.id === expectedSoldOutIds[index]);
+    const moves = buildSequentialMoves(
+      products.map((product) => product.id),
+      targetProducts.map((product) => product.id),
+    );
 
     const jobIds: string[] = [];
 
-    if (!alreadySorted) {
-      for (let i = 0; i < soldOut.length; i += MAX_REORDER_MOVES) {
-        const chunk = soldOut
-          .slice(i, i + MAX_REORDER_MOVES)
-          .map((product) => product.id);
-
-        const jobId = await reorderChunk(
-          admin,
-          collectionId,
-          chunk,
-          products.length,
-        );
-        jobIds.push(jobId);
-        await waitForJob(admin, jobId);
-      }
+    for (let index = 0; index < moves.length; index += MAX_REORDER_MOVES) {
+      const chunk = moves.slice(index, index + MAX_REORDER_MOVES);
+      const jobId = await reorderChunk(admin, collectionId, chunk);
+      jobIds.push(jobId);
+      await waitForJob(admin, jobId);
     }
+
+    const soldOutProducts = evaluated.filter(
+      (product) => !product.inStock && product.pinnedRank === null,
+    ).length;
 
     await withPrismaClient((db) =>
       db.collectionSetting.update({
@@ -420,8 +978,16 @@ export async function sortCollection(
     return {
       collectionId,
       totalProducts: products.length,
-      soldOutProducts: soldOut.length,
-      alreadySorted,
+      soldOutProducts,
+      excludedProducts: evaluated.filter((product) => product.excluded).length,
+      pinnedProducts: evaluated.filter(
+        (product) => product.pinnedRank !== null && !product.excluded,
+      ).length,
+      movedProducts: moves.length,
+      alreadySorted: moves.length === 0,
+      availableSortMode: rules.availableSortMode,
+      inventoryMode: rules.inventoryMode,
+      locationAware: rules.inventoryMode !== "ALL_LOCATIONS",
       jobIds,
     };
   } catch (error) {
@@ -444,11 +1010,44 @@ export async function sortCollection(
   }
 }
 
+export async function sortCollection(
+  admin: AdminClient,
+  shop: string,
+  collectionId: string,
+  entitledOptionIds?: readonly string[],
+) {
+  const entitlements =
+    entitledOptionIds ?? (await currentEntitledOptionIds(admin));
+
+  if (!entitlements) {
+    throw new Error(
+      "An active VSN Stock Down Sort subscription is required to sort collections.",
+    );
+  }
+
+  return sortCollectionWithEntitlements(
+    admin,
+    shop,
+    collectionId,
+    entitlements,
+  );
+}
+
 export async function enableCollection(
   admin: AdminClient,
   shop: string,
   collectionId: string,
+  entitledOptionIds?: readonly string[],
 ) {
+  const entitlements =
+    entitledOptionIds ?? (await currentEntitledOptionIds(admin));
+
+  if (!entitlements) {
+    throw new Error(
+      "An active VSN Stock Down Sort subscription is required to enable sorting.",
+    );
+  }
+
   const collection = await getCollection(admin, collectionId);
   if (!collection) throw new Error("Collection not found");
 
@@ -458,7 +1057,6 @@ export async function enableCollection(
     }),
   );
 
-  // Preserve the original non-manual sort only once.
   const previousSortOrder =
     existing?.previousSortOrder ??
     (collection.sortOrder === "MANUAL" ? null : collection.sortOrder);
@@ -484,7 +1082,58 @@ export async function enableCollection(
     await setCollectionSortOrder(admin, collectionId, "MANUAL");
   }
 
-  return sortCollection(admin, shop, collectionId);
+  return sortCollectionWithEntitlements(
+    admin,
+    shop,
+    collectionId,
+    entitlements,
+  );
+}
+
+export async function saveCollectionRules(
+  admin: AdminClient,
+  shop: string,
+  collectionId: string,
+  input: Partial<Record<keyof CollectionRuleInput, string | null | undefined>>,
+  entitledOptionIds?: readonly string[],
+) {
+  const entitlements =
+    entitledOptionIds ?? (await currentEntitledOptionIds(admin));
+
+  if (!entitlements) {
+    throw new Error(
+      "An active VSN Stock Down Sort subscription is required to save sorting rules.",
+    );
+  }
+
+  const collection = await getCollection(admin, collectionId);
+  if (!collection) throw new Error("Collection not found");
+
+  const rules = normalizeCollectionRuleInput(input);
+  assertCollectionRuleEntitlements(rules, entitlements);
+
+  const setting = await withPrismaClient((db) =>
+    db.collectionSetting.upsert({
+      where: { shop_collectionId: { shop, collectionId } },
+      create: {
+        shop,
+        collectionId,
+        enabled: false,
+        ...rules,
+      },
+      update: {
+        ...rules,
+        lastError: null,
+      },
+    }),
+  );
+
+  return {
+    collectionId,
+    saved: true,
+    enabled: setting.enabled,
+    rules,
+  };
 }
 
 export async function disableCollection(
@@ -537,11 +1186,25 @@ export async function sortEnabledCollections(
     }),
   );
 
+  const entitlements = await currentEntitledOptionIds(admin);
+  if (!entitlements) {
+    return settings.map((setting) => ({
+      collectionId: setting.collectionId,
+      skipped: true,
+      reason: "inactive-subscription",
+    }));
+  }
+
   const results = [];
   for (const setting of settings) {
     try {
       results.push(
-        await sortCollection(admin, shop, setting.collectionId),
+        await sortCollectionWithEntitlements(
+          admin,
+          shop,
+          setting.collectionId,
+          entitlements,
+        ),
       );
     } catch (error) {
       results.push({
@@ -564,28 +1227,28 @@ export async function collectionsForProduct(
   do {
     const data: ProductCollectionsResponse =
       await gql<ProductCollectionsResponse>(
-      admin,
-      `#graphql
-        query ProductCollections(
-          $id: ID!
-          $first: Int!
-          $after: String
-        ) {
-          product(id: $id) {
-            collections(first: $first, after: $after) {
-              nodes {
-                id
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
+        admin,
+        `#graphql
+          query ProductCollections(
+            $id: ID!
+            $first: Int!
+            $after: String
+          ) {
+            product(id: $id) {
+              collections(first: $first, after: $after) {
+                nodes {
+                  id
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
               }
             }
           }
-        }
-      `,
-      { id: productId, first: 250, after },
-    );
+        `,
+        { id: productId, first: 250, after },
+      );
 
     if (!data.product) return [];
 
