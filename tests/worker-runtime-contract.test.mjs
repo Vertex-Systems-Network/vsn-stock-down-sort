@@ -989,7 +989,7 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
   assert.match(current, /ISSUE-32-WU-06/);
-  assert.match(tasks, /ISSUE-32-WU-04/);
+  assert.match(tasks, /ISSUE-32-WU-06/);
   assert.match(tasks, /status: in_progress/);
 });
 
