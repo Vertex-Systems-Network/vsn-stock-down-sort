@@ -1,5 +1,6 @@
 import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
+import { recordActivityEventSafe } from "./analytics.server";
 import {
   PHASE3_OPTION_IDS,
   parseProductVisibilityMode,
@@ -207,13 +208,28 @@ export async function saveVisibilitySetting(
 
   assertVisibilityEntitlements(normalized, optionIds);
 
-  return withPrismaClient((db) =>
+  const setting = await withPrismaClient((db) =>
     db.visibilitySetting.upsert({
       where: { shop },
       create: { shop, ...normalized },
       update: normalized,
     }),
   );
+
+  await recordActivityEventSafe({
+    shop,
+    category: "settings",
+    action: "visibility.settings_saved",
+    outcome: "SUCCESS",
+    source: "visibility-settings",
+    summary: "Product visibility automation settings updated.",
+    details: {
+      productMode: normalized.productMode,
+      autoRepublish: normalized.autoRepublish,
+    },
+  });
+
+  return setting;
 }
 
 async function currentOptionIds(admin: AdminClient) {
@@ -382,10 +398,32 @@ export async function reconcileProductVisibility(
       }),
     );
 
+    const action =
+      desiredStatus === "UNLISTED" ? "soft-hidden" : "unpublished";
+
+    await recordActivityEventSafe({
+      shop,
+      category: "visibility",
+      action: `product.${action}`,
+      outcome: "SUCCESS",
+      source: "visibility-engine",
+      entityType: "product",
+      entityId: productId,
+      summary:
+        desiredStatus === "UNLISTED"
+          ? "Sold-out product moved to Shopify Unlisted status."
+          : "Sold-out product moved to Draft status.",
+      soldOutProducts: 1,
+      details: {
+        previousStatus: product.status,
+        managedStatus: desiredStatus,
+      },
+    });
+
     return {
       productId,
       changed: true,
-      action: desiredStatus === "UNLISTED" ? "soft-hidden" : "unpublished",
+      action,
       status: desiredStatus,
     };
   }
@@ -432,6 +470,21 @@ export async function reconcileProductVisibility(
       },
     }),
   );
+
+  await recordActivityEventSafe({
+    shop,
+    category: "visibility",
+    action: "product.restored",
+    outcome: "SUCCESS",
+    source: "visibility-engine",
+    entityType: "product",
+    entityId: productId,
+    summary: "Restocked product restored to Active status.",
+    details: {
+      previousManagedStatus: state.managedStatus,
+      restoredStatus: restoreStatus,
+    },
+  });
 
   return {
     productId,
