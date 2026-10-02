@@ -7,6 +7,7 @@ import {
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
 import { reconcileProductVisibility } from "../services/product-visibility.server";
+import { processLowStockAlert } from "../services/alerts.server";
 
 type ProductUpdateWebhookPayload = {
   id?: string | number;
@@ -33,6 +34,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
         productId,
         reason: "product-update" as const,
       },
+      {
+        kind: "alert" as const,
+        shop: session.shop,
+        productId,
+        reason: "product-update" as const,
+      },
       ...collectionIds.map((collectionId) => ({
         kind: "sort" as const,
         shop: session.shop,
@@ -46,6 +53,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
     if (!queued) {
       await runWithWorkerLifetime(context, async () => {
         await reconcileProductVisibility(admin, session.shop, productId);
+        await processLowStockAlert(
+          admin,
+          session.shop,
+          productId,
+          context,
+        );
         if (collectionIds.length) {
           await sortEnabledCollections(admin, session.shop, collectionIds);
         }
