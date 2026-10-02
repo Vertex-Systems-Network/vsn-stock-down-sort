@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-32-WU-07",
   "active_issue": 32,
   "last_verified_completion": "Cloudflare Production bootstrap #2 (run 36995482853) passed: Production Queue/DLQ created, both hosted migrations applied, Worker vsn-stock-down-sort-production deployed and /healthz passed with PostgreSQL, Queue readiness, real billing mode and four-plan / 10-day contract. Production Readiness #1 rerun attempt 2 (run 36994646886) also passed.",
-  "next_valid_work_unit": "Run Shopify Production Candidate from protected main using confirmation CREATE_PRODUCTION_SHOPIFY_VERSION. This must create an unreleased candidate only; Production Worker is already healthy and Shopify live release remains blocked. The Production config name is VSN | Stock Down Sort.",
+  "next_valid_work_unit": "Run Shopify Production Candidate from protected main using confirmation CREATE_PRODUCTION_SHOPIFY_VERSION. This must create an unreleased candidate only; Production Worker is already healthy and Shopify live release remains blocked. Accepted staging source ca5851561ab7979712f11580ab951fda4650ef19 remains the certified lineage. The Production config name is VSN | Stock Down Sort.",
   "progress": {
     "total_work_units": 11,
     "complete": 9,
