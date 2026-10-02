@@ -16,7 +16,8 @@
     "required": [
       "DATABASE_URL",
       "SHOPIFY_API_KEY",
-      "SHOPIFY_API_SECRET"
+      "SHOPIFY_API_SECRET",
+      "ALERT_FROM_EMAIL"
     ]
   },
   "vars": {
@@ -48,5 +49,10 @@
     "crons": [
       "0 * * * *"
     ]
-  }
+  },
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ]
 }
