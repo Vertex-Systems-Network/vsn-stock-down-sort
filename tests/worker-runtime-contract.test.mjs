@@ -962,7 +962,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_module, "core-sorting-controls");
   assert.equal(state.current_work_unit, "ISSUE-97-WU-04");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /PHASE-02 repository\/development implementation is complete/i);
+  assert.match(state.next_valid_work_unit, /PHASE-02 implementation is complete on development/i);
   assert.match(state.next_valid_work_unit, /PHASE-03 Product & Variant Visibility/i);
 
   assert.equal(plan.active_issue, 97);
