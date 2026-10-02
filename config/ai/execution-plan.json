@@ -386,17 +386,20 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 40,
-      "status": "blocked",
-      "blockers": [
-        "Staging acceptance must be promoted and bound to an accepted_main_ref on protected main before Production Readiness can run."
-      ],
+      "status": "in_progress",
+      "blockers": [],
       "acceptance_criteria": [
         "Staging phase is accepted before production preparation starts."
       ],
       "required_checks": [
         "Production Readiness"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Staging acceptance was promoted to protected main at 8bff7a1ecb8adca7592997fc74ffe10837e4ae2d.",
+        "Protected-main App Validation #339 (run 36990532771) passed all checks.",
+        "Staging accepted source remains ca5851561ab7979712f11580ab951fda4650ef19.",
+        "Production deployment remains blocked pending Production Readiness and later explicit candidate/release actions."
+      ]
     }
   ],
   "status_values": [
