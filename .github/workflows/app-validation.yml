@@ -82,6 +82,9 @@ jobs:
       - name: PHASE-04 analytics history export contract
         run: node --test tests/phase-04-analytics-contract.test.mjs
 
+      - name: PHASE-05 scheduling and rule builder contract
+        run: node --test tests/phase-05-automation-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 

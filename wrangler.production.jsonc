@@ -43,5 +43,10 @@
         "retry_delay": 10
       }
     ]
+  },
+  "triggers": {
+    "crons": [
+      "0 * * * *"
+    ]
   }
 }

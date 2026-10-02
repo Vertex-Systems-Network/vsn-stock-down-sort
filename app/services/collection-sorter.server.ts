@@ -1050,6 +1050,57 @@ async function sortCollectionWithEntitlements(
   }
 }
 
+export async function getCollectionStockSummary(
+  admin: AdminClient,
+  shop: string,
+  collectionId: string,
+  entitledOptionIds?: readonly string[],
+) {
+  const entitlements =
+    entitledOptionIds ?? (await currentEntitledOptionIds(admin));
+
+  if (!entitlements) {
+    throw new Error(
+      "An active VSN Stock Down Sort subscription is required to evaluate collection stock.",
+    );
+  }
+
+  const setting = await withPrismaClient((db) =>
+    db.collectionSetting.findUnique({
+      where: { shop_collectionId: { shop, collectionId } },
+    }),
+  );
+
+  if (!setting?.enabled) {
+    throw new Error(
+      "Enable this collection in VSN Stock Down Sort before using automation rules.",
+    );
+  }
+
+  const collection = await getCollection(admin, collectionId);
+  if (!collection) throw new Error("Collection not found");
+
+  const rules = effectiveCollectionRules(setting, entitlements);
+  const products = await listCollectionProducts(admin, collectionId);
+  const evaluated = await evaluateProducts(admin, products, rules);
+  const soldOutProducts = evaluated.filter((product) => !product.inStock).length;
+  const totalProducts = evaluated.length;
+
+  return {
+    collectionId,
+    collectionTitle: collection.title,
+    totalProducts,
+    inStockProducts: Math.max(0, totalProducts - soldOutProducts),
+    soldOutProducts,
+    soldOutPercent:
+      totalProducts === 0
+        ? 0
+        : Math.round((soldOutProducts / totalProducts) * 100),
+    inventoryMode: rules.inventoryMode,
+    evaluatedAt: new Date().toISOString(),
+  };
+}
+
 export async function sortCollection(
   admin: AdminClient,
   shop: string,

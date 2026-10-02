@@ -38,6 +38,7 @@ export default function App() {
         </Link>
         <Link to={`/app/visibility${location.search}`}>Visibility</Link>
         <Link to={`/app/analytics${location.search}`}>Analytics</Link>
+        <Link to={`/app/automation${location.search}`}>Automation</Link>
         <Link to={`/app/plans${location.search}`}>Plans</Link>
       </NavMenu>
       <Outlet />

@@ -29,7 +29,9 @@
     "OPT-VARIANT-RESTORE",
     "OPT-ANALYTICS",
     "OPT-ACTIVITY-HISTORY",
-    "OPT-CSV-EXPORT"
+    "OPT-CSV-EXPORT",
+    "OPT-SCHEDULED-AUTOMATION",
+    "OPT-RULE-BUILDER"
   ],
   "plans": [
     {
