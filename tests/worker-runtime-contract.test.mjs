@@ -975,8 +975,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.active_issue, 100);
   assert.equal(state.current_module, "product-variant-visibility");
   assert.equal(state.current_work_unit, "ISSUE-100-WU-04");
-  assert.match(state.next_valid_work_unit, /PR #101 state reconciliation/i);
-  assert.match(state.next_valid_work_unit, /Staging\/Production promotion/i);
+  assert.match(state.next_valid_work_unit, /PHASE-03 repository implementation is complete/i);
+  assert.match(state.next_valid_work_unit, /Staging\/Production promotion remains a separate guarded release activity/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 19);
