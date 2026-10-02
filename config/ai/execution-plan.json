@@ -145,6 +145,16 @@
         "Cloudflare hourly scheduled runtime is internal-only, bounded and DB-lease protected.",
         "Merchant Automation UI is authenticated and shop-scoped.",
         "Latest implementation-head App Validation, PHASE-05 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #107 exact head 6ca7985747d61f44a3963d0e6cff93645d92bab4 passed App Validation #419 / run 37058104070.",
+        "PR #107 merged to development as fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Post-merge App Validation #420 / run 37058725539 passed the complete validation chain on fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Local SQLite and hosted PostgreSQL AutomationRule migrations are additive and schema-parity validated.",
+        "Growth+ scheduled automation and Pro+ advanced live-stock conditions are enforced server-side.",
+        "Cloudflare hourly scheduled execution is repository-wired, internal-only, bounded and DB-lease protected.",
+        "Merchant Automation UI supports create/edit/pause/run/delete for shop-scoped rules.",
+        "No PHASE-05 Staging or Production deployment/promotion occurred in this repository implementation phase."
       ]
     }
   ],
@@ -1005,8 +1015,10 @@
         "Cloudflare dry-runs"
       ],
       "completion_evidence": [
-        "Implementation head 7244f4f00e26bd045eaa76e73a61b220e3d901c6 passed App Validation #413 / run 37057803474.",
-        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "PR #107 exact head 6ca7985747d61f44a3963d0e6cff93645d92bab4 passed App Validation #419 / run 37058104070.",
+        "PR #107 merged to development as fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Post-merge App Validation #420 / run 37058725539 passed all validation steps including PHASE-05 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-05 runtime implementation.",
         "No PHASE-05 Staging or Production runtime promotion is claimed."
       ]
     }
@@ -1023,5 +1035,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "7244f4f00e26bd045eaa76e73a61b220e3d901c6"
+  "last_reconciled_repository_ref": "fc299f1b7c6812969d1572c3a0badd82898b5a66"
 }
