@@ -9,7 +9,8 @@ protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-02
 current_module: core-sorting-controls
-current_work_unit: ISSUE-97-WU-01
+current_work_unit: ISSUE-97-WU-04
 note: >
-  PHASE-02 is active. Implement collection rule persistence, entitlement-aware
-  exclusions/pins, advanced sorting, multi-location inventory rules and merchant UI.
+  PHASE-02 repository/development implementation is complete and App Validation
+  #366 passed all checks on 8f47fbc86e44da94eff316e0d84b68a4717e1b08.
+  No PHASE-02 Staging or Production promotion has been performed.
