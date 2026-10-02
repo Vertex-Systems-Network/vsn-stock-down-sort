@@ -1071,9 +1071,9 @@ export async function getCollectionStockSummary(
     }),
   );
 
-  if (!setting) {
+  if (!setting?.enabled) {
     throw new Error(
-      "Configure this collection in VSN Stock Down Sort before using automation rules.",
+      "Enable this collection in VSN Stock Down Sort before using automation rules.",
     );
   }
 
