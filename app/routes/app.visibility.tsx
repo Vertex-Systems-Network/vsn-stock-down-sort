@@ -8,8 +8,10 @@ import { authenticate } from "../shopify.server";
 import { getCurrentSubscriptionPlan } from "../services/billing.server";
 import {
   PHASE3_OPTION_IDS,
-  getVisibilitySetting,
   parseProductVisibilityMode,
+} from "../services/product-visibility";
+import {
+  getVisibilitySetting,
   saveVisibilitySetting,
 } from "../services/product-visibility.server";
 
