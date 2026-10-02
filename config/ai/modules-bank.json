@@ -614,16 +614,19 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
-        "App Validation #413 / run 37057803474 passed the complete validation chain.",
+        "Both PHASE-05 option IDs are runtime-implemented in canonical product/options registries.",
         "AutomationRule persistence is implemented in Local SQLite and hosted PostgreSQL with parity indexes.",
-        "Growth+ schedule entitlement and Pro+ rule-builder entitlement are enforced server-side.",
-        "Cloudflare Worker scheduled() handler and hourly cron configs are repository-implemented.",
-        "Due rules use a 15-minute DB lease and batch limit 25.",
+        "Growth+ scheduled automation and Pro+ live-stock IF/AND conditions are enforced server-side.",
+        "Cloudflare Worker scheduled() handling and hourly hosted cron configs are implemented.",
+        "Due rules are bounded and protected with database leasing before execution.",
+        "Authenticated Automation UI is shop-scoped and only targets collections already enabled in VSN Stock Down Sort.",
+        "PR #107 exact head 6ca7985747d61f44a3963d0e6cff93645d92bab4 passed App Validation #419.",
+        "PR #107 merged to development as fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Post-merge App Validation #420 / run 37058725539 passed the full validation chain.",
         "No PHASE-05 Staging/Production deployment is claimed."
       ],
       "update_notes": [
-        "Repository/development implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+        "Repository/development implementation is complete and CI-certified. Staging/Production promotion remains a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
     }
