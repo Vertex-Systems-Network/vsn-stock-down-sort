@@ -170,18 +170,32 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("deployed Staging still cannot authorize Live before signed acceptance", () => {
+test("signed Staging acceptance still cannot authorize Live until recorded on main", () => {
   assert.equal(gates.local_dev.status, "accepted");
   assert.equal(
     gates.local_dev.accepted_source_ref,
     "ca5851561ab7979712f11580ab951fda4650ef19",
   );
-  assert.equal(gates.staging.status, "verification_required");
+  assert.equal(gates.staging.status, "accepted");
   assert.equal(
     gates.staging.deployed_source_ref,
     "ca5851561ab7979712f11580ab951fda4650ef19",
   );
-  assert.equal(gates.staging.accepted_source_ref, null);
+  assert.equal(
+    gates.staging.accepted_source_ref,
+    "ca5851561ab7979712f11580ab951fda4650ef19",
+  );
+  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(gates.staging.evidence_record?.run_id, 36989726911);
+  assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
   assert.equal(gates.live.status, "blocked");
   assert.equal(gates.live.authorized_source_ref, null);
+});
+
+test("production readiness validates the canonical four-plan billing contract", () => {
+  const workflow = read(".github/workflows/production-readiness.yml");
+  assert.match(workflow, /config\/ai\/product-plan\.json/);
+  assert.match(workflow, /production_billing_contract=four_plans_10_day_trials/);
+  assert.doesNotMatch(workflow, /production_billing_contract=5_days_usd_55/);
+  assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
 });
