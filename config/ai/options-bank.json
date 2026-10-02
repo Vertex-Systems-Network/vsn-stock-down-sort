@@ -171,18 +171,22 @@
       "category": "alerts",
       "description": "Low-stock email alerts",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-06 live product inventory evaluation, per-product cooldown state and Cloudflare Email Service Worker binding for hosted delivery."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-06 alert schema, entitlement, Queue/webhook, local-no-delivery and hosted email binding contracts."
+      ]
     },
     {
       "id": "OPT-SLACK-ALERTS",
@@ -190,18 +194,22 @@
       "category": "alerts",
       "description": "Slack alerts",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-06 encrypted Slack incoming-webhook configuration, strict Slack host validation, cooldown state and hosted webhook delivery."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-06 secret-encryption, Slack allowlist, Queue/webhook and activity-redaction contracts."
+      ]
     },
     {
       "id": "OPT-AUTO-HIDE-PRODUCTS",
