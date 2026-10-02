@@ -5,8 +5,8 @@
   "current_module": "core-sorting-controls",
   "current_work_unit": "ISSUE-97-WU-04",
   "active_issue": 97,
-  "last_verified_completion": "PHASE-02 Core Sorting Controls implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08 passed App Validation #366 / run 37007055080 with all substantive checks green.",
-  "next_valid_work_unit": "PHASE-02 repository/development implementation is complete. Next planned product phase is PHASE-03 Product & Variant Visibility; do not claim PHASE-02 is deployed to Staging or Production until a separate guarded promotion is run.",
+  "last_verified_completion": "PHASE-02 implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08 passed App Validation #366 / run 37007055080: schemas, migrations, lint, typecheck, runtime contracts, PHASE-02 contracts, Worker build and both Cloudflare dry-runs passed.",
+  "next_valid_work_unit": "PHASE-02 implementation is complete on development. Next planned feature phase is PHASE-03 Product & Variant Visibility; it is not started or promoted. PHASE-02 is not claimed as deployed to Staging or Production.",
   "progress": {
     "total_work_units": 15,
     "complete": 14,
@@ -25,11 +25,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "PHASE-02 implementation is CI-certified on its feature branch. Production remains on the accepted PHASE-01 release; no PHASE-02 hosted runtime promotion has occurred.",
+  "qa_readiness": "PHASE-02 repository implementation is CI-certified on development. No PHASE-02 Staging/Production runtime promotion is claimed.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
   "last_reconciled_repository_ref": "8f47fbc86e44da94eff316e0d84b68a4717e1b08",
   "last_reconciled_at": "2026-10-02",
-  "notes": "PHASE-02 code implementation complete pending PR #98 merge to development. Promotion to Staging/Production is intentionally separate from phase implementation.",
+  "notes": "Issue #97 tracks completed PHASE-02 implementation. Production remains on the accepted PHASE-01 release until a separate guarded promotion is performed.",
   "ci_evidence": {
     "workflow_run": 366,
     "run_id": 37007055080,
@@ -47,10 +47,9 @@
     "phase_02_sorting_contract": "passed",
     "environment_promotion_contract": "passed",
     "local_environment_contract": "passed",
-    "database_architecture_contract": "passed",
+    "database_architecture_contracts": "passed",
     "worker_build": "passed",
-    "cloudflare_staging_dry_run": "passed",
-    "cloudflare_production_dry_run": "passed"
+    "cloudflare_dry_runs": "passed"
   },
   "batch_06_09": {
     "scope": [
