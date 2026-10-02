@@ -1118,28 +1118,11 @@ export async function saveCollectionRules(
     }),
   );
 
-  if (!setting.enabled) {
-    return {
-      collectionId,
-      saved: true,
-      resorted: false,
-      rules,
-    };
-  }
-
-  const result = await sortCollectionWithEntitlements(
-    admin,
-    shop,
-    collectionId,
-    entitlements,
-  );
-
   return {
     collectionId,
     saved: true,
-    resorted: true,
+    enabled: setting.enabled,
     rules,
-    result,
   };
 }
 
