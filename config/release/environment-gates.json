@@ -115,7 +115,35 @@
       "Production Worker health",
       "Four-plan billing catalog contract",
       "Explicit Shopify candidate authorization"
-    ]
+    ],
+    "preparation_record": {
+      "workflow": "Bootstrap Cloudflare Production Worker Once",
+      "run_number": 2,
+      "run_id": 36995482853,
+      "branch": "main",
+      "control_head_sha": "c0e0ad47d5ea55aa19c8a049d36b2e696945af0c",
+      "worker": "vsn-stock-down-sort-production",
+      "worker_url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
+      "database_provider": "postgresql",
+      "migrations": [
+        "20260929150000_cloud_baseline",
+        "20261001003000_session_shop_index"
+      ],
+      "prisma_migrations": "applied_and_up_to_date",
+      "queue": "vsn-stock-down-sort-production-sort-jobs",
+      "dlq": "vsn-stock-down-sort-production-sort-jobs-dlq",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "billing_test_mode": false,
+      "shopify_cutover_performed": false,
+      "production_readiness": {
+        "workflow": "Production Readiness",
+        "run_id": 36994646886,
+        "run_attempt": 2,
+        "conclusion": "success"
+      }
+    }
   },
   "rules": {
     "promotion_order": [
