@@ -10,6 +10,7 @@ import {
   productIdForInventoryItem,
   reconcileProductVisibility,
 } from "../services/product-visibility.server";
+import { processLowStockAlert } from "../services/alerts.server";
 
 type InventoryLevelWebhookPayload = {
   inventory_item_id?: string | number;
@@ -46,6 +47,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
               productId,
               reason: "inventory-update" as const,
             },
+            {
+              kind: "alert" as const,
+              shop: session.shop,
+              productId,
+              reason: "inventory-update" as const,
+            },
           ]
         : []),
       ...collectionIds.map((collectionId) => ({
@@ -64,6 +71,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
       await runWithWorkerLifetime(context, async () => {
         if (productId) {
           await reconcileProductVisibility(admin, session.shop, productId);
+          await processLowStockAlert(
+            admin,
+            session.shop,
+            productId,
+            context,
+          );
         }
         if (collectionIds.length) {
           await sortEnabledCollections(admin, session.shop, collectionIds);
