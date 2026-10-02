@@ -165,6 +165,8 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
     workflow,
     /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-production\.vertexsystemsnetwork\.workers\.dev/,
   );
+  assert.match(workflow, /workflow_call:/);
+  assert.match(workflow, /prisma migrate deploy --schema prisma\/cloud\/schema\.prisma/);
   assert.match(workflow, /Deploy isolated production Worker only/);
   assert.match(workflow, /production_worker_prepare=pass/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
@@ -172,6 +174,11 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
   assert.match(workflow, /rm -f \.worker-secrets\.json/);
   assert.doesNotMatch(workflow, /shopify app deploy/);
   assert.doesNotMatch(workflow, /shopify app config push/);
+
+  const bootstrap = read(".github/workflows/cloudflare-production-bootstrap-once.yml");
+  assert.match(bootstrap, /branches:\s*\n\s*- main/);
+  assert.match(bootstrap, /cloudflare-production-prepare\.yml/);
+  assert.match(bootstrap, /secrets: inherit/);
 });
 
 
