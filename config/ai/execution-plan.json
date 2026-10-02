@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 103,
+  "active_issue": 106,
   "phases": [
     {
       "id": "PHASE-01",
@@ -121,6 +121,30 @@
         "Sorting and visibility runtime paths persist real shop-scoped activity without fabricated analytics.",
         "Pro+ analytics/history UI and authenticated CSV export are implemented and entitlement-gated.",
         "No PHASE-04 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-05",
+      "name": "Rule Builder & Scheduled Automation",
+      "objective": "Schedule the certified collection sorting engine and add entitlement-safe live-stock IF/AND conditions without introducing a separate paid server.",
+      "module_ids": [
+        "MOD-AUTOMATION-RULES",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS"
+      ],
+      "dependencies": [
+        "PHASE-04"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "AutomationRule persistence exists in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Growth+ scheduled automation and Pro+ advanced rule builder entitlements fail closed server-side.",
+        "Rule predicates are evaluated from live Shopify stock state.",
+        "Matched rules invoke the existing certified collection sorting engine.",
+        "Cloudflare hourly scheduled runtime is internal-only, bounded and DB-lease protected.",
+        "Merchant Automation UI is authenticated and shop-scoped.",
+        "Latest implementation-head App Validation, PHASE-05 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -864,6 +888,127 @@
         "Canonical product/options/state registries reflect only verified PHASE-04 runtime implementation.",
         "No PHASE-04 Staging or Production runtime promotion is claimed."
       ]
+    },
+    {
+      "id": "ISSUE-106-WU-01",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Add automation rule persistence and entitlement contract",
+      "objective": "Create parity-validated AutomationRule persistence and exact Growth+/Pro+ capability gates.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching AutomationRule fields and indexes.",
+        "Scheduled automation is Growth+.",
+        "Advanced IF/AND conditions are Pro+.",
+        "Rules may only target collections already enabled in VSN Stock Down Sort."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-05 scheduling and rule builder contract"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "App Validation #413 / run 37057803474 passed.",
+        "AutomationRule Local/hosted migrations validate and preserve schema parity.",
+        "PHASE5_OPTION_IDS gates schedule and advanced rule access."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-02",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Implement live condition evaluation and safe execution",
+      "objective": "Evaluate IF/AND predicates against live collection stock and invoke the existing sort engine only when conditions match.",
+      "dependencies": [
+        "ISSUE-106-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Live collection stock summary respects existing collection inventory rules.",
+        "All configured advanced predicates use AND semantics.",
+        "Unmatched rules record SKIPPED and do not sort.",
+        "Matched rules invoke the existing sortCollection engine.",
+        "Subscription downgrade fails closed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "getCollectionStockSummary evaluates live Shopify stock using existing collection rules.",
+        "executeAutomationRule records SUCCESS/SKIPPED/ERROR/ENTITLEMENT_BLOCKED outcomes.",
+        "Primary collection sorting implementation is reused rather than duplicated."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-03",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Add Cloudflare scheduled runtime and merchant Automation UI",
+      "objective": "Run due rules from hosted Cloudflare Cron Triggers and expose authenticated merchant management controls.",
+      "dependencies": [
+        "ISSUE-106-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging/Production Wrangler configs define the hourly cron trigger.",
+        "Worker exports scheduled() and calls the internal runner.",
+        "Internal runner rejects normal public requests.",
+        "Due rules are bounded to 25 and protected by 15-minute DB leases.",
+        "Automation UI supports rule create/edit/pause/run/delete.",
+        "Local development does not claim background scheduling."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "workers/app.js exports the scheduled handler.",
+        "Both hosted Wrangler configs contain 0 * * * *.",
+        "Internal runner requires scheduledConsumer context.",
+        "/app/automation is authenticated and shop-scoped."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-04",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Certify PHASE-05 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-05 implementation.",
+      "dependencies": [
+        "ISSUE-106-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the two implemented PHASE-05 capabilities.",
+        "Dedicated PHASE-05 contract passes.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 7244f4f00e26bd045eaa76e73a61b220e3d901c6 passed App Validation #413 / run 37057803474.",
+        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "No PHASE-05 Staging or Production runtime promotion is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -878,5 +1023,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "a4f2472fe7e6d52ca5e02502ed9c6c461a758699"
+  "last_reconciled_repository_ref": "7244f4f00e26bd045eaa76e73a61b220e3d901c6"
 }
