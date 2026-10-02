@@ -531,15 +531,17 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
-        "App Validation #403 / run 37033334552 passed the complete validation chain.",
+        "All three PHASE-04 option IDs are runtime-implemented in canonical product/options registries.",
         "ActivityEvent persistence is implemented in Local SQLite and hosted PostgreSQL with parity indexes.",
-        "Sorting, visibility and settings services write real bounded activity events.",
-        "Analytics/history UI and CSV export are authenticated and current-plan gated.",
+        "Sorting, visibility and settings paths write real bounded shop-scoped activity events.",
+        "Authenticated analytics/history UI and CSV export are current-plan gated for Pro+.",
+        "PR #104 exact head 719696e3e90509950d7fc9fa315621b52ceff510 passed App Validation #407.",
+        "PR #104 merged to development as a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Post-merge App Validation #408 / run 37033942983 passed the full validation chain.",
         "No PHASE-04 Staging/Production deployment is claimed."
       ],
       "update_notes": [
-        "Repository/development implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+        "Repository/development implementation is complete and CI-certified. Staging/Production promotion remains a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
     }
