@@ -34,7 +34,15 @@ export type CollectionRuleInput = {
   inventoryLocationIds: string;
 };
 
-type StoredRulesLike = Partial<CollectionRuleInput>;
+type StoredRulesLike = {
+  excludedTags?: string | null;
+  excludedVendors?: string | null;
+  excludedProducts?: string | null;
+  pinnedProducts?: string | null;
+  availableSortMode?: string | null;
+  inventoryMode?: string | null;
+  inventoryLocationIds?: string | null;
+};
 
 const MAX_RULE_ITEMS = 500;
 const MAX_RULE_ITEM_LENGTH = 255;
