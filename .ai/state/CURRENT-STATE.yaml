@@ -11,6 +11,6 @@ current_phase: PHASE-02
 current_module: core-sorting-controls
 current_work_unit: ISSUE-97-WU-04
 note: >
-  PHASE-02 repository implementation is complete and CI-certified on development.
-  It is not yet claimed as promoted to Staging or Production. Next planned
-  feature phase is PHASE-03 Product & Variant Visibility.
+  PHASE-02 Core Sorting Controls merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.
+  Post-merge App Validation #377 / run 37007855200 passed. No PHASE-02
+  Staging or Production promotion is claimed.
