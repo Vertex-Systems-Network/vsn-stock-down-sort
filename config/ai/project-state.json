@@ -2,14 +2,14 @@
   "schema_version": 1,
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
-  "current_module": "cloudflare-staging-deploy",
-  "current_work_unit": "ISSUE-32-WU-04",
+  "current_module": "shopify-staging-version-release",
+  "current_work_unit": "ISSUE-32-WU-06",
   "active_issue": 32,
-  "last_verified_completion": "Staging Readiness #6 (run 36929608192) passed on development using accepted source ca5851561ab7979712f11580ab951fda4650ef19: Local gate verification, isolated staging secrets, cloud Prisma validation/generation, PostgreSQL migration deploy/status, lint/typecheck, staging build, Cloudflare Worker dry-run and canonical four-plan billing contract all passed.",
-  "next_valid_work_unit": "Run ISSUE-32-WU-04 Cloudflare Staging Deploy from development using Local-accepted source ca5851561ab7979712f11580ab951fda4650ef19. After deployment evidence is recorded, run ISSUE-32-WU-06 Shopify Staging Version/Release, install the staging app and activate a test plan, then run ISSUE-32-WU-05 Staging Runtime Acceptance.",
+  "last_verified_completion": "Shopify Staging Version #1 (run 36985767671) passed and created unreleased candidate stock-down-sort-staging-ca5851561ab7-1 for accepted source ca5851561ab7979712f11580ab951fda4650ef19; Local and Production configs remained untouched.",
+  "next_valid_work_unit": "Run Shopify Staging Release from development for exact candidate stock-down-sort-staging-ca5851561ab7-1 using source ca5851561ab7979712f11580ab951fda4650ef19. After release, install the staging app, activate a test plan, then run ISSUE-32-WU-05 Staging Runtime Acceptance.",
   "progress": {
     "total_work_units": 11,
-    "complete": 6,
+    "complete": 7,
     "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
@@ -18,9 +18,7 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run Cloudflare Staging Deploy from the exact Local-accepted source.",
-    "Record the exact deployed source in the Staging gate.",
-    "Create and release the Shopify Staging version against the live Workers URL.",
+    "Release exact Shopify staging candidate stock-down-sort-staging-ca5851561ab7-1.",
     "Install the staging app on the dedicated staging test store and activate a test billing plan.",
     "Run Staging Runtime Acceptance for health, PostgreSQL, Queue/DLQ, session, Admin GraphQL and subscription reads.",
     "Only after Staging acceptance is recorded on main, prepare Production candidate and explicit Live release."
@@ -33,11 +31,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Staging Readiness #6 passed completely on accepted source ca5851561ab7979712f11580ab951fda4650ef19. Manual Cloudflare Staging deployment is now the active guarded step.",
+  "qa_readiness": "Cloudflare staging deployment is live and healthy. Shopify staging candidate stock-down-sort-staging-ca5851561ab7-1 has been created but is not yet released; signed Shopify runtime acceptance remains pending.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "86ae41fc97f1bcf8ff5665f197897b977e222188",
+  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
   "last_reconciled_at": "2026-10-02",
-  "notes": "Staging Readiness is accepted. First-time staging sequencing is Worker deploy -> Shopify staging version/release -> install/plan -> signed runtime acceptance. Cloudflare deploy no longer requires a pre-existing Shopify session.",
+  "notes": "Staging Worker application deployment is live. Shopify staging candidate stock-down-sort-staging-ca5851561ab7-1 is created and unreleased. Next: release -> install/test plan -> signed runtime acceptance. Production remains blocked.",
   "ci_evidence": {
     "workflow_run": 271,
     "run_id": 36844916383,

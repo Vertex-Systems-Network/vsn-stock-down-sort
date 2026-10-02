@@ -296,7 +296,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 70,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Cloudflare Staging Deploy passes.",
@@ -305,7 +305,15 @@
       "required_checks": [
         "Cloudflare Staging Deploy"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Cloudflare Staging Deploy #1 (run 36985118161) passed on development.",
+        "Exact Local-accepted source ca5851561ab7979712f11580ab951fda4650ef19 was verified and deployed.",
+        "Staging Queue and DLQ already existed and were bound successfully.",
+        "Hosted PostgreSQL migrations found 2 migrations with no pending migrations.",
+        "Worker vsn-stock-down-sort-staging deployed successfully to the expected workers.dev URL.",
+        "Deployed /healthz passed staging environment, PostgreSQL mode, Queue readiness and canonical four-plan / 10-day billing contract.",
+        "Signed Shopify session/subscription acceptance remains intentionally deferred until the staging Shopify version is released and installed."
+      ]
     },
     {
       "id": "ISSUE-32-WU-05",
@@ -340,7 +348,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 60,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Exact staging candidate created and released.",
@@ -350,7 +358,12 @@
         "Shopify Staging Version",
         "Shopify Staging Release"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Shopify Staging Version #1 (run 36985767671) passed on development.",
+        "Unreleased candidate stock-down-sort-staging-ca5851561ab7-1 was created for accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
+        "Staging Shopify identity isolation checks passed and Local/Production configs remained untouched.",
+        "Candidate remains unreleased; Shopify Staging Release is still required."
+      ]
     },
     {
       "id": "ISSUE-32-WU-07",
@@ -386,5 +399,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "c90dd8c67704a2842c0eb065549a8cb7834975e7"
+  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f"
 }

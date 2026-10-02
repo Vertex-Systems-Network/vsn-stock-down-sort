@@ -45,7 +45,7 @@
     ]
   },
   "staging": {
-    "status": "blocked",
+    "status": "verification_required",
     "accepted_source_ref": null,
     "accepted_main_ref": null,
     "evidence_record": null,
@@ -56,8 +56,24 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": null,
-    "deployment_record": null
+    "deployed_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "deployment_record": {
+      "workflow": "Cloudflare Staging Deploy",
+      "run_number": 1,
+      "run_id": 36985118161,
+      "branch": "development",
+      "control_head_sha": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
+      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+      "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+      "database_provider": "postgresql",
+      "prisma_migrations": "passed_no_pending",
+      "queue": "vsn-stock-down-sort-staging-sort-jobs",
+      "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "shopify_acceptance": "deferred_to_staging_runtime_acceptance"
+    }
   },
   "live": {
     "status": "blocked",
