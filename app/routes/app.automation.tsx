@@ -540,7 +540,7 @@ export default function AutomationPage() {
                       </form>
                     ) : target ? null : (
                       <s-banner tone="warning">
-                        This rule's collection is no longer enabled. Re-enable
+                        This rule&apos;s collection is no longer enabled. Re-enable
                         the collection or delete the rule.
                       </s-banner>
                     )}
