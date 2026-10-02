@@ -73,7 +73,22 @@ jobs:
           ensure_queue "$SORT_QUEUE_NAME"
           ensure_queue "$SORT_QUEUE_NAME-dlq"
 
+      - name: Check whether staging Worker already exists
+        id: worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          if npx --yes wrangler@4.141.0 deployments list --name "$WORKER_NAME" >/tmp/worker-deployments.txt 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "worker_exists=$WORKER_NAME"
+            cat /tmp/worker-deployments.txt
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "worker_missing=$WORKER_NAME"
+          fi
+
       - name: Create bootstrap Worker source
+        if: steps.worker.outputs.exists != 'true'
         shell: bash
         run: |
           cat > .cloudflare-staging-bootstrap.mjs <<'EOF'
@@ -111,8 +126,13 @@ jobs:
           }
           EOF
 
-      - name: Create or update Cloudflare staging Worker product
+      - name: Create Cloudflare staging Worker product
+        if: steps.worker.outputs.exists != 'true'
         run: npx --yes wrangler@4.141.0 deploy --config .cloudflare-staging-bootstrap.jsonc
+
+      - name: Skip existing Worker mutation
+        if: steps.worker.outputs.exists == 'true'
+        run: echo "cloudflare_staging_product=already_exists_no_mutation"
 
       - name: Verify Cloudflare deployment exists
         shell: bash
