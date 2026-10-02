@@ -957,20 +957,17 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.ok(manifest.roles.supervisor.includes("SUPERVISOR.md"));
   assert.ok(manifest.roles.worker.includes("AUTO-AGENT.md"));
 
-  assert.equal(state.current_phase, "PHASE-01");
-  assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "production-live");
-  assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
+  assert.equal(state.current_phase, "PHASE-02");
+  assert.equal(state.active_issue, 97);
+  assert.equal(state.current_module, "core-sorting-controls");
+  assert.equal(state.current_work_unit, "ISSUE-97-WU-01");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /PHASE-01 is complete/i);
-  assert.match(
-    state.next_valid_work_unit,
-    /516ab92a2d1a4a74fc9624dfc56d3fcc3f624182/,
-  );
+  assert.match(state.next_valid_work_unit, /ISSUE-97-WU-01/i);
+  assert.match(state.next_valid_work_unit, /multi-location inventory/i);
 
-  assert.equal(plan.active_issue, 32);
+  assert.equal(plan.active_issue, 97);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 9);
+  assert.ok(plan.work_units.length >= 15);
   assert.equal(plan.work_units[0].status, "complete");
   assert.equal(plan.work_units[1].status, "deprecated");
   assert.equal(plan.work_units[2].status, "complete");
@@ -982,6 +979,11 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.work_units[8].status, "complete");
   assert.equal(plan.work_units[9].status, "complete");
   assert.equal(plan.work_units[10].status, "complete");
+  assert.equal(plan.work_units[11].id, "ISSUE-97-WU-01");
+  assert.equal(plan.work_units[11].status, "in_progress");
+  assert.equal(plan.work_units[12].id, "ISSUE-97-WU-02");
+  assert.equal(plan.work_units[13].id, "ISSUE-97-WU-03");
+  assert.equal(plan.work_units[14].id, "ISSUE-97-WU-04");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
   assert.equal(plan.work_units[2].id, "ISSUE-32-WU-LOCAL-SQLITE-01");
@@ -993,6 +995,18 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-STAGING"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-PRODUCTION"));
+  assert.equal(
+    modules.modules.find((module) => module.id === "MOD-STAGING")?.status,
+    "complete",
+  );
+  assert.equal(
+    modules.modules.find((module) => module.id === "MOD-PRODUCTION")?.status,
+    "complete",
+  );
+  assert.equal(
+    modules.modules.find((module) => module.id === "MOD-SORTING-CONTROLS")?.status,
+    "in_progress",
+  );
 
   assert.equal(supervisor.supervisor.status, "unassigned");
   assert.equal(supervisor.supervisor.lease_status, "not_acquired");
@@ -1008,9 +1022,9 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
-  assert.match(current, /ISSUE-32-WU-07/);
-  assert.match(tasks, /ISSUE-32-WU-07/);
-  assert.match(tasks, /status: complete/);
+  assert.match(current, /ISSUE-97-WU-01/);
+  assert.match(tasks, /ISSUE-97-WU-01/);
+  assert.match(tasks, /status: in_progress/);
 });
 
 
