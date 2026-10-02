@@ -2,37 +2,72 @@
   "schema_version": 1,
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
-  "current_module": "local-development-certification",
-  "current_work_unit": "ISSUE-32-WU-LOCAL-01",
+  "current_module": "production-main-promotion",
+  "current_work_unit": "ISSUE-32-WU-07",
   "active_issue": 32,
-  "last_verified_completion": "Local-first environment topology is merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404. PR #37 App Validation run 36698394720 passed all checks on the certified tree fc6e44bf74de24f2d68890136bf75cd55069fe8c. PR #38 promoted the identical certified tree to main. Staging and Production were not deployed.",
-  "next_valid_work_unit": "Provision/bind the dedicated Neon project vsn-stock-down-sort-local, use pooled DATABASE_URL plus matching direct DIRECT_URL in the uncommitted local .env, then run npm run dev from development. Only after Local/Dev certification may cloudflare-staging secret/readiness work resume.",
+  "last_verified_completion": "Staging Runtime Acceptance #1 (run 36989726911) passed for ca5851561ab7979712f11580ab951fda4650ef19 on staging-oath3rth.myshopify.com: runtime health, PostgreSQL, Queue/DLQ, offline Shopify session, Admin GraphQL and active Starter subscription all passed.",
+  "next_valid_work_unit": "Promote the certified development tree containing accepted Staging evidence for source ca5851561ab7979712f11580ab951fda4650ef19 to protected main, then bind staging.accepted_main_ref to the resulting main commit before Production Readiness. Do not deploy Production yet.",
   "progress": {
-    "total_work_units": 8,
-    "complete": 1,
-    "in_progress": 1,
-    "blocked": 0,
+    "total_work_units": 11,
+    "complete": 9,
+    "in_progress": 0,
+    "blocked": 1,
     "deferred": 0,
+    "deprecated": 1,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Provision or identify the dedicated Neon project vsn-stock-down-sort-local and record its real project/branch/endpoint identity.",
-    "Configure the uncommitted Local .env with pooled Neon DATABASE_URL and matching direct DIRECT_URL.",
-    "Run Local Prisma migrations and npm run dev from development using VSN Stock Down Sort Dev.",
-    "Record Local/Dev acceptance evidence.",
-    "Only then verify cloudflare-staging Environment secrets and run Staging Readiness."
+    "Promote certified development state to protected main without deploying Production.",
+    "Record the resulting protected-main commit as staging.accepted_main_ref.",
+    "Run Production Readiness only after the accepted Staging gate exists on main.",
+    "Production candidate/release remain separate explicit guarded actions."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
     "Project Management provider remains unselected; repository/GitHub Issues are the active planning surface.",
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed.",
-    "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes."
+    "Production promotion remains intentionally deferred until PHASE-01 Staging acceptance passes.",
+    "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "local_environment_topology_certified_neon_binding_required_staging_deferred",
-  "security_readiness": "cloudflare_environment_bindings_certified_local_neon_isolation_enforced_binding_pending",
-  "last_reconciled_repository_ref": "c0320d5bcbb1057bd6100253e1b0664843ed0404",
-  "last_reconciled_at": "2026-09-30T10:05:00+00:00",
-  "notes": "Owner-approved Local-first topology is now merged: Local uses development + VSN Stock Down Sort Dev + dedicated Neon PostgreSQL; Staging GitHub Environment is cloudflare-staging (ID 23050370538); Production GitHub Environment is cloudflare-production (ID 23098399859). Local Neon project binding remains the only active environment blocker. Staging/Production remain manual and deferred."
+  "qa_readiness": "Staging is fully accepted with signed Shopify runtime evidence. Production remains blocked until that acceptance is recorded on protected main and Production Readiness passes.",
+  "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
+  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
+  "last_reconciled_at": "2026-10-02",
+  "notes": "Staging acceptance passed end-to-end. Next is repository promotion of the certified tree/evidence to main, not Production deployment.",
+  "ci_evidence": {
+    "workflow_run": 271,
+    "run_id": 36844916383,
+    "status": "completed",
+    "conclusion": "success",
+    "validated_head_sha": "b0970d0dbe4a0556543770f5755f72f529dc62aa",
+    "all_validation_steps": "passed",
+    "local_sqlite_schema": "passed",
+    "local_cloud_schema_parity": "passed",
+    "local_sqlite_migrations": "passed",
+    "hosted_postgresql_schema": "passed",
+    "worker_build": "passed",
+    "cloudflare_dry_runs": "passed"
+  },
+  "batch_06_09": {
+    "scope": [
+      "6-database-architecture",
+      "7-staging",
+      "8-production-live",
+      "9-shopify-subscription-plans"
+    ],
+    "status": "verification_required",
+    "repository_implementation": "complete_for_currently_automatable_controls",
+    "runtime_acceptance": "blocked_by_real_environment_evidence",
+    "completed_repository_controls": [
+      "isolated PostgreSQL topology and additive Session.shop index",
+      "manual Staging and Production release gates bound to isolated environments",
+      "four stable billing IDs and 10-day trial catalog",
+      "plan selection/replacement runtime and legacy billing compatibility",
+      "hosted four-plan health/release validation",
+      "AI-Native state/execution/module registry reconciliation"
+    ],
+    "truth_rule": "No environment or billing plan is marked accepted without live evidence."
+  }
 }

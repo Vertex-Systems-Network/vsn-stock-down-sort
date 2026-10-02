@@ -1,5 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { PRO_PLAN } from "../billing-config";
+import {
+  BILLING_CATALOG,
+  BILLING_PLANS,
+} from "../billing-config";
 import {
   getAppEnvironment,
   getDatabaseMode,
@@ -37,12 +40,17 @@ export function loader({ context }: LoaderFunctionArgs) {
         ready: queueReady,
         mode: sortQueueConfigured ? "cloudflare-queue" : "local-fallback",
       },
-      plan: {
-        id: PRO_PLAN.id,
-        amount: PRO_PLAN.amount,
-        currencyCode: PRO_PLAN.currencyCode,
-        interval: PRO_PLAN.interval,
-        trialDays: PRO_PLAN.trialDays,
+      billingCatalog: {
+        currencyCode: BILLING_CATALOG.currencyCode,
+        interval: BILLING_CATALOG.interval,
+        trialDays: BILLING_CATALOG.trialDays,
+        plans: BILLING_PLANS.map((plan) => ({
+          id: plan.id,
+          amount: plan.amount,
+          currencyCode: BILLING_CATALOG.currencyCode,
+          interval: BILLING_CATALOG.interval,
+          trialDays: plan.trial_days,
+        })),
       },
     },
     {

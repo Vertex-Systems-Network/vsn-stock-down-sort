@@ -1,6 +1,6 @@
-# Dedicated local/development Shopify app configuration.
+# Explicit Local/Development Shopify app configuration.
 # This Shopify app identity must never be reused by staging or production.
-# Shopify CLI may update the temporary application URL during local development.
+# Shopify CLI must update the temporary application and redirect URLs during local development.
 
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 

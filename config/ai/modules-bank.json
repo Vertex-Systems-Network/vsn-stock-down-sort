@@ -41,19 +41,23 @@
     },
     {
       "id": "MOD-LOCAL",
-      "name": "Local Development and Neon",
-      "objective": "Certify development-branch local Shopify development against a dedicated Neon PostgreSQL database before Staging begins.",
+      "name": "Local Development on Prisma SQLite",
+      "objective": "Provide fast Shopify-default-style Local development on Prisma + SQLite before Staging begins.",
       "scope": [
         "development branch",
-        "VSN Stock Down Sort Dev",
-        "dedicated Local Neon project",
-        "Prisma migrations",
-        "npm run dev"
+        "VSN | Stock Down Sort Dev",
+        "Prisma Local SQLite schema",
+        "gitignored SQLite database file",
+        "Local Prisma migration/generation",
+        "npm run dev",
+        "Local health/certification"
       ],
       "boundaries": [
+        "No Local Neon account/project credential requirement.",
         "No Staging deployment.",
         "No Production mutation.",
-        "Never reuse Staging or Production database credentials."
+        "Never reuse Staging or Production database credentials.",
+        "Local SQLite acceptance is not PostgreSQL acceptance."
       ],
       "dependencies": [
         "MOD-MGMT"
@@ -63,26 +67,35 @@
       "contracts": [],
       "ui_surfaces": [],
       "security_responsibilities": [
-        "Local Neon identity must be isolated.",
-        "Secrets remain uncommitted.",
+        "Local SQLite database files remain gitignored.",
+        "No hosted database credentials are required for normal Local development.",
         "Shopify billing remains test mode."
       ],
       "acceptance_criteria": [
-        "Local Neon pooled/direct connection contract passes.",
-        "Prisma migration succeeds.",
-        "npm run dev reaches the dedicated Dev Shopify app."
+        "Local Prisma datasource is SQLite.",
+        "Local SQLite setup/migration/generation succeeds.",
+        "Shared schema parity with cloud PostgreSQL is automatically checked.",
+        "npm run dev reaches VSN | Stock Down Sort Dev.",
+        "Local certification records a passing SQLite development health response and exact source ref."
       ],
       "quality_gates": [
         "App Validation",
-        "Local Neon validation"
+        "Local SQLite contract",
+        "Local/cloud schema parity",
+        "Shopify local dev boot",
+        "Local certification"
       ],
-      "status": "in_progress",
+      "status": "complete",
       "completion_evidence": [
-        "Environment topology policy and Local Neon validator merged to protected main at c0320d5bcbb1057bd6100253e1b0664843ed0404.",
-        "PR #37 App Validation run 36698394720 passed all repository checks.",
-        "Actual Neon Local project binding and live npm run dev acceptance remain pending."
+        "ADR-0001 accepted Local Prisma+SQLite.",
+        "Local SQLite runtime wiring, migration, validation and certification implemented and CI-validated.",
+        "Real workstation Local certification accepted exact development source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5.",
+        "Local health passed development + SQLite + billing test mode + canonical four-plan catalog.",
+        "One current paid plan activation passed on the Dev test store."
       ],
-      "update_notes": [],
+      "update_notes": [
+        "Local/Dev gate is accepted; further runtime work is in Billing then Staging."
+      ],
       "removal_or_deprecation_notes": []
     },
     {
@@ -117,9 +130,16 @@
         "Staging Readiness",
         "Cloudflare Staging Deploy"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
-      "update_notes": [],
+      "status": "in_progress",
+      "completion_evidence": [
+        "Environment Secrets Audit #4 passed on development for cloudflare-staging.",
+        "Staging Readiness #6 passed on development using the Local-accepted source."
+      ],
+      "update_notes": [
+        "Secret audit and Staging Readiness are accepted.",
+        "Manual Cloudflare Staging deployment is now active.",
+        "Production remains blocked until Staging runtime acceptance is complete."
+      ],
       "removal_or_deprecation_notes": []
     },
     {
@@ -158,6 +178,137 @@
       "status": "not_started",
       "completion_evidence": [],
       "update_notes": [],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-DATABASE",
+      "name": "Environment-Aware Prisma Data Architecture",
+      "objective": "Use Prisma SQLite for Local development and Prisma PostgreSQL on isolated Neon databases for Staging/Production, with automated shared-schema parity.",
+      "scope": [
+        "Local SQLite Prisma schema",
+        "Hosted Neon PostgreSQL Prisma schema",
+        "shared model/schema parity",
+        "hosted session lookup indexing",
+        "pooled hosted runtime connections",
+        "direct hosted migration connections"
+      ],
+      "boundaries": [
+        "Local SQLite files must be gitignored.",
+        "No Local reuse of Staging or Production credentials.",
+        "No Staging/Production credential reuse across hosted environments.",
+        "No production migration during Shopify release."
+      ],
+      "dependencies": [
+        "MOD-MGMT"
+      ],
+      "option_ids": [],
+      "data_entities": [
+        "Session",
+        "CollectionSetting"
+      ],
+      "contracts": [
+        "Local=SQLite",
+        "Staging=Neon PostgreSQL",
+        "Production=Neon PostgreSQL",
+        "Hosted DATABASE_URL=pooled",
+        "Hosted DIRECT_URL=direct",
+        "Shared Prisma model parity required"
+      ],
+      "ui_surfaces": [],
+      "security_responsibilities": [
+        "Never commit database credentials.",
+        "Keep environment credentials isolated."
+      ],
+      "acceptance_criteria": [
+        "Local schema provider is SQLite.",
+        "Hosted schema provider is PostgreSQL.",
+        "Shared application models stay parity-checked.",
+        "Staging and Production Neon identities remain isolated.",
+        "Session shop lookup remains indexed in hosted PostgreSQL."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Database architecture contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Hosted PostgreSQL schema contract and Session.shop index are CI-validated.",
+        "Local SQLite schema and migration path are CI-validated.",
+        "Shared Local/cloud Prisma model parity is CI-validated by App Validation #271.",
+        "Staging and Production retain isolated Neon PostgreSQL identities."
+      ],
+      "update_notes": [
+        "Database architecture is complete at repository level; environment runtime acceptance is handled by Local/Staging promotion gates."
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-BILLING",
+      "name": "Four-Tier Shopify Billing and Entitlements",
+      "objective": "Provide four stable subscription tiers with a shared 10-day trial contract and server-side entitlement resolution.",
+      "scope": [
+        "Starter",
+        "Growth",
+        "Pro",
+        "Unlimited",
+        "legacy subscription compatibility",
+        "plan selection",
+        "subscription replacement",
+        "entitlement resolution"
+      ],
+      "boundaries": [
+        "Exactly four stable IDs: starter, growth, pro, unlimited.",
+        "Do not expose unimplemented options as available runtime capabilities.",
+        "Production real billing is only used after guarded release."
+      ],
+      "dependencies": [
+        "MOD-MGMT",
+        "MOD-DATABASE"
+      ],
+      "option_ids": [
+        "OPT-UNLIMITED-CATALOGS",
+        "OPT-SOLD-OUT-PUSH-DOWN",
+        "OPT-REALTIME-RESORT",
+        "OPT-RESTORE-ORIGINAL-POSITION",
+        "OPT-MANUAL-BULK-SORT"
+      ],
+      "data_entities": [
+        "Shopify AppSubscription"
+      ],
+      "contracts": [
+        "USD",
+        "EVERY_30_DAYS",
+        "10-day trial"
+      ],
+      "ui_surfaces": [
+        "/app/plans"
+      ],
+      "security_responsibilities": [
+        "Validate exact subscription identity, price, interval, trial and test mode.",
+        "Do not trust client-provided plan entitlements."
+      ],
+      "acceptance_criteria": [
+        "Four catalog plans are canonical.",
+        "New manual Billing API subscriptions use 10-day trials.",
+        "Plan changes use Shopify replacement behavior.",
+        "Legacy USD 55/5-day subscriptions retain compatible access."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "Billing catalog contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Canonical four-plan billing configuration and server-side entitlement resolution are implemented and CI-validated.",
+        "Initial Dev-store paid-plan activation passed.",
+        "All current plan-switch approval/return paths passed real Dev-store runtime verification on fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c.",
+        "Selected plans were recognized as Current plan after Shopify approval.",
+        "Original desired plan was restored successfully after switch testing.",
+        "PR #76 / App Validation #301 validated the final plan-switch navigation fix."
+      ],
+      "update_notes": [
+        "Billing runtime acceptance is complete; further work moves to the guarded Staging promotion sequence."
+      ],
       "removal_or_deprecation_notes": []
     }
   ],

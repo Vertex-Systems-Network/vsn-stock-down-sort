@@ -1,14 +1,10 @@
 # Production runtime gate
 
-Production is intentionally isolated from local development and staging.
+Production is isolated from Local and Staging.
 
 ## Required GitHub environment
 
-Use the existing GitHub Environment `cloudflare-production`:
-
-https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit
-
-Configure these secrets:
+Use `cloudflare-production` for:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
@@ -16,106 +12,53 @@ Configure these secrets:
 - `DIRECT_URL`
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
-- `SHOPIFY_APP_AUTOMATION_TOKEN` — used only by Shopify candidate/release Actions
+- `SHOPIFY_APP_AUTOMATION_TOKEN`
 
-The production values must not be reused by staging.
-
-## Required Shopify config
-
-The committed `shopify.app.production.toml` intentionally keeps
-`__SHOPIFY_PRODUCTION_CLIENT_ID__`. Do **not** commit the Live Client ID.
-
-The production URL is fixed to:
-
-`https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
-
-GitHub Actions inject the real Live Client ID from the `cloudflare-production`
-Environment only into a disposable runner.
+Production credentials must not be reused by Staging.
 
 ## Billing safety
 
-The live runtime requires:
+Production requires:
 
 - `APP_ENV=production`
 - `SHOPIFY_BILLING_TEST_MODE=false`
 
-The runtime startup script refuses production when the real-billing flag is not
-explicitly false.
+The canonical four-plan catalog is `config/ai/product-plan.json`:
 
-## Readiness workflow
+- Starter — USD 10.99 / 30 days / 10-day trial
+- Growth — USD 19.99 / 30 days / 10-day trial
+- Pro — USD 34.99 / 30 days / 10-day trial
+- Unlimited — USD 54.99 / 30 days / 10-day trial
 
-Run **Production Readiness** and enter `VALIDATE_PRODUCTION`.
+Existing legacy **VSN Stock Down Sort Pro / USD 55 / 5-day** subscriptions remain recognized as Unlimited-compatible until they are migrated by an approved plan change.
 
-This workflow is read-only with respect to production schema changes: it checks
-the migration status but does not apply migrations and does not deploy the app.
-A production migration/deployment should only be introduced after staging has
-passed end-to-end Shopify installation, billing approval, webhook, and sorting
-tests.
+## Production readiness
 
+Run **Production Readiness** with `VALIDATE_PRODUCTION`.
 
-## Cloudflare production target
+It verifies the immutable main source, staging acceptance on main, production secret presence and identity isolation, PostgreSQL migration state, Worker build and the four-plan billing catalog contract.
 
-The production Worker contract is `wrangler.production.jsonc`. Worker
-preparation and Shopify release are deliberately separate operations. A
-successful Worker deployment does not release or mutate the Live Shopify app.
+It does not apply production migrations or release Shopify.
 
+## Worker preparation
 
-## Cloudflare production Worker preparation
+Run **Cloudflare Production Prepare** with `PREPARE_PRODUCTION_WORKER_ONLY`.
 
-The isolated production Worker target is:
-
-`https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
-
-Run **Cloudflare Production Prepare** and type
-`PREPARE_PRODUCTION_WORKER_ONLY`.
-
-This workflow:
-
-- checks the production database migration status without applying migrations;
-- builds and dry-runs the Cloudflare Worker bundle;
-- deploys only the isolated production Worker;
-- verifies `/healthz` reports production, PostgreSQL, real billing mode, and the
-  5-day / USD 55 billing contract;
-- does **not** update or release Shopify production URLs/configuration.
-
-A successful Worker preparation therefore does not authorize Shopify cutover.
-
+This prepares the isolated Production Worker, verifies PostgreSQL, real billing mode, Queue readiness and the four-plan catalog. It does not release the Shopify production app.
 
 ## Shopify production promotion
 
-Production follows an action-driven candidate → authorization → release flow.
+1. Production Readiness.
+2. Cloudflare Production Prepare.
+3. Shopify Production Candidate with `CREATE_PRODUCTION_SHOPIFY_VERSION`.
+4. Review the exact candidate version and source SHA.
+5. Keep `config/shopify/production-release.json` unauthorized until explicit release approval is recorded.
+6. Run Shopify Production Release only for the exact authorized candidate.
 
-1. Run **Production Readiness** with `VALIDATE_PRODUCTION`.
-2. Run **Cloudflare Production Prepare** with
-   `PREPARE_PRODUCTION_WORKER_ONLY`.
-3. After the production Worker health check passes, run
-   **Shopify Production Candidate** with
-   `CREATE_PRODUCTION_SHOPIFY_VERSION`.
-4. The Action checks out protected `main`, injects the Live Client ID only in
-   the disposable runner, and creates an **unreleased** version named like:
-   `stock-down-sort-production-<source-sha>-<run-number>`.
-5. Review the exact candidate and source SHA. Production release remains blocked
-   while `config/shopify/production-release.json` has
-   `release_authorized=false`.
-6. Only after explicit repository authorization records the exact version and
-   40-character source SHA may **Shopify Production Release** run with
-   `RELEASE_PRODUCTION_SHOPIFY_VERSION`.
+Production release re-checks the Worker health and four-plan billing catalog before Shopify release.
 
-The release Action re-checks the production Worker health and exact
-`unlimited` / USD 55 / 5-day billing contract before releasing the authorized
-Shopify version.
+No Production release may bypass the Local → Staging → main → Live evidence chain.
 
-It does not apply database migrations and does not trigger product or inventory
-webhooks during release.
+## Billing fail-closed rule
 
-
-## Production sort queue
-
-Cloudflare Production Prepare ensures these resources exist before deploying
-the isolated production Worker:
-
-- `vsn-stock-down-sort-production-sort-jobs`
-- `vsn-stock-down-sort-production-sort-jobs-dlq`
-
-The queue is infrastructure-only and does not authorize or perform the Shopify
-production cutover. Shopify candidate/release gates remain separate.
+The subscription API and Plans UI must not cancel or replace an active Shopify subscription when its name, test flag, trial, interval, currency, or recurring amount does not match an approved VSN plan. Such subscriptions require review first. This protects existing or unexpected merchant billing from an automated plan mutation.

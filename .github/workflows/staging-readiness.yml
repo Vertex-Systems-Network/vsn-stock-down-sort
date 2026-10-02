@@ -7,6 +7,10 @@ on:
         description: "Type VALIDATE_STAGING to validate the isolated staging runtime"
         required: true
         type: string
+      source_ref:
+        description: "Exact 40-character development commit currently deployed to Staging"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,11 +34,33 @@ jobs:
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
-      - name: Checkout
+      - name: Checkout development source
         uses: actions/checkout@v4
+        with:
+          ref: development
+          persist-credentials: false
 
+      - name: Verify Local/Dev acceptance and exact source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, os, re, subprocess
+          source_ref=os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+          subprocess.run(["git","fetch","origin","development","--depth=200"],check=True)
+          subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          local=gate.get("local_dev") or {}
+          if local.get("status")!="accepted" or local.get("accepted_source_ref")!=source_ref or not local.get("evidence_record"):
+              raise SystemExit("Local/Dev acceptance gate is not satisfied for this source_ref.")
+          PY
+          git checkout --detach "$SOURCE_REF"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -76,6 +102,18 @@ jobs:
             exit 1
           fi
 
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Refusing staging readiness with the Production Shopify client ID." >&2
+            exit 1
+          fi
+
           if ! grep -q 'https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev' shopify.app.staging.toml; then
             echo "shopify.app.staging.toml does not match the expected Workers URL." >&2
             exit 1
@@ -112,8 +150,52 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
-          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
-          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
-          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
-          echo "staging_billing_contract=5_days_usd_55"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          product = json.loads(
+              Path("config/ai/product-plan.json").read_text(encoding="utf-8")
+          )
+          billing = product
+          plans = product.get("plans") or []
+
+          expected = [
+              {"id": "starter", "amount": 10.99, "trial_days": 10},
+              {"id": "growth", "amount": 19.99, "trial_days": 10},
+              {"id": "pro", "amount": 34.99, "trial_days": 10},
+              {"id": "unlimited", "amount": 54.99, "trial_days": 10},
+          ]
+
+          if billing.get("currency_code") != "USD":
+              raise SystemExit("billing currency must be USD")
+          if billing.get("billing_interval") != "EVERY_30_DAYS":
+              raise SystemExit("billing interval must be EVERY_30_DAYS")
+          if billing.get("trial_days") != 10:
+              raise SystemExit("catalog trial_days must be 10")
+          if len(plans) != 4:
+              raise SystemExit("exactly four current billing plans are required")
+
+          actual = [
+              {
+                  "id": plan.get("id"),
+                  "amount": plan.get("amount"),
+                  "trial_days": plan.get("trial_days"),
+              }
+              for plan in plans
+          ]
+
+          if actual != expected:
+              raise SystemExit(
+                  f"billing catalog mismatch: expected={expected!r} actual={actual!r}"
+              )
+
+          for plan in plans:
+              limits = plan.get("catalog_limits") or {}
+              if limits.get("products") != "unlimited":
+                  raise SystemExit(f"{plan.get('id')} must allow unlimited products")
+              if limits.get("collections") != "unlimited":
+                  raise SystemExit(f"{plan.get('id')} must allow unlimited collections")
+
+          print("staging_billing_contract=four_plans_10_day_trials")
+          PY

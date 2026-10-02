@@ -39,9 +39,26 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        timeout-minutes: 10
+        env:
+          NPM_CONFIG_FETCH_RETRIES: "3"
+          NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: "1000"
+          NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: "10000"
+        run: npm ci --no-audit --no-fund
 
-      - name: Validate PostgreSQL schema
+      - name: Validate Local SQLite schema
+        run: npm run prisma:validate:local
+
+      - name: Check Local/cloud Prisma model parity
+        run: npm run prisma:parity
+
+      - name: Apply Local SQLite migrations
+        run: npm run prisma:migrate:local
+
+      - name: Generate Local SQLite Prisma client
+        run: npm run prisma:generate:local
+
+      - name: Validate hosted PostgreSQL schema
         run: npx prisma validate --schema prisma/cloud/schema.prisma
 
       - name: Generate Worker Prisma client
@@ -55,6 +72,15 @@ jobs:
 
       - name: Worker runtime contracts
         run: node --test tests/worker-runtime-contract.test.mjs
+
+      - name: Environment promotion contract
+        run: node --test tests/environment-promotion-contract.test.mjs
+
+      - name: Local environment contract
+        run: node --test tests/local-environment-contract.test.mjs
+
+      - name: Database architecture contracts
+        run: node --test tests/database-architecture-contract.test.mjs
 
       - name: Build Worker runtime
         run: npm run build:worker

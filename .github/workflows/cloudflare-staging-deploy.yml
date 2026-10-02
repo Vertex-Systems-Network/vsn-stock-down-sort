@@ -7,10 +7,9 @@ on:
         description: "Type DEPLOY_DEVELOPMENT_TO_STAGING to deploy the development branch to isolated staging"
         required: true
         type: string
-      staging_shop:
-        description: "Optional myshopify.com shop to run signed Shopify acceptance checks after deploy"
-        required: false
-        default: ""
+      source_ref:
+        description: "Exact 40-character development commit accepted by Local/Dev"
+        required: true
         type: string
 
 permissions:
@@ -37,8 +36,8 @@ jobs:
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory
-      STAGING_SHOP_DOMAIN: ${{ github.event.inputs.staging_shop }}
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
+      SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
       - name: Checkout development source
@@ -47,6 +46,29 @@ jobs:
           ref: development
           persist-credentials: false
 
+      - name: Verify Local/Dev acceptance and exact source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, os, re, subprocess
+          source_ref=os.environ["SOURCE_REF"]
+          if re.fullmatch(r"[0-9a-f]{40}", source_ref) is None:
+              raise SystemExit("source_ref must be an exact 40-character Git commit SHA")
+          subprocess.run(["git","fetch","origin","development","--depth=200"],check=True)
+          subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          local=gate.get("local_dev") or {}
+          if local.get("status")!="accepted":
+              raise SystemExit("Local/Dev acceptance gate is not accepted; Staging promotion is blocked.")
+          if local.get("accepted_source_ref")!=source_ref:
+              raise SystemExit("source_ref does not match the Local/Dev accepted source ref.")
+          if not local.get("evidence_record"):
+              raise SystemExit("Local/Dev evidence record is missing.")
+          print(f"local_dev_gate=accepted source_ref={source_ref}")
+          PY
+          git checkout --detach "$SOURCE_REF"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -82,8 +104,15 @@ jobs:
             exit 1
           fi
 
-          if [ -n "$STAGING_SHOP_DOMAIN" ] && ! [[ "$STAGING_SHOP_DOMAIN" =~ ^[a-z0-9][a-z0-9-]*\.myshopify\.com$ ]]; then
-            echo "staging_shop must be a valid *.myshopify.com domain." >&2
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Refusing staging deploy with the Production Shopify client ID." >&2
             exit 1
           fi
 
@@ -149,13 +178,12 @@ jobs:
           import urllib.request
 
           url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
-          expected_plan = {
-              "id": "unlimited",
-              "amount": 55,
-              "currencyCode": "USD",
-              "interval": "EVERY_30_DAYS",
-              "trialDays": 5,
-          }
+          expected_plans = [
+              {"id": "starter", "amount": 10.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "growth", "amount": 19.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "pro", "amount": 34.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "unlimited", "amount": 54.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+          ]
 
           last_error = None
           for attempt in range(1, 7):
@@ -190,14 +218,14 @@ jobs:
                   if sort_queue.get("mode") != "cloudflare-queue":
                       raise RuntimeError("unexpected staging sort queue mode")
 
-                  if payload.get("plan") != expected_plan:
+                  if payload.get("billingCatalog", {}).get("plans") != expected_plans:
                       raise RuntimeError(
-                          f"billing contract mismatch: expected={expected_plan!r} actual={payload.get('plan')!r}"
+                          f"billing contract mismatch: expected={expected_plans!r} actual={payload.get('billingCatalog', {}).get('plans')!r}"
                       )
 
                   print("staging_runtime_health=pass")
                   print("staging_sort_queue=pass")
-                  print("staging_billing_contract=5_days_usd_55")
+                  print("staging_billing_contract=four_plans_10_day_trials")
                   break
               except Exception as exc:
                   last_error = exc
@@ -209,86 +237,8 @@ jobs:
               raise last_error
           PY
 
-      - name: Verify Shopify session and subscription reads
-        if: ${{ github.event.inputs.staging_shop != '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import hashlib
-          import hmac
-          import json
-          import os
-          import time
-          import urllib.error
-          import urllib.request
-
-          shop = os.environ["STAGING_SHOP_DOMAIN"].strip().lower()
-          path = "/internal/staging-acceptance"
-          timestamp = str(int(time.time()))
-          message = f"{timestamp}\n{shop}\n{path}".encode("utf-8")
-          signature = hmac.new(
-              os.environ["SHOPIFY_API_SECRET"].encode("utf-8"),
-              message,
-              hashlib.sha256,
-          ).hexdigest()
-
-          url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + path
-          request = urllib.request.Request(
-              url,
-              headers={
-                  "User-Agent": "vsn-stock-down-sort-staging-acceptance/1.0",
-                  "X-VSN-Shop": shop,
-                  "X-VSN-Timestamp": timestamp,
-                  "X-VSN-Signature": signature,
-              },
-          )
-
-          payload = None
-          last_error = None
-          for attempt in range(1, 4):
-              try:
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      payload = json.loads(response.read().decode("utf-8"))
-                  break
-              except urllib.error.HTTPError as exc:
-                  body = exc.read().decode("utf-8", errors="replace")
-                  last_error = RuntimeError(
-                      f"staging acceptance HTTP {exc.code}: {body[:500]}"
-                  )
-                  if attempt == 3:
-                      raise last_error
-                  time.sleep(attempt * 2)
-
-          if payload is None:
-              raise last_error or RuntimeError("staging acceptance returned no payload")
-          if payload.get("ok") is not True:
-              raise RuntimeError("staging acceptance returned ok=false")
-
-          session = payload.get("session") or {}
-          if session.get("offlineSessionAvailable") is not True:
-              raise RuntimeError("offline Shopify session is unavailable")
-          if int(session.get("storedSessionCount", 0)) < 1:
-              raise RuntimeError("no stored Shopify sessions were found")
-
-          admin = payload.get("adminGraphql") or {}
-          if admin.get("ok") is not True:
-              raise RuntimeError("Shopify Admin GraphQL read did not pass")
-
-          subscriptions = payload.get("subscriptions") or {}
-          if subscriptions.get("readOk") is not True:
-              raise RuntimeError("activeSubscriptions read did not return an array")
-
-          print("staging_offline_session=pass")
-          print("staging_admin_graphql=pass")
-          print("staging_subscription_read=pass")
-          print(f"staging_stored_sessions={session.get('storedSessionCount')}")
-          print(f"staging_active_subscriptions={subscriptions.get('activeCount')}")
-          PY
-
       - name: Report deferred Shopify acceptance
-        if: ${{ github.event.inputs.staging_shop == '' }}
-        run: echo "staging_shopify_acceptance=deferred_until_app_install"
+        run: echo "staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow"
 
       - name: Remove temporary Worker secrets
         if: always()

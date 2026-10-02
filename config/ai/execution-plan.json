@@ -5,21 +5,25 @@
     {
       "id": "PHASE-01",
       "name": "Local-first environment certification and production-safe promotion",
-      "objective": "Certify Local/Dev on development with dedicated Neon first, then Staging end-to-end, before any Production promotion.",
+      "objective": "Certify Local/Dev on development using Prisma + SQLite, then certify Staging end-to-end on isolated Neon PostgreSQL before any Production promotion.",
       "module_ids": [
         "MOD-MGMT",
         "MOD-LOCAL",
         "MOD-STAGING",
-        "MOD-PRODUCTION"
+        "MOD-PRODUCTION",
+        "MOD-DATABASE",
+        "MOD-BILLING"
       ],
       "dependencies": [],
       "status": "in_progress",
       "exit_criteria": [
-        "Local/Dev runs from development with a dedicated Neon database.",
+        "Local/Dev runs from development with Prisma + a gitignored SQLite database and VSN | Stock Down Sort Dev.",
+        "Local and hosted Prisma schemas have an explicit parity contract for shared application data.",
+        "The four-plan billing catalog is implemented with stable IDs and 10-day trials.",
         "Dedicated Staging Shopify identity is verified.",
-        "Staging Worker, PostgreSQL and Queue/DLQ are healthy.",
+        "Staging Worker, Neon PostgreSQL and Queue/DLQ are healthy.",
         "Staging Shopify auth/session/Admin API reads pass.",
-        "Exact unlimited USD 55 every 30 days with 5-day test trial contract is verified.",
+        "The four-plan billing catalog contract is verified in hosted environments.",
         "Production remains unmodified until Staging acceptance evidence exists."
       ]
     }
@@ -57,26 +61,27 @@
       "phase_id": "PHASE-01",
       "module_id": "MOD-LOCAL",
       "title": "Set up and certify Local Dev with Neon",
-      "objective": "Run VSN Stock Down Sort Dev from development using an isolated Neon PostgreSQL database before any Staging work.",
+      "objective": "Run VSN | Stock Down Sort Dev from development using an isolated, API-verified Neon PostgreSQL project before any Staging work.",
       "dependencies": [
         "ISSUE-32-WU-01"
       ],
       "priority": 95,
-      "status": "in_progress",
-      "blockers": [
-        "Dedicated Neon project vsn-stock-down-sort-local is not yet provisioned/bound with a real project ID and endpoint."
-      ],
+      "status": "deprecated",
+      "blockers": [],
       "acceptance_criteria": [
         "development is the Local integration branch.",
-        "npm run dev uses VSN Stock Down Sort Dev.",
+        "npm run local:prepare completes before the Dev Shopify runtime is certified.",
+        "npm run dev uses VSN | Stock Down Sort Dev.",
         "DATABASE_URL is a Neon pooled connection.",
         "DIRECT_URL is the matching Neon direct connection.",
+        "NEON_PROJECT_ID resolves through the Neon API to vsn-stock-down-sort-local and the configured endpoint belongs to that project.",
         "Prisma migrations pass on the Local Neon database.",
         "Local credentials do not reuse Staging or Production database identities."
       ],
       "required_checks": [
         "App Validation",
         "Local Neon environment validation",
+        "Neon project/endpoint ownership verification",
         "Prisma migrate deploy",
         "Shopify local dev boot"
       ],
@@ -85,7 +90,145 @@
         "PR #37 merged Local-first topology to development as d90dd87de3ca6605a7d97e3f7c8e9f592811c732.",
         "PR #38 promoted the identical certified Git tree fc6e44bf74de24f2d68890136bf75cd55069fe8c to protected main as c0320d5bcbb1057bd6100253e1b0664843ed0404.",
         "All Staging workflows bind to cloudflare-staging; all Production workflows bind to cloudflare-production.",
-        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup."
+        "Local dev startup now validates Neon pooled/direct URL separation before Prisma/React Router startup.",
+        "Local validator requires NEON_PROJECT_ID and NEON_PROJECT_NAME=vsn-stock-down-sort-local.",
+        "Local environment contract tests cover missing and wrong dedicated Neon identity.",
+        ".env.local.example documents the required real Local Neon project identity without secrets.",
+        "App Validation #216 run 36797501281 passed all validation steps on 7254d0b88992fdcdb878226e01779ae0d836df9c.",
+        "Previous real workstation validation reported pooled_runtime=pass and direct_migrations=pass, but that output did not record a real Neon project ID or a completed Dev health/certification gate and therefore is not sufficient for acceptance.",
+        "PR #56 added a regression test for the Windows local certification spawn path.",
+        "App Validation #253 run 36833332062 passed all validation steps for PR #56.",
+        "PR #56 merged to development as 2c2f63215f1575e695f075001d253858efcd27d7.",
+        "PR #58 added fail-closed Neon API verification of the exact Local project name and database endpoint ownership.",
+        "App Validation #258 run 36834564803 passed all validation steps for PR #58.",
+        "PR #58 merged to development as 2a91aff0283a296ed128865a15aad536b1833a08.",
+        "PR #59 added the Windows-safe npm run local:prepare flow for exact project provision/reuse, env validation, ownership verification and Prisma migrations.",
+        "App Validation #260 run 36834835944 passed all validation steps for PR #59.",
+        "PR #59 merged to development as f2d9293f0050d3252085d29fb779ccb3e21cb8f9."
+      ],
+      "superseded_by_work_unit": "ISSUE-32-WU-LOCAL-SQLITE-01",
+      "deprecation_reason": "Superseded by accepted ADR-0001. Historical Local-Neon implementation/evidence is retained for traceability but is no longer the target Local architecture."
+    },
+    {
+      "id": "ISSUE-32-WU-LOCAL-SQLITE-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-LOCAL",
+      "title": "Convert and certify Local Dev on Prisma SQLite",
+      "objective": "Convert VSN | Stock Down Sort Dev on development to Shopify-default-style Prisma + SQLite while preserving Prisma + Neon PostgreSQL for Staging and Production.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 96,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "development remains the Local integration branch.",
+        "VSN | Stock Down Sort Dev remains the Local Shopify identity.",
+        "Local Prisma datasource uses SQLite and a gitignored local database file.",
+        "Normal Local development requires no NEON_API_KEY, NEON_PROJECT_ID, DATABASE_URL to Neon, DIRECT_URL to Neon, or Staging/Production database credentials.",
+        "prisma/schema.prisma is the Local SQLite schema and prisma/cloud/schema.prisma remains the hosted PostgreSQL schema.",
+        "Shared application models, required fields, relations and indexes are covered by an automated schema-parity contract.",
+        "Local setup/generation/migration succeeds on Windows.",
+        "npm run dev boots successfully against Local SQLite.",
+        "Local health/certification proves development environment, test billing, SQLite persistence and exact source ref.",
+        "SQLite Local success is not treated as PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime acceptance gate."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Local SQLite Prisma contract",
+        "Local/cloud schema parity contract",
+        "Local SQLite migration/generation",
+        "Shopify local dev boot",
+        "Local certification"
+      ],
+      "completion_evidence": [
+        "ADR-0001 accepted Local Prisma+SQLite with hosted Neon PostgreSQL.",
+        "prisma/schema.prisma is SQLite; prisma/cloud/schema.prisma remains PostgreSQL.",
+        "Local Session.shop index migration added and shared Local/cloud models are parity-checked.",
+        "Local prepare/dev/certify no longer require Neon credentials or hosted database URLs.",
+        "Operational development-flow/topology/gates now specify SQLite locally and Neon PostgreSQL when hosted.",
+        "Obsolete Local Neon provision/validation scripts were removed.",
+        "App Validation #271 run 36844916383 passed the implementation tree b0970d0dbe4a0556543770f5755f72f529dc62aa.",
+        "Real workstation Local certification passed on development source 45ce7a91d1d6385eda56c3a90a1ac12ba05417f5.",
+        "Local /healthz returned ok=true, environment=development, billingTestMode=true, database=sqlite.",
+        "Local /healthz returned the canonical four-plan USD/EVERY_30_DAYS catalog with 10-day trials.",
+        "local:certify passed Prisma validate/generate/migrate deploy and wrote Local acceptance evidence.",
+        "One current paid plan was activated successfully on the Dev test store."
+      ],
+      "architecture_decision": "ADR-0001"
+    },
+    {
+      "id": "ISSUE-32-WU-BILLING-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-BILLING",
+      "title": "Implement four-plan billing contract",
+      "objective": "Replace the single-plan runtime with four stable plan IDs, 10-day trials, capability-aware entitlements and legacy subscription compatibility.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 92,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Exactly starter/growth/pro/unlimited are canonical IDs.",
+        "Prices are 10.99/19.99/34.99/54.99 USD every 30 days.",
+        "Every plan has a 10-day trial.",
+        "Plan changes use Shopify replacement behavior.",
+        "Legacy USD 55/5-day subscription remains recognized.",
+        "Unimplemented capabilities are not represented as available runtime entitlements.",
+        "CI verifies the catalog and billing implementation contracts."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Billing catalog contract",
+        "Shopify development-store billing acceptance"
+      ],
+      "completion_evidence": [
+        "config/ai/product-plan.json is canonical.",
+        "config/ai/options-bank.json contains all referenced options and runtime implementation status.",
+        "app/billing-config.ts derives runtime catalog from the canonical files.",
+        "app/services/billing.server.ts resolves all four plans and legacy compatibility.",
+        "/app/plans exposes all four tiers and prevents unknown active subscription changes.",
+        "Subscription API supports plan selection and replacement.",
+        "Hosted health/release workflows validate the four-plan catalog.",
+        "App Validation #224 passed the previous billing contract before this implementation batch.",
+        "Real Dev-store four-plan runtime acceptance passed on development source fde5a26bd8d0c287ab3fcf6e9b1d882e0bd7eb5c.",
+        "Starter/Growth/Pro/Unlimited plan-change approvals were exercised across the current plan flow.",
+        "Each selected plan returned from Shopify approval and was recognized as Current plan.",
+        "The merchant restored the original desired current plan after the switch checks.",
+        "PR #76 plan-switch fetcher revalidation fix passed App Validation #301 before merge."
+      ]
+    },
+    {
+      "id": "ISSUE-32-WU-DATABASE-01",
+      "phase_id": "PHASE-01",
+      "module_id": "MOD-DATABASE",
+      "title": "Harden hosted PostgreSQL data architecture",
+      "objective": "Verify and harden the Staging/Production cloud PostgreSQL schema and indexing while Local uses a separate SQLite development schema.",
+      "dependencies": [
+        "ISSUE-32-WU-01"
+      ],
+      "priority": 88,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Hosted Prisma schema uses PostgreSQL.",
+        "Staging and Production database identities remain isolated.",
+        "Shopify Session lookup by shop is indexed in the hosted schema.",
+        "Migration is additive and reversible by standard migration rollback/forward procedure.",
+        "Local SQLite does not reuse hosted database credentials."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Database architecture contract"
+      ],
+      "completion_evidence": [
+        "config/database/environment-topology.json enforces Local -> Staging -> Production isolation.",
+        "Session.shop index added to prisma/cloud/schema.prisma.",
+        "Additive migration 20261001003000_session_shop_index added.",
+        "Database architecture contract test added to App Validation.",
+        "Local/cloud Prisma shared-model parity contract added and passed in App Validation #271.",
+        "Local SQLite and hosted PostgreSQL providers are now explicitly separated under ADR-0001."
       ]
     },
     {
@@ -95,20 +238,25 @@
       "title": "Verify staging environment secret contract",
       "objective": "After Local certification, prove required cloudflare-staging GitHub Environment values are configured without exposing values.",
       "dependencies": [
-        "ISSUE-32-WU-LOCAL-01"
+        "ISSUE-32-WU-LOCAL-SQLITE-01",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 90,
-      "status": "not_started",
-      "blockers": [
-        "Local/Dev Neon certification must complete first."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Environment Secrets Audit passes for staging."
       ],
       "required_checks": [
         "Environment Secrets Audit"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Dependencies satisfied: Local/Dev accepted_source_ref=ca5851561ab7979712f11580ab951fda4650ef19 and billing runtime work unit complete.",
+        "Environment Secrets Audit #4 (run 36926183663) passed on development.",
+        "All seven required cloudflare-staging secrets were present.",
+        "Staging Shopify client identity was isolated from Local/Dev and Production.",
+        "Committed staging client ID remained a secret-only placeholder."
+      ]
     },
     {
       "id": "ISSUE-32-WU-03",
@@ -117,10 +265,11 @@
       "title": "Run Staging Readiness",
       "objective": "Validate migrations, build, identity isolation and staging contract before deployment.",
       "dependencies": [
-        "ISSUE-32-WU-02"
+        "ISSUE-32-WU-02",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 80,
-      "status": "not_started",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Staging Readiness completes successfully."
@@ -128,7 +277,13 @@
       "required_checks": [
         "Staging Readiness"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Staging Readiness #6 (run 36929608192) passed on development.",
+        "Accepted source ca5851561ab7979712f11580ab951fda4650ef19 matched the Local/Dev gate.",
+        "Staging PostgreSQL migrations and migration status passed.",
+        "Staging runtime build and Cloudflare Worker dry-run passed.",
+        "Canonical four-plan / 10-day billing contract passed."
+      ]
     },
     {
       "id": "ISSUE-32-WU-04",
@@ -137,10 +292,11 @@
       "title": "Manually deploy Cloudflare Staging",
       "objective": "Deploy exact development source through the guarded manual staging workflow.",
       "dependencies": [
-        "ISSUE-32-WU-03"
+        "ISSUE-32-WU-03",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 70,
-      "status": "not_started",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Cloudflare Staging Deploy passes.",
@@ -149,41 +305,58 @@
       "required_checks": [
         "Cloudflare Staging Deploy"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Cloudflare Staging Deploy #1 (run 36985118161) passed on development.",
+        "Exact Local-accepted source ca5851561ab7979712f11580ab951fda4650ef19 was verified and deployed.",
+        "Staging Queue and DLQ already existed and were bound successfully.",
+        "Hosted PostgreSQL migrations found 2 migrations with no pending migrations.",
+        "Worker vsn-stock-down-sort-staging deployed successfully to the expected workers.dev URL.",
+        "Deployed /healthz passed staging environment, PostgreSQL mode, Queue readiness and canonical four-plan / 10-day billing contract.",
+        "Signed Shopify session/subscription acceptance remains intentionally deferred until the staging Shopify version is released and installed."
+      ]
     },
     {
       "id": "ISSUE-32-WU-05",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Certify staging runtime and Shopify acceptance",
-      "objective": "Verify health, database, queues, sessions, Admin GraphQL and billing reads.",
+      "objective": "After the staging Shopify version is released and installed, verify deployed health, database, queues, sessions, Admin GraphQL and billing reads.",
       "dependencies": [
-        "ISSUE-32-WU-04"
+        "ISSUE-32-WU-06",
+        "ISSUE-32-WU-BILLING-01"
       ],
-      "priority": 60,
-      "status": "not_started",
+      "priority": 50,
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Runtime health passes.",
         "Signed staging acceptance passes against isolated test shop."
       ],
       "required_checks": [
-        "Post-deploy health",
-        "Signed Shopify staging acceptance"
+        "Staging Runtime Acceptance"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Staging Runtime Acceptance #1 (run 36989726911) passed on development.",
+        "Accepted deployed source ca5851561ab7979712f11580ab951fda4650ef19 was verified.",
+        "Hosted /healthz passed Staging identity, PostgreSQL mode, Queue/DLQ readiness and four-plan / 10-day billing contract.",
+        "Signed staging acceptance found an offline Shopify session and 2 stored sessions.",
+        "Shopify Admin GraphQL read passed.",
+        "Active subscription read passed with 1 active subscription and recognized canonical plan starter.",
+        "Dedicated staging shop staging-oath3rth.myshopify.com was used."
+      ]
     },
     {
       "id": "ISSUE-32-WU-06",
       "phase_id": "PHASE-01",
       "module_id": "MOD-STAGING",
       "title": "Create and release Staging Shopify version",
-      "objective": "Release the exact verified staging Shopify configuration only.",
+      "objective": "After the Staging Worker URL is live, create and release the exact staging Shopify configuration so the staging app can be installed on the isolated test store.",
       "dependencies": [
-        "ISSUE-32-WU-05"
+        "ISSUE-32-WU-04",
+        "ISSUE-32-WU-BILLING-01"
       ],
-      "priority": 50,
-      "status": "not_started",
+      "priority": 60,
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Exact staging candidate created and released.",
@@ -193,7 +366,13 @@
         "Shopify Staging Version",
         "Shopify Staging Release"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Shopify Staging Version #1 (run 36985767671) passed and created unreleased candidate stock-down-sort-staging-ca5851561ab7-1.",
+        "Shopify Staging Release #1 (run 36987141830) verified and released exact candidate stock-down-sort-staging-ca5851561ab7-1.",
+        "Candidate was bound to accepted source ca5851561ab7979712f11580ab951fda4650ef19.",
+        "Staging Shopify identity isolation checks passed.",
+        "Local and Production configs remained untouched."
+      ]
     },
     {
       "id": "ISSUE-32-WU-07",
@@ -202,11 +381,15 @@
       "title": "Prepare reviewed production candidate after Staging acceptance",
       "objective": "Allow production preparation only after all Staging acceptance evidence is recorded.",
       "dependencies": [
-        "ISSUE-32-WU-06"
+        "ISSUE-32-WU-05",
+        "ISSUE-32-WU-06",
+        "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 40,
-      "status": "not_started",
-      "blockers": [],
+      "status": "blocked",
+      "blockers": [
+        "Staging acceptance must be promoted and bound to an accepted_main_ref on protected main before Production Readiness can run."
+      ],
       "acceptance_criteria": [
         "Staging phase is accepted before production preparation starts."
       ],
@@ -227,5 +410,6 @@
     "complete",
     "deferred",
     "deprecated"
-  ]
+  ],
+  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f"
 }

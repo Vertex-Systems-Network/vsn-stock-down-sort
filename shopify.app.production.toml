@@ -1,11 +1,12 @@
 # Dedicated live/production Shopify app configuration.
-# Keep the client_id placeholder committed; GitHub Actions inject the Live app identity only in a disposable runner.
+# The committed client_id is the Live Shopify app identity, matching the VSN Metafields management model.
+# cloudflare-production SHOPIFY_API_KEY must match this client_id; the API secret remains environment-scoped.
 # The production Worker URL is fixed and must not be changed by local development.
 
-client_id = "__SHOPIFY_PRODUCTION_CLIENT_ID__"
+client_id = "2d152d80cd0b6c50adbc96ad9b343e5a"
 application_url = "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
 embedded = true
-name = "VSN Stock Down Sort"
+name = "VSN | Stock Down Sort"
 
 [access_scopes]
 scopes = "read_products,write_products,read_inventory"

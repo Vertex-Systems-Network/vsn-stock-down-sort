@@ -35,16 +35,17 @@ Never invent completion, tests, merges, deployments, approvals, subscriptions, e
 
 The product already has:
 
-- Local/Dev Shopify app: `VSN Stock Down Sort Dev`;
-- Staging Shopify app: `VSN Stock Down Sort Staging`;
-- Production Shopify app: `VSN Stock Down Sort`;
+- Local/Dev Shopify app: `VSN | Stock Down Sort Dev`;
+- Staging Shopify app: `VSN | Stock Down Sort Staging`;
+- Production Shopify app: `VSN | Stock Down Sort`;
 - `development` as integration branch;
 - `main` as release branch;
 - manual Staging promotion;
 - manual + explicitly authorized Production promotion;
 - Cloudflare Workers + Queues;
-- PostgreSQL/Prisma;
-- Shopify billing contract: plan id `unlimited`, USD 55 / 30 days, 5-day trial.
+- Prisma with Local SQLite and isolated Neon PostgreSQL for Staging/Production;
+- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 54.99 every 30 days, each with a 10-day trial;
+- legacy USD 55 / 5-day subscriptions are compatibility-only and must not be treated as the current new-subscription catalog.
 
 Do not restart this project as greenfield.
 
@@ -67,8 +68,11 @@ Do not mark a work unit complete merely because code exists. Completion requires
 
 ## Environment flow
 
-Local:
-`npm run dev`
+Local preparation:
+`npm run local:prepare` (Prisma SQLite; no Neon credentials)
+
+Local runtime:
+`npm run dev` followed by `npm run local:certify -- <local-health-url>/healthz`
 
 Development:
 pushes run validation only.
@@ -81,6 +85,31 @@ Release:
 
 Production:
 manual Worker preparation and separately authorization-gated Shopify release. Never auto-promote production.
+
+## NON-NEGOTIABLE ENVIRONMENT PROMOTION ORDER
+
+The AI must treat environment promotion as a strict one-way evidence-gated sequence:
+
+**Local/Dev → Staging → Live**
+
+- "development" is the canonical **Local/Dev integration branch**. Local development work is performed and verified from "development" (normally through an isolated work branch/PR that targets "development").
+- No feature/work branch may be deployed directly to Staging or Live.
+- Local/Dev verification is the first gate. The AI must not begin Staging deployment/acceptance for a change until the required Local/Dev acceptance evidence for that change exists.
+- Staging is promoted **only from an exact, verified "development" commit** through the guarded manual Staging workflow. Staging uses Shopify test billing and the isolated Staging environment.
+- Live/Production is promoted **only after Staging acceptance is complete**. The release route is "development -> PR/review -> main -> manual Production dispatch", with explicit Production authorization. Production uses the "main" release branch and real billing.
+- The AI must never reorder, bypass, or silently waive these gates. Missing evidence means the work remains at the current environment and is "blocked"/"verification_required"; it must not be marked complete.
+- Direct paths are prohibited: feature/work branch -> Staging, feature/work branch -> Live, "development" -> Live, Staging -> Live without the "development -> PR -> main" release step, and "main" -> Staging.
+- A deployment is not proof of acceptance. Each promotion requires the environment-specific checks, acceptance evidence, and project-state synchronization required by the active work unit.
+- If repository reality conflicts with this flow, stop and reconcile the repository state/policy before proceeding.
+
+## Environment gate evidence
+
+Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
+
+- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
+- Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
+- A `verification_required` or `blocked` gate is a hard stop, not a suggestion.
 
 ## Supervisor / Worker runtime boundary
 

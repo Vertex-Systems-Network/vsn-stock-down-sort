@@ -32,9 +32,35 @@ jobs:
       SCOPES: read_products,write_products,read_inventory
 
     steps:
-      - name: Checkout protected source
+      - name: Checkout protected main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
 
+      - name: Verify Staging acceptance gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<PY
+          import json, subprocess
+          subprocess.run(["git","fetch","origin","main","--depth=200"],check=True)
+          gate=json.loads(subprocess.check_output(["git","show","origin/main:config/release/environment-gates.json"],text=True))
+          staging=gate.get("staging") or {}
+          if staging.get("status")!="accepted":
+              raise SystemExit("Staging acceptance gate is not accepted; Live/Production operation is blocked.")
+          source_ref=staging.get("accepted_source_ref")
+          main_ref=staging.get("accepted_main_ref")
+          if not isinstance(source_ref,str) or len(source_ref)!=40:
+              raise SystemExit("Staging accepted source ref is missing or invalid.")
+          if not isinstance(main_ref,str) or len(main_ref)!=40:
+              raise SystemExit("Staging accepted main ref is missing or invalid.")
+          subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/main"],check=True)
+          subprocess.run(["git","merge-base","--is-ancestor",main_ref,"origin/main"],check=True)
+          if not staging.get("evidence_record"):
+              raise SystemExit("Staging acceptance evidence record is missing.")
+          print(f"staging_acceptance=accepted source_ref={source_ref} main_ref={main_ref}")
+          PY
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -64,8 +90,15 @@ jobs:
             exit 1
           fi
 
-          if ! grep -q "__SHOPIFY_PRODUCTION_CLIENT_ID__" shopify.app.production.toml; then
-            echo "Production config must keep the client ID placeholder in git; Actions inject the Live client ID at runtime." >&2
+          PRODUCTION_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.production.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" != "$PRODUCTION_CLIENT_ID" ]; then
+            echo "Production SHOPIFY_API_KEY must match the committed Live Shopify client ID." >&2
             exit 1
           fi
 
@@ -114,9 +147,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Eq 'amount:[[:space:]]*55' app/billing-config.ts
-          grep -Eq 'currencyCode:[[:space:]]*"USD"' app/billing-config.ts
-          grep -Eq 'interval:[[:space:]]*"EVERY_30_DAYS"' app/billing-config.ts
-          grep -Eq 'trialDays:[[:space:]]*5' app/billing-config.ts
-          echo "production_billing_contract=5_days_usd_55"
-          echo "production_billing_test_mode=false"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          product = json.loads(
+              Path("config/ai/product-plan.json").read_text(encoding="utf-8")
+          )
+          expected = [
+              {"id": "starter", "amount": 10.99, "trial_days": 10},
+              {"id": "growth", "amount": 19.99, "trial_days": 10},
+              {"id": "pro", "amount": 34.99, "trial_days": 10},
+              {"id": "unlimited", "amount": 54.99, "trial_days": 10},
+          ]
+
+          if product.get("currency_code") != "USD":
+              raise SystemExit("production billing currency must be USD")
+          if product.get("billing_interval") != "EVERY_30_DAYS":
+              raise SystemExit("production billing interval mismatch")
+          if product.get("trial_days") != 10:
+              raise SystemExit("production catalog trial_days must be 10")
+
+          actual = [
+              {
+                  "id": plan.get("id"),
+                  "amount": plan.get("amount"),
+                  "trial_days": plan.get("trial_days"),
+              }
+              for plan in product.get("plans") or []
+          ]
+          if actual != expected:
+              raise SystemExit(f"production billing catalog mismatch: {actual}")
+
+          print("production_billing_contract=four_plans_10_day_trials")
+          print("production_billing_test_mode=false")
+          PY

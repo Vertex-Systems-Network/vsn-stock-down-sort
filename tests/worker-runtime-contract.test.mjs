@@ -126,22 +126,30 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
 
 test("health and staging deployment produce post-deploy evidence", () => {
   const health = read("app/routes/healthz.tsx");
-  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
 
   assert.match(health, /"Cache-Control": "no-store"/);
   assert.match(health, /service: "vsn-stock-down-sort"/);
-  assert.match(health, /amount: PRO_PLAN\.amount/);
-  assert.match(health, /trialDays: PRO_PLAN\.trialDays/);
+  assert.match(health, /billingCatalog/);
+  assert.match(health, /BILLING_PLANS/);
 
-  assert.match(workflow, /Verify deployed health and billing contract/);
-  assert.match(workflow, /staging_runtime_health=pass/);
-  assert.match(workflow, /staging_billing_contract=5_days_usd_55/);
-  assert.match(workflow, /staging_shop:/);
-  assert.match(workflow, /Verify Shopify session and subscription reads/);
-  assert.match(workflow, /staging_offline_session=pass/);
-  assert.match(workflow, /staging_admin_graphql=pass/);
-  assert.match(workflow, /staging_subscription_read=pass/);
-  assert.match(workflow, /deferred_until_app_install/);
+  assert.match(deploy, /Verify deployed health and billing contract/);
+  assert.match(deploy, /staging_runtime_health=pass/);
+  assert.match(deploy, /staging_billing_contract=four_plans_10_day_trials/);
+  assert.match(
+    deploy,
+    /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/,
+  );
+
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /EXPECTED_BILLING_PLAN_ID/);
+  assert.match(acceptance, /recognizedPlanIds/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+  assert.match(acceptance, /staging_offline_session=pass/);
+  assert.match(acceptance, /staging_admin_graphql=pass/);
+  assert.match(acceptance, /staging_subscription_read=pass/);
 });
 
 
@@ -167,15 +175,17 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
 });
 
 
-test("billing plan id stays unlimited across runtime contracts", () => {
+test("four stable billing plan IDs stay consistent across runtime contracts", () => {
   const billing = read("app/billing-config.ts");
   const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
   const production = read(".github/workflows/cloudflare-production-prepare.yml");
 
-  assert.match(billing, /id:\s*"unlimited"/);
+  for (const id of ["starter", "growth", "pro", "unlimited"]) {
+    assert.match(billing, new RegExp(`"${id}"`));
+    assert.match(staging, new RegExp(`"id": "${id}"`));
+    assert.match(production, new RegExp(`"id": "${id}"`));
+  }
   assert.doesNotMatch(billing, /id:\s*"pro-plan"/);
-  assert.match(staging, /"id": "unlimited"/);
-  assert.match(production, /"id": "unlimited"/);
 });
 
 
@@ -184,9 +194,9 @@ test("three Shopify app identities stay isolated", () => {
   const staging = read("shopify.app.staging.toml");
   const production = read("shopify.app.production.toml");
 
-  assert.match(local, /name = "VSN Stock Down Sort Dev"/);
-  assert.match(staging, /name = "VSN Stock Down Sort Staging"/);
-  assert.match(production, /name = "VSN Stock Down Sort"/);
+  assert.match(local, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \\| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \\| Stock Down Sort"/);
 
   const clientId = (source) =>
     source.match(/client_id\s*=\s*"([^"]+)"/)?.[1] ?? "";
@@ -204,10 +214,19 @@ test("three Shopify app identities stay isolated", () => {
 });
 
 
-test("local Shopify flow stays npm run dev with the default config", () => {
+test("local Shopify flow stays npm run dev with the explicit Local config", () => {
   const pkg = JSON.parse(read("package.json"));
+  const localDefault = read("shopify.app.toml");
+  const localNamed = read("shopify.app.local.toml");
 
-  assert.equal(pkg.scripts.dev, "shopify app dev");
+  assert.equal(pkg.scripts.dev, "npx --yes shopify@4.8.2 app dev --config local");
+  assert.equal(pkg.scripts["dev:reset"], "npx --yes shopify@4.8.2 app dev --reset");
+  assert.match(localNamed, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(localNamed, /automatically_update_urls_on_dev = true/);
+  assert.equal(
+    localNamed.match(/^client_id = "([^"]+)"$/m)?.[1],
+    localDefault.match(/^client_id = "([^"]+)"$/m)?.[1],
+  );
   assert.ok(!pkg.scripts["shopify:use:local"]);
   assert.ok(!pkg.scripts["shopify:use:staging"]);
   assert.ok(!pkg.scripts["shopify:use:live"]);
@@ -262,9 +281,10 @@ test("production Shopify promotion is action driven and authorization gated", ()
     read("config/shopify/production-release.json"),
   );
 
-  assert.match(
+  assert.match(productionConfig, /client_id\s*=\s*"[0-9a-f]+"/);
+  assert.doesNotMatch(
     productionConfig,
-    /client_id\s*=\s*"__SHOPIFY_PRODUCTION_CLIENT_ID__"/,
+    /__SHOPIFY_PRODUCTION_CLIENT_ID__/,
   );
   assert.match(
     productionConfig,
@@ -272,7 +292,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   );
   assert.doesNotMatch(productionConfig, /example\.invalid/);
 
-  assert.match(readiness, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(readiness, /committed Live Shopify client ID/);
   assert.match(
     readiness,
     /Refusing production readiness with the Local\/Dev Shopify client ID/,
@@ -285,7 +305,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.match(candidate, /workflow_dispatch:/);
   assert.match(candidate, /ref: main/);
   assert.match(candidate, /SHOPIFY_APP_AUTOMATION_TOKEN/);
-  assert.match(candidate, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(candidate, /committed Live Shopify client ID/);
   assert.match(candidate, /--config production/);
   assert.match(candidate, /--no-release/);
   assert.match(
@@ -311,11 +331,139 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.equal(policy.authorized_version, null);
   assert.equal(policy.authorized_source_ref, null);
   assert.equal(policy.shopify.separate_live_app_identity, true);
-  assert.equal(policy.billing.plan_id, "unlimited");
-  assert.equal(policy.billing.amount, 55);
-  assert.equal(policy.billing.trial_days, 5);
+  assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
+  assert.equal(policy.billing.interval, "EVERY_30_DAYS");
+  assert.equal(policy.billing.trial_days, 10);
 });
 
+
+test("plans page uses modern responsive cards with single-dollar pricing", () => {
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.match(
+    plans,
+    /gridTemplateColumns="repeat\(auto-fit, minmax\(250px, 1fr\)\)"/,
+  );
+  assert.match(plans, /Most popular/);
+  assert.match(plans, /Unlimited catalog\. Simple plans\./);
+  assert.match(plans, /plan\.amount\.toFixed\(2\)/);
+  assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
+  assert.doesNotMatch(plans, /window\.top\.location\.href/);
+});
+
+test("billing approval return URL uses the Shopify Admin app handle", () => {
+  const billing = read("app/services/billing.server.ts");
+  const api = read("app/routes/app.api.subscription.tsx");
+
+  assert.match(
+    billing,
+    /query StockDownSortCurrentAppHandle[\s\S]*currentAppInstallation[\s\S]*app \{[\s\S]*handle/s,
+  );
+  assert.match(
+    billing,
+    /https:\/\/admin\.shopify\.com\/store\/\$\{encodeURIComponent\([\s\S]*storeSlug[\s\S]*\)\}\/apps\/\$\{encodeURIComponent\(handle\)\}\/app\/plans/,
+  );
+  assert.match(
+    api,
+    /getEmbeddedAdminBillingReturnUrl\([\s\S]*admin,[\s\S]*session\.shop,[\s\S]*\)/s,
+  );
+  assert.doesNotMatch(
+    api,
+    /new URL\("\/app\/plans", appUrl\)/,
+  );
+  assert.doesNotMatch(
+    api,
+    /SHOPIFY_APP_URL is not configured/,
+  );
+});
+
+test("plan switching skips fetcher loader revalidation before approval navigation", () => {
+  const plans = read("app/routes/app.plans.tsx");
+  const api = read("app/routes/app.api.subscription.tsx");
+
+  assert.match(
+    plans,
+    /fetcher\.submit\(formData, \{[\s\S]*method: "post",[\s\S]*defaultShouldRevalidate: false,[\s\S]*\}\)/,
+  );
+  assert.match(
+    api,
+    /\[billing\] subscription confirmation created/,
+  );
+  assert.match(api, /currentPlanId: current\?\.plan\.id \?\? null/);
+  assert.match(api, /requestedPlanId,/);
+  assert.match(api, /confirmationHost: confirmation\.host/);
+  assert.match(api, /confirmationPath: confirmation\.pathname/);
+});
+
+test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
+  const api = read("app/routes/app.api.subscription.tsx");
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.match(
+    api,
+    /confirmationUrl: result\.confirmationUrl/,
+  );
+  assert.match(
+    api,
+    /planId: requestedPlanId/,
+  );
+  assert.doesNotMatch(
+    api,
+    /return redirect\(result\.confirmationUrl/,
+  );
+
+  assert.match(
+    plans,
+    /confirmationUrl\?: string/,
+  );
+  assert.match(
+    plans,
+    /open\(fetcher\.data\.confirmationUrl, "_top"\)/,
+  );
+  assert.doesNotMatch(
+    plans,
+    /window\.top\.location\.href/,
+  );
+});
+
+test("billing failures decode SDK shapes and expose safe diagnostics", () => {
+  const billing = read("app/services/billing.server.ts");
+  const api = read("app/routes/app.api.subscription.tsx");
+  const pkg = JSON.parse(read("package.json"));
+
+  assert.equal(pkg.dependencies["@shopify/shopify-api"], "13.1.0");
+  assert.match(
+    billing,
+    /import \{ GraphqlQueryError \} from "@shopify\/shopify-api"/,
+  );
+  assert.match(billing, /error instanceof GraphqlQueryError/);
+  assert.match(billing, /constructor\?\.\s*name/);
+  assert.match(billing, /Object\.getOwnPropertyNames/);
+  assert.match(billing, /error instanceof Response/);
+  assert.match(billing, /export function getShopifyBillingErrorDiagnostic/);
+  assert.match(billing, /export async function describeShopifyBillingError/);
+  assert.match(
+    billing,
+    /Billing API subscriptions require a Public-distribution app/,
+  );
+
+  assert.match(api, /await describeShopifyBillingError\(error\)/);
+  assert.match(api, /getShopifyBillingErrorDiagnostic\(error\)/);
+  assert.match(api, /diagnostic,/);
+  assert.match(api, /\[billing\] subscription action failed/);
+});
+
+test("plans page scrolls billing failures into view", () => {
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.match(plans, /useEffect, useRef/);
+  assert.match(plans, /const errorRef = useRef<HTMLDivElement \| null>/);
+  assert.match(plans, /scrollIntoView\(\{/);
+  assert.match(plans, /behavior: "smooth"/);
+  assert.match(plans, /block: "start"/);
+  assert.match(plans, /focus\(\{ preventScroll: true \}\)/);
+  assert.match(plans, /<div ref=\{errorRef\} tabIndex=\{-1\}>/);
+});
 
 test("billing entitlement requires the exact current plan", () => {
   const billing = read("app/services/billing.server.ts");
@@ -324,29 +472,59 @@ test("billing entitlement requires the exact current plan", () => {
 
   assert.match(billing, /export async function getAnyActiveSubscription/);
   assert.match(billing, /subscription\.status === "ACTIVE"/);
-  assert.match(billing, /subscription\.name === PRO_PLAN\.name/);
+  assert.match(billing, /resolveSubscriptionPlan/);
+  assert.match(billing, /subscription\.name === plan\.shopify_name/);
   assert.match(billing, /subscription\.test === isBillingTestMode\(\)/);
-  assert.match(billing, /subscription\.trialDays === PRO_PLAN\.trialDays/);
+  assert.match(billing, /subscription\.trialDays === plan\.trial_days/);
+  assert.match(billing, /LEGACY_PLAN/);
+  assert.match(billing, /replacementBehavior/);
   assert.match(billing, /pricingDetails/);
   assert.match(billing, /\.\.\. on AppRecurringPricing/);
-  assert.match(billing, /Number\(pricing\.price\.amount\) === PRO_PLAN\.amount/);
-  assert.match(
-    billing,
-    /pricing\.price\.currencyCode === PRO_PLAN\.currencyCode/,
-  );
-  assert.match(billing, /pricing\.interval === PRO_PLAN\.interval/);
+  assert.match(billing, /Number\(pricing\.price\.amount\) === plan\.amount/);
+  assert.match(billing, /pricing\.price\.currencyCode === BILLING_CATALOG\.currencyCode/);
+  assert.match(billing, /pricing\.interval === BILLING_CATALOG\.interval/);
   assert.match(billing, /subscription\.lineItems\?\.length !== 1/);
 
   assert.match(api, /getAnyActiveSubscription/);
-  assert.match(api, /if \(activeSubscription\)/);
+  assert.match(api, /if \(activeSubscription && !current\)/);
   assert.match(api, /activeSubscription\.id !== subscriptionId/);
+  assert.match(api, /current\.subscription\.id !== subscriptionId/);
+  assert.match(api, /Cancellation is blocked until it is reviewed/);
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
-  assert.match(plans, /Cancel existing subscription/);
+  assert.match(plans, /Cancel subscription/);
+  assert.match(plans, /disabled=\{isLoading \|\| activeIsUnknown\}/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
 });
 
+
+
+
+test("four-plan product catalog is canonical and all paid plans have 10-day trials", () => {
+  const catalog = JSON.parse(read("config/ai/product-plan.json"));
+  const plans = catalog.plans;
+
+  assert.deepEqual(
+    plans.map((plan) => plan.id),
+    ["starter", "growth", "pro", "unlimited"],
+  );
+  assert.deepEqual(
+    plans.map((plan) => plan.amount),
+    [10.99, 19.99, 34.99, 54.99],
+  );
+  assert.deepEqual(plans.map((plan) => plan.trial_days), [10, 10, 10, 10]);
+  assert.deepEqual(
+    plans.map((plan) => plan.catalog_limits.products),
+    ["unlimited", "unlimited", "unlimited", "unlimited"],
+  );
+  assert.deepEqual(
+    plans.map((plan) => plan.catalog_limits.collections),
+    ["unlimited", "unlimited", "unlimited", "unlimited"],
+  );
+  assert.equal(catalog.currency_code, "USD");
+  assert.equal(catalog.billing_interval, "EVERY_30_DAYS");
+});
 
 test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
   const sorter = read("app/services/collection-sorter.server.ts");
@@ -463,14 +641,55 @@ test("direct deploy paths reject the Local Shopify identity", () => {
 });
 
 
+
+test("authoritative product docs match the current four-plan contract", () => {
+  const agents = read("AGENTS.md");
+  const idea = read("PROJECT-IDEA.md");
+  const environments = read("docs/environments.md");
+  const production = read("shopify.app.production.toml");
+
+  for (const source of [agents, idea, environments]) {
+    assert.match(source, /starter/);
+    assert.match(source, /growth/);
+    assert.match(source, /pro/);
+    assert.match(source, /unlimited/);
+    assert.match(source, /10-day/);
+  }
+
+  assert.match(agents, /VSN \| Stock Down Sort Dev/);
+  assert.match(agents, /VSN \| Stock Down Sort Staging/);
+  assert.match(agents, /VSN \| Stock Down Sort/);
+  assert.doesNotMatch(
+    agents,
+    /Shopify billing contract:\s*plan id `unlimited`, USD 55 \/ 30 days, 5-day trial/,
+  );
+
+  assert.doesNotMatch(idea, /Shopify plan ID:\s*unlimited/);
+  assert.doesNotMatch(environments, /The Pro plan remains:/);
+  assert.match(environments, /legacy USD 55 \/ 5-day/i);
+
+  const productionClientId =
+    production.match(/^client_id = "([^"]+)"$/m)?.[1];
+  assert.ok(productionClientId);
+  assert.notEqual(productionClientId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
+  assert.match(environments, /contains the Live Shopify client\s+ID by design/i);
+  assert.doesNotMatch(
+    environments,
+    /shopify\.app\.production\.toml.*__SHOPIFY_PRODUCTION_CLIENT_ID__/s,
+  );
+});
+
 test("README reflects the active Stock Down Sort architecture", () => {
   const readme = read("README.md");
 
   assert.match(readme, /^# VSN Stock Down Sort/m);
   assert.match(readme, /npm run dev/);
+  assert.match(readme, /npm run local:prepare/);
+  assert.match(readme, /Prisma \+ SQLite/i);
+  assert.match(readme, /prisma:parity/i);
   assert.match(readme, /Cloudflare Workers/);
   assert.match(readme, /PostgreSQL/);
-  assert.match(readme, /Plan ID: `unlimited`/);
+  assert.match(readme, /Four plan IDs/);
   assert.match(readme, /Shopify Staging Version/);
   assert.match(readme, /Shopify Production Candidate/);
   assert.doesNotMatch(readme, /^# Shopify App Template/m);
@@ -658,7 +877,7 @@ test("environment secrets audit checks required deployment credentials", () => {
     /SHOPIFY_API_KEY matches the Local\/Dev Shopify client ID/,
   );
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
-  assert.match(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
@@ -672,6 +891,11 @@ test("manual development flow keeps development pushes away from staging and pro
   assert.equal(flow.development_branch, "development");
   assert.equal(flow.release_branch, "main");
   assert.equal(flow.local.command, "npm run dev");
+  assert.equal(flow.local.prepare_command, "npm run local:prepare");
+  assert.equal(
+    flow.local.certify_command,
+    "npm run local:certify -- <local-health-url>/healthz",
+  );
   assert.equal(flow.staging.source_branch, "development");
   assert.equal(flow.staging.auto_deploy_runtime_changes, false);
   assert.equal(flow.staging.deploy_mode, "manual_dispatch_from_development");
@@ -720,19 +944,32 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "local-development-certification");
+  assert.equal(state.current_module, "production-main-promotion");
+  assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Neon/i);
+  assert.match(state.next_valid_work_unit, /protected main/i);
+  assert.match(state.next_valid_work_unit, /ca5851561ab7979712f11580ab951fda4650ef19/);
 
   assert.equal(plan.active_issue, 32);
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.equal(plan.work_units.length, 8);
+  assert.ok(plan.work_units.length >= 9);
   assert.equal(plan.work_units[0].status, "complete");
-  assert.equal(plan.work_units[1].status, "in_progress");
-  assert.equal(plan.work_units[2].status, "not_started");
+  assert.equal(plan.work_units[1].status, "deprecated");
+  assert.equal(plan.work_units[2].status, "complete");
+  assert.equal(plan.work_units[3].status, "complete");
+  assert.equal(plan.work_units[4].status, "complete");
+  assert.equal(plan.work_units[5].status, "complete");
+  assert.equal(plan.work_units[6].status, "complete");
+  assert.equal(plan.work_units[7].status, "complete");
+  assert.equal(plan.work_units[8].status, "complete");
+  assert.equal(plan.work_units[9].status, "complete");
+  assert.equal(plan.work_units[10].status, "blocked");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
-  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-02");
+  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-LOCAL-SQLITE-01");
+  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-BILLING-01");
+  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-DATABASE-01");
+  assert.equal(plan.work_units[5].id, "ISSUE-32-WU-02");
 
   assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
   assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
@@ -753,6 +990,9 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
+  assert.match(current, /ISSUE-32-WU-07/);
+  assert.match(tasks, /ISSUE-32-WU-07/);
+  assert.match(tasks, /status: blocked/);
 });
 
 
@@ -784,31 +1024,96 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 });
 
 
-test("local development requires isolated Neon pooled and direct connections", () => {
+test("environment gate records accepted SQLite Local evidence before Staging", () => {
+  const gates = JSON.parse(read("config/release/environment-gates.json"));
+  const releaseFlow = read("docs/development-release-flow.md");
+
+  assert.equal(gates.local_dev.status, "accepted");
+  assert.equal(
+    gates.local_dev.accepted_source_ref,
+    "ca5851561ab7979712f11580ab951fda4650ef19",
+  );
+  assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
+  assert.equal(gates.local_dev.evidence_record.billing_catalog.trialDays, 10);
+  assert.ok(
+    gates.local_dev.required_checks.includes(
+      "Local SQLite Prisma validation/generation/migration",
+    ),
+  );
+  assert.ok(
+    gates.local_dev.required_checks.includes(
+      "Local/cloud Prisma model parity",
+    ),
+  );
+  assert.match(releaseFlow, /Prisma \+ SQLite/i);
+  assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
+});
+
+test("local development uses SQLite while hosted environments remain Neon PostgreSQL", () => {
   const flow = JSON.parse(read("config/development-flow.json"));
   const topology = JSON.parse(read("config/database/environment-topology.json"));
   const web = read("shopify.web.toml");
-  const validator = read("scripts/validate-local-neon-env.mjs");
+  const validator = read("scripts/validate-local-sqlite-env.mjs");
   const localExample = read(".env.local.example");
+  const runner = read("scripts/local-dev-runner.mjs");
+  const envLoader = read("scripts/local-env.mjs");
 
   assert.equal(flow.local.source_branch, "development");
   assert.equal(flow.local.command, "npm run dev");
-  assert.equal(flow.local.database.provider, "neon_postgresql");
-  assert.equal(flow.local.database.project_name, "vsn-stock-down-sort-local");
-  assert.equal(flow.local.database.runtime_connection, "pooled");
-  assert.equal(flow.local.database.migration_connection, "direct");
-  assert.equal(topology.order.join(","), "local,staging,production");
-  assert.equal(topology.local.database.provider, "neon_postgresql");
+  assert.equal(flow.local.database.provider, "sqlite");
+  assert.equal(flow.local.database.file, "prisma/dev.sqlite");
+  assert.equal(flow.local.database.gitignored, true);
+  assert.equal(flow.local.database.hosted_credentials_required, false);
+  assert.equal(flow.invariants.local_database_must_be_sqlite, true);
+  assert.equal(topology.local.database.provider, "sqlite");
+  assert.equal(topology.staging.database.provider, "neon_postgresql");
+  assert.equal(topology.production.database.provider, "neon_postgresql");
   assert.equal(topology.local.database.reuse_staging_or_production, false);
-  assert.equal(topology.staging.github_environment, "cloudflare-staging");
-  assert.equal(topology.production.github_environment, "cloudflare-production");
 
-  assert.match(web, /validate-local-neon-env\.mjs/);
-  assert.match(validator, /\.neon\.tech/);
-  assert.match(validator, /-pooler\./);
-  assert.match(validator, /DIRECT_URL must be the Neon direct/);
-  assert.match(localExample, /vsn-stock-down-sort-local/);
-  assert.match(localExample, /-pooler/);
+  assert.match(web, /local-dev-runner\.mjs predev/);
+  assert.match(web, /local-dev-runner\.mjs dev/);
+  assert.match(runner, /validateLocalSqliteEnv/);
+  assert.match(runner, /prisma\/schema\.prisma/);
+  assert.doesNotMatch(runner, /prisma\/cloud\/schema\.prisma/);
+  assert.match(envLoader, /hosted database/i);
+  assert.match(validator, /validateLocalSqliteEnv/);
+  assert.match(localExample, /requires no Neon credentials/i);
+  assert.doesNotMatch(localExample, /NEON_API_KEY/);
+  assert.doesNotMatch(localExample, /DIRECT_URL/);
+});
+
+test("accepted ADR-0001 is now implemented in operational Local topology", () => {
+  const adr = JSON.parse(read("config/architecture/decision-records.json"));
+  const modules = JSON.parse(read("config/ai/modules-bank.json"));
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const flow = JSON.parse(read("config/development-flow.json"));
+  const topology = JSON.parse(read("config/database/environment-topology.json"));
+
+  const decision = adr.decisions.find((item) => item.id === "ADR-0001");
+  const localModule = modules.modules.find((module) => module.id === "MOD-LOCAL");
+  const oldLocal = plan.work_units.find(
+    (workUnit) => workUnit.id === "ISSUE-32-WU-LOCAL-01",
+  );
+  const sqliteLocal = plan.work_units.find(
+    (workUnit) => workUnit.id === "ISSUE-32-WU-LOCAL-SQLITE-01",
+  );
+
+  assert.ok(decision);
+  assert.equal(decision.status, "accepted");
+  assert.ok(localModule);
+  assert.ok(sqliteLocal);
+  assert.equal(oldLocal.status, "deprecated");
+  assert.equal(
+    oldLocal.superseded_by_work_unit,
+    "ISSUE-32-WU-LOCAL-SQLITE-01",
+  );
+  assert.ok(localModule.scope.includes("Prisma Local SQLite schema"));
+  assert.equal(flow.local.database.provider, "sqlite");
+  assert.equal(topology.local.database.provider, "sqlite");
+  assert.equal(topology.staging.database.provider, "neon_postgresql");
+  assert.equal(topology.production.database.provider, "neon_postgresql");
 });
 
 test("GitHub workflows bind to exact Cloudflare environments", () => {
@@ -835,4 +1140,111 @@ test("GitHub workflows bind to exact Cloudflare environments", () => {
     const source = read(file);
     assert.match(source, /environment: cloudflare-production/);
   }
+});
+
+
+test("Shopify app identities match the VSN Metafields-style model", () => {
+  const local = read("shopify.app.toml");
+  const staging = read("shopify.app.staging.toml");
+  const production = read("shopify.app.production.toml");
+  const audit = read(".github/workflows/environment-secrets-audit.yml");
+  const readiness = read(".github/workflows/production-readiness.yml");
+  const candidate = read(".github/workflows/shopify-production-candidate.yml");
+  const release = read(".github/workflows/shopify-production-release.yml");
+
+  const clientId = (source) =>
+    source.match(/^client_id = "([^"]+)"$/m)?.[1];
+
+  const localId = clientId(local);
+  const stagingId = clientId(staging);
+  const productionId = clientId(production);
+
+  assert.ok(localId);
+  assert.equal(stagingId, "__SHOPIFY_STAGING_CLIENT_ID__");
+  assert.ok(productionId);
+  assert.notEqual(productionId, "__SHOPIFY_PRODUCTION_CLIENT_ID__");
+  assert.notEqual(localId, productionId);
+
+  assert.match(local, /name = "VSN \| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \| Stock Down Sort"/);
+
+  for (const workflow of [audit, readiness, candidate, release]) {
+    assert.match(workflow, /committed Live Shopify client ID/);
+    assert.doesNotMatch(workflow, /__SHOPIFY_PRODUCTION_CLIENT_ID__/);
+  }
+
+  assert.doesNotMatch(candidate, /Inject Live client ID into disposable checkout/);
+  assert.doesNotMatch(release, /Inject Live client ID into disposable checkout/);
+});
+
+
+test("Local Dev runner is Windows-safe", () => {
+  const runner = read("scripts/local-dev-runner.mjs");
+
+  assert.match(runner, /shell: process\.platform === "win32"/);
+  assert.doesNotMatch(runner, /\.cmd`/);
+  assert.match(runner, /run\("npx"/);
+  assert.match(runner, /run\("npm"/);
+});
+
+
+test("embedded Shopify auth uses online tokens", () => {
+  const shopify = read("app/shopify.server.ts");
+
+  assert.match(shopify, /distribution: AppDistribution\.AppStore/);
+  assert.match(shopify, /useOnlineTokens:\s*true/);
+  assert.match(shopify, /authPathPrefix:\s*"\/auth"/);
+});
+
+
+test("billing gate preserves embedded Shopify auth context", () => {
+  const app = read("app/routes/app.tsx");
+
+  assert.match(
+    app,
+    /const \{ admin, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
+  );
+  assert.match(app, /return shopifyRedirect\("\/app\/plans"\)/);
+  assert.doesNotMatch(app, /throw redirect\(/);
+  assert.doesNotMatch(app, /new URLSearchParams\(\)/);
+});
+
+
+test("Staging Readiness reads the canonical top-level billing catalog", () => {
+  const readiness = read(".github/workflows/staging-readiness.yml");
+
+  assert.match(readiness, /billing = product/);
+  assert.match(readiness, /plans = product\.get\("plans"\) or \[\]/);
+  assert.doesNotMatch(readiness, /product\.get\("billing"\)/);
+});
+
+
+test("staging bootstrap deploy is separated from signed Shopify acceptance", () => {
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
+  const plan = JSON.parse(read("config/ai/execution-plan.json"));
+  const gates = JSON.parse(read("config/release/environment-gates.json"));
+
+  assert.doesNotMatch(deploy, /staging_shop:/);
+  assert.doesNotMatch(deploy, /billing_plan_id:/);
+  assert.doesNotMatch(deploy, /Verify Shopify session and subscription reads/);
+  assert.match(deploy, /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/);
+
+  assert.match(acceptance, /CERTIFY_STAGING_RUNTIME/);
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /staging\.get\("deployed_source_ref"\)/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+
+  const wu05 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-05");
+  const wu06 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-06");
+  assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
+  assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
+  assert.equal(
+    gates.staging.deployed_source_ref,
+    "ca5851561ab7979712f11580ab951fda4650ef19",
+  );
+  assert.equal(gates.staging.deployment_record?.run_id, 36985118161);
+  assert.equal(gates.staging.deployment_record?.runtime_health, "passed");
 });

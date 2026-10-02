@@ -1,23 +1,33 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
+import type { PlanId } from "../billing-config";
 import {
   cancelSubscription,
-  createProSubscription,
+  createSubscription,
   getAnyActiveSubscription,
-  getCurrentSubscription,
+  getCurrentSubscriptionPlan,
+  describeShopifyBillingError,
+  getEmbeddedAdminBillingReturnUrl,
+  getShopifyBillingErrorDiagnostic,
 } from "../services/billing.server";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
+
+function isPlanId(value: string): value is PlanId {
+  return value === "starter" || value === "growth" || value === "pro" || value === "unlimited";
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
 
   try {
-    const subscription = await getCurrentSubscription(admin);
+    const current = await getCurrentSubscriptionPlan(admin);
 
     return Response.json({
       ok: true,
       shop: session.shop,
-      subscription,
+      subscription: current?.subscription ?? null,
+      planId: current?.plan.id ?? null,
+      planSource: current?.source ?? null,
       environment: getAppEnvironment(),
       billingTestMode: isBillingTestMode(),
     });
@@ -26,6 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       {
         ok: false,
         subscription: null,
+        planId: null,
         error:
           error instanceof Error
             ? error.message
@@ -51,40 +62,62 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const activeSubscription = await getAnyActiveSubscription(admin);
+    const current = await getCurrentSubscriptionPlan(admin);
 
-    if (actionType === "create") {
-      if (activeSubscription) {
+    if (actionType === "subscribe" || actionType === "create") {
+      const requestedPlanId = String(
+        formData.get("planId") || (actionType === "create" ? "unlimited" : ""),
+      );
+
+      if (!isPlanId(requestedPlanId)) {
+        return Response.json(
+          { ok: false, error: "A valid plan ID is required." },
+          { status: 400 },
+        );
+      }
+
+      if (current?.plan.id === requestedPlanId) {
+        return Response.json(
+          { ok: false, error: "This plan is already active." },
+          { status: 409 },
+        );
+      }
+
+      if (activeSubscription && !current) {
         return Response.json(
           {
             ok: false,
-            error: "An active subscription already exists for this shop.",
+            error:
+              "An active subscription exists but does not match an approved VSN plan. Review it before changing plans.",
           },
           { status: 409 },
         );
       }
 
-      const appUrl = process.env.SHOPIFY_APP_URL;
+      const returnUrl = await getEmbeddedAdminBillingReturnUrl(
+        admin,
+        session.shop,
+      );
 
-      if (!appUrl) {
-        return Response.json(
-          { ok: false, error: "SHOPIFY_APP_URL is not configured." },
-          { status: 500 },
-        );
-      }
+      const result = await createSubscription(
+        admin,
+        requestedPlanId,
+        returnUrl,
+      );
 
-      const returnUrl = new URL("/app/plans", appUrl);
-      returnUrl.searchParams.set("shop", session.shop);
-
-      const host = String(formData.get("host") || "");
-      if (host) {
-        returnUrl.searchParams.set("host", host);
-      }
-
-      const result = await createProSubscription(admin, returnUrl.toString());
+      const confirmation = new URL(result.confirmationUrl);
+      console.info("[billing] subscription confirmation created", {
+        shop: session.shop,
+        currentPlanId: current?.plan.id ?? null,
+        requestedPlanId,
+        confirmationHost: confirmation.host,
+        confirmationPath: confirmation.pathname,
+      });
 
       return Response.json({
         ok: true,
         confirmationUrl: result.confirmationUrl,
+        planId: requestedPlanId,
       });
     }
 
@@ -98,13 +131,26 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
+      if (activeSubscription && !current) {
+        return Response.json(
+          {
+            ok: false,
+            error:
+              "An active subscription exists but does not match an approved VSN plan. Cancellation is blocked until it is reviewed.",
+          },
+          { status: 409 },
+        );
+      }
+
       if (
         !activeSubscription ||
+        !current ||
         activeSubscription.id !== subscriptionId ||
-        activeSubscription.status !== "ACTIVE"
+        activeSubscription.status !== "ACTIVE" ||
+        current.subscription.id !== subscriptionId
       ) {
         return Response.json(
-          { ok: false, error: "Active subscription not found." },
+          { ok: false, error: "Active VSN subscription not found." },
           { status: 404 },
         );
       }
@@ -123,15 +169,26 @@ export async function action({ request }: ActionFunctionArgs) {
       { status: 400 },
     );
   } catch (error) {
+    if (error instanceof Response) {
+      throw error;
+    }
+
+    const message = await describeShopifyBillingError(error);
+    const diagnostic = getShopifyBillingErrorDiagnostic(error);
+    console.error("[billing] subscription action failed", {
+      shop: session.shop,
+      actionType,
+      message,
+      diagnostic,
+    });
+
     return Response.json(
       {
         ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Shopify subscription request failed.",
+        error: message,
       },
       { status: 500 },
     );
   }
 }
+

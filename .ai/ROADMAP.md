@@ -5,12 +5,16 @@
 - Initialize ANPOS 1.4.0 child-project state.
 - Establish repository-backed task, checkpoint, assurance, and roadmap state.
 
-## Phase 1 — Manual Staging Certification
-- Develop on `development`; pushes run validation only.
+## Phase 1 — Local SQLite Conversion and Manual Staging Certification
+- Convert Local/Dev on `development` to Prisma + SQLite under ADR-0001.
+- Keep Staging and Production on Prisma + isolated Neon PostgreSQL.
+- Add automated parity checks for shared Local/cloud Prisma models and required indexes.
+- Certify the dedicated `VSN | Stock Down Sort Dev` app on Local SQLite.
+- Treat Local SQLite acceptance as application-level evidence only; PostgreSQL acceptance starts in Staging.
 - Manually dispatch Staging Readiness / Staging deployment when promotion is intended.
 - Create/verify the staging Queue and DLQ inside the manual deploy workflow.
 - Deploy the staging Worker from `development` only.
-- Verify health, queue readiness, PostgreSQL migrations, and test billing mode.
+- Verify health, queue readiness, Neon PostgreSQL migrations, and test billing mode.
 - Install/release the dedicated staging Shopify app and verify session/subscription reads.
 
 ## Phase 2 — Product Correctness & Reliability

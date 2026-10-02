@@ -1,30 +1,36 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
-import { PRO_PLAN, PRO_PLAN_FEATURES } from "../billing-config";
+import {
+  BILLING_CATALOG,
+  BILLING_PLANS,
+  getImplementedPlanFeatureNames,
+  type PlanId,
+} from "../billing-config";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
 import {
   getAnyActiveSubscription,
-  getCurrentSubscription,
+  getCurrentSubscriptionPlan,
 } from "../services/billing.server";
 
 type SubscriptionActionResult = {
   ok?: boolean;
-  confirmationUrl?: string;
   cancelled?: boolean;
+  planId?: PlanId;
+  confirmationUrl?: string;
   error?: string;
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  const [subscription, activeSubscription] = await Promise.all([
-    getCurrentSubscription(admin),
+  const [current, activeSubscription] = await Promise.all([
+    getCurrentSubscriptionPlan(admin),
     getAnyActiveSubscription(admin),
   ]);
 
   return {
-    subscription,
+    current,
     activeSubscription,
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
@@ -32,43 +38,63 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function PlansPage() {
-  const { subscription, activeSubscription, environment, billingTestMode } =
+  const { current, activeSubscription, environment, billingTestMode } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<SubscriptionActionResult>();
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const isLoading = fetcher.state !== "idle";
-  const isProActive = subscription?.status === "ACTIVE";
-  const displayedSubscription = subscription ?? activeSubscription;
+  const activeKnownPlan = current?.plan ?? null;
+  const activeIsUnknown =
+    Boolean(activeSubscription) && activeKnownPlan === null;
+
+  useEffect(() => {
+    if (fetcher.data?.cancelled) window.location.reload();
+  }, [fetcher.data?.cancelled]);
 
   useEffect(() => {
     if (!fetcher.data?.confirmationUrl) return;
 
-    if (window.top) {
-      window.top.location.href = fetcher.data.confirmationUrl;
-      return;
-    }
-
-    window.location.href = fetcher.data.confirmationUrl;
+    open(fetcher.data.confirmationUrl, "_top");
   }, [fetcher.data?.confirmationUrl]);
 
   useEffect(() => {
-    if (fetcher.data?.cancelled) {
-      window.location.reload();
-    }
-  }, [fetcher.data?.cancelled]);
+    if (!fetcher.data?.error || !errorRef.current) return;
 
-  function submitSubscriptionAction(actionType: "create" | "cancel") {
+    window.requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      errorRef.current?.focus({ preventScroll: true });
+    });
+  }, [fetcher.data?.error]);
+
+  function submitPlan(planId: PlanId) {
     const formData = new FormData();
-    formData.set("actionType", actionType);
+    formData.set("actionType", "subscribe");
+    formData.set("planId", planId);
 
     const params = new URLSearchParams(window.location.search);
     const host = params.get("host");
-    if (host) {
-      formData.set("host", host);
-    }
+    if (host) formData.set("host", host);
 
-    if (actionType === "cancel" && displayedSubscription?.id) {
-      formData.set("id", displayedSubscription.id);
-    }
+    fetcher.submit(formData, {
+      method: "post",
+      action: `/app/api/subscription${window.location.search}`,
+      defaultShouldRevalidate: false,
+    });
+  }
+
+  function cancelActiveSubscription() {
+    if (!activeSubscription?.id) return;
+
+    const formData = new FormData();
+    formData.set("actionType", "cancel");
+    formData.set("id", activeSubscription.id);
+
+    const params = new URLSearchParams(window.location.search);
+    const host = params.get("host");
+    if (host) formData.set("host", host);
 
     fetcher.submit(formData, {
       method: "post",
@@ -77,130 +103,207 @@ export default function PlansPage() {
   }
 
   return (
-    <s-page heading="Plans" inlineSize="large">
-      {billingTestMode ? (
-        <s-banner tone="info" heading="Test billing is enabled">
-          This {environment} environment creates Shopify test subscriptions and
-          does not create a real merchant charge.
-        </s-banner>
-      ) : null}
+    <s-page heading="Plans & pricing" inlineSize="large">
+      <s-stack gap="large-300">
+        {billingTestMode ? (
+          <s-banner tone="info" heading="Test billing is enabled">
+            This {environment} environment uses Shopify test subscriptions. No
+            real merchant charge is created in Local or Staging.
+          </s-banner>
+        ) : null}
 
-      {fetcher.data?.error ? (
-        <s-banner tone="critical" heading="Subscription update failed">
-          {fetcher.data.error}
-        </s-banner>
-      ) : null}
+        {activeKnownPlan?.id === "unlimited" && current?.source === "legacy" ? (
+          <s-banner tone="warning" heading="Legacy subscription detected">
+            Your existing legacy subscription is being treated as
+            Unlimited-compatible access. You can switch to a current plan below;
+            Shopify will ask you to approve the replacement.
+          </s-banner>
+        ) : null}
 
-      <s-grid gridTemplateColumns="repeat(12, 1fr)" gap="base">
-        <s-grid-item gridColumn="span 8" gridRow="span 1">
-          <s-section>
-            <s-box
-              padding="large-300"
-              background="base"
-              borderRadius="base"
-              borderWidth="base"
-              borderColor="base"
-            >
-              <s-stack gap="base">
-                <s-stack direction="inline" gap="base">
-                  <s-heading>Pro Plan</s-heading>
-                  {isProActive ? (
-                    <s-badge tone="success">Active plan</s-badge>
-                  ) : (
-                    <s-badge tone="info">{PRO_PLAN.trialDays}-day free trial</s-badge>
-                  )}
-                </s-stack>
+        {activeIsUnknown ? (
+          <s-banner tone="critical" heading="Subscription needs review">
+            An active Shopify subscription is attached to this app, but it does
+            not match an approved VSN plan. Plan changes are blocked until that
+            subscription is reviewed.
+          </s-banner>
+        ) : null}
 
-                <s-heading>
-                  ${PRO_PLAN.amount} USD every 30 days
-                </s-heading>
+        {fetcher.data?.error ? (
+          <div ref={errorRef} tabIndex={-1}>
+            <s-banner tone="critical" heading="Subscription update failed">
+              {fetcher.data.error}
+            </s-banner>
+          </div>
+        ) : null}
 
-                <s-text>
-                  Start with a {PRO_PLAN.trialDays}-day free trial. Shopify
-                  begins recurring billing after the trial according to the
-                  approved subscription.
-                </s-text>
-
-                <s-stack gap="small-300">
-                  {PRO_PLAN_FEATURES.map((feature) => (
-                    <s-text key={feature}>✓ {feature}</s-text>
-                  ))}
-                </s-stack>
-
-                {displayedSubscription?.currentPeriodEnd ? (
-                  <s-text>
-                    Current billing period ends:{" "}
-                    {new Date(displayedSubscription.currentPeriodEnd).toLocaleDateString()}
-                  </s-text>
-                ) : null}
-
-                {isProActive ? (
-                  <s-stack gap="small-300">
-                    <s-text tone="success">
-                      VSN Stock Down Sort Pro is active for this shop.
-                    </s-text>
-                    <s-button
-                      tone="critical"
-                      loading={isLoading}
-                      disabled={isLoading}
-                      onClick={() => submitSubscriptionAction("cancel")}
-                    >
-                      Cancel subscription
-                    </s-button>
-                  </s-stack>
-                ) : (
-                  <s-button
-                    variant="primary"
-                    loading={isLoading}
-                    disabled={isLoading || Boolean(activeSubscription)}
-                    onClick={() => submitSubscriptionAction("create")}
-                  >
-                    Start {PRO_PLAN.trialDays}-day free trial
-                  </s-button>
-                )}
-
-                {activeSubscription && !isProActive ? (
-                  <s-banner tone="warning" heading="Legacy subscription detected">
-                    An active subscription named &quot;{activeSubscription.name}&quot; is
-                    attached to this app, but it does not grant access to the
-                    current Unlimited plan. Cancel it before starting the
-                    current plan.
-                  </s-banner>
-                ) : null}
-
-                {activeSubscription && !isProActive ? (
-                  <s-button
-                    tone="critical"
-                    loading={isLoading}
-                    disabled={isLoading}
-                    onClick={() => submitSubscriptionAction("cancel")}
-                  >
-                    Cancel existing subscription
-                  </s-button>
-                ) : null}
-              </s-stack>
-            </s-box>
-          </s-section>
-        </s-grid-item>
-
-        <s-grid-item gridColumn="span 4" gridRow="span 1">
-          <s-section heading="What is included">
-            <s-stack gap="base">
-              <s-text>
-                There are no VSN-imposed product or collection limits on this
-                plan.
-              </s-text>
-              <s-text>
-                Inventory and product webhooks keep enabled collections updated
-                after changes in Shopify.
-              </s-text>
-              <s-text>
-                Support is available 24/7 for subscription and sorting issues.
-              </s-text>
+        <s-box
+          background="subdued"
+          border="base base solid"
+          borderRadius="large"
+          padding="large-400"
+        >
+          <s-stack gap="base">
+            <s-heading>Unlimited catalog. Simple plans.</s-heading>
+            <s-text>
+              Every plan includes unlimited products and collections, automatic
+              sold-out sorting, and a {BILLING_CATALOG.trialDays}-day free trial.
+              Choose the capability level that fits your store today.
+            </s-text>
+            <s-stack direction="inline" gap="small-200">
+              <s-badge tone="success">
+                {BILLING_CATALOG.trialDays}-day free trial
+              </s-badge>
+              <s-badge tone="info">Unlimited products</s-badge>
+              <s-badge tone="info">Unlimited collections</s-badge>
+              <s-badge tone="info">24/7 support</s-badge>
             </s-stack>
-          </s-section>
-        </s-grid-item>
-      </s-grid>
+          </s-stack>
+        </s-box>
+
+        <s-grid
+          gridTemplateColumns="repeat(auto-fit, minmax(250px, 1fr))"
+          gap="base"
+        >
+          {BILLING_PLANS.map((plan) => {
+            const isCurrent = activeKnownPlan?.id === plan.id;
+            const isFeatured = plan.id === "growth";
+            const implementedFeatures = getImplementedPlanFeatureNames(plan.id);
+            const roadmapFeatures = plan.featureNames.filter(
+              (feature) => !implementedFeatures.includes(feature),
+            );
+
+            return (
+              <s-box
+                key={plan.id}
+                background={isFeatured ? "subdued" : "base"}
+                border="base base solid"
+                borderRadius="large"
+                padding="large-300"
+              >
+                <s-stack gap="base">
+                  <s-stack direction="inline" gap="small-200">
+                    <s-heading>{plan.name}</s-heading>
+                    {isFeatured && !isCurrent ? (
+                      <s-badge tone="success">Most popular</s-badge>
+                    ) : null}
+                    {isCurrent ? (
+                      <s-badge tone="success">Current plan</s-badge>
+                    ) : null}
+                  </s-stack>
+
+                  <s-stack gap="small-100">
+                    <s-heading>{`$${plan.amount.toFixed(2)}`}</s-heading>
+                    <s-text>USD every 30 days</s-text>
+                  </s-stack>
+
+                  <s-badge tone="info">
+                    {plan.trial_days}-day free trial
+                  </s-badge>
+
+                  <s-text>
+                    Unlimited products · unlimited collections · {plan.support}{" "}
+                    support
+                  </s-text>
+
+                  <s-divider />
+
+                  <s-stack gap="small-300">
+                    <s-text type="strong">Included now</s-text>
+                    {implementedFeatures.map((feature) => (
+                      <s-stack key={feature} direction="inline" gap="small-200">
+                        <s-icon
+                          type="check-circle"
+                          tone="success"
+                          size="small"
+                        />
+                        <s-text>{feature}</s-text>
+                      </s-stack>
+                    ))}
+                  </s-stack>
+
+                  {roadmapFeatures.length > 0 ? (
+                    <s-box
+                      background="subdued"
+                      borderRadius="base"
+                      padding="base"
+                    >
+                      <s-stack gap="small-200">
+                        <s-text type="strong">Coming with this tier</s-text>
+                        {roadmapFeatures.map((feature) => (
+                          <s-text key={feature}>• {feature}</s-text>
+                        ))}
+                      </s-stack>
+                    </s-box>
+                  ) : null}
+
+                  <s-button
+                    variant={isCurrent ? "secondary" : "primary"}
+                    loading={isLoading}
+                    disabled={isLoading || activeIsUnknown || isCurrent}
+                    onClick={() => submitPlan(plan.id)}
+                  >
+                    {isCurrent
+                      ? "Current plan"
+                      : activeKnownPlan
+                        ? `Switch to ${plan.name}`
+                        : `Start ${plan.trial_days}-day free trial`}
+                  </s-button>
+                </s-stack>
+              </s-box>
+            );
+          })}
+        </s-grid>
+
+        <s-box
+          background="subdued"
+          borderRadius="large"
+          padding="large-300"
+        >
+          <s-stack gap="small-300">
+            <s-heading>What every plan includes</s-heading>
+            <s-grid
+              gridTemplateColumns="repeat(auto-fit, minmax(180px, 1fr))"
+              gap="small"
+            >
+              <s-text>✓ Unlimited products</s-text>
+              <s-text>✓ Unlimited collections</s-text>
+              <s-text>✓ Automatic sold-out sorting</s-text>
+              <s-text>✓ Manual Sort Now</s-text>
+              <s-text>✓ Bulk collection controls</s-text>
+              <s-text>✓ Restore previous sort order</s-text>
+            </s-grid>
+          </s-stack>
+        </s-box>
+
+        {activeSubscription ? (
+          <s-box
+            border="base base solid"
+            borderRadius="large"
+            padding="large-300"
+          >
+            <s-stack gap="small-300">
+              <s-heading>Subscription controls</s-heading>
+              <s-text>Active subscription: {activeSubscription.name}</s-text>
+              {activeSubscription.currentPeriodEnd ? (
+                <s-text>
+                  Current period ends:{" "}
+                  {new Date(
+                    activeSubscription.currentPeriodEnd,
+                  ).toLocaleDateString()}
+                </s-text>
+              ) : null}
+              <s-button
+                tone="critical"
+                loading={isLoading}
+                disabled={isLoading || activeIsUnknown}
+                onClick={cancelActiveSubscription}
+              >
+                Cancel subscription
+              </s-button>
+            </s-stack>
+          </s-box>
+        ) : null}
+      </s-stack>
     </s-page>
   );
 }

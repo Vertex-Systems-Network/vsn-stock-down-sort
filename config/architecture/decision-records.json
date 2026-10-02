@@ -2,7 +2,57 @@
   "schema_version": 1,
   "status": "active_registry",
   "activation_scope": "child_project",
-  "decisions": [],
+  "decisions": [
+    {
+      "id": "ADR-0001",
+      "title": "Use Prisma SQLite for Local and Prisma Neon PostgreSQL for Staging/Production",
+      "status": "accepted",
+      "context": "Local development was previously planned around a dedicated Neon PostgreSQL project, which introduced NEON_API_KEY/project-provisioning requirements before the Shopify Dev app could run. The project owner has chosen a Shopify-default-style Local workflow: Prisma with a local SQLite database, while Staging and Production continue using isolated Neon PostgreSQL through the cloud Prisma schema.",
+      "alternatives": [
+        "Keep dedicated Neon PostgreSQL for Local, Staging and Production.",
+        "Use a locally installed PostgreSQL server for Local and Neon PostgreSQL for hosted environments.",
+        "Use Prisma SQLite for Local and Prisma Neon PostgreSQL for Staging/Production."
+      ],
+      "evidence_refs": [
+        "Current repository head c90dd8c67704a2842c0eb065549a8cb7834975e7",
+        "Issue #32",
+        "Current Local Neon preparation blocker requiring NEON_API_KEY",
+        "Existing prisma/schema.prisma and prisma/cloud/schema.prisma split"
+      ],
+      "decision": "Local/Dev will use Prisma with a gitignored SQLite database and the dedicated VSN | Stock Down Sort Dev Shopify app. Staging and Production will continue using Prisma with isolated Neon PostgreSQL databases and the cloud schema. Local acceptance proves application/session/data-flow behavior on SQLite; it does not count as PostgreSQL acceptance. Staging remains the mandatory first real PostgreSQL/Neon acceptance gate before any Production preparation.",
+      "consequences": [
+        "Local development no longer requires NEON_API_KEY, NEON_PROJECT_ID, Neon project provisioning, or cloud database credentials.",
+        "The repository must maintain a Local SQLite Prisma schema/migration path and a hosted PostgreSQL Prisma schema/migration path.",
+        "Shared data models must be covered by a schema-parity contract so Local and cloud schemas do not silently drift.",
+        "Provider-specific PostgreSQL behavior must be verified in Staging before Production.",
+        "The existing Local Neon scripts/guards must be removed or retired only after the SQLite conversion is implemented and CI-validated.",
+        "Staging and Production Neon architecture, manual promotion gates, and billing isolation remain unchanged."
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "Reduces Local secret exposure by removing Neon account/project credentials from the developer workstation workflow.",
+        "Keeps Staging and Production database credentials isolated in their existing environment scopes.",
+        "Local SQLite files must remain gitignored and must never be committed.",
+        "Reduces cloud dependency and cost/availability coupling for normal Local development."
+      ],
+      "reversibility": "reversible through a later accepted ADR and migration work unit",
+      "affected_modules_or_contracts": [
+        "MOD-LOCAL",
+        "MOD-DATABASE",
+        "ISSUE-32-WU-LOCAL-01",
+        "ISSUE-32-WU-LOCAL-SQLITE-01",
+        "config/development-flow.json",
+        "config/database/environment-topology.json",
+        "config/release/environment-gates.json",
+        "scripts/local-*",
+        "prisma/schema.prisma",
+        "prisma/cloud/schema.prisma"
+      ],
+      "decided_by": "project_owner_current_instruction",
+      "decided_at": "2026-10-01T14:18:00+05:00",
+      "supersedes": [],
+      "superseded_by": null
+    }
+  ],
   "decision_template": {
     "id": "ADR-0001",
     "title": "",

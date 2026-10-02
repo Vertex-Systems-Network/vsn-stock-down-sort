@@ -6,9 +6,10 @@ VSN Stock Down Sort is an embedded Shopify app by Vertex Systems Network that ke
 
 The Shopify plan is:
 
-- Plan ID: `unlimited`
-- Price: USD 55 every 30 days
-- Free trial: 5 days
+- Four plan IDs: `starter`, `growth`, `pro`, `unlimited`
+- Prices: USD 10.99 / 19.99 / 34.99 / 54.99 every 30 days
+- Free trial: 10 days on every paid plan
+- Products and collections: unlimited on every plan
 - Unlimited products
 - Unlimited collections
 - Automatic sold-out product sorting
@@ -52,7 +53,22 @@ The repository includes Supervisor, Worker, governance, risk, audit, release, op
 
 ## Runtime architecture
 
-The hosted runtime is built for Cloudflare Workers.
+VSN Stock Down Sort uses Prisma in all environments, with different database
+providers by environment:
+
+- Local / Development: Prisma + SQLite
+- Staging: Prisma + isolated Neon PostgreSQL
+- Production: Prisma + isolated Neon PostgreSQL
+
+Prisma schemas:
+
+- `prisma/schema.prisma` — Local SQLite
+- `prisma/cloud/schema.prisma` — hosted PostgreSQL
+
+Shared application models, fields and indexes are checked by
+`npm run prisma:parity`.
+
+Hosted Staging/Production are built for Cloudflare Workers and use:
 
 - React Router application
 - Web Streams SSR
@@ -62,14 +78,10 @@ The hosted runtime is built for Cloudflare Workers.
 - request-scoped Prisma clients
 - request-scoped Shopify session storage
 - Cloudflare Queues for hosted webhook and bulk sorting work
-- local direct fallback when no Queue binding is present
-- Shopify asynchronous collection reorder jobs are awaited before a sort is marked successful
 
-The active Prisma schema is:
-
-`prisma/cloud/schema.prisma`
-
-The old Shopify-template SQLite guidance does not apply to the active runtime.
+Local uses the normal Prisma SQLite client and direct queue fallback. Local
+SQLite acceptance is not PostgreSQL acceptance; Staging is the first mandatory
+Neon/PostgreSQL runtime gate.
 
 ## Three isolated Shopify apps
 
@@ -77,12 +89,12 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN Stock Down Sort Dev | `shopify.app.toml` | test |
-| Staging | VSN Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.local.toml` | test |
+| Staging | VSN | Stock Down Sort Staging | `shopify.app.staging.toml` | test |
+| Live / Production | VSN | Stock Down Sort | `shopify.app.production.toml` | real |
 
 Database topology is also isolated:
-- Local: dedicated Neon project `vsn-stock-down-sort-local`
+- Local: gitignored SQLite file `prisma/dev.sqlite`
 - Staging: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-staging`
 - Production: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-production`
 
@@ -90,30 +102,61 @@ Local must be completed and verified before Staging work begins.
 
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
-The Staging and Production client IDs intentionally remain placeholders in git. GitHub Actions inject the real environment-specific IDs only into disposable runners.
+The Staging client ID remains a placeholder in git and is injected from `cloudflare-staging`. The Live/Production client ID is committed in `shopify.app.production.toml`, matching the VSN Metafields model; `cloudflare-production` must provide the same `SHOPIFY_API_KEY`, while the API secret remains environment-scoped.
 
 ## Local development
 
-Normal development happens from `development` or a short-lived feature branch based on it.
+Normal Local development runs from the `development` branch and uses the
+dedicated **VSN | Stock Down Sort Dev** Shopify app with Prisma + SQLite.
 
 ```bash
 git switch development
-git pull
+git pull --ff-only origin development
 npm install
+npm run local:prepare
 npm run dev
 ```
 
-`npm run dev` remains the normal command and uses the default `shopify.app.toml`. Before the web process starts, the repo validates that `DATABASE_URL` is a pooled Neon URL and `DIRECT_URL` is the matching direct Neon URL, then applies Prisma migrations.
+`npm run local:prepare` validates the Local Shopify identity and SQLite
+contract, validates/generates Prisma from `prisma/schema.prisma`, applies the
+Local SQLite migrations, and creates `prisma/dev.sqlite` when needed.
 
-Local development uses the `development` branch and the dedicated Local Neon database. It never deploys Staging or Production. Pushes to `development` run validation only.
+Normal Local development requires **no** Neon API key, Neon project ID,
+`DATABASE_URL`, or `DIRECT_URL`. The Local SQLite database is gitignored and
+must never be committed.
 
-Do not manually switch the Local app to Staging or Production with `shopify app config use`.
+`npm run dev` explicitly uses `shopify.app.local.toml`. The repository Local
+runner regenerates/migrates the SQLite schema before React Router starts.
+
+After the app is running, certify the exact `development` source:
+
+```bash
+npm run local:certify -- http://127.0.0.1:3000/healthz
+```
+
+Use the actual Local health URL if the runtime uses another port.
+
+Local certification requires the health contract to report:
+
+- `environment=development`
+- `billingTestMode=true`
+- `database=sqlite`
+
+The accepted source SHA is then written to
+`config/release/environment-gates.json`. Only after that acceptance may
+Staging begin.
+
+Do not manually switch the Local app to Staging or Production with
+`shopify app config use`.
 
 ## Validation
 
 The main CI workflow validates:
 
-- PostgreSQL Prisma schema
+- Local SQLite Prisma schema
+- Local SQLite migrations
+- Local/cloud Prisma model parity
+- hosted PostgreSQL Prisma schema
 - Worker Prisma generation
 - lint
 - TypeScript

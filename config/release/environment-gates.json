@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "status": "verification_required",
+  "local_dev": {
+    "status": "accepted",
+    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "evidence_record": {
+      "branch": "development",
+      "database_provider": "sqlite",
+      "database_file": "prisma/dev.sqlite",
+      "sqlite_gitignored": true,
+      "prisma_validate": "passed",
+      "prisma_generate": "passed",
+      "prisma_migrate_deploy": "passed",
+      "shopify_app": "VSN | Stock Down Sort Dev",
+      "shopify_dev_health": {
+        "status": 200,
+        "environment": "development",
+        "billingTestMode": true,
+        "database": "sqlite"
+      },
+      "health_url": "http://localhost:51280/healthz",
+      "billing_catalog": {
+        "currencyCode": "USD",
+        "interval": "EVERY_30_DAYS",
+        "trialDays": 10,
+        "planIds": [
+          "starter",
+          "growth",
+          "pro",
+          "unlimited"
+        ]
+      },
+      "billing_runtime_acceptance": "all_current_plan_switches_passed_on_dev_test_store",
+      "certification_output": "accepted source_ref=ca5851561ab7979712f11580ab951fda4650ef19",
+      "note": "Latest Local/Dev source is accepted. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
+    },
+    "required_checks": [
+      "Local Shopify app boot from development",
+      "Local SQLite Prisma validation/generation/migration",
+      "Local/cloud Prisma model parity",
+      "Local SQLite database file remains gitignored",
+      "Local health reports SQLite + test billing",
+      "Four-plan billing catalog contract"
+    ]
+  },
+  "staging": {
+    "status": "accepted",
+    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "accepted_main_ref": null,
+    "evidence_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 1,
+      "run_id": 36989726911,
+      "branch": "development",
+      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+      "shop": "staging-oath3rth.myshopify.com",
+      "released_version": "stock-down-sort-staging-ca5851561ab7-1",
+      "billing_plan_id": "starter",
+      "runtime_health": "passed",
+      "database_provider": "postgresql",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "offline_shopify_session": "passed",
+      "stored_session_count": 2,
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "active_subscription_count": 1,
+      "recognized_plan_id": "starter",
+      "accepted_main_ref_recording": "pending_main_promotion"
+    },
+    "required_checks": [
+      "Staging runtime health",
+      "Staging queue/DLQ readiness",
+      "Signed Shopify staging acceptance",
+      "Staging Shopify subscription read",
+      "Four-plan billing catalog contract"
+    ],
+    "deployed_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "deployment_record": {
+      "workflow": "Cloudflare Staging Deploy",
+      "run_number": 1,
+      "run_id": 36985118161,
+      "branch": "development",
+      "control_head_sha": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
+      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+      "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+      "database_provider": "postgresql",
+      "prisma_migrations": "passed_no_pending",
+      "queue": "vsn-stock-down-sort-staging-sort-jobs",
+      "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "shopify_acceptance": "deferred_to_staging_runtime_acceptance"
+    },
+    "shopify_release_record": {
+      "workflow": "Shopify Staging Release",
+      "run_number": 1,
+      "run_id": 36987141830,
+      "branch": "development",
+      "control_head_sha": "f30cf97f7a754004591b431a74a68758d2525acb",
+      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+      "version": "stock-down-sort-staging-ca5851561ab7-1",
+      "status": "released",
+      "local_and_live_configs_untouched": true
+    }
+  },
+  "live": {
+    "status": "blocked",
+    "authorized_source_ref": null,
+    "authorization_record": null,
+    "required_checks": [
+      "Production Worker health",
+      "Four-plan billing catalog contract",
+      "Explicit Shopify candidate authorization"
+    ]
+  },
+  "rules": {
+    "promotion_order": [
+      "local_dev",
+      "staging",
+      "live"
+    ],
+    "staging_source_must_match_local_accepted_source": true,
+    "staging_acceptance_must_be_recorded_on_main_before_live": true,
+    "live_source_must_be_main": true,
+    "missing_or_failed_evidence_blocks_promotion": true
+  }
+}

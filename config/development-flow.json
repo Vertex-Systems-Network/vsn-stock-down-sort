@@ -5,24 +5,28 @@
   "release_branch": "main",
   "local": {
     "command": "npm run dev",
-    "shopify_app": "VSN Stock Down Sort Dev",
-    "shopify_config": "shopify.app.toml",
+    "shopify_app": "VSN | Stock Down Sort Dev",
+    "shopify_config": "shopify.app.local.toml",
     "committed_secrets": false,
     "direct_staging_deploy": false,
     "direct_live_deploy": false,
     "source_branch": "development",
     "database": {
-      "provider": "neon_postgresql",
-      "project_name": "vsn-stock-down-sort-local",
-      "provisioning_status": "required",
-      "runtime_connection": "pooled",
-      "migration_connection": "direct",
+      "provider": "sqlite",
+      "file": "prisma/dev.sqlite",
+      "schema": "prisma/schema.prisma",
+      "gitignored": true,
+      "hosted_credentials_required": false,
       "isolated_from_staging_and_production": true
-    }
+    },
+    "cli_config_alias": "local",
+    "branch_policy": "development_only",
+    "prepare_command": "npm run local:prepare",
+    "certify_command": "npm run local:certify -- <local-health-url>/healthz"
   },
   "staging": {
     "github_environment": "cloudflare-staging",
-    "shopify_app": "VSN Stock Down Sort Staging",
+    "shopify_app": "VSN | Stock Down Sort Staging",
     "shopify_config": "shopify.app.staging.toml",
     "worker": "vsn-stock-down-sort-staging",
     "source_branch": "development",
@@ -40,7 +44,7 @@
   },
   "live": {
     "github_environment": "cloudflare-production",
-    "shopify_app": "VSN Stock Down Sort",
+    "shopify_app": "VSN | Stock Down Sort",
     "shopify_config": "shopify.app.production.toml",
     "worker": "vsn-stock-down-sort-production",
     "source_branch": "main",
@@ -48,7 +52,9 @@
     "deploy_mode": "manual_dispatch",
     "shopify_release_mode": "explicit_authorization_only",
     "billing_test_mode": false,
-    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit"
+    "github_environment_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/settings/environments/23098399859/edit",
+    "client_id_source": "committed_shopify_app_production_toml",
+    "secret_source": "cloudflare-production"
   },
   "invariants": {
     "development_push_cannot_deploy_staging": true,
@@ -56,8 +62,13 @@
     "main_push_cannot_deploy_production": true,
     "staging_cannot_change_live_shopify_identity": true,
     "production_release_requires_explicit_authorization": true,
-    "local_database_must_be_neon": true,
-    "local_database_must_be_isolated": true
+    "local_database_must_be_isolated": true,
+    "production_environment_client_id_must_match_committed_live_config": true,
+    "staging_requires_local_dev_acceptance_record": true,
+    "staging_source_ref_must_match_local_accepted_ref": true,
+    "live_requires_staging_acceptance_record_on_main": true,
+    "local_shopify_identity_must_match_committed_local_config": true,
+    "local_database_must_be_sqlite": true
   },
   "development_ci": {
     "automatic_on_push": true,
@@ -66,5 +77,76 @@
     "checks": [
       "App Validation"
     ]
+  },
+  "promotion_policy": {
+    "order": [
+      "local_dev",
+      "staging",
+      "live"
+    ],
+    "local_dev": {
+      "branch": "development",
+      "role": "canonical_local_dev_integration"
+    },
+    "staging": {
+      "source_branch": "development",
+      "requires_local_dev_acceptance": true,
+      "source_must_be_exact_verified_development_commit": true,
+      "manual_dispatch_only": true,
+      "billing_test_mode": true
+    },
+    "live": {
+      "source_branch": "main",
+      "requires_staging_acceptance": true,
+      "release_route": [
+        "development",
+        "pull_request_review",
+        "main",
+        "manual_production_dispatch"
+      ],
+      "explicit_authorization_required": true,
+      "billing_test_mode": false
+    },
+    "prohibited_paths": [
+      "feature_or_work_branch_to_staging",
+      "feature_or_work_branch_to_live",
+      "development_to_live_without_pull_request_and_main_merge",
+      "staging_to_live_without_development_to_main_release",
+      "main_to_staging"
+    ],
+    "evidence_gate_rule": "The AI must not advance to the next environment without verified acceptance evidence from the previous environment.",
+    "no_skip_rule": "Missing, stale, or failed evidence blocks promotion and must be recorded rather than bypassed.",
+    "deployment_is_not_acceptance": true,
+    "evidence_record": "config/release/environment-gates.json",
+    "local_dev_gate": {
+      "status_values": [
+        "verification_required",
+        "accepted",
+        "blocked"
+      ],
+      "accepted_source_ref_required": true,
+      "evidence_record_required": true
+    },
+    "staging_gate": {
+      "status_values": [
+        "blocked",
+        "verification_required",
+        "accepted"
+      ],
+      "accepted_source_ref_required": true,
+      "accepted_main_ref_required": true,
+      "evidence_record_required": true,
+      "authoritative_location": "main"
+    }
+  },
+  "main_branch_protection": {
+    "ruleset_name": "main",
+    "enforcement": "active",
+    "pull_request_required": true,
+    "required_status_check": "validate",
+    "required_status_check_enforced": true,
+    "bypass": "never",
+    "note": "Repository CI audits this contract; if the live ruleset lacks the required status check, App Validation fails.",
+    "required_status_check_display": "App Validation / validate"
   }
 }
