@@ -3,7 +3,7 @@ name: Cloudflare Staging Product Bootstrap
 on:
   push:
     branches:
-      - bootstrap/cloudflare-staging-product
+      - development
     paths:
       - .github/workflows/cloudflare-staging-product-bootstrap.yml
   workflow_dispatch:
