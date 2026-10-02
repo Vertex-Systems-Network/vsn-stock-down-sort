@@ -174,7 +174,7 @@ export async function getCollection(
     };
   }>(
     admin,
-    \`#graphql
+    `#graphql
       query CollectionForStockSorter($id: ID!) {
         collection(id: $id) {
           id
@@ -185,7 +185,7 @@ export async function getCollection(
           }
         }
       }
-    \`,
+    `,
     { id: collectionId },
   );
 
@@ -199,7 +199,7 @@ export async function listAllCollections(admin: AdminClient) {
   do {
     const data = await gql<CollectionListResponse>(
       admin,
-      \`#graphql
+      `#graphql
         query CollectionsForStockSorter($first: Int!, $after: String) {
           collections(first: $first, after: $after, sortKey: TITLE) {
             nodes {
@@ -217,7 +217,7 @@ export async function listAllCollections(admin: AdminClient) {
             }
           }
         }
-      \`,
+      `,
       { first: 250, after },
     );
 
@@ -244,7 +244,7 @@ export async function listAllLocations(
       };
     }>(
       admin,
-      \`#graphql
+      `#graphql
         query StockSorterLocations($first: Int!, $after: String) {
           locations(first: $first, after: $after) {
             nodes {
@@ -257,7 +257,7 @@ export async function listAllLocations(
             }
           }
         }
-      \`,
+      `,
       { first: 250, after },
     );
 
@@ -281,7 +281,7 @@ async function listCollectionProducts(
     const data: CollectionProductsResponse =
       await gql<CollectionProductsResponse>(
         admin,
-        \`#graphql
+        `#graphql
           query CollectionProductsForStockSorter(
             $id: ID!
             $first: Int!
@@ -307,7 +307,7 @@ async function listCollectionProducts(
               }
             }
           }
-        \`,
+        `,
         {
           id: collectionId,
           first: PRODUCTS_PAGE_SIZE,
@@ -359,7 +359,7 @@ async function appendRemainingInventoryLevels(
   while (cursor) {
     const data = await gql<InventoryItemLevelsResponse>(
       admin,
-      \`#graphql
+      `#graphql
         query InventoryItemLevelsForStockSorter(
           $id: ID!
           $first: Int!
@@ -383,7 +383,7 @@ async function appendRemainingInventoryLevels(
             }
           }
         }
-      \`,
+      `,
       {
         id: inventoryItemId,
         first: INVENTORY_LEVELS_PAGE_SIZE,
@@ -392,7 +392,7 @@ async function appendRemainingInventoryLevels(
     );
 
     if (!data.inventoryItem) {
-      throw new Error(\`Inventory item not found: \${inventoryItemId}\`);
+      throw new Error(`Inventory item not found: ${inventoryItemId}`);
     }
 
     const connection = data.inventoryItem.inventoryLevels;
@@ -419,7 +419,7 @@ async function selectedLocationInventoryForProduct(
   do {
     const data = await gql<ProductInventoryResponse>(
       admin,
-      \`#graphql
+      `#graphql
         query ProductLocationInventoryForStockSorter(
           $id: ID!
           $variantsFirst: Int!
@@ -455,7 +455,7 @@ async function selectedLocationInventoryForProduct(
             }
           }
         }
-      \`,
+      `,
       {
         id: productId,
         variantsFirst: VARIANTS_PAGE_SIZE,
@@ -465,7 +465,7 @@ async function selectedLocationInventoryForProduct(
     );
 
     if (!data.product) {
-      throw new Error(\`Product not found while resolving inventory: \${productId}\`);
+      throw new Error(`Product not found while resolving inventory: ${productId}`);
     }
 
     for (const variant of data.product.variants.nodes) {
@@ -746,7 +746,7 @@ export function buildSequentialMoves(
 
     const currentIndex = working.indexOf(targetId, targetIndex + 1);
     if (currentIndex < 0) {
-      throw new Error(\`Target product is missing from the collection: \${targetId}\`);
+      throw new Error(`Target product is missing from the collection: ${targetId}`);
     }
 
     moves.push({
@@ -773,7 +773,7 @@ async function setCollectionSortOrder(
     };
   }>(
     admin,
-    \`#graphql
+    `#graphql
       mutation SetCollectionSortOrder(
         $id: ID!
         $sortOrder: CollectionSortOrder!
@@ -789,7 +789,7 @@ async function setCollectionSortOrder(
           }
         }
       }
-    \`,
+    `,
     { id: collectionId, sortOrder },
   );
 
@@ -811,19 +811,19 @@ async function waitForJob(admin: AdminClient, jobId: string) {
       };
     }>(
       admin,
-      \`#graphql
+      `#graphql
         query ReorderJobStatus($id: ID!) {
           job(id: $id) {
             id
             done
           }
         }
-      \`,
+      `,
       { id: jobId },
     );
 
     if (!data.job) {
-      throw new Error(\`Shopify reorder job not found: \${jobId}\`);
+      throw new Error(`Shopify reorder job not found: ${jobId}`);
     }
 
     if (data.job.done) return;
@@ -836,7 +836,7 @@ async function waitForJob(admin: AdminClient, jobId: string) {
   }
 
   throw new Error(
-    \`Shopify reorder job did not complete after \${MAX_JOB_POLL_ATTEMPTS} polls: \${jobId}\`,
+    `Shopify reorder job did not complete after ${MAX_JOB_POLL_ATTEMPTS} polls: ${jobId}`,
   );
 }
 
@@ -851,7 +851,7 @@ async function reorderChunk(
 
   if (moves.length > MAX_REORDER_MOVES) {
     throw new Error(
-      \`Shopify supports at most \${MAX_REORDER_MOVES} collection moves per mutation.\`,
+      `Shopify supports at most ${MAX_REORDER_MOVES} collection moves per mutation.`,
     );
   }
 
@@ -862,7 +862,7 @@ async function reorderChunk(
     };
   }>(
     admin,
-    \`#graphql
+    `#graphql
       mutation ApplyStockSorterMoves(
         $id: ID!
         $moves: [MoveInput!]!
@@ -877,7 +877,7 @@ async function reorderChunk(
           }
         }
       }
-    \`,
+    `,
     { id: collectionId, moves },
   );
 
@@ -910,7 +910,7 @@ async function sortCollectionWithEntitlements(
 
     if (collection.sortOrder !== "MANUAL") {
       throw new Error(
-        \`Collection must be MANUAL before sorting (currently \${collection.sortOrder})\`,
+        `Collection must be MANUAL before sorting (currently ${collection.sortOrder})`,
       );
     }
 
@@ -1218,7 +1218,7 @@ export async function collectionsForProduct(
     const data: ProductCollectionsResponse =
       await gql<ProductCollectionsResponse>(
         admin,
-        \`#graphql
+        `#graphql
           query ProductCollections(
             $id: ID!
             $first: Int!
@@ -1236,7 +1236,7 @@ export async function collectionsForProduct(
               }
             }
           }
-        \`,
+        `,
         { id: productId, first: 250, after },
       );
 
@@ -1259,7 +1259,7 @@ export async function collectionsForInventoryItem(
   admin: AdminClient,
   inventoryItemNumericId: string | number,
 ) {
-  const inventoryItemId = \`gid://shopify/InventoryItem/\${inventoryItemNumericId}\`;
+  const inventoryItemId = `gid://shopify/InventoryItem/${inventoryItemNumericId}`;
 
   const data = await gql<{
     inventoryItem: null | {
@@ -1271,7 +1271,7 @@ export async function collectionsForInventoryItem(
     };
   }>(
     admin,
-    \`#graphql
+    `#graphql
       query InventoryItemProduct($id: ID!) {
         inventoryItem(id: $id) {
           variant {
@@ -1281,7 +1281,7 @@ export async function collectionsForInventoryItem(
           }
         }
       }
-    \`,
+    `,
     { id: inventoryItemId },
   );
 
