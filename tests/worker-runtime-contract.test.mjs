@@ -959,10 +959,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(state.current_phase, "PHASE-01");
   assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "shopify-production-release");
+  assert.equal(state.current_module, "production-live");
   assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /Shopify Production Release/i);
+  assert.match(state.next_valid_work_unit, /PHASE-01 is complete/i);
   assert.match(
     state.next_valid_work_unit,
     /516ab92a2d1a4a74fc9624dfc56d3fcc3f624182/,
@@ -981,7 +981,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.work_units[7].status, "complete");
   assert.equal(plan.work_units[8].status, "complete");
   assert.equal(plan.work_units[9].status, "complete");
-  assert.equal(plan.work_units[10].status, "in_progress");
+  assert.equal(plan.work_units[10].status, "complete");
   assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
   assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
   assert.equal(plan.work_units[2].id, "ISSUE-32-WU-LOCAL-SQLITE-01");
