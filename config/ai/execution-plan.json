@@ -51,12 +51,15 @@
         "Phase contract tests, lint, typecheck, Worker build and both Cloudflare dry-runs pass."
       ],
       "completion_evidence": [
-        "PR #98 implementation head 8f47fbc86e44da94eff316e0d84b68a4717e1b08 passed App Validation #366 / run 37007055080.",
+        "PR #98 latest head 331ce2e58ef066abf0d04940f6ea6dbe7950b86f passed App Validation #376 / run 37007568459.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed the full validation chain on ae2c5a93846725683ba4e6c2516bda1463dc2278.",
         "Local SQLite and hosted PostgreSQL PHASE-02 migrations are additive and schema parity passed.",
         "Server-side entitlement gates cover exclusions, pinned products, advanced sorting and multi-location rules.",
         "Manual, webhook and Queue sorts share the same PHASE-02 sorting engine.",
         "Merchant collection Rules UI is implemented.",
-        "Worker build plus Staging and Production Cloudflare dry-runs passed."
+        "Worker build plus Staging and Production Cloudflare dry-runs passed.",
+        "No PHASE-02 Staging or Production deployment/promotion occurred in this implementation phase."
       ]
     }
   ],
@@ -472,7 +475,9 @@
         "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
         "App Validation #366 / run 37007055080 passed the complete validation chain.",
         "Local/cloud CollectionSetting rule fields and additive migrations are parity-validated.",
-        "Server-side current-plan entitlement enforcement fails closed."
+        "Server-side current-plan entitlement enforcement fails closed.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
       ]
     },
     {
@@ -500,7 +505,9 @@
         "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
         "App Validation #366 / run 37007055080 passed the complete validation chain.",
         "Tag/vendor/product exclusions and ordered pinned product selectors are implemented in the shared sorting engine.",
-        "Enabled collection rule changes are re-sorted through Cloudflare Queue with Local direct fallback."
+        "Enabled collection rule changes are re-sorted through Cloudflare Queue with Local direct fallback.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
       ]
     },
     {
@@ -527,7 +534,9 @@
         "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
         "App Validation #366 / run 37007055080 passed the complete validation chain.",
         "PRESERVE, TITLE_ASC, TITLE_DESC, INVENTORY_DESC, INVENTORY_ASC, NEWEST and OLDEST available-product modes are implemented.",
-        "Shopify collection move mutations are chunked to the documented 250-move maximum and only generated for changed target positions."
+        "Shopify collection move mutations are chunked to the documented 250-move maximum and only generated for changed target positions.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
       ]
     },
     {
@@ -557,7 +566,9 @@
         "App Validation #366 / run 37007055080 passed the complete validation chain.",
         "ALL_LOCATIONS, ANY_SELECTED_LOCATION and ALL_SELECTED_LOCATIONS stock evaluation modes are implemented.",
         "Shopify locations and available inventory quantities are read with existing inventory scope.",
-        "Embedded merchant UI exposes rule controls according to current plan entitlements."
+        "Embedded merchant UI exposes rule controls according to current plan entitlements.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
       ]
     }
   ],
@@ -573,5 +584,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "8f47fbc86e44da94eff316e0d84b68a4717e1b08"
+  "last_reconciled_repository_ref": "ae2c5a93846725683ba4e6c2516bda1463dc2278"
 }
