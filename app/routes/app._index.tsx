@@ -118,7 +118,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         ok: true,
         message: result.alreadySorted
           ? "This collection already matches its configured rules."
-          : \`Collection sorted. \${result.movedProducts} product position\${result.movedProducts === 1 ? "" : "s"} changed.\`,
+          : `Collection sorted. ${result.movedProducts} product position${result.movedProducts === 1 ? "" : "s"} changed.`,
         result,
       };
     }
@@ -203,7 +203,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       if (queued) {
         return {
           ok: true,
-          message: \`Queued auto-sort enablement for \${collections.length} collection\${collections.length === 1 ? "" : "s"}.\`,
+          message: `Queued auto-sort enablement for ${collections.length} collection${collections.length === 1 ? "" : "s"}.`,
         };
       }
 
@@ -236,7 +236,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         message:
           failed === 0
             ? "Auto-sort enabled for all collections."
-            : \`Finished with \${failed} collection\${failed === 1 ? "" : "s"} needing attention.\`,
+            : `Finished with ${failed} collection${failed === 1 ? "" : "s"} needing attention.`,
         results,
       };
     }
@@ -257,7 +257,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         message:
           result.count === 0
             ? "No enabled collections needed to be disabled."
-            : \`Auto-sort disabled for \${result.count} collection\${result.count === 1 ? "" : "s"}.\`,
+            : `Auto-sort disabled for ${result.count} collection${result.count === 1 ? "" : "s"}.`,
       };
     }
 
@@ -606,11 +606,11 @@ export default function AppIndex() {
       </s-section>
 
       {editingCollection ? (
-        <s-section heading={\`Rules — \${editingCollection.title}\`}>
+        <s-section heading={`Rules — ${editingCollection.title}`}>
           <form
-            key={\`\${editingCollection.id}:\${String(
+            key={`${editingCollection.id}:${String(
               editingCollection.setting?.updatedAt ?? "new",
-            )}\`}
+            )}`}
             onSubmit={(event) => {
               event.preventDefault();
               submit(new FormData(event.currentTarget), { method: "post" });
