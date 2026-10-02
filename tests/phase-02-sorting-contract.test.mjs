@@ -170,6 +170,8 @@ test("PHASE-02 completion is repository-tracked under Issue 97", () => {
   assert.equal(plan.active_issue, 97);
   assert.equal(state.active_issue, 97);
   assert.equal(state.current_phase, "PHASE-02");
+  assert.match(state.next_valid_work_unit, /PHASE-03 Product & Variant Visibility/);
+  assert.match(state.qa_readiness, /not.*Staging\/Production|No PHASE-02 Staging\/Production/i);
   assert.ok(phase);
   assert.ok(module);
   assert.equal(phase.status, "complete");
