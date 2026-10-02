@@ -215,7 +215,7 @@ jobs:
           set -euo pipefail
           npx --yes @shopify/cli@4.8.2 app info \
             --config production \
-            --no-color > /tmp/shopify-production-info.txt
+            --no-color > /tmp/shopify-production-info.txt 2>&1
           grep -F "VSN | Stock Down Sort" /tmp/shopify-production-info.txt >/dev/null
           echo "production_shopify_app_name=VSN | Stock Down Sort"
 

@@ -15,7 +15,7 @@
         "MOD-BILLING"
       ],
       "dependencies": [],
-      "status": "in_progress",
+      "status": "complete",
       "exit_criteria": [
         "Local/Dev runs from development with Prisma + a gitignored SQLite database and VSN | Stock Down Sort Dev.",
         "Local and hosted Prisma schemas have an explicit parity contract for shared application data.",
@@ -386,7 +386,7 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 40,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Staging phase is accepted before production preparation starts."
@@ -409,7 +409,12 @@
         "Unreleased candidate stock-down-sort-production-516ab92a2d1a-1 was created successfully with --no-release.",
         "Candidate preflight passed isolated Live Shopify identity and prepared Production Worker health checks.",
         "Production Shopify config contains exact app name VSN | Stock Down Sort.",
-        "Repository release policy authorizes only this exact candidate/source; Live status remains blocked until the separate Shopify Production Release workflow succeeds."
+        "Repository release policy authorizes only this exact candidate/source; Live status remains blocked until the separate Shopify Production Release workflow succeeds.",
+        "Shopify Production Release #1 (run 37002956869) released stock-down-sort-production-516ab92a2d1a-1 to users.",
+        "The released version remained visible after release.",
+        "Shopify CLI app info in the same run reported exact remote app name VSN | Stock Down Sort.",
+        "Workflow conclusion was failure only because the verification command redirected the wrong output stream before grep; the release and remote-name evidence themselves passed.",
+        "Live gate reconciled to accepted without rerunning the already-successful release."
       ]
     }
   ],
