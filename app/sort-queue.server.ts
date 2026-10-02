@@ -2,7 +2,7 @@ export type SortQueueJob = {
   kind: "sort" | "enable";
   shop: string;
   collectionId: string;
-  reason: "inventory-update" | "product-update" | "bulk-enable";
+  reason: "inventory-update" | "product-update" | "bulk-enable" | "rules-update";
 };
 
 type QueueBindingLike = {
