@@ -97,3 +97,26 @@ model ActivityEvent {
   @@index([shop, category, occurredAt])
   @@index([shop, action, occurredAt])
 }
+
+
+model AutomationRule {
+  id                 String    @id @default(cuid())
+  shop               String
+  name               String
+  collectionId       String
+  enabled            Boolean   @default(true)
+  scheduleMinutes    Int?
+  minSoldOutProducts Int?
+  minSoldOutPercent  Int?
+  minTotalProducts   Int?
+  nextRunAt          DateTime?
+  lastRunAt          DateTime?
+  lastOutcome        String?
+  lastError          String?
+  leaseUntil         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([shop, enabled, nextRunAt])
+  @@index([shop, collectionId])
+}
