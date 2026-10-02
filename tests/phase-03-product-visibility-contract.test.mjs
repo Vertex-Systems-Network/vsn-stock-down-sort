@@ -18,13 +18,14 @@ test("PHASE-03 persistence is mirrored across Local and hosted schemas", () => {
 });
 
 test("product visibility engine preserves merchant state and supports SEO-safe hide", () => {
+  const shared = read("app/services/product-visibility.ts");
   const source = read("app/services/product-visibility.server.ts");
 
-  assert.match(source, /OPT-AUTO-HIDE-PRODUCTS/);
-  assert.match(source, /OPT-AUTO-REPUBLISH/);
-  assert.match(source, /OPT-SEO-SAFE-HIDE/);
-  assert.match(source, /"DRAFT"/);
-  assert.match(source, /"UNLISTED"/);
+  assert.match(shared, /OPT-AUTO-HIDE-PRODUCTS/);
+  assert.match(shared, /OPT-AUTO-REPUBLISH/);
+  assert.match(shared, /OPT-SEO-SAFE-HIDE/);
+  assert.match(shared, /"DRAFT"/);
+  assert.match(shared, /"UNLISTED"/);
   assert.match(source, /previousStatus/);
   assert.match(source, /merchant-status-override/);
   assert.match(source, /product\.status !== "ACTIVE"/);
@@ -44,17 +45,42 @@ test("product and inventory webhooks use the same visibility engine through Queu
   assert.match(queueConsumer, /reconcileProductVisibility/);
 });
 
-test("variant visibility is not falsely advertised as implemented", () => {
-  const plan = JSON.parse(read("config/ai/product-plan.json"));
-  assert.equal(
-    plan.runtime_implemented_option_ids.includes("OPT-HIDE-SOLD-OUT-VARIANTS"),
-    false,
+test("variant visibility has a real entitlement-gated storefront mechanism", () => {
+  const shared = read("app/services/product-visibility.ts");
+  const server = read("app/services/product-visibility.server.ts");
+  const block = read(
+    "extensions/vsn-variant-visibility/blocks/variant-visibility.liquid",
   );
-  assert.equal(
-    plan.runtime_implemented_option_ids.includes("OPT-VARIANT-RESTORE"),
-    false,
+  const runtime = read(
+    "extensions/vsn-variant-visibility/assets/variant-visibility.js",
   );
-
   const route = read("app/routes/app.visibility.tsx");
-  assert.match(route, /WU-03 pending certification/);
+
+  assert.match(shared, /OPT-HIDE-SOLD-OUT-VARIANTS/);
+  assert.match(shared, /OPT-VARIANT-RESTORE/);
+  assert.match(server, /variant_visibility_entitled/);
+  assert.match(server, /metafieldsSet/);
+  assert.match(block, /app\.metafields\.vsn\.variant_visibility_entitled/);
+  assert.match(block, /variant\.available/);
+  assert.match(block, /javascript": "variant-visibility\.js"/);
+  assert.match(runtime, /data-variant-id/);
+  assert.match(runtime, /aria-disabled/);
+  assert.match(runtime, /restoreManaged/);
+  assert.match(route, /activateAppId=/);
+  assert.match(route, /vsn-variant-visibility/);
+});
+
+test("PHASE-03 runtime catalog claims only repository-implemented capabilities", () => {
+  const plan = JSON.parse(read("config/ai/product-plan.json"));
+  const implemented = new Set(plan.runtime_implemented_option_ids);
+
+  for (const optionId of [
+    "OPT-AUTO-HIDE-PRODUCTS",
+    "OPT-AUTO-REPUBLISH",
+    "OPT-SEO-SAFE-HIDE",
+    "OPT-HIDE-SOLD-OUT-VARIANTS",
+    "OPT-VARIANT-RESTORE",
+  ]) {
+    assert.equal(implemented.has(optionId), true, optionId);
+  }
 });
