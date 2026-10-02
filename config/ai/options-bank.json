@@ -385,18 +385,22 @@
       "category": "analytics",
       "description": "Inventory and automation analytics",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 DB-backed analytics derived from persisted shop-scoped sorting, visibility and settings events."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 analytics/history/export contract and App Validation."
+      ]
     },
     {
       "id": "OPT-ACTIVITY-HISTORY",
@@ -404,18 +408,22 @@
       "category": "sorting",
       "description": "Activity and audit history",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 shop-scoped ActivityEvent persistence plus authenticated recent-history UI with plan retention boundaries."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 schema parity, instrumentation and authenticated history contract."
+      ]
     },
     {
       "id": "OPT-CSV-EXPORT",
@@ -423,18 +431,22 @@
       "category": "analytics",
       "description": "CSV export",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 authenticated shop-scoped CSV resource route over retained ActivityEvent data."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 CSV entitlement and response contract."
+      ]
     },
     {
       "id": "OPT-MARKETS",
