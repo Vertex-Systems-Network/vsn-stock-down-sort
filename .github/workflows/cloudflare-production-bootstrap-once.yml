@@ -1,0 +1,16 @@
+name: Bootstrap Cloudflare Production Worker Once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/cloudflare-production-bootstrap-once.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-production:
+    uses: ./.github/workflows/cloudflare-production-prepare.yml
+    secrets: inherit
