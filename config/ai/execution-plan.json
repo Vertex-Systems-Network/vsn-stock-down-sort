@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 100,
+  "active_issue": 103,
   "phases": [
     {
       "id": "PHASE-01",
@@ -90,6 +90,28 @@
         "Product DRAFT/UNLISTED automation, app-owned safe restore state, webhook/Queue integration and merchant visibility controls are implemented.",
         "Entitlement-gated Shopify theme app extension implements storefront sold-out variant visibility and restore.",
         "No PHASE-03 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-04",
+      "name": "Analytics, Activity History & CSV Export",
+      "objective": "Persist real runtime activity and expose Pro+ analytics, audit history and CSV export without fabricated metrics.",
+      "module_ids": [
+        "MOD-ANALYTICS-HISTORY",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-03"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "ActivityEvent persistence exists in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Sorting and product-visibility execution paths persist real runtime activity.",
+        "Analytics and activity history are derived from shop-scoped persisted events.",
+        "CSV export is authenticated, bounded, shop-scoped and entitlement-gated.",
+        "Starter/Growth fail closed while Pro/Unlimited receive the three PHASE-04 capabilities.",
+        "Latest implementation-head App Validation, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -717,6 +739,120 @@
         "Canonical product/options/state registries reflect only verified PHASE-03 runtime implementation.",
         "No PHASE-03 Staging or Production runtime promotion is claimed."
       ]
+    },
+    {
+      "id": "ISSUE-103-WU-01",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Add activity event persistence and entitlement contract",
+      "objective": "Create parity-validated ActivityEvent persistence and Pro+ entitlement helpers for analytics/history/export.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching ActivityEvent models and indexes.",
+        "Analytics/history/export entitlement checks derive from the current plan.",
+        "Reads and writes remain shop-scoped."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "App Validation #403 / run 37033334552 passed.",
+        "Local SQLite and hosted PostgreSQL ActivityEvent migrations validate and preserve parity.",
+        "PHASE4_OPTION_IDS gates analytics, history and CSV access."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-02",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Instrument sorting and visibility runtime activity",
+      "objective": "Persist real success/error/settings events from existing sorting and visibility execution paths.",
+      "dependencies": [
+        "ISSUE-103-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Collection sorting records real totals, sold-out observations and moved products.",
+        "Sorting failures are recorded without blocking existing error handling.",
+        "Visibility hide/restore and settings changes are recorded.",
+        "Event persistence failure does not fail the primary automation action."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "collection.sorted, collection.sort_failed and collection settings actions are instrumented.",
+        "product hide/restore and visibility settings actions are instrumented.",
+        "recordActivityEventSafe keeps telemetry failure isolated from primary automation."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-03",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Add analytics, history UI and CSV export",
+      "objective": "Expose persisted runtime evidence to entitled merchants through authenticated UI and export.",
+      "dependencies": [
+        "ISSUE-103-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Analytics page shows real persisted metrics and a truthful empty state.",
+        "Recent history is bounded by plan retention and row limits.",
+        "CSV resource route authenticates Shopify and scopes export by session.shop.",
+        "CSV export response is private/no-store."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "/app/analytics reads DB-backed analytics/history only.",
+        "/app/analytics/export emits authenticated shop-scoped CSV.",
+        "No hardcoded/sample analytics values are used."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-04",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Certify PHASE-04 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-04 implementation.",
+      "dependencies": [
+        "ISSUE-103-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the three implemented PHASE-04 capabilities.",
+        "Dedicated PHASE-04 contract passes.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 8827d7bdebb88329a2da35975d58d64393dc05ef passed App Validation #403 / run 37033334552.",
+        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "No PHASE-04 Staging or Production runtime promotion is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -731,5 +867,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "e428ab8b3df4f3832b32abde76014fc3daad1ea0"
+  "last_reconciled_repository_ref": "8827d7bdebb88329a2da35975d58d64393dc05ef"
 }

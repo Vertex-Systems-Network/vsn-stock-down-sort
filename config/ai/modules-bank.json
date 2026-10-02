@@ -467,6 +467,81 @@
         "Repository/development implementation is complete; environment promotion and theme app embed activation remain guarded release activities."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-ANALYTICS-HISTORY",
+      "name": "Analytics, Activity History & CSV Export",
+      "objective": "Persist real shop-scoped automation events and expose entitlement-gated analytics, recent activity history and CSV export.",
+      "scope": [
+        "ActivityEvent persistence",
+        "sorting/visibility/settings runtime instrumentation",
+        "30-day automation analytics",
+        "recent activity history",
+        "authenticated shop-scoped CSV export"
+      ],
+      "boundaries": [
+        "Analytics must be derived from persisted runtime events; no sample or hardcoded metrics.",
+        "Starter and Growth must fail closed for PHASE-04 capabilities.",
+        "CSV export must remain authenticated, shop-scoped and bounded.",
+        "Event persistence must not block the primary sorting/visibility automation path.",
+        "No Staging or Production deployment is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS",
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "option_ids": [
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT"
+      ],
+      "data_entities": [
+        "ActivityEvent",
+        "CollectionSetting",
+        "ProductVisibilityState"
+      ],
+      "contracts": [
+        "Pro+: inventory and automation analytics",
+        "Pro+: activity history",
+        "Pro+: CSV export"
+      ],
+      "ui_surfaces": [
+        "/app/analytics",
+        "/app/analytics/export"
+      ],
+      "security_responsibilities": [
+        "Use current Shopify subscription entitlements server-side.",
+        "Scope all reads/writes by session.shop.",
+        "Do not persist credentials, tokens or request headers in activity details.",
+        "Bound analytics/history/export query sizes."
+      ],
+      "acceptance_criteria": [
+        "All three PHASE-04 option IDs are runtime-implemented and entitlement-gated.",
+        "Local SQLite and hosted PostgreSQL ActivityEvent schemas remain parity-validated.",
+        "Sorting and visibility paths persist real runtime activity.",
+        "Analytics/history UI reads shop-scoped persisted data only.",
+        "CSV export is authenticated, shop-scoped and entitlement-gated.",
+        "App Validation, PHASE-04 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-04 analytics history export contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "App Validation #403 / run 37033334552 passed the complete validation chain.",
+        "ActivityEvent persistence is implemented in Local SQLite and hosted PostgreSQL with parity indexes.",
+        "Sorting, visibility and settings services write real bounded activity events.",
+        "Analytics/history UI and CSV export are authenticated and current-plan gated.",
+        "No PHASE-04 Staging/Production deployment is claimed."
+      ],
+      "update_notes": [
+        "Repository/development implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [

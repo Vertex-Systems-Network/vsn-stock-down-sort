@@ -1,5 +1,6 @@
 import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
+import { recordActivityEventSafe } from "./analytics.server";
 import {
   assertCollectionRuleEntitlements,
   effectiveCollectionRules,
@@ -975,7 +976,7 @@ async function sortCollectionWithEntitlements(
       }),
     );
 
-    return {
+    const result = {
       collectionId,
       totalProducts: products.length,
       soldOutProducts,
@@ -990,6 +991,34 @@ async function sortCollectionWithEntitlements(
       locationAware: rules.inventoryMode !== "ALL_LOCATIONS",
       jobIds,
     };
+
+    await recordActivityEventSafe({
+      shop,
+      category: "sorting",
+      action: "collection.sorted",
+      outcome: "SUCCESS",
+      source: "sorting-engine",
+      entityType: "collection",
+      entityId: collectionId,
+      summary:
+        moves.length === 0
+          ? "Collection already matched the configured stock order."
+          : `Reordered ${moves.length} collection products.`,
+      details: {
+        excludedProducts: result.excludedProducts,
+        pinnedProducts: result.pinnedProducts,
+        alreadySorted: result.alreadySorted,
+        availableSortMode: result.availableSortMode,
+        inventoryMode: result.inventoryMode,
+        locationAware: result.locationAware,
+        jobCount: result.jobIds.length,
+      },
+      totalProducts: result.totalProducts,
+      soldOutProducts: result.soldOutProducts,
+      movedProducts: result.movedProducts,
+    });
+
+    return result;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
@@ -1005,6 +1034,17 @@ async function sortCollectionWithEntitlements(
         data: { lastError: message },
       }),
     ).catch(() => undefined);
+
+    await recordActivityEventSafe({
+      shop,
+      category: "sorting",
+      action: "collection.sort_failed",
+      outcome: "ERROR",
+      source: "sorting-engine",
+      entityType: "collection",
+      entityId: collectionId,
+      summary: message,
+    });
 
     throw error;
   }
@@ -1082,12 +1122,25 @@ export async function enableCollection(
     await setCollectionSortOrder(admin, collectionId, "MANUAL");
   }
 
-  return sortCollectionWithEntitlements(
+  const result = await sortCollectionWithEntitlements(
     admin,
     shop,
     collectionId,
     entitlements,
   );
+
+  await recordActivityEventSafe({
+    shop,
+    category: "settings",
+    action: "collection.enabled",
+    outcome: "SUCCESS",
+    source: "collection-settings",
+    entityType: "collection",
+    entityId: collectionId,
+    summary: "Collection stock sorting enabled.",
+  });
+
+  return result;
 }
 
 export async function saveCollectionRules(
@@ -1128,6 +1181,27 @@ export async function saveCollectionRules(
     }),
   );
 
+  await recordActivityEventSafe({
+    shop,
+    category: "settings",
+    action: "collection.rules_saved",
+    outcome: "SUCCESS",
+    source: "collection-settings",
+    entityType: "collection",
+    entityId: collectionId,
+    summary: "Collection sorting rules updated.",
+    details: {
+      enabled: setting.enabled,
+      availableSortMode: rules.availableSortMode,
+      inventoryMode: rules.inventoryMode,
+      hasTagExclusions: Boolean(rules.excludedTags),
+      hasVendorExclusions: Boolean(rules.excludedVendors),
+      hasProductExclusions: Boolean(rules.excludedProducts),
+      hasPinnedProducts: Boolean(rules.pinnedProducts),
+      selectedLocationCount: parseRuleList(rules.inventoryLocationIds).length,
+    },
+  });
+
   return {
     collectionId,
     saved: true,
@@ -1167,6 +1241,24 @@ export async function disableCollection(
       setting.previousSortOrder,
     );
   }
+
+  await recordActivityEventSafe({
+    shop,
+    category: "settings",
+    action: "collection.disabled",
+    outcome: "SUCCESS",
+    source: "collection-settings",
+    entityType: "collection",
+    entityId: collectionId,
+    summary: restorePreviousSort
+      ? "Collection stock sorting disabled and previous Shopify sort restored."
+      : "Collection stock sorting disabled.",
+    details: {
+      restoredPreviousSort: Boolean(
+        restorePreviousSort && setting.previousSortOrder,
+      ),
+    },
+  });
 }
 
 export async function sortEnabledCollections(

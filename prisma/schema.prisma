@@ -73,3 +73,25 @@ model ProductVisibilityState {
   @@unique([shop, productId])
   @@index([shop, managedStatus])
 }
+
+
+model ActivityEvent {
+  id              String   @id @default(cuid())
+  shop            String
+  category        String
+  action          String
+  outcome         String   @default("SUCCESS")
+  source          String   @default("runtime")
+  entityType      String?
+  entityId        String?
+  summary         String?
+  details         String   @default("{}")
+  totalProducts   Int?
+  soldOutProducts Int?
+  movedProducts   Int?
+  occurredAt      DateTime @default(now())
+
+  @@index([shop, occurredAt])
+  @@index([shop, category, occurredAt])
+  @@index([shop, action, occurredAt])
+}
