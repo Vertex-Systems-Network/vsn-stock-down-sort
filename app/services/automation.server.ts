@@ -70,7 +70,7 @@ export async function listConfiguredAutomationCollectionIds(shop: string) {
   const settings = await withPrismaClient((db) =>
     db.collectionSetting.findMany({
       where: { shop },
-      select: { collectionId: true },
+      select: { collectionId: true, enabled: true },
       orderBy: { createdAt: "asc" },
     }),
   );
@@ -109,9 +109,9 @@ export async function saveAutomationRule(
     }),
   );
 
-  if (!configured) {
+  if (!configured?.enabled) {
     throw new Error(
-      "Configure this collection in VSN Stock Down Sort before creating an automation rule.",
+      "Enable this collection in VSN Stock Down Sort before creating an automation rule.",
     );
   }
 
