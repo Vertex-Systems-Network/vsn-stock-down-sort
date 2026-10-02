@@ -34,13 +34,13 @@ test("PHASE-02 rule fields are additive and parity-safe", () => {
     "inventoryMode",
     "inventoryLocationIds",
   ]) {
-    assert.match(local, new RegExp("\\\\b" + field + "\\\\b"));
+    assert.match(local, new RegExp("\\b" + field + "\\b"));
     assert.match(cloud, new RegExp("\\\\b" + field + "\\\\b"));
     assert.match(localMigration, new RegExp('"' + field + '"'));
     assert.match(cloudMigration, new RegExp('"' + field + '"'));
   }
 
-  assert.doesNotMatch(localMigration, /\\bDROP\\b/i);
+  assert.doesNotMatch(localMigration, /\bDROP\b/i);
   assert.doesNotMatch(cloudMigration, /\\bDROP\\b/i);
 });
 
