@@ -13,6 +13,7 @@ import {
 import {
   getVisibilitySetting,
   saveVisibilitySetting,
+  syncVariantVisibilityEntitlement,
 } from "../services/product-visibility.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -22,11 +23,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getVisibilitySetting(session.shop),
   ]);
 
+  const optionIds = current?.plan.option_ids ?? [];
+  const variantVisibilityEntitled = current
+    ? await syncVariantVisibilityEntitlement(admin, optionIds)
+    : false;
+  const apiKey = process.env.SHOPIFY_API_KEY || "";
+  const variantEmbedActivationUrl =
+    variantVisibilityEntitled && apiKey
+      ? `https://${session.shop}/admin/themes/current/editor?context=apps&template=product&activateAppId=${encodeURIComponent(apiKey)}/vsn-variant-visibility`
+      : null;
+
   return {
     currentPlan: current
       ? { id: current.plan.id, name: current.plan.name }
       : null,
-    optionIds: current?.plan.option_ids ?? [],
+    optionIds,
+    variantVisibilityEntitled,
+    variantEmbedActivationUrl,
     setting: {
       productMode: parseProductVisibilityMode(setting.productMode),
       autoRepublish: setting.autoRepublish,
@@ -75,7 +88,13 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function VisibilityPage() {
-  const { currentPlan, optionIds, setting } = useLoaderData<typeof loader>();
+  const {
+    currentPlan,
+    optionIds,
+    setting,
+    variantVisibilityEntitled,
+    variantEmbedActivationUrl,
+  } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -162,13 +181,29 @@ export default function VisibilityPage() {
 
       <s-section heading="Variant visibility">
         <s-stack gap="small-200">
-          <s-badge tone="warning">PHASE-03 WU-03 pending certification</s-badge>
-          <s-text>
-            Sold-out variant hiding is intentionally not marked implemented yet.
-            It requires a real storefront mechanism in addition to Admin API
-            state, so this control remains unavailable until that mechanism is
-            certified.
-          </s-text>
+          {variantVisibilityEntitled ? (
+            <>
+              <s-badge tone="success">Storefront app embed available</s-badge>
+              <s-text>
+                Activate the VSN variant visibility app embed on the product
+                template. It uses Shopify storefront variant availability and
+                automatically shows variants again after they become available.
+              </s-text>
+              {variantEmbedActivationUrl ? (
+                <s-link href={variantEmbedActivationUrl} target="_top">
+                  Open theme editor and activate variant visibility
+                </s-link>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <s-badge tone="warning">Not included in current plan</s-badge>
+              <s-text>
+                Sold-out variant hiding and automatic variant restore require a
+                plan that includes both variant visibility capabilities.
+              </s-text>
+            </>
+          )}
         </s-stack>
       </s-section>
     </s-page>
