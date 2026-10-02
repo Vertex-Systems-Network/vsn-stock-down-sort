@@ -178,6 +178,7 @@ test("production Worker preparation is manual and does not cut over Shopify", ()
   const bootstrap = read(".github/workflows/cloudflare-production-bootstrap-once.yml");
   assert.match(bootstrap, /branches:\s*\n\s*- main/);
   assert.match(bootstrap, /cloudflare-production-prepare\.yml/);
+  assert.match(bootstrap, /confirm: PREPARE_PRODUCTION_WORKER_ONLY/);
   assert.match(bootstrap, /secrets: inherit/);
 });
 
