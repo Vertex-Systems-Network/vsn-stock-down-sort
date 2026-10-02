@@ -192,7 +192,15 @@ test("signed Staging acceptance still cannot authorize Live until recorded on ma
   assert.equal(gates.staging.evidence_record?.run_id, 36989726911);
   assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
   assert.equal(gates.live.status, "blocked");
-  assert.equal(gates.live.authorized_source_ref, null);
+  assert.equal(
+    gates.live.authorized_source_ref,
+    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+  );
+  assert.equal(
+    gates.live.authorization_record?.version,
+    "stock-down-sort-production-516ab92a2d1a-1",
+  );
+  assert.equal(gates.live.authorization_record?.candidate_status, "unreleased");
 });
 
 test("production readiness validates the canonical four-plan billing contract", () => {
@@ -201,4 +209,23 @@ test("production readiness validates the canonical four-plan billing contract", 
   assert.match(workflow, /production_billing_contract=four_plans_10_day_trials/);
   assert.doesNotMatch(workflow, /production_billing_contract=5_days_usd_55/);
   assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
+});
+
+test("production release is pinned to the exact authorized candidate and verifies the final app name", () => {
+  const workflow = read(".github/workflows/shopify-production-release.yml");
+  assert.equal(productionRelease.status, "authorized_pending_release");
+  assert.equal(productionRelease.release_authorized, true);
+  assert.equal(
+    productionRelease.authorized_version,
+    "stock-down-sort-production-516ab92a2d1a-1",
+  );
+  assert.equal(
+    productionRelease.authorized_source_ref,
+    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+  );
+  assert.match(workflow, /Requested version is not the repository-authorized version/);
+  assert.match(workflow, /name = "VSN \| Stock Down Sort"/);
+  assert.match(workflow, /Verify released Production app name/);
+  assert.match(workflow, /app info/);
+  assert.match(workflow, /production_shopify_app_name=VSN \| Stock Down Sort/);
 });

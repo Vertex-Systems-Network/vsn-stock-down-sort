@@ -147,6 +147,8 @@ jobs:
             exit 1
           fi
 
+          grep -F 'name = "VSN | Stock Down Sort"' shopify.app.production.toml >/dev/null
+
       - name: Verify production Worker health before Shopify release
         shell: bash
         run: |
@@ -206,6 +208,16 @@ jobs:
             --config production \
             --json > /tmp/shopify-production-versions-after.json
           grep -F "$TARGET_VERSION" /tmp/shopify-production-versions-after.json >/dev/null
+
+      - name: Verify released Production app name
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app info \
+            --config production \
+            --no-color > /tmp/shopify-production-info.txt
+          grep -F "VSN | Stock Down Sort" /tmp/shopify-production-info.txt >/dev/null
+          echo "production_shopify_app_name=VSN | Stock Down Sort"
 
       - name: Confirm Shopify configs remain untouched
         shell: bash
