@@ -112,6 +112,15 @@
         "CSV export is authenticated, bounded, shop-scoped and entitlement-gated.",
         "Starter/Growth fail closed while Pro/Unlimited receive the three PHASE-04 capabilities.",
         "Latest implementation-head App Validation, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #104 exact head 719696e3e90509950d7fc9fa315621b52ceff510 passed App Validation #407 / run 37033732199.",
+        "PR #104 merged to development as a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Post-merge App Validation #408 / run 37033942983 passed the complete validation chain on a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Local SQLite and hosted PostgreSQL ActivityEvent migrations are additive and schema-parity validated.",
+        "Sorting and visibility runtime paths persist real shop-scoped activity without fabricated analytics.",
+        "Pro+ analytics/history UI and authenticated CSV export are implemented and entitlement-gated.",
+        "No PHASE-04 Staging or Production deployment/promotion occurred in this repository implementation phase."
       ]
     }
   ],
@@ -849,8 +858,10 @@
         "Cloudflare dry-runs"
       ],
       "completion_evidence": [
-        "Implementation head 8827d7bdebb88329a2da35975d58d64393dc05ef passed App Validation #403 / run 37033334552.",
-        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "PR #104 exact head 719696e3e90509950d7fc9fa315621b52ceff510 passed App Validation #407 / run 37033732199.",
+        "PR #104 merged to development as a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Post-merge App Validation #408 / run 37033942983 passed all validation steps including PHASE-04 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-04 runtime implementation.",
         "No PHASE-04 Staging or Production runtime promotion is claimed."
       ]
     }
@@ -867,5 +878,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "8827d7bdebb88329a2da35975d58d64393dc05ef"
+  "last_reconciled_repository_ref": "a4f2472fe7e6d52ca5e02502ed9c6c461a758699"
 }

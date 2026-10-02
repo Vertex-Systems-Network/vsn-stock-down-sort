@@ -11,8 +11,8 @@ current_phase: PHASE-04
 current_module: analytics-activity-history
 current_work_unit: ISSUE-103-WU-04
 note: >
-  PHASE-04 Analytics, Activity History & CSV Export implementation head
-  8827d7bdebb88329a2da35975d58d64393dc05ef passed App Validation #403 /
-  run 37033334552. PR #104 final state-reconciliation head still requires
-  latest-head validation before merge. No PHASE-04 Staging or Production
-  promotion is claimed.
+  PHASE-04 Analytics, Activity History & CSV Export merged to development as
+  a4f2472fe7e6d52ca5e02502ed9c6c461a758699. PR #104 exact-head
+  App Validation #407 / run 37033732199 passed, and post-merge
+  App Validation #408 / run 37033942983 passed the full chain.
+  No PHASE-04 Staging or Production promotion is claimed.
