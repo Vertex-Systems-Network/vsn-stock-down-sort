@@ -47,7 +47,7 @@
   "staging": {
     "status": "accepted",
     "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
-    "accepted_main_ref": null,
+    "accepted_main_ref": "8bff7a1ecb8adca7592997fc74ffe10837e4ae2d",
     "evidence_record": {
       "workflow": "Staging Runtime Acceptance",
       "run_number": 1,
@@ -67,7 +67,8 @@
       "subscription_read": "passed",
       "active_subscription_count": 1,
       "recognized_plan_id": "starter",
-      "accepted_main_ref_recording": "pending_main_promotion"
+      "accepted_main_ref_recording": "recorded",
+      "accepted_main_ref": "8bff7a1ecb8adca7592997fc74ffe10837e4ae2d"
     },
     "required_checks": [
       "Staging runtime health",

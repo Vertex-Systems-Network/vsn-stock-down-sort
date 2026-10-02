@@ -2,26 +2,26 @@
   "schema_version": 1,
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
-  "current_module": "production-main-promotion",
+  "current_module": "production-readiness",
   "current_work_unit": "ISSUE-32-WU-07",
   "active_issue": 32,
-  "last_verified_completion": "Staging Runtime Acceptance #1 (run 36989726911) passed for ca5851561ab7979712f11580ab951fda4650ef19 on staging-oath3rth.myshopify.com: runtime health, PostgreSQL, Queue/DLQ, offline Shopify session, Admin GraphQL and active Starter subscription all passed.",
-  "next_valid_work_unit": "Promote the certified development tree containing accepted Staging evidence for source ca5851561ab7979712f11580ab951fda4650ef19 to protected main, then bind staging.accepted_main_ref to the resulting main commit before Production Readiness. Do not deploy Production yet.",
+  "last_verified_completion": "Accepted Staging evidence is now on protected main at 8bff7a1ecb8adca7592997fc74ffe10837e4ae2d; App Validation #339 (run 36990532771) passed and staging accepted source remains ca5851561ab7979712f11580ab951fda4650ef19.",
+  "next_valid_work_unit": "Run Production Readiness from protected main using confirmation VALIDATE_PRODUCTION. This is validation only; do not deploy Production or release a Shopify Production version. Accepted staging source ca5851561ab7979712f11580ab951fda4650ef19; accepted main ref 8bff7a1ecb8adca7592997fc74ffe10837e4ae2d.",
   "progress": {
     "total_work_units": 11,
     "complete": 9,
-    "in_progress": 0,
-    "blocked": 1,
+    "in_progress": 1,
+    "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Promote certified development state to protected main without deploying Production.",
-    "Record the resulting protected-main commit as staging.accepted_main_ref.",
-    "Run Production Readiness only after the accepted Staging gate exists on main.",
-    "Production candidate/release remain separate explicit guarded actions."
+    "Run Production Readiness against protected main.",
+    "If readiness passes, prepare the reviewed Production Worker candidate through its separate guarded workflow.",
+    "Create a Shopify Production candidate only through its separate guarded workflow.",
+    "Keep actual Production/Shopify release as a final explicit action."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -31,11 +31,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Staging is fully accepted with signed Shopify runtime evidence. Production remains blocked until that acceptance is recorded on protected main and Production Readiness passes.",
+  "qa_readiness": "Staging is accepted and bound to protected main. Production Readiness is now the active validation gate; no Production deployment has occurred.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
   "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
   "last_reconciled_at": "2026-10-02",
-  "notes": "Staging acceptance passed end-to-end. Next is repository promotion of the certified tree/evidence to main, not Production deployment.",
+  "notes": "Accepted Staging evidence is recorded on protected main. Next is Production Readiness validation only.",
   "ci_evidence": {
     "workflow_run": 271,
     "run_id": 36844916383,
