@@ -326,10 +326,8 @@
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 50,
-      "status": "in_progress",
-      "blockers": [
-        "Dedicated staging Shopify test store must have the released staging app installed and one test billing plan active before signed runtime acceptance can pass."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Runtime health passes.",
         "Signed staging acceptance passes against isolated test shop."
@@ -337,7 +335,15 @@
       "required_checks": [
         "Staging Runtime Acceptance"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Staging Runtime Acceptance #1 (run 36989726911) passed on development.",
+        "Accepted deployed source ca5851561ab7979712f11580ab951fda4650ef19 was verified.",
+        "Hosted /healthz passed Staging identity, PostgreSQL mode, Queue/DLQ readiness and four-plan / 10-day billing contract.",
+        "Signed staging acceptance found an offline Shopify session and 2 stored sessions.",
+        "Shopify Admin GraphQL read passed.",
+        "Active subscription read passed with 1 active subscription and recognized canonical plan starter.",
+        "Dedicated staging shop staging-oath3rth.myshopify.com was used."
+      ]
     },
     {
       "id": "ISSUE-32-WU-06",
@@ -375,12 +381,15 @@
       "title": "Prepare reviewed production candidate after Staging acceptance",
       "objective": "Allow production preparation only after all Staging acceptance evidence is recorded.",
       "dependencies": [
+        "ISSUE-32-WU-05",
         "ISSUE-32-WU-06",
         "ISSUE-32-WU-BILLING-01"
       ],
       "priority": 40,
-      "status": "not_started",
-      "blockers": [],
+      "status": "blocked",
+      "blockers": [
+        "Staging acceptance must be promoted and bound to an accepted_main_ref on protected main before Production Readiness can run."
+      ],
       "acceptance_criteria": [
         "Staging phase is accepted before production preparation starts."
       ],
