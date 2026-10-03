@@ -14,6 +14,13 @@ import {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
+    if (request.method !== "POST") {
+      throw new IntegrationHttpError(
+        405,
+        "method_not_allowed",
+        "This integration endpoint accepts POST only.",
+      );
+    }
     const { credential } = await authenticateIntegrationApi(
       request,
       "automation:run",
