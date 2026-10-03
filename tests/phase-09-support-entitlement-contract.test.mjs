@@ -82,7 +82,7 @@ test("Plans page no longer implies 24/7 support for every plan", () => {
   );
 });
 
-test("Support page derives entitlement from authenticated current plan and states operational boundary", () => {
+test("Support page keeps entitlement derived from the authenticated current plan", () => {
   const route = read("app/routes/app.support.tsx");
   const nav = read("app/routes/app.tsx");
   const normalizedRoute = route.replace(/\s+/g, " ");
@@ -90,14 +90,13 @@ test("Support page derives entitlement from authenticated current plan and state
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan(admin)"));
   assert.ok(route.includes("resolveSupportEntitlement(current.plan)"));
-  assert.ok(normalizedRoute.includes("standard support entitlement"));
-  assert.ok(normalizedRoute.includes("priority support entitlement"));
-  assert.ok(normalizedRoute.includes("24/7 priority"));
-  assert.ok(route.includes("Operational boundary"));
-  assert.ok(normalizedRoute.includes("does not define or publish a response-time SLA"));
-  assert.ok(normalizedRoute.includes("support contact"));
-  assert.ok(normalizedRoute.includes("staffing commitment"));
-  assert.equal(route.includes("<form"), false);
+  assert.ok(route.includes("{support.label}"));
+  assert.ok(normalizedRoute.includes("Starter and Growth include the standard support entitlement"));
+  assert.ok(normalizedRoute.includes("Pro requests are marked Priority automatically"));
+  assert.ok(normalizedRoute.includes("Unlimited requests are marked 24/7 Priority automatically"));
+  assert.ok(normalizedRoute.includes("does not publish a response-time SLA"));
+  assert.ok(route.includes('name="subject"'));
+  assert.ok(route.includes('name="message"'));
   assert.ok(nav.includes("/app/support"));
 });
 
