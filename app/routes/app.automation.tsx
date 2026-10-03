@@ -501,16 +501,14 @@ export default function AutomationPage() {
                             minTotalProducts: rule.minTotalProducts,
                           }}
                         />
-                        <div style={{ marginTop: 16 }}>
-                          <s-button
-                            type="submit"
-                            variant="secondary"
-                            loading={rowBusy && submittedIntent === "save"}
-                            disabled={busy}
-                          >
-                            Save changes
-                          </s-button>
-                        </div>
+                        <s-button
+                          type="submit"
+                          variant="secondary"
+                          loading={rowBusy && submittedIntent === "save"}
+                          disabled={busy}
+                        >
+                          Save changes
+                        </s-button>
                       </form>
                     ) : target ? null : (
                       <s-banner tone="warning">
