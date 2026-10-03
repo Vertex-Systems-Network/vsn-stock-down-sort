@@ -96,7 +96,7 @@ export type SupportRequestInput = {
 export function normalizeSupportRequestInput(
   input: Partial<Record<keyof SupportRequestInput, unknown>>,
 ): SupportRequestInput {
-  const subject = String(input.subject ?? "").trim().replace(/\\s+/g, " ");
+  const subject = String(input.subject ?? "").trim().replace(/\s+/g, " ");
   const message = String(input.message ?? "").trim();
 
   if (!subject) {
