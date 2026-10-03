@@ -44,7 +44,7 @@ Local requires:
 - `SHOPIFY_BILLING_TEST_MODE=true`
 - dedicated Dev `SHOPIFY_API_KEY`
 - dedicated Dev `SHOPIFY_API_SECRET`
-- `SCOPES=read_products,write_products,read_inventory,read_publications,write_publications`
+- `SCOPES=read_products,write_products,read_inventory,read_locations,read_publications,write_publications`
 
 Local does not require Neon credentials, `DATABASE_URL`, or `DIRECT_URL`.
 
