@@ -118,3 +118,31 @@ model AutomationRule {
   @@index([shop, enabled, nextRunAt])
   @@index([shop, collectionId])
 }
+
+
+model AlertSetting {
+  shop                   String   @id
+  threshold              Int      @default(5)
+  cooldownMinutes        Int      @default(360)
+  emailEnabled           Boolean  @default(false)
+  emailRecipients        String   @default("")
+  slackEnabled           Boolean  @default(false)
+  slackWebhookCiphertext String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model LowStockAlertState {
+  id               String    @id @default(cuid())
+  shop             String
+  productId        String
+  lastInventory    Int?
+  lastObservedAt   DateTime?
+  lastEmailAlertAt DateTime?
+  lastSlackAlertAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([shop, productId])
+  @@index([shop, lastObservedAt])
+}

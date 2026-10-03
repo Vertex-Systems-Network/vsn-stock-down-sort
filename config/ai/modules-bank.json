@@ -629,6 +629,96 @@
         "Repository/development implementation is complete and CI-certified. Staging/Production promotion remains a separate guarded release activity."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-LOW-STOCK-ALERTS",
+      "name": "Low-Stock Email & Slack Alerts",
+      "objective": "Evaluate live Shopify product inventory and deliver entitlement-safe low-stock notifications through hosted email and Slack channels with cooldown deduplication and secret-safe configuration.",
+      "scope": [
+        "AlertSetting persistence",
+        "LowStockAlertState persistence",
+        "Starter+ low-stock email alerts",
+        "Growth+ Slack alerts",
+        "live tracked-inventory threshold evaluation",
+        "per-product per-channel cooldown",
+        "encrypted Slack incoming-webhook storage",
+        "Cloudflare Email Service hosted binding",
+        "inventory/product webhook and Queue integration",
+        "merchant Alerts settings UI",
+        "ActivityEvent alert evidence"
+      ],
+      "boundaries": [
+        "Slack webhook secrets must be encrypted at rest and never returned to the UI.",
+        "Slack delivery only permits approved HTTPS Slack incoming-webhook hosts and path shape.",
+        "Email sender identity must come from ALERT_FROM_EMAIL and is never hardcoded.",
+        "Cloudflare Email Service onboarding/eligibility and a configured sending domain remain runtime prerequisites.",
+        "Local development evaluates alert state but does not claim external delivery.",
+        "Delivery errors must not corrupt collection sorting or product visibility processing.",
+        "ActivityEvent evidence must not contain recipient addresses or webhook secrets.",
+        "No PHASE-06 Staging or Production delivery acceptance is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY",
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "option_ids": [
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-SLACK-ALERTS"
+      ],
+      "data_entities": [
+        "AlertSetting",
+        "LowStockAlertState",
+        "ActivityEvent"
+      ],
+      "contracts": [
+        "Starter+: low-stock email alerts",
+        "Growth+: Slack alerts",
+        "Threshold range: 0..1000000",
+        "Cooldown values: 60, 360, 720, 1440 minutes",
+        "Slack secret encryption: AES-GCM",
+        "Hosted email binding: EMAIL",
+        "Hosted sender variable: ALERT_FROM_EMAIL"
+      ],
+      "ui_surfaces": [
+        "/app/alerts"
+      ],
+      "security_responsibilities": [
+        "Resolve current Shopify subscription entitlements server-side.",
+        "Scope settings and alert state by merchant shop.",
+        "Encrypt Slack webhook secrets with authenticated AES-GCM before persistence.",
+        "Allowlist Slack incoming-webhook HTTPS hosts.",
+        "Never return stored Slack plaintext or ciphertext from the merchant settings loader.",
+        "Do not write email recipients or Slack webhook values to ActivityEvent details."
+      ],
+      "acceptance_criteria": [
+        "Both PHASE-06 option IDs are runtime-implemented and plan-gated.",
+        "Local SQLite and hosted PostgreSQL alert models remain schema-parity validated.",
+        "Tracked product inventory is evaluated live from Shopify.",
+        "Cooldown state prevents unbounded repeated alert attempts.",
+        "Inventory/product webhooks enqueue alert jobs in hosted runtime and use deterministic Local fallback.",
+        "Merchant Alerts UI is authenticated and secret-safe.",
+        "App Validation, PHASE-06 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "App Validation #429 / run 37113777777 passed the complete validation chain.",
+        "AlertSetting and LowStockAlertState are implemented in Local SQLite and hosted PostgreSQL with parity constraints.",
+        "Starter+ email and Growth+ Slack entitlements are enforced server-side.",
+        "Slack webhook storage uses AES-GCM and strict Slack URL validation.",
+        "Hosted email delivery uses an EMAIL Worker binding and ALERT_FROM_EMAIL prerequisite.",
+        "No PHASE-06 Staging/Production deployment or real notification delivery is claimed."
+      ],
+      "update_notes": [
+        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires exact-head CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [

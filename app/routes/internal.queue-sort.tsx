@@ -5,6 +5,7 @@ import {
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
 import { reconcileProductVisibility } from "../services/product-visibility.server";
+import { processLowStockAlert } from "../services/alerts.server";
 import type { SortQueueJob } from "../sort-queue.server";
 
 type QueueConsumerContextLike = {
@@ -33,7 +34,7 @@ function isValidJob(value: unknown): value is SortQueueJob {
   const job = value as Partial<SortQueueJob>;
   if (!validShop(job.shop)) return false;
 
-  if (job.kind === "visibility") {
+  if (job.kind === "visibility" || job.kind === "alert") {
     return (
       typeof (job as { productId?: unknown }).productId === "string" &&
       (job as { productId: string }).productId.startsWith(
@@ -81,6 +82,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return Response.json({ ok: true, result });
   }
 
+  if (payload.kind === "alert") {
+    const result = await processLowStockAlert(
+      admin,
+      payload.shop,
+      payload.productId,
+      context,
+    );
+    return Response.json({ ok: true, result });
+  }
+
   if (payload.kind === "enable") {
     const result = await enableCollection(
       admin,
@@ -90,9 +101,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return Response.json({ ok: true, result });
   }
 
-  const results = await sortEnabledCollections(admin, payload.shop, [
-    payload.collectionId,
-  ]);
+  if (payload.kind === "sort") {
+    const results = await sortEnabledCollections(admin, payload.shop, [
+      payload.collectionId,
+    ]);
 
-  return Response.json({ ok: true, results });
+    return Response.json({ ok: true, results });
+  }
+
+  return Response.json(
+    { ok: false, error: "Unsupported queue job" },
+    { status: 400 },
+  );
 }

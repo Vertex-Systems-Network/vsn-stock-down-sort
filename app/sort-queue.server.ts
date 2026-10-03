@@ -14,6 +14,12 @@ export type SortQueueJob =
       shop: string;
       productId: string;
       reason: "inventory-update" | "product-update";
+    }
+  | {
+      kind: "alert";
+      shop: string;
+      productId: string;
+      reason: "inventory-update" | "product-update";
     };
 
 type QueueBindingLike = {
