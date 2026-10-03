@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 128,
+  "active_issue": null,
   "phases": [
     {
       "id": "PHASE-01",
@@ -308,7 +308,7 @@
       "dependencies": [
         "PHASE-09"
       ],
-      "status": "in_progress",
+      "status": "complete",
       "exit_criteria": [
         "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
         "Authenticated merchants can create and view only their own shop-scoped support requests.",
@@ -318,6 +318,17 @@
         "ActivityEvent evidence records request creation and notification outcome without support message bodies or inbox secrets.",
         "No response-time SLA, staffing level or escalation deadline is fabricated.",
         "PHASE-10 contract, lint, typecheck, Worker build and Cloudflare dry-runs pass; final environment runtime acceptance remains deferred."
+      ],
+      "completion_evidence": [
+        "PR #129 exact head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App Validation #496 / run 37126630330.",
+        "PR #129 merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
+        "SupportRequest persistence and additive Local/cloud migrations are implemented with schema parity.",
+        "Authenticated merchant support intake is shop-scoped, bounded and rate-limited to 5 requests per shop per 10 minutes.",
+        "Support priority is derived server-side from the active Shopify plan and cannot be client-upgraded.",
+        "Local requests remain LOCAL_ONLY; hosted notification uses EMAIL + ALERT_FROM_EMAIL + SUPPORT_INBOX_EMAIL without claiming live delivery acceptance.",
+        "Merchant UI does not expose provider/configuration errors, and ActivityEvent evidence excludes message bodies and support inbox secrets.",
+        "No response-time SLA, staffing level, or escalation deadline is claimed.",
+        "Final Local/Staging/Live runtime acceptance remains deferred to the separate final release cycle."
       ]
     }
   ],
@@ -1684,7 +1695,7 @@
         "ISSUE-120-WU-04"
       ],
       "priority": 100,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "SupportRequest model and additive Local/cloud migrations are present.",
@@ -1705,7 +1716,15 @@
         "Cloudflare Staging dry-run",
         "Cloudflare Production dry-run"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "Certified on exact implementation head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936.",
+        "App Validation #496 / run 37126630330 passed.",
+        "Local/cloud Prisma parity and migration application passed.",
+        "PHASE-09 entitlement and PHASE-10 fulfillment contracts passed.",
+        "Lint, typecheck, Worker runtime contracts, Worker build and both Cloudflare dry-runs passed.",
+        "Merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
+        "No environment runtime acceptance or production deployment was performed."
+      ]
     }
   ],
   "status_values": [
@@ -1720,16 +1739,16 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "08220891c670344bcda79e948d016782fb451c47",
-  "active_issue_status": "open",
-  "active_issue_note": "Issue #128 is active for PHASE-10 support fulfillment. Runtime Issue #125 remains separate and final runtime testing is intentionally deferred.",
+  "last_reconciled_repository_ref": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
+  "active_issue_status": "none",
+  "active_issue_note": "PHASE-10 repository implementation is complete. Runtime Issue #125 remains separate and intentionally deferred until the final acceptance cycle.",
   "runtime_track": {
     "issue": 125,
-    "status": "repository_extension_in_progress",
+    "status": "repository_extension_complete_runtime_testing_deferred",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "Merge PHASE-10, resolve the new development head, then perform the final Local -> Staging -> Live acceptance cycle."
+    "next_gate": "After completion-evidence reconciliation, resolve exact development HEAD and perform final Local -> Staging -> Live acceptance."
   }
 }
