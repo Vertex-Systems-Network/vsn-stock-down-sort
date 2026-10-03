@@ -139,7 +139,8 @@ test("PHASE-06 alerts use hosted Queue jobs and Local direct evaluation", () => 
 
   assert.ok(queue.includes('kind: "visibility"'));
   assert.ok(queue.includes('kind: "alert"'));
-  assert.ok(consumer.includes('job.kind === "visibility" || job.kind === "alert"'));
+  assert.ok(consumer.includes('job.kind === "visibility"'));
+  assert.ok(consumer.includes('job.kind === "alert"'));
   assert.ok(consumer.includes('payload.kind === "alert"'));
   assert.ok(consumer.includes("processLowStockAlert("));
 
