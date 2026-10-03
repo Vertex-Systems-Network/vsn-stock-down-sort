@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 106,
+  "active_issue": 109,
   "phases": [
     {
       "id": "PHASE-01",
@@ -155,6 +155,30 @@
         "Cloudflare hourly scheduled execution is repository-wired, internal-only, bounded and DB-lease protected.",
         "Merchant Automation UI supports create/edit/pause/run/delete for shop-scoped rules.",
         "No PHASE-05 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-06",
+      "name": "Low-Stock Email & Slack Alerts",
+      "objective": "Notify merchants when tracked Shopify products reach low-stock thresholds while preserving entitlement, secret, cooldown and runtime-delivery boundaries.",
+      "module_ids": [
+        "MOD-LOW-STOCK-ALERTS",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "dependencies": [
+        "PHASE-05"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Alert settings and per-product cooldown state exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Starter+ email and Growth+ Slack entitlements fail closed server-side.",
+        "Slack webhook secrets are encrypted at rest, host-validated and never read back to the merchant UI.",
+        "Low-stock evaluation uses live tracked Shopify product inventory.",
+        "Webhook/Queue and Local fallback paths evaluate alerts without breaking sorting/visibility processing.",
+        "Hosted email binding and sender prerequisite are explicit without claiming external onboarding acceptance.",
+        "Latest implementation-head App Validation, PHASE-06 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -1021,6 +1045,127 @@
         "Canonical product/options/state registries reflect only verified PHASE-05 runtime implementation.",
         "No PHASE-05 Staging or Production runtime promotion is claimed."
       ]
+    },
+    {
+      "id": "ISSUE-109-WU-01",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Add alert persistence, secret handling and entitlement contract",
+      "objective": "Create parity-validated alert persistence with exact Starter+/Growth+ capability gates and encrypted Slack secret storage.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching AlertSetting and LowStockAlertState fields/indexes.",
+        "Low-stock email is Starter+ and Slack alerts are Growth+.",
+        "Slack webhook URL is encrypted before persistence and never returned by the public settings shape.",
+        "Only approved Slack HTTPS webhook hosts/path are accepted."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-06 low-stock alerts contract"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "App Validation #429 / run 37113777777 passed.",
+        "Alert persistence migrations validate in Local and hosted schemas.",
+        "PHASE6_OPTION_IDS and AES-GCM secret handling are repository-implemented."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-02",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Implement live low-stock evaluator and delivery adapters",
+      "objective": "Evaluate live tracked inventory, deduplicate alert attempts by channel and adapt hosted email/Slack delivery without leaking secrets.",
+      "dependencies": [
+        "ISSUE-109-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Tracked inventory is read from live Shopify product data.",
+        "Threshold crossing and per-channel cooldown determine alert eligibility.",
+        "Local development evaluates state without external delivery.",
+        "Hosted email requires EMAIL binding and ALERT_FROM_EMAIL.",
+        "Slack uses only decrypted validated webhook URL at delivery time.",
+        "Delivery failure is recorded without throwing through the stock automation pipeline."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "processLowStockAlert implements live inventory and per-channel cooldown logic.",
+        "Email and Slack delivery results are isolated by channel.",
+        "Activity evidence contains delivery metadata but no recipient/webhook secrets."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-03",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Integrate alerts with webhooks, hosted Queue and merchant UI",
+      "objective": "Evaluate low-stock state from inventory/product events and expose secret-safe merchant alert configuration.",
+      "dependencies": [
+        "ISSUE-109-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Inventory and product update webhooks include alert Queue jobs.",
+        "Hosted Queue consumer handles alert jobs.",
+        "Local fallback directly evaluates low-stock state.",
+        "Alerts UI supports threshold, cooldown, email recipients, Slack replace/clear and channel toggles.",
+        "Stored Slack secret is represented only as configured/not configured."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "sort-queue union and internal consumer support alert jobs.",
+        "Both product and inventory webhook routes enqueue alerts.",
+        "/app/alerts is authenticated, plan-aware and does not render stored Slack ciphertext."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-04",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Certify PHASE-06 and reconcile repository truth",
+      "objective": "Align option/state registries with only CI-verified alert implementation and preserve runtime-delivery truth boundaries.",
+      "dependencies": [
+        "ISSUE-109-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the two implemented PHASE-06 alert capabilities.",
+        "Dedicated PHASE-06 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "External Cloudflare email onboarding and real Slack/email delivery are not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 17234dc7ac243e50265e35983c5c3bd93b36021b passed App Validation #429 / run 37113777777.",
+        "All validation steps including PHASE-06 contract, Worker build and both Cloudflare dry-runs passed.",
+        "No PHASE-06 Staging/Production deployment or real notification delivery is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -1035,5 +1180,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "fc299f1b7c6812969d1572c3a0badd82898b5a66"
+  "last_reconciled_repository_ref": "17234dc7ac243e50265e35983c5c3bd93b36021b"
 }
