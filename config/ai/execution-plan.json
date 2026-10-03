@@ -284,6 +284,15 @@
         "Plan page does not advertise blanket 24/7 support.",
         "Operational SLA/contact/escalation/staffing commitments remain outside repository claims.",
         "Latest implementation-head App Validation, PHASE-09 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #121 exact head 1a01e27e6b4d2c8c1c573fa680ccea15297e39ef passed App Validation #475 / run 37119934408.",
+        "PR #121 merged to development as ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Post-merge App Validation #476 / run 37119993769 passed the complete validation chain on ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Starter/Growth resolve to Standard support; Pro resolves to Priority support; Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT is runtime-implemented for Pro and Unlimited only.",
+        "All selected product capability options are now non-planned/runtime-implemented.",
+        "No response-time SLA, support contact method, escalation procedure or staffing fulfillment is claimed by this repository phase."
       ]
     }
   ],
@@ -1633,9 +1642,11 @@
         "Cloudflare dry-runs"
       ],
       "completion_evidence": [
-        "Implementation head 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211 passed App Validation #470 / run 37119754081.",
-        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
-        "No operational support SLA/contact/staffing acceptance is claimed."
+        "PR #121 exact head 1a01e27e6b4d2c8c1c573fa680ccea15297e39ef passed App Validation #475 / run 37119934408.",
+        "PR #121 merged to development as ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Post-merge App Validation #476 / run 37119993769 passed all validation steps including PHASE-09 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect the final selected capability as implemented.",
+        "Operational support fulfillment remains outside repository evidence."
       ]
     }
   ],
@@ -1651,5 +1662,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "9ad2ff6bbfb74ef759b807c23d2d48a2b0675211"
+  "last_reconciled_repository_ref": "ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1"
 }
