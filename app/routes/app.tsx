@@ -37,6 +37,7 @@ export default function App() {
           Collections
         </Link>
         <Link to={`/app/visibility${location.search}`}>Visibility</Link>
+        <Link to={`/app/contexts${location.search}`}>Commerce Contexts</Link>
         <Link to={`/app/analytics${location.search}`}>Analytics</Link>
         <Link to={`/app/automation${location.search}`}>Automation</Link>
         <Link to={`/app/alerts${location.search}`}>Alerts</Link>
