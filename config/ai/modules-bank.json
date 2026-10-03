@@ -892,15 +892,20 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
-        "App Validation #457 / run 37117869035 passed the complete validation chain.",
-        "IntegrationCredential and IntegrationReplayNonce persistence is schema-parity validated.",
-        "Bearer token hashing, encrypted webhook secrets, scope checks, rate limiting and replay protection are repository-implemented.",
-        "External activity/sort/automation and signed webhook routes plus /app/integrations are implemented.",
-        "No Staging/Production integration credential or live external-client acceptance is claimed."
+        "OPT-API-INTEGRATIONS is runtime-implemented and Unlimited-only; OPT-PRIORITY-SUPPORT remains separate.",
+        "IntegrationCredential and IntegrationReplayNonce are implemented in Local SQLite and hosted PostgreSQL with parity constraints.",
+        "Bearer token plaintext is never persisted; token lookup uses a non-secret prefix and SHA-256 hash comparison.",
+        "Webhook HMAC secrets are AES-GCM encrypted at rest and never loader-read as plaintext/ciphertext.",
+        "External activity/sort/automation routes and signed sort webhook derive shop from IntegrationCredential state and re-check current entitlement.",
+        "Rate/body/method/scope/timestamp/replay protections are enforced and responses are no-store.",
+        "Merchant Integrations UI creates, rotates and revokes credentials while exposing plaintext only in action responses.",
+        "PR #118 exact head 69c6333837b0823e6db77084add8ec1350b0e103 passed App Validation #462.",
+        "PR #118 merged to development as 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Post-merge App Validation #463 / run 37118149572 passed the full validation chain.",
+        "No PHASE-08 Staging/Production credential issuance or live external client/webhook acceptance is claimed."
       ],
       "update_notes": [
-        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+        "Repository/development implementation is complete and CI-certified. Live credential issuance and external-client acceptance remain separate guarded runtime activities."
       ],
       "removal_or_deprecation_notes": []
     }
