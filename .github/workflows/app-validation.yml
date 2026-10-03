@@ -88,6 +88,9 @@ jobs:
       - name: PHASE-06 low-stock alerts contract
         run: node --test tests/phase-06-alerts-contract.test.mjs
 
+      - name: PHASE-07 enterprise commerce visibility contract
+        run: node --test tests/phase-07-commerce-visibility-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 
