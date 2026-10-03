@@ -1137,7 +1137,7 @@ test("environment gate records accepted SQLite Local evidence before Staging", (
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.environment, "development");
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.database, "sqlite");
-  assert.match(releaseFlow, /Prisma \\+ SQLite/i);
+  assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
 
