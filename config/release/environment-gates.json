@@ -3,7 +3,8 @@
   "status": "verification_required",
   "local_dev": {
     "status": "accepted",
-    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+    "accepted_at": "2026-10-03T14:50:13.938Z",
     "evidence_record": {
       "branch": "development",
       "database_provider": "sqlite",
@@ -19,30 +20,9 @@
         "billingTestMode": true,
         "database": "sqlite"
       },
-      "health_url": "http://localhost:51280/healthz",
-      "billing_catalog": {
-        "currencyCode": "USD",
-        "interval": "EVERY_30_DAYS",
-        "trialDays": 10,
-        "planIds": [
-          "starter",
-          "growth",
-          "pro",
-          "unlimited"
-        ]
-      },
-      "billing_runtime_acceptance": "all_current_plan_switches_passed_on_dev_test_store",
-      "certification_output": "accepted source_ref=ca5851561ab7979712f11580ab951fda4650ef19",
-      "note": "Latest Local/Dev source is accepted. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
-    },
-    "required_checks": [
-      "Local Shopify app boot from development",
-      "Local SQLite Prisma validation/generation/migration",
-      "Local/cloud Prisma model parity",
-      "Local SQLite database file remains gitignored",
-      "Local health reports SQLite + test billing",
-      "Four-plan billing catalog contract"
-    ]
+      "health_url": "http://localhost:51331/healthz",
+      "note": "Local SQLite acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
+    }
   },
   "staging": {
     "status": "accepted",
