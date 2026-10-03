@@ -8,7 +8,7 @@ import {
   getImplementedPlanFeatureNames,
   type PlanId,
 } from "../billing-config";
-import { submitBilling } from "../billing-client";
+import { submitBilling, type BillingSubmitResult } from "../billing-client";
 import { PageIntro } from "../components/Workspace";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
@@ -18,14 +18,6 @@ import {
   getSubscriptionMismatchDiagnostic,
 } from "../services/billing.server";
 import { resolveSupportEntitlement } from "../services/support";
-
-type SubscriptionActionResult = {
-  ok?: boolean;
-  cancelled?: boolean;
-  planId?: PlanId;
-  confirmationUrl?: string;
-  error?: string;
-};
 
 const PLAN_DESCRIPTIONS: Record<PlanId, string> = {
   starter:
@@ -67,7 +59,7 @@ export default function PlansPage() {
   } = useLoaderData<typeof loader>();
   const location = useLocation();
 
-  const [result, setResult] = useState<SubscriptionActionResult | null>(null);
+  const [result, setResult] = useState<BillingSubmitResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [pendingAction, setPendingAction] = useState("");
 
