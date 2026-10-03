@@ -2,19 +2,17 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: null
+active_issue: 128
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-09
-current_module: priority-support
-current_work_unit: ISSUE-120-WU-04
+current_phase: PHASE-10
+current_module: support-fulfillment
+current_work_unit: ISSUE-128-WU-01
 note: >
-  Repository capability implementation is complete and no implementation issue
-  is open. Runtime Issue #125 tracks the separate current-head Local -> Staging
-  -> Live recertification path. Pre-staging scope parity was merged as
-  6b3ac8681e6e6c4429c26da11a07909f1acb689a after PR #126 validation.
-  Historical environment acceptance must not be treated as acceptance of the
-  source that will be promoted after this preparation batch. Final runtime
-  testing and acceptance remain evidence-gated.
+  PHASE-10 support fulfillment is active on Issue #128. The completed 26-option
+  product capability catalog remains unchanged; this phase adds authenticated,
+  shop-scoped support request fulfillment with server-derived priority. Runtime
+  Issue #125 remains a separate Local -> Staging -> Live promotion track and
+  final runtime testing is intentionally deferred until PHASE-10 is merged.
