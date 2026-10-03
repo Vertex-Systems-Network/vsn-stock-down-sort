@@ -170,31 +170,27 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("current Staging deployment is recorded and awaits signed runtime acceptance", () => {
+test("current Staging acceptance is signed and pending protected-main binding", () => {
   assert.equal(gates.local_dev.status, "accepted");
-  assert.match(gates.local_dev.accepted_source_ref, /^[0-9a-f]{40}$/);
-  assert.ok(gates.local_dev.evidence_record);
-  assert.equal(gates.local_dev.evidence_record.branch, "development");
-  assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
-
-  assert.equal(gates.staging.status, "verification_required");
   assert.equal(
-    gates.staging.deployed_source_ref,
+    gates.staging.accepted_source_ref,
     gates.local_dev.accepted_source_ref,
   );
+  assert.equal(gates.staging.status, "accepted");
+  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.evidence_record?.accepted_main_ref_recording,
+    "pending_main_promotion",
+  );
+  assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
+  assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
+  assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
+  assert.equal(gates.staging.evidence_record?.stored_session_count, 2);
+  assert.equal(gates.staging.evidence_record?.active_subscription_count, 1);
   assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
-  assert.equal(gates.staging.deployment_record?.runtime_health, "passed");
-  assert.equal(gates.staging.deployment_record?.queue_readiness, "passed");
   assert.equal(
     gates.staging.shopify_release_record?.version,
     "stock-down-sort-staging-5df0cb94446e-2",
-  );
-  assert.equal(gates.staging.shopify_release_record?.status, "released");
-
-  assert.equal(gates.live.status, "accepted");
-  assert.equal(
-    gates.live.authorized_source_ref,
-    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
   );
 });
 
