@@ -11,9 +11,9 @@ current_phase: PHASE-09
 current_module: priority-support
 current_work_unit: ISSUE-120-WU-04
 note: >
-  PHASE-09 Priority Support Entitlement Truth merged to development as
-  ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1. PR #121 exact-head
-  App Validation #475 / run 37119934408 passed, and post-merge App Validation
-  #476 / run 37119993769 passed the full chain. All selected product
-  capabilities are repository-implemented. Human support operations remain
-  separate from repository evidence.
+  Repository capability implementation is complete. Completion-evidence PR
+  #122 passed App Validation #477, merged as
+  b084cf80d2a67128ae4426cfd4949d721002c945, and final development App
+  Validation #478 / run 37120204165 passed the full chain. Issue #120 is a closed compatibility pointer; no implementation issue is
+  open. Runtime acceptance/promotion and human support
+  operations remain evidence-separate.
