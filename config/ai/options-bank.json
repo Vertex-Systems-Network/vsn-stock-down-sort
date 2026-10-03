@@ -470,18 +470,22 @@
       "category": "enterprise",
       "description": "Shopify Markets rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 existing MARKET publication discovery plus VSN-owned sold-out removal/restock restoration through Shopify publicationUpdate."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 scope, entitlement, publication-membership, safe-restore and App Validation contracts."
+      ]
     },
     {
       "id": "OPT-B2B-CATALOGS",
@@ -489,18 +493,22 @@
       "category": "enterprise",
       "description": "B2B catalog rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 existing COMPANY_LOCATION publication discovery plus VSN-owned sold-out removal/restock restoration."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 catalog-type, merchant-permission boundary and safe publication-state contracts."
+      ]
     },
     {
       "id": "OPT-SALES-CHANNEL-RULES",
@@ -508,18 +516,22 @@
       "category": "automation",
       "description": "Sales-channel visibility rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 catalogType NONE publication discovery for existing sales-channel publications and VSN-owned product membership automation."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 sales-channel publication discovery, webhook/Queue integration and mutation-limit contracts."
+      ]
     },
     {
       "id": "OPT-API-INTEGRATIONS",
