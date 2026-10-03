@@ -1,10 +1,12 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: 32
+active_issue: null
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-32-WU-07
+active_work_unit: ISSUE-128-WU-01
 status: complete
 note: >
-  Production release is complete and Live is accepted. Do not rerun the
-  already-successful Shopify Production Release. Future work should start in a new phase or issue.
+  ISSUE-128-WU-01 is the latest completed development checkpoint. PHASE-10
+  support fulfillment is merged and repository-certified. Runtime Issue #125
+  remains the separate final acceptance/promotion track; Local, Staging and Live
+  current-head runtime testing is intentionally deferred until the final cycle.

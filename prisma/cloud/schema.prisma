@@ -32,16 +32,199 @@ model Session {
 }
 
 model CollectionSetting {
-  id                String   @id @default(cuid())
-  shop              String
-  collectionId      String
-  enabled           Boolean  @default(false)
-  previousSortOrder String?
-  lastSortedAt      DateTime?
-  lastError         String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  shop                 String
+  collectionId         String
+  enabled              Boolean  @default(false)
+  previousSortOrder    String?
+  lastSortedAt         DateTime?
+  lastError            String?
+  excludedTags         String   @default("")
+  excludedVendors      String   @default("")
+  excludedProducts     String   @default("")
+  pinnedProducts       String   @default("")
+  availableSortMode    String   @default("PRESERVE")
+  inventoryMode        String   @default("ALL_LOCATIONS")
+  inventoryLocationIds String   @default("")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@unique([shop, collectionId])
   @@index([shop, enabled])
+}
+
+model VisibilitySetting {
+  shop          String   @id
+  productMode   String   @default("OFF")
+  autoRepublish Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProductVisibilityState {
+  id             String    @id @default(cuid())
+  shop           String
+  productId      String
+  previousStatus String?
+  managedStatus  String?
+  hiddenAt       DateTime?
+  restoredAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([shop, productId])
+  @@index([shop, managedStatus])
+}
+
+
+model ActivityEvent {
+  id              String   @id @default(cuid())
+  shop            String
+  category        String
+  action          String
+  outcome         String   @default("SUCCESS")
+  source          String   @default("runtime")
+  entityType      String?
+  entityId        String?
+  summary         String?
+  details         String   @default("{}")
+  totalProducts   Int?
+  soldOutProducts Int?
+  movedProducts   Int?
+  occurredAt      DateTime @default(now())
+
+  @@index([shop, occurredAt])
+  @@index([shop, category, occurredAt])
+  @@index([shop, action, occurredAt])
+}
+
+
+model AutomationRule {
+  id                 String    @id @default(cuid())
+  shop               String
+  name               String
+  collectionId       String
+  enabled            Boolean   @default(true)
+  scheduleMinutes    Int?
+  minSoldOutProducts Int?
+  minSoldOutPercent  Int?
+  minTotalProducts   Int?
+  nextRunAt          DateTime?
+  lastRunAt          DateTime?
+  lastOutcome        String?
+  lastError          String?
+  leaseUntil         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([shop, enabled, nextRunAt])
+  @@index([shop, collectionId])
+}
+
+
+model AlertSetting {
+  shop                   String   @id
+  threshold              Int      @default(5)
+  cooldownMinutes        Int      @default(360)
+  emailEnabled           Boolean  @default(false)
+  emailRecipients        String   @default("")
+  slackEnabled           Boolean  @default(false)
+  slackWebhookCiphertext String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model LowStockAlertState {
+  id               String    @id @default(cuid())
+  shop             String
+  productId        String
+  lastInventory    Int?
+  lastObservedAt   DateTime?
+  lastEmailAlertAt DateTime?
+  lastSlackAlertAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([shop, productId])
+  @@index([shop, lastObservedAt])
+}
+
+
+model ContextVisibilityRule {
+  id            String   @id @default(cuid())
+  shop          String
+  targetType    String
+  publicationId String
+  targetTitle   String
+  enabled       Boolean  @default(true)
+  autoRestore   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([shop, publicationId])
+  @@index([shop, targetType, enabled])
+}
+
+model ContextPublicationState {
+  id            String    @id @default(cuid())
+  shop          String
+  ruleId        String
+  productId     String
+  publicationId String
+  managedHidden Boolean   @default(false)
+  hiddenAt      DateTime?
+  restoredAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([shop, ruleId, productId])
+  @@index([shop, publicationId, managedHidden])
+}
+
+
+model IntegrationCredential {
+  id                      String    @id @default(cuid())
+  shop                    String
+  name                    String
+  tokenPrefix             String    @unique
+  tokenHash               String
+  webhookSecretCiphertext String?
+  scopes                  String    @default("")
+  enabled                 Boolean   @default(true)
+  rateWindowStartedAt     DateTime?
+  rateRequestCount        Int       @default(0)
+  lastUsedAt              DateTime?
+  revokedAt               DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([shop, enabled])
+}
+
+model IntegrationReplayNonce {
+  id           String   @id @default(cuid())
+  credentialId String
+  nonceHash    String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@unique([credentialId, nonceHash])
+  @@index([expiresAt])
+}
+
+model SupportRequest {
+  id                 String    @id @default(cuid())
+  shop               String
+  subject            String
+  message            String
+  priority           String
+  status             String    @default("OPEN")
+  notificationStatus String    @default("PENDING")
+  notificationError  String?
+  notifiedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([shop, createdAt])
+  @@index([shop, status, createdAt])
 }

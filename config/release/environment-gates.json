@@ -3,7 +3,8 @@
   "status": "verification_required",
   "local_dev": {
     "status": "accepted",
-    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+    "accepted_at": "2026-10-03T14:50:13.938Z",
     "evidence_record": {
       "branch": "development",
       "database_provider": "sqlite",
@@ -19,57 +20,12 @@
         "billingTestMode": true,
         "database": "sqlite"
       },
-      "health_url": "http://localhost:51280/healthz",
-      "billing_catalog": {
-        "currencyCode": "USD",
-        "interval": "EVERY_30_DAYS",
-        "trialDays": 10,
-        "planIds": [
-          "starter",
-          "growth",
-          "pro",
-          "unlimited"
-        ]
-      },
-      "billing_runtime_acceptance": "all_current_plan_switches_passed_on_dev_test_store",
-      "certification_output": "accepted source_ref=ca5851561ab7979712f11580ab951fda4650ef19",
-      "note": "Latest Local/Dev source is accepted. SQLite Local acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
-    },
-    "required_checks": [
-      "Local Shopify app boot from development",
-      "Local SQLite Prisma validation/generation/migration",
-      "Local/cloud Prisma model parity",
-      "Local SQLite database file remains gitignored",
-      "Local health reports SQLite + test billing",
-      "Four-plan billing catalog contract"
-    ]
+      "health_url": "http://localhost:51331/healthz",
+      "note": "Local SQLite acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
+    }
   },
   "staging": {
     "status": "accepted",
-    "accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
-    "accepted_main_ref": "8bff7a1ecb8adca7592997fc74ffe10837e4ae2d",
-    "evidence_record": {
-      "workflow": "Staging Runtime Acceptance",
-      "run_number": 1,
-      "run_id": 36989726911,
-      "branch": "development",
-      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
-      "shop": "staging-oath3rth.myshopify.com",
-      "released_version": "stock-down-sort-staging-ca5851561ab7-1",
-      "billing_plan_id": "starter",
-      "runtime_health": "passed",
-      "database_provider": "postgresql",
-      "queue_readiness": "passed",
-      "billing_contract": "four_plans_10_day_trials",
-      "offline_shopify_session": "passed",
-      "stored_session_count": 2,
-      "admin_graphql": "passed",
-      "subscription_read": "passed",
-      "active_subscription_count": 1,
-      "recognized_plan_id": "starter",
-      "accepted_main_ref_recording": "recorded",
-      "accepted_main_ref": "8bff7a1ecb8adca7592997fc74ffe10837e4ae2d"
-    },
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -77,14 +33,14 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+    "deployed_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 1,
-      "run_id": 36985118161,
+      "run_number": 2,
+      "run_id": 37138271737,
       "branch": "development",
-      "control_head_sha": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f",
-      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
+      "control_head_sha": "b3c4e49b740b8f38f510f056dd274a663570a49d",
+      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
       "database_provider": "postgresql",
       "prisma_migrations": "passed_no_pending",
@@ -97,14 +53,37 @@
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 1,
-      "run_id": 36987141830,
+      "run_number": 2,
+      "run_id": 37139565893,
       "branch": "development",
-      "control_head_sha": "f30cf97f7a754004591b431a74a68758d2525acb",
-      "source_ref": "ca5851561ab7979712f11580ab951fda4650ef19",
-      "version": "stock-down-sort-staging-ca5851561ab7-1",
+      "control_head_sha": "b3c4e49b740b8f38f510f056dd274a663570a49d",
+      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "version": "stock-down-sort-staging-5df0cb94446e-2",
       "status": "released",
       "local_and_live_configs_untouched": true
+    },
+    "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+    "accepted_main_ref": null,
+    "evidence_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 2,
+      "run_id": 37140631538,
+      "branch": "development",
+      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "shop": "staging-oath3rth.myshopify.com",
+      "released_version": "stock-down-sort-staging-5df0cb94446e-2",
+      "billing_plan_id": "starter",
+      "runtime_health": "passed",
+      "database_provider": "postgresql",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "offline_shopify_session": "passed",
+      "stored_session_count": 2,
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "active_subscription_count": 1,
+      "recognized_plan_id": "starter",
+      "accepted_main_ref_recording": "pending_main_promotion"
     }
   },
   "live": {

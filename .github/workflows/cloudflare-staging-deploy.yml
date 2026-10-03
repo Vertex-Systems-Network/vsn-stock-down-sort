@@ -34,8 +34,10 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
+      SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory
+      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
       SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
@@ -79,7 +81,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET ALERT_FROM_EMAIL SUPPORT_INBOX_EMAIL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing staging value: $name" >&2
@@ -156,6 +158,8 @@ jobs:
             "DATABASE_URL",
             "SHOPIFY_API_KEY",
             "SHOPIFY_API_SECRET",
+            "ALERT_FROM_EMAIL",
+            "SUPPORT_INBOX_EMAIL",
           ];
           const payload = Object.fromEntries(
             required.map((key) => [key, process.env[key]]),

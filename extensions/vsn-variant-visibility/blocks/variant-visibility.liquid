@@ -1,0 +1,39 @@
+{% if product and block.settings.hide_sold_out %}
+  <script
+    type="application/json"
+    data-vsn-variant-visibility
+    data-product-id="{{ product.id }}"
+  >
+    {
+      "variants": [
+        {% for variant in product.variants %}
+          {
+            "id": {{ variant.id | json }},
+            "available": {{ variant.available | json }},
+            "options": {{ variant.options | json }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Hide sold-out variants",
+  "target": "body",
+  "javascript": "variant-visibility.js",
+  "available_if": "{{ app.metafields.vsn.variant_visibility_entitled }}",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_sold_out",
+      "label": "Hide sold-out variants",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

@@ -13,6 +13,7 @@ import {
   getAnyActiveSubscription,
   getCurrentSubscriptionPlan,
 } from "../services/billing.server";
+import { resolveSupportEntitlement } from "../services/support";
 
 type SubscriptionActionResult = {
   ok?: boolean;
@@ -155,7 +156,7 @@ export default function PlansPage() {
               </s-badge>
               <s-badge tone="info">Unlimited products</s-badge>
               <s-badge tone="info">Unlimited collections</s-badge>
-              <s-badge tone="info">24/7 support</s-badge>
+              <s-badge tone="info">Support included</s-badge>
             </s-stack>
           </s-stack>
         </s-box>
@@ -165,6 +166,7 @@ export default function PlansPage() {
           gap="base"
         >
           {BILLING_PLANS.map((plan) => {
+            const support = resolveSupportEntitlement(plan);
             const isCurrent = activeKnownPlan?.id === plan.id;
             const isFeatured = plan.id === "growth";
             const implementedFeatures = getImplementedPlanFeatureNames(plan.id);
@@ -201,8 +203,7 @@ export default function PlansPage() {
                   </s-badge>
 
                   <s-text>
-                    Unlimited products · unlimited collections · {plan.support}{" "}
-                    support
+                    Unlimited products · unlimited collections · {support.label}
                   </s-text>
 
                   <s-divider />

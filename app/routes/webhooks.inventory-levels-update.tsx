@@ -6,6 +6,12 @@ import {
   collectionsForInventoryItem,
   sortEnabledCollections,
 } from "../services/collection-sorter.server";
+import {
+  productIdForInventoryItem,
+  reconcileProductVisibility,
+} from "../services/product-visibility.server";
+import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileContextVisibilityForProduct } from "../services/context-visibility.server";
 
 type InventoryLevelWebhookPayload = {
   inventory_item_id?: string | number;
@@ -28,32 +34,71 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   try {
-    const collectionIds = await collectionsForInventoryItem(
-      admin,
-      inventoryItemId,
-    );
+    const [collectionIds, productId] = await Promise.all([
+      collectionsForInventoryItem(admin, inventoryItemId),
+      productIdForInventoryItem(admin, inventoryItemId),
+    ]);
 
-    if (collectionIds.length) {
-      const queued = await enqueueSortJobs(
-        context,
-        collectionIds.map((collectionId) => ({
-          kind: "sort" as const,
-          shop: session.shop,
-          collectionId,
-          reason: "inventory-update" as const,
-        })),
-      );
+    const jobs = [
+      ...(productId
+        ? [
+            {
+              kind: "visibility" as const,
+              shop: session.shop,
+              productId,
+              reason: "inventory-update" as const,
+            },
+            {
+              kind: "alert" as const,
+              shop: session.shop,
+              productId,
+              reason: "inventory-update" as const,
+            },
+            {
+              kind: "context_visibility" as const,
+              shop: session.shop,
+              productId,
+              reason: "inventory-update" as const,
+            },
+          ]
+        : []),
+      ...collectionIds.map((collectionId) => ({
+        kind: "sort" as const,
+        shop: session.shop,
+        collectionId,
+        reason: "inventory-update" as const,
+      })),
+    ];
 
-      if (!queued) {
-        await runWithWorkerLifetime(context, async () => {
+    if (!jobs.length) return new Response();
+
+    const queued = await enqueueSortJobs(context, jobs);
+
+    if (!queued) {
+      await runWithWorkerLifetime(context, async () => {
+        if (productId) {
+          await reconcileProductVisibility(admin, session.shop, productId);
+          await processLowStockAlert(
+            admin,
+            session.shop,
+            productId,
+            context,
+          );
+          await reconcileContextVisibilityForProduct(
+            admin,
+            session.shop,
+            productId,
+          );
+        }
+        if (collectionIds.length) {
           await sortEnabledCollections(admin, session.shop, collectionIds);
-        });
-      }
+        }
+      });
     }
 
     return new Response();
   } catch (error) {
-    console.error("inventory_levels/update queue delivery error", error);
+    console.error("inventory_levels/update stock automation error", error);
     return new Response("Webhook processing failed", { status: 500 });
   }
 }

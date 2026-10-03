@@ -102,18 +102,22 @@
       "category": "sorting",
       "description": "Tag/vendor/product exclusions",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-PINNED-PRODUCTS",
@@ -121,18 +125,22 @@
       "category": "sorting",
       "description": "Pinned products",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-ADVANCED-SORT-RULES",
@@ -140,18 +148,22 @@
       "category": "automation",
       "description": "Advanced collection sorting",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-LOW-STOCK-EMAIL",
@@ -159,18 +171,22 @@
       "category": "alerts",
       "description": "Low-stock email alerts",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-06 live product inventory evaluation, per-product cooldown state and Cloudflare Email Service Worker binding for hosted delivery."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-06 alert schema, entitlement, Queue/webhook, local-no-delivery and hosted email binding contracts."
+      ]
     },
     {
       "id": "OPT-SLACK-ALERTS",
@@ -178,18 +194,22 @@
       "category": "alerts",
       "description": "Slack alerts",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-06 encrypted Slack incoming-webhook configuration, strict Slack host validation, cooldown state and hosted webhook delivery."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-06 secret-encryption, Slack allowlist, Queue/webhook and activity-redaction contracts."
+      ]
     },
     {
       "id": "OPT-AUTO-HIDE-PRODUCTS",
@@ -197,18 +217,22 @@
       "category": "visibility",
       "description": "Automatic product hide/unpublish",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-03 product visibility engine using Shopify product status transitions with app-owned restore state."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 product visibility contract and App Validation."
+      ]
     },
     {
       "id": "OPT-AUTO-REPUBLISH",
@@ -216,18 +240,22 @@
       "category": "visibility",
       "description": "Automatic republish on restock",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-03 restore guard; only products previously changed by VSN are restored after inventory returns."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 merchant-override and safe-restore contracts."
+      ]
     },
     {
       "id": "OPT-SEO-SAFE-HIDE",
@@ -235,18 +263,22 @@
       "category": "visibility",
       "description": "SEO-safe soft hide",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented with Shopify UNLISTED product status for direct-URL access while reducing Shopify storefront discovery surfaces."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 product visibility contract and App Validation."
+      ]
     },
     {
       "id": "OPT-HIDE-SOLD-OUT-VARIANTS",
@@ -254,18 +286,22 @@
       "category": "visibility",
       "description": "Hide sold-out variants",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by entitlement-gated Shopify theme app extension using storefront variant availability."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 storefront extension contract; Shopify deployment validation remains a promotion gate."
+      ]
     },
     {
       "id": "OPT-VARIANT-RESTORE",
@@ -273,18 +309,22 @@
       "category": "variant_visibility",
       "description": "Restore variants on restock",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by the storefront extension's availability-driven reconciliation; available variants are restored on subsequent storefront renders."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-03 storefront extension contract; Shopify deployment validation remains a promotion gate."
+      ]
     },
     {
       "id": "OPT-SCHEDULED-AUTOMATION",
@@ -292,18 +332,22 @@
       "category": "automation",
       "description": "Scheduled automation",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-05 AutomationRule persistence, due-rule leasing, hourly Cloudflare Cron Trigger execution and authenticated manual run-now."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-05 automation contract, Cloudflare scheduled-handler contract and App Validation."
+      ]
     },
     {
       "id": "OPT-MULTI-LOCATION",
@@ -311,18 +355,22 @@
       "category": "sorting",
       "description": "Multi-location inventory rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-02 collection rule engine with server-side entitlement enforcement."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-02 sorting contract plus App Validation."
+      ]
     },
     {
       "id": "OPT-RULE-BUILDER",
@@ -330,18 +378,22 @@
       "category": "automation",
       "description": "Advanced IF/AND/THEN rule builder",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-05 Pro+ IF/AND stock predicates evaluated from live Shopify collection inventory before invoking the certified sorting engine."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-05 entitlement, live-condition evaluation and scheduled execution contracts."
+      ]
     },
     {
       "id": "OPT-ANALYTICS",
@@ -349,18 +401,22 @@
       "category": "analytics",
       "description": "Inventory and automation analytics",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 DB-backed analytics derived from persisted shop-scoped sorting, visibility and settings events."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 analytics/history/export contract and App Validation."
+      ]
     },
     {
       "id": "OPT-ACTIVITY-HISTORY",
@@ -368,18 +424,22 @@
       "category": "sorting",
       "description": "Activity and audit history",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 shop-scoped ActivityEvent persistence plus authenticated recent-history UI with plan retention boundaries."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 schema parity, instrumentation and authenticated history contract."
+      ]
     },
     {
       "id": "OPT-CSV-EXPORT",
@@ -387,18 +447,22 @@
       "category": "analytics",
       "description": "CSV export",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-04 authenticated shop-scoped CSV resource route over retained ActivityEvent data."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-04 CSV entitlement and response contract."
+      ]
     },
     {
       "id": "OPT-MARKETS",
@@ -406,18 +470,22 @@
       "category": "enterprise",
       "description": "Shopify Markets rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 existing MARKET publication discovery plus VSN-owned sold-out removal/restock restoration through Shopify publicationUpdate."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 scope, entitlement, publication-membership, safe-restore and App Validation contracts."
+      ]
     },
     {
       "id": "OPT-B2B-CATALOGS",
@@ -425,18 +493,22 @@
       "category": "enterprise",
       "description": "B2B catalog rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 existing COMPANY_LOCATION publication discovery plus VSN-owned sold-out removal/restock restoration."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 catalog-type, merchant-permission boundary and safe publication-state contracts."
+      ]
     },
     {
       "id": "OPT-SALES-CHANNEL-RULES",
@@ -444,18 +516,22 @@
       "category": "automation",
       "description": "Sales-channel visibility rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 catalogType NONE publication discovery for existing sales-channel publications and VSN-owned product membership automation."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 sales-channel publication discovery, webhook/Queue integration and mutation-limit contracts."
+      ]
     },
     {
       "id": "OPT-API-INTEGRATIONS",
@@ -463,18 +539,26 @@
       "category": "enterprise",
       "description": "API and webhook integrations",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-08 merchant-managed scoped API credentials, hash-only bearer token storage, encrypted webhook signing secrets, signed/replay-protected webhooks and external API routes."
+      ],
       "ux_implications": [],
       "data_implications": [],
-      "security_implications": [],
-      "qa_implications": []
+      "security_implications": [
+        "Bearer token plaintext is returned only at create/rotate and stored only as SHA-256 hash plus prefix.",
+        "Webhook signing secret is AES-GCM encrypted at rest and never returned by the credential loader.",
+        "External routes derive merchant shop from the authenticated credential and re-check current Unlimited entitlement."
+      ],
+      "qa_implications": [
+        "Covered by PHASE-08 credential storage, scope, rate-limit, HMAC timestamp/replay, no-store response and external-route contracts."
+      ]
     },
     {
       "id": "OPT-PRIORITY-SUPPORT",
@@ -482,18 +566,26 @@
       "category": "commercial",
       "description": "Priority support entitlement",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
-      "ux_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-09 exact active-plan support entitlement resolution and authenticated Support UI."
+      ],
+      "ux_implications": [
+        "Pro displays Priority support; Unlimited displays 24/7 priority support; Starter/Growth display Standard support."
+      ],
       "data_implications": [],
-      "security_implications": [],
-      "qa_implications": []
+      "security_implications": [
+        "Support entitlement is derived server-side from the authenticated merchant's active Shopify subscription plan; no client-supplied tier is trusted."
+      ],
+      "qa_implications": [
+        "Covered by PHASE-09 exact plan mapping, plan-page truth and operational-boundary contracts."
+      ]
     }
   ],
   "status_values": [

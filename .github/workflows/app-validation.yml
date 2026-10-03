@@ -24,9 +24,11 @@ jobs:
       SHOPIFY_API_KEY: ci-test-key
       SHOPIFY_API_SECRET: ci-test-secret
       SHOPIFY_APP_URL: https://staging.example.invalid
-      SCOPES: read_products,write_products,read_inventory
+      SCOPES: read_products,write_products,read_inventory,read_publications,write_publications
       DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
       DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+      ALERT_FROM_EMAIL: ci-sender@example.invalid
+      SUPPORT_INBOX_EMAIL: ci-support@example.invalid
 
     steps:
       - name: Checkout
@@ -72,6 +74,33 @@ jobs:
 
       - name: Worker runtime contracts
         run: node --test tests/worker-runtime-contract.test.mjs
+
+      - name: PHASE-02 sorting contract
+        run: node --test tests/phase-02-sorting-contract.test.mjs
+
+      - name: PHASE-03 product visibility contract
+        run: node --test tests/phase-03-product-visibility-contract.test.mjs
+
+      - name: PHASE-04 analytics history export contract
+        run: node --test tests/phase-04-analytics-contract.test.mjs
+
+      - name: PHASE-05 scheduling and rule builder contract
+        run: node --test tests/phase-05-automation-contract.test.mjs
+
+      - name: PHASE-06 low-stock alerts contract
+        run: node --test tests/phase-06-alerts-contract.test.mjs
+
+      - name: PHASE-07 commerce context visibility contract
+        run: node --test tests/phase-07-context-visibility-contract.test.mjs
+
+      - name: PHASE-08 secure API integrations contract
+        run: node --test tests/phase-08-api-integrations-contract.test.mjs
+
+      - name: PHASE-09 priority support entitlement contract
+        run: node --test tests/phase-09-support-entitlement-contract.test.mjs
+
+      - name: PHASE-10 support fulfillment contract
+        run: node --test tests/phase-10-support-fulfillment-contract.test.mjs
 
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs

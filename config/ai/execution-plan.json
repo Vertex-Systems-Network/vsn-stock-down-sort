@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 32,
+  "active_issue": null,
   "phases": [
     {
       "id": "PHASE-01",
@@ -25,6 +25,310 @@
         "Staging Shopify auth/session/Admin API reads pass.",
         "The four-plan billing catalog contract is verified in hosted environments.",
         "Production remains unmodified until Staging acceptance evidence exists."
+      ]
+    },
+    {
+      "id": "PHASE-02",
+      "name": "Core Sorting Controls",
+      "objective": "Extend the production sorting engine with merchant-configurable exclusions, pinned products, advanced available-product ordering, and multi-location inventory rules while enforcing plan-tier capabilities at runtime.",
+      "module_ids": [
+        "MOD-SORTING-CONTROLS",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-01"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Tag/vendor/product exclusions are configurable per collection and excluded products remain fixed at their original positions.",
+        "Pinned products are configurable per collection and take priority over stock-state ordering for entitled plans.",
+        "Advanced available-product sorting modes are configurable and deterministic.",
+        "Multi-location inventory rules can use selected Shopify locations to decide stock state.",
+        "Current Shopify subscription entitlements are enforced server-side for all four capabilities, including webhook/queue-triggered sorts.",
+        "Local SQLite and hosted PostgreSQL migrations are additive and schema parity passes.",
+        "Merchant UI can configure all PHASE-02 rules.",
+        "Phase contract tests, lint, typecheck, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #98 latest head 331ce2e58ef066abf0d04940f6ea6dbe7950b86f passed App Validation #376 / run 37007568459.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed the full validation chain on ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Local SQLite and hosted PostgreSQL PHASE-02 migrations are additive and schema parity passed.",
+        "Server-side entitlement gates cover exclusions, pinned products, advanced sorting and multi-location rules.",
+        "Manual, webhook and Queue sorts share the same PHASE-02 sorting engine.",
+        "Merchant collection Rules UI is implemented.",
+        "Worker build plus Staging and Production Cloudflare dry-runs passed.",
+        "No PHASE-02 Staging or Production deployment/promotion occurred in this implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-03",
+      "name": "Product & Variant Visibility",
+      "objective": "Automate sold-out product visibility safely and provide an entitlement-gated storefront mechanism for sold-out variants.",
+      "module_ids": [
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-02"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "All five PHASE-03 visibility option IDs are repository-implemented and fail closed by current Shopify plan.",
+        "Merchant-owned product status is never blindly overwritten during hide/restore reconciliation.",
+        "Products and inventory webhooks use the shared visibility engine in hosted Queue and Local fallback paths.",
+        "A real Shopify theme app extension handles storefront sold-out variant visibility and restore.",
+        "Latest implementation-head App Validation, Worker build and staging/production dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #101 exact head 8dafd702a15c39b0b9613fd3aad4839bb72545f3 passed App Validation #398 / run 37030996617.",
+        "PR #101 merged to development as e428ab8b3df4f3832b32abde76014fc3daad1ea0.",
+        "Post-merge App Validation #399 / run 37031133345 passed the complete validation chain on e428ab8b3df4f3832b32abde76014fc3daad1ea0.",
+        "Local SQLite and hosted PostgreSQL PHASE-03 migrations are additive and schema-parity validated.",
+        "Product DRAFT/UNLISTED automation, app-owned safe restore state, webhook/Queue integration and merchant visibility controls are implemented.",
+        "Entitlement-gated Shopify theme app extension implements storefront sold-out variant visibility and restore.",
+        "No PHASE-03 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-04",
+      "name": "Analytics, Activity History & CSV Export",
+      "objective": "Persist real runtime activity and expose Pro+ analytics, audit history and CSV export without fabricated metrics.",
+      "module_ids": [
+        "MOD-ANALYTICS-HISTORY",
+        "MOD-BILLING",
+        "MOD-DATABASE"
+      ],
+      "dependencies": [
+        "PHASE-03"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "ActivityEvent persistence exists in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Sorting and product-visibility execution paths persist real runtime activity.",
+        "Analytics and activity history are derived from shop-scoped persisted events.",
+        "CSV export is authenticated, bounded, shop-scoped and entitlement-gated.",
+        "Starter/Growth fail closed while Pro/Unlimited receive the three PHASE-04 capabilities.",
+        "Latest implementation-head App Validation, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #104 exact head 719696e3e90509950d7fc9fa315621b52ceff510 passed App Validation #407 / run 37033732199.",
+        "PR #104 merged to development as a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Post-merge App Validation #408 / run 37033942983 passed the complete validation chain on a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Local SQLite and hosted PostgreSQL ActivityEvent migrations are additive and schema-parity validated.",
+        "Sorting and visibility runtime paths persist real shop-scoped activity without fabricated analytics.",
+        "Pro+ analytics/history UI and authenticated CSV export are implemented and entitlement-gated.",
+        "No PHASE-04 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-05",
+      "name": "Rule Builder & Scheduled Automation",
+      "objective": "Schedule the certified collection sorting engine and add entitlement-safe live-stock IF/AND conditions without introducing a separate paid server.",
+      "module_ids": [
+        "MOD-AUTOMATION-RULES",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS"
+      ],
+      "dependencies": [
+        "PHASE-04"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "AutomationRule persistence exists in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Growth+ scheduled automation and Pro+ advanced rule builder entitlements fail closed server-side.",
+        "Rule predicates are evaluated from live Shopify stock state.",
+        "Matched rules invoke the existing certified collection sorting engine.",
+        "Cloudflare hourly scheduled runtime is internal-only, bounded and DB-lease protected.",
+        "Merchant Automation UI is authenticated and shop-scoped.",
+        "Latest implementation-head App Validation, PHASE-05 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #107 exact head 6ca7985747d61f44a3963d0e6cff93645d92bab4 passed App Validation #419 / run 37058104070.",
+        "PR #107 merged to development as fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Post-merge App Validation #420 / run 37058725539 passed the complete validation chain on fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Local SQLite and hosted PostgreSQL AutomationRule migrations are additive and schema-parity validated.",
+        "Growth+ scheduled automation and Pro+ advanced live-stock conditions are enforced server-side.",
+        "Cloudflare hourly scheduled execution is repository-wired, internal-only, bounded and DB-lease protected.",
+        "Merchant Automation UI supports create/edit/pause/run/delete for shop-scoped rules.",
+        "No PHASE-05 Staging or Production deployment/promotion occurred in this repository implementation phase."
+      ]
+    },
+    {
+      "id": "PHASE-06",
+      "name": "Low-Stock Email & Slack Alerts",
+      "objective": "Notify merchants when tracked Shopify products reach low-stock thresholds while preserving entitlement, secret, cooldown and runtime-delivery boundaries.",
+      "module_ids": [
+        "MOD-LOW-STOCK-ALERTS",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "dependencies": [
+        "PHASE-05"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Alert settings and per-product cooldown state exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "Starter+ email and Growth+ Slack entitlements fail closed server-side.",
+        "Slack webhook secrets are encrypted at rest, host-validated and never read back to the merchant UI.",
+        "Low-stock evaluation uses live tracked Shopify product inventory.",
+        "Webhook/Queue and Local fallback paths evaluate alerts without breaking sorting/visibility processing.",
+        "Hosted email binding and sender prerequisite are explicit without claiming external onboarding acceptance.",
+        "Latest implementation-head App Validation, PHASE-06 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #110 exact head a819ed4e72607e74fadd11b7af7996394848ca9a passed App Validation #434 / run 37113964101.",
+        "PR #110 merged to development as ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Post-merge App Validation #435 / run 37114055964 passed the complete validation chain on ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Local SQLite and hosted PostgreSQL alert persistence migrations are additive and schema-parity validated.",
+        "Starter+ email and Growth+ Slack alert entitlements are enforced server-side.",
+        "Slack webhook configuration is encrypted at rest and restricted to validated Slack HTTPS incoming-webhook URLs.",
+        "Hosted email runtime requires EMAIL binding and ALERT_FROM_EMAIL without hardcoded sender identity.",
+        "Inventory/product webhook + Queue paths and Local evaluation fallback are implemented.",
+        "No PHASE-06 Staging/Production deployment, Cloudflare Email onboarding, or real email/Slack delivery acceptance is claimed."
+      ]
+    },
+    {
+      "id": "PHASE-07",
+      "name": "Markets, B2B Catalog & Sales-Channel Visibility",
+      "objective": "Apply Unlimited-only sold-out visibility automation to existing Shopify commerce-context publications with safe merchant-state preservation.",
+      "module_ids": [
+        "MOD-CONTEXT-VISIBILITY",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "dependencies": [
+        "PHASE-06"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "ContextVisibilityRule and ContextPublicationState exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "All Shopify app configs request read_publications/write_publications.",
+        "Markets/B2B/sales-channel capabilities are Unlimited-only and fail closed server-side.",
+        "Only existing publications are discovered; no catalog/publication creation occurs.",
+        "Sold-out products are removed only when currently published to the selected publication.",
+        "Restock re-add occurs only for VSN-managed removals.",
+        "Product/inventory webhooks integrate hosted Queue and deterministic Local fallback.",
+        "Latest implementation-head App Validation, PHASE-07 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #114 exact head 7c889db5f1e19fc9bc1e61a3b4bea5b657fa08bd passed App Validation #446 / run 37115378500.",
+        "PR #114 merged to development as 26663def7f1052bceac0159ae491e0e555b5eac8.",
+        "Post-merge App Validation #452 / run 37115451403 passed the complete validation chain on 26663def7f1052bceac0159ae491e0e555b5eac8.",
+        "Local SQLite and hosted PostgreSQL context visibility migrations are additive and schema-parity validated.",
+        "All app configs declare read_publications/write_publications; existing installs may still require runtime scope reauthorization.",
+        "Markets, B2B catalogs and sales-channel rules operate only on existing Shopify publications.",
+        "Sold-out removal and restock restoration preserve merchant-owned publication state through VSN ownership tracking.",
+        "No PHASE-07 Staging/Production scope acceptance or live publication mutation acceptance occurred in this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-08",
+      "name": "Secure API & Signed Webhook Integrations",
+      "objective": "Expose Unlimited-only external automation APIs with hash-only bearer credentials, encrypted webhook secrets and replay/rate protections.",
+      "module_ids": [
+        "MOD-API-INTEGRATIONS",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS",
+        "MOD-AUTOMATION-RULES"
+      ],
+      "dependencies": [
+        "PHASE-07"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "IntegrationCredential and IntegrationReplayNonce exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "OPT-API-INTEGRATIONS is Unlimited-only and fail-closed server-side.",
+        "API bearer plaintext is never persisted and webhook signing secret is encrypted at rest.",
+        "External API routes derive shop from authenticated credentials and enforce exact scopes.",
+        "Signed webhooks enforce HMAC-SHA256, timestamp freshness and replay nonce uniqueness.",
+        "Per-credential bounded request/rate controls and no-store responses are enforced.",
+        "Merchant credential UI exposes plaintext token/secret only on create/rotate.",
+        "Latest implementation-head App Validation, PHASE-08 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #118 exact head 69c6333837b0823e6db77084add8ec1350b0e103 passed App Validation #462 / run 37118074935.",
+        "PR #118 merged to development as 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Post-merge App Validation #463 / run 37118149572 passed the complete validation chain on 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Local SQLite and hosted PostgreSQL integration credential/replay migrations are additive and schema-parity validated.",
+        "OPT-API-INTEGRATIONS is Unlimited-only; OPT-PRIORITY-SUPPORT remains separate and planned.",
+        "Bearer tokens are hash-only at rest and webhook signing secrets are AES-GCM encrypted.",
+        "External API/webhook routes derive shop from authenticated credentials and enforce scope, rate, body, entitlement and replay boundaries.",
+        "No PHASE-08 Staging/Production credential issuance or live external client/webhook acceptance occurred in this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-09",
+      "name": "Priority Support Entitlement Truth",
+      "objective": "Close the final selected capability by representing support entitlements exactly without fabricating operational support guarantees.",
+      "module_ids": [
+        "MOD-PRIORITY-SUPPORT",
+        "MOD-BILLING"
+      ],
+      "dependencies": [
+        "PHASE-08"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Starter/Growth resolve to Standard support.",
+        "Pro resolves to Priority support.",
+        "Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT is Pro/Unlimited-only and runtime-implemented.",
+        "Support entitlement is derived from the authenticated active plan.",
+        "Plan page does not advertise blanket 24/7 support.",
+        "Operational SLA/contact/escalation/staffing commitments remain outside repository claims.",
+        "Latest implementation-head App Validation, PHASE-09 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #121 exact head 1a01e27e6b4d2c8c1c573fa680ccea15297e39ef passed App Validation #475 / run 37119934408.",
+        "PR #121 merged to development as ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Post-merge App Validation #476 / run 37119993769 passed the complete validation chain on ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Starter/Growth resolve to Standard support; Pro resolves to Priority support; Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT is runtime-implemented for Pro and Unlimited only.",
+        "All selected product capability options are now non-planned/runtime-implemented.",
+        "No response-time SLA, support contact method, escalation procedure or staffing fulfillment is claimed by this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-10",
+      "name": "In-app Support Request Fulfillment",
+      "objective": "Provide authenticated shop-scoped support request intake and hosted inbox notification while preserving server-derived plan priority and a no-SLA truth boundary.",
+      "module_ids": [
+        "MOD-SUPPORT-FULFILLMENT",
+        "MOD-PRIORITY-SUPPORT",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "dependencies": [
+        "PHASE-09"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
+        "Authenticated merchants can create and view only their own shop-scoped support requests.",
+        "Support request priority is derived server-side from the active Shopify plan support entitlement and cannot be upgraded by client input.",
+        "Local development persists requests without claiming external delivery.",
+        "Hosted Staging/Production notify a configured VSN support inbox through the existing Cloudflare EMAIL binding and require SUPPORT_INBOX_EMAIL.",
+        "ActivityEvent evidence records request creation and notification outcome without support message bodies or inbox secrets.",
+        "No response-time SLA, staffing level or escalation deadline is fabricated.",
+        "PHASE-10 contract, lint, typecheck, Worker build and Cloudflare dry-runs pass; final environment runtime acceptance remains deferred."
+      ],
+      "completion_evidence": [
+        "PR #129 exact head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App Validation #496 / run 37126630330.",
+        "PR #129 merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
+        "SupportRequest persistence and additive Local/cloud migrations are implemented with schema parity.",
+        "Authenticated merchant support intake is shop-scoped, bounded and rate-limited to 5 requests per shop per 10 minutes.",
+        "Support priority is derived server-side from the active Shopify plan and cannot be client-upgraded.",
+        "Local requests remain LOCAL_ONLY; hosted notification uses EMAIL + ALERT_FROM_EMAIL + SUPPORT_INBOX_EMAIL without claiming live delivery acceptance.",
+        "Merchant UI does not expose provider/configuration errors, and ActivityEvent evidence excludes message bodies and support inbox secrets.",
+        "No response-time SLA, staffing level, or escalation deadline is claimed.",
+        "Final Local/Staging/Live runtime acceptance remains deferred to the separate final release cycle."
       ]
     }
   ],
@@ -416,6 +720,1011 @@
         "Workflow conclusion was failure only because the verification command redirected the wrong output stream before grep; the release and remote-name evidence themselves passed.",
         "Live gate reconciled to accepted without rerunning the already-successful release."
       ]
+    },
+    {
+      "id": "ISSUE-97-WU-01",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Add sorting-rule data model and entitlement contract",
+      "objective": "Persist collection sorting rules in Local/hosted schemas and fail closed on plan-tier entitlements.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local and cloud CollectionSetting models contain identical additive PHASE-02 rule fields.",
+        "Runtime rules are limited by the current Shopify plan rather than client input."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "Local/cloud CollectionSetting rule fields and additive migrations are parity-validated.",
+        "Server-side current-plan entitlement enforcement fails closed.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-02",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement exclusions and pinned products",
+      "objective": "Keep excluded products fixed and place configured pinned products ahead of other movable products.",
+      "dependencies": [
+        "ISSUE-97-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Tag, vendor and product selectors are supported.",
+        "Pinned product priority follows merchant-configured order.",
+        "Rules work in manual and webhook/queue-triggered sorts."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "Tag/vendor/product exclusions and ordered pinned product selectors are implemented in the shared sorting engine.",
+        "Enabled collection rule changes are re-sorted through Cloudflare Queue with Local direct fallback.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-03",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement advanced collection sorting",
+      "objective": "Sort in-stock movable products deterministically while preserving sold-out grouping and exclusion/pin precedence.",
+      "dependencies": [
+        "ISSUE-97-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Preserve, title, inventory and created-date ordering modes are supported.",
+        "Only changed product positions are sent to Shopify and move batches remain within Shopify's 250-move limit."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "PRESERVE, TITLE_ASC, TITLE_DESC, INVENTORY_DESC, INVENTORY_ASC, NEWEST and OLDEST available-product modes are implemented.",
+        "Shopify collection move mutations are chunked to the documented 250-move maximum and only generated for changed target positions.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
+      ]
+    },
+    {
+      "id": "ISSUE-97-WU-04",
+      "phase_id": "PHASE-02",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Implement multi-location rules and merchant controls",
+      "objective": "Use selected Shopify inventory locations for stock-state evaluation and expose complete per-collection configuration in the embedded UI.",
+      "dependencies": [
+        "ISSUE-97-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Active Shopify locations are discoverable with existing read_inventory scope.",
+        "ANY_SELECTED and ALL_SELECTED location modes are supported.",
+        "UI saves rules and immediately reapplies them for enabled collections.",
+        "Options/product-plan runtime status and docs/state reflect only verified implementation."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-02 sorting contract"
+      ],
+      "completion_evidence": [
+        "Implemented on PR #98 head 8f47fbc86e44da94eff316e0d84b68a4717e1b08.",
+        "App Validation #366 / run 37007055080 passed the complete validation chain.",
+        "ALL_LOCATIONS, ANY_SELECTED_LOCATION and ALL_SELECTED_LOCATIONS stock evaluation modes are implemented.",
+        "Shopify locations and available inventory quantities are read with existing inventory scope.",
+        "Embedded merchant UI exposes rule controls according to current plan entitlements.",
+        "PR #98 merged to development as ae2c5a93846725683ba4e6c2516bda1463dc2278.",
+        "Post-merge App Validation #377 / run 37007855200 passed on development."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-01",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement product visibility state and entitlement-safe engine",
+      "objective": "Persist visibility settings/state and reconcile sold-out products without overwriting merchant-owned statuses.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching additive visibility models.",
+        "DRAFT and UNLISTED modes are plan-gated.",
+        "Only VSN-managed product states are restored on restock."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "App Validation #394 / run 37016155170 passed.",
+        "VisibilitySetting and ProductVisibilityState migrations validated in Local SQLite and hosted PostgreSQL.",
+        "Merchant status override and safe ACTIVE restore guards are enforced."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-02",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Integrate product visibility with webhooks, Queue and merchant controls",
+      "objective": "Run the same visibility engine from product/inventory events and expose plan-aware merchant configuration.",
+      "dependencies": [
+        "ISSUE-100-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Products/update and inventory_levels/update enqueue visibility work in hosted runtime.",
+        "Local runtime has deterministic direct fallback.",
+        "/app/visibility saves only entitled settings."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "Hosted Queue visibility job validation and consumer path implemented.",
+        "Product/inventory webhook direct fallback uses the same reconciliation engine.",
+        "Visibility settings UI is current-plan gated."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-03",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Implement entitlement-gated storefront variant visibility",
+      "objective": "Hide unavailable variant-linked storefront controls through a Shopify theme app extension and restore them when available.",
+      "dependencies": [
+        "ISSUE-100-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Theme app extension exists under extensions/ and does not edit merchant theme source.",
+        "Extension uses Shopify variant availability rather than Admin-only metadata.",
+        "Extension availability is plan-gated using an app-data metafield.",
+        "Merchant can open Shopify theme editor activation flow from the app."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on f50c666dec44bc1c479bbbbfdb8eddec3ef4a844.",
+        "extensions/vsn-variant-visibility implements product-template app embed plus storefront runtime.",
+        "Liquid variant.available drives sold-out detection.",
+        "AppInstallation metafield variant_visibility_entitled gates extension availability.",
+        "Runtime preserves theme-owned hidden/disabled states.",
+        "Shopify extension deployment/activation remains a separate Staging/Production promotion gate."
+      ]
+    },
+    {
+      "id": "ISSUE-100-WU-04",
+      "phase_id": "PHASE-03",
+      "module_id": "MOD-PRODUCT-VISIBILITY",
+      "title": "Certify PHASE-03 and reconcile repository truth",
+      "objective": "Keep product/options/state registries aligned with only verified PHASE-03 implementation.",
+      "dependencies": [
+        "ISSUE-100-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product plan runtime IDs include exactly implemented PHASE-03 capabilities.",
+        "Options bank marks the five implemented capabilities truthfully.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-03 product visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #101 exact head 8dafd702a15c39b0b9613fd3aad4839bb72545f3 passed App Validation #398 / run 37030996617.",
+        "PR #101 merged to development as e428ab8b3df4f3832b32abde76014fc3daad1ea0.",
+        "Post-merge App Validation #399 / run 37031133345 passed all validation steps including PHASE-03 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-03 runtime implementation.",
+        "No PHASE-03 Staging or Production runtime promotion is claimed."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-01",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Add activity event persistence and entitlement contract",
+      "objective": "Create parity-validated ActivityEvent persistence and Pro+ entitlement helpers for analytics/history/export.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching ActivityEvent models and indexes.",
+        "Analytics/history/export entitlement checks derive from the current plan.",
+        "Reads and writes remain shop-scoped."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "App Validation #403 / run 37033334552 passed.",
+        "Local SQLite and hosted PostgreSQL ActivityEvent migrations validate and preserve parity.",
+        "PHASE4_OPTION_IDS gates analytics, history and CSV access."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-02",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Instrument sorting and visibility runtime activity",
+      "objective": "Persist real success/error/settings events from existing sorting and visibility execution paths.",
+      "dependencies": [
+        "ISSUE-103-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Collection sorting records real totals, sold-out observations and moved products.",
+        "Sorting failures are recorded without blocking existing error handling.",
+        "Visibility hide/restore and settings changes are recorded.",
+        "Event persistence failure does not fail the primary automation action."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "collection.sorted, collection.sort_failed and collection settings actions are instrumented.",
+        "product hide/restore and visibility settings actions are instrumented.",
+        "recordActivityEventSafe keeps telemetry failure isolated from primary automation."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-03",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Add analytics, history UI and CSV export",
+      "objective": "Expose persisted runtime evidence to entitled merchants through authenticated UI and export.",
+      "dependencies": [
+        "ISSUE-103-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Analytics page shows real persisted metrics and a truthful empty state.",
+        "Recent history is bounded by plan retention and row limits.",
+        "CSV resource route authenticates Shopify and scopes export by session.shop.",
+        "CSV export response is private/no-store."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract"
+      ],
+      "completion_evidence": [
+        "Certified on 8827d7bdebb88329a2da35975d58d64393dc05ef.",
+        "/app/analytics reads DB-backed analytics/history only.",
+        "/app/analytics/export emits authenticated shop-scoped CSV.",
+        "No hardcoded/sample analytics values are used."
+      ]
+    },
+    {
+      "id": "ISSUE-103-WU-04",
+      "phase_id": "PHASE-04",
+      "module_id": "MOD-ANALYTICS-HISTORY",
+      "title": "Certify PHASE-04 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-04 implementation.",
+      "dependencies": [
+        "ISSUE-103-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the three implemented PHASE-04 capabilities.",
+        "Dedicated PHASE-04 contract passes.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-04 analytics history export contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #104 exact head 719696e3e90509950d7fc9fa315621b52ceff510 passed App Validation #407 / run 37033732199.",
+        "PR #104 merged to development as a4f2472fe7e6d52ca5e02502ed9c6c461a758699.",
+        "Post-merge App Validation #408 / run 37033942983 passed all validation steps including PHASE-04 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-04 runtime implementation.",
+        "No PHASE-04 Staging or Production runtime promotion is claimed."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-01",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Add automation rule persistence and entitlement contract",
+      "objective": "Create parity-validated AutomationRule persistence and exact Growth+/Pro+ capability gates.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching AutomationRule fields and indexes.",
+        "Scheduled automation is Growth+.",
+        "Advanced IF/AND conditions are Pro+.",
+        "Rules may only target collections already enabled in VSN Stock Down Sort."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-05 scheduling and rule builder contract"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "App Validation #413 / run 37057803474 passed.",
+        "AutomationRule Local/hosted migrations validate and preserve schema parity.",
+        "PHASE5_OPTION_IDS gates schedule and advanced rule access."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-02",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Implement live condition evaluation and safe execution",
+      "objective": "Evaluate IF/AND predicates against live collection stock and invoke the existing sort engine only when conditions match.",
+      "dependencies": [
+        "ISSUE-106-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Live collection stock summary respects existing collection inventory rules.",
+        "All configured advanced predicates use AND semantics.",
+        "Unmatched rules record SKIPPED and do not sort.",
+        "Matched rules invoke the existing sortCollection engine.",
+        "Subscription downgrade fails closed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "getCollectionStockSummary evaluates live Shopify stock using existing collection rules.",
+        "executeAutomationRule records SUCCESS/SKIPPED/ERROR/ENTITLEMENT_BLOCKED outcomes.",
+        "Primary collection sorting implementation is reused rather than duplicated."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-03",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Add Cloudflare scheduled runtime and merchant Automation UI",
+      "objective": "Run due rules from hosted Cloudflare Cron Triggers and expose authenticated merchant management controls.",
+      "dependencies": [
+        "ISSUE-106-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging/Production Wrangler configs define the hourly cron trigger.",
+        "Worker exports scheduled() and calls the internal runner.",
+        "Internal runner rejects normal public requests.",
+        "Due rules are bounded to 25 and protected by 15-minute DB leases.",
+        "Automation UI supports rule create/edit/pause/run/delete.",
+        "Local development does not claim background scheduling."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 7244f4f00e26bd045eaa76e73a61b220e3d901c6.",
+        "workers/app.js exports the scheduled handler.",
+        "Both hosted Wrangler configs contain 0 * * * *.",
+        "Internal runner requires scheduledConsumer context.",
+        "/app/automation is authenticated and shop-scoped."
+      ]
+    },
+    {
+      "id": "ISSUE-106-WU-04",
+      "phase_id": "PHASE-05",
+      "module_id": "MOD-AUTOMATION-RULES",
+      "title": "Certify PHASE-05 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-05 implementation.",
+      "dependencies": [
+        "ISSUE-106-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the two implemented PHASE-05 capabilities.",
+        "Dedicated PHASE-05 contract passes.",
+        "Latest implementation-head App Validation passes all checks."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-05 scheduling and rule builder contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #107 exact head 6ca7985747d61f44a3963d0e6cff93645d92bab4 passed App Validation #419 / run 37058104070.",
+        "PR #107 merged to development as fc299f1b7c6812969d1572c3a0badd82898b5a66.",
+        "Post-merge App Validation #420 / run 37058725539 passed all validation steps including PHASE-05 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-05 runtime implementation.",
+        "No PHASE-05 Staging or Production runtime promotion is claimed."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-01",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Add alert persistence, secret handling and entitlement contract",
+      "objective": "Create parity-validated alert persistence with exact Starter+/Growth+ capability gates and encrypted Slack secret storage.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching AlertSetting and LowStockAlertState fields/indexes.",
+        "Low-stock email is Starter+ and Slack alerts are Growth+.",
+        "Slack webhook URL is encrypted before persistence and never returned by the public settings shape.",
+        "Only approved Slack HTTPS webhook hosts/path are accepted."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-06 low-stock alerts contract"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "App Validation #429 / run 37113777777 passed.",
+        "Alert persistence migrations validate in Local and hosted schemas.",
+        "PHASE6_OPTION_IDS and AES-GCM secret handling are repository-implemented."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-02",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Implement live low-stock evaluator and delivery adapters",
+      "objective": "Evaluate live tracked inventory, deduplicate alert attempts by channel and adapt hosted email/Slack delivery without leaking secrets.",
+      "dependencies": [
+        "ISSUE-109-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Tracked inventory is read from live Shopify product data.",
+        "Threshold crossing and per-channel cooldown determine alert eligibility.",
+        "Local development evaluates state without external delivery.",
+        "Hosted email requires EMAIL binding and ALERT_FROM_EMAIL.",
+        "Slack uses only decrypted validated webhook URL at delivery time.",
+        "Delivery failure is recorded without throwing through the stock automation pipeline."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "processLowStockAlert implements live inventory and per-channel cooldown logic.",
+        "Email and Slack delivery results are isolated by channel.",
+        "Activity evidence contains delivery metadata but no recipient/webhook secrets."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-03",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Integrate alerts with webhooks, hosted Queue and merchant UI",
+      "objective": "Evaluate low-stock state from inventory/product events and expose secret-safe merchant alert configuration.",
+      "dependencies": [
+        "ISSUE-109-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Inventory and product update webhooks include alert Queue jobs.",
+        "Hosted Queue consumer handles alert jobs.",
+        "Local fallback directly evaluates low-stock state.",
+        "Alerts UI supports threshold, cooldown, email recipients, Slack replace/clear and channel toggles.",
+        "Stored Slack secret is represented only as configured/not configured."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
+        "sort-queue union and internal consumer support alert jobs.",
+        "Both product and inventory webhook routes enqueue alerts.",
+        "/app/alerts is authenticated, plan-aware and does not render stored Slack ciphertext."
+      ]
+    },
+    {
+      "id": "ISSUE-109-WU-04",
+      "phase_id": "PHASE-06",
+      "module_id": "MOD-LOW-STOCK-ALERTS",
+      "title": "Certify PHASE-06 and reconcile repository truth",
+      "objective": "Align option/state registries with only CI-verified alert implementation and preserve runtime-delivery truth boundaries.",
+      "dependencies": [
+        "ISSUE-109-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the two implemented PHASE-06 alert capabilities.",
+        "Dedicated PHASE-06 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "External Cloudflare email onboarding and real Slack/email delivery are not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-06 low-stock alerts contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #110 exact head a819ed4e72607e74fadd11b7af7996394848ca9a passed App Validation #434 / run 37113964101.",
+        "PR #110 merged to development as ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Post-merge App Validation #435 / run 37114055964 passed all validation steps including PHASE-06 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-06 runtime implementation.",
+        "No PHASE-06 Staging/Production runtime promotion or real notification delivery is claimed."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-01",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Add publication scopes, persistence and Unlimited entitlements",
+      "objective": "Declare required Shopify publication scopes and create parity-validated rule/state persistence with exact Unlimited-only gates.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/Staging/Production app configs include read_publications/write_publications.",
+        "Local/cloud schemas contain matching ContextVisibilityRule and ContextPublicationState models.",
+        "Markets, B2B and sales-channel rules are Unlimited-only.",
+        "Arbitrary non-Shopify publication IDs are rejected."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-07 commerce context visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "App Validation #441 / run 37115215210 passed.",
+        "Publication scopes are declared in all three Shopify app configs.",
+        "Context persistence migrations validate in Local and hosted schemas."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-02",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Implement publication discovery and safe context visibility engine",
+      "objective": "Discover existing Market/B2B/sales-channel publications and safely remove/restore product membership.",
+      "dependencies": [
+        "ISSUE-113-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "MARKET, COMPANY_LOCATION and NONE publication types are discovered without creation.",
+        "Product membership is checked with publishedOnPublication before removal.",
+        "publicationUpdate is bounded to 50 publishables.",
+        "Merchant-owned unpublished state is preserved.",
+        "Only VSN-managed removals are automatically restored."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "Existing Shopify publications are queried by catalog type.",
+        "publicationUpdate handles remove/add membership changes.",
+        "ContextPublicationState tracks VSN ownership and merchant override behavior."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-03",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Integrate commerce contexts with webhooks, Queue and merchant UI",
+      "objective": "Run context visibility from product/inventory events and expose authenticated publication-rule management.",
+      "dependencies": [
+        "ISSUE-113-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product and inventory update webhooks enqueue context_visibility jobs.",
+        "Hosted Queue consumer handles context_visibility jobs.",
+        "Local fallback reconciles the same product deterministically.",
+        "Commerce Contexts UI lists only Shopify-discovered targets.",
+        "Scope/permission discovery failures are surfaced without fake acceptance.",
+        "Pause/delete safeguards prevent stranded VSN-managed removals."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "Queue union/consumer and both webhooks implement context_visibility jobs.",
+        "/app/contexts is authenticated, plan-aware and exposes runtime scope boundaries.",
+        "Rule lifecycle blocks unsafe target changes, pauses and deletes while managed hidden states exist."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-04",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Certify PHASE-07 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-07 implementation and preserve runtime permission boundaries.",
+      "dependencies": [
+        "ISSUE-113-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the three implemented PHASE-07 capabilities.",
+        "Dedicated PHASE-07 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "Scope reauthorization and live publication mutation acceptance are not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #114 exact head 7c889db5f1e19fc9bc1e61a3b4bea5b657fa08bd passed App Validation #446 / run 37115378500.",
+        "PR #114 merged to development as 26663def7f1052bceac0159ae491e0e555b5eac8.",
+        "Post-merge App Validation #452 / run 37115451403 passed all validation steps including PHASE-07 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-07 runtime implementation.",
+        "Shopify publication-scope reauthorization and live mutation acceptance remain separate runtime gates."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-01",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Add integration persistence, crypto and Unlimited entitlement contract",
+      "objective": "Create parity-validated credential/replay persistence with hash-only API tokens, encrypted webhook secrets and exact Unlimited-only capability gating.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching IntegrationCredential and IntegrationReplayNonce models.",
+        "OPT-API-INTEGRATIONS is Unlimited-only.",
+        "API token plaintext has no persistence field and tokenHash stores SHA-256 output.",
+        "Webhook secret is stored only as encrypted ciphertext.",
+        "Credential loader/public shape never returns token hash or webhook ciphertext."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-08 secure API integrations contract"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "App Validation #457 / run 37117869035 passed.",
+        "Integration persistence migrations validate in Local and hosted schemas.",
+        "Credential create/rotate uses hash-only bearer token storage and AES-GCM webhook encryption."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-02",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Implement API authentication, scopes, rate limiting and replay guard",
+      "objective": "Authenticate external credentials without browser sessions while deriving merchant identity from credential state and bounding abuse/replay.",
+      "dependencies": [
+        "ISSUE-117-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Bearer authentication resolves credentials by non-secret prefix and constant-time hash comparison.",
+        "Required scopes fail closed before endpoint action.",
+        "Caller-supplied shop identity is rejected.",
+        "Current Unlimited entitlement is rechecked through offline Shopify admin access.",
+        "Credential use is limited to 60 accepted authenticated requests per one-minute database window.",
+        "Signed webhook timestamp, HMAC and replay nonce checks are enforced.",
+        "Integration responses are no-store and request bodies are bounded to 16 KiB."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "authenticateIntegrationApi and authenticateSignedWebhook implement credential/scope guards.",
+        "Rate-window state and replay nonce persistence are database-backed.",
+        "External request parser rejects shop fields and oversized/non-object JSON."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-03",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Expose external API/webhook routes and merchant credential UI",
+      "objective": "Provide scoped activity/sort/automation APIs, signed sort webhook and one-time-secret credential management UI.",
+      "dependencies": [
+        "ISSUE-117-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "GET /api/v1/activity requires activity:read.",
+        "POST /api/v1/collections/sort requires collections:sort.",
+        "POST /api/v1/automation/run requires automation:run.",
+        "POST /api/v1/webhooks/sort requires a valid webhooks:sort HMAC signature.",
+        "Mutation routes are POST-only.",
+        "/app/integrations supports create/rotate/revoke and never loader-reads plaintext credentials.",
+        "Activity evidence excludes token and webhook secret material."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "All four external routes are implemented without browser Shopify session authentication.",
+        "Offline Shopify admin access is derived only after credential authentication.",
+        "Merchant Integrations UI documents endpoints/signing and shows secrets only in create/rotate action responses."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-04",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Certify PHASE-08 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified API integration implementation and preserve live-acceptance boundaries.",
+      "dependencies": [
+        "ISSUE-117-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark OPT-API-INTEGRATIONS implemented while OPT-PRIORITY-SUPPORT remains separate.",
+        "Dedicated PHASE-08 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "No Staging/Production credential issuance or live external-client/webhook acceptance is claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #118 exact head 69c6333837b0823e6db77084add8ec1350b0e103 passed App Validation #462 / run 37118074935.",
+        "PR #118 merged to development as 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Post-merge App Validation #463 / run 37118149572 passed all validation steps including PHASE-08 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-08 runtime implementation.",
+        "OPT-PRIORITY-SUPPORT remains planned and outside PHASE-08.",
+        "Live external integration acceptance remains a separate runtime gate."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-01",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Implement exact support entitlement resolver and catalog contract",
+      "objective": "Resolve each plan's support tier from the canonical billing catalog and fail on mapping drift.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Starter/Growth resolve to Standard support.",
+        "Pro resolves to Priority support.",
+        "Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT mapping exactly matches Pro + Unlimited."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "App Validation #470 / run 37119754081 passed.",
+        "app/services/support.ts validates plan support catalog and priority option mapping."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-02",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Add authenticated Support UI and correct plan-page support truth",
+      "objective": "Expose the active plan's support entitlement while removing blanket support claims.",
+      "dependencies": [
+        "ISSUE-120-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "/app/support authenticates the merchant and resolves the active plan server-side.",
+        "Support UI presents Standard, Priority or 24/7 Priority exactly.",
+        "Plan page derives support labels from the canonical resolver.",
+        "Blanket 24/7 support messaging is removed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract",
+        "Typecheck"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "/app/support is authenticated and plan-aware.",
+        "Plan support labels are derived from the exact support resolver."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-03",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Certify support option registry and operational truth boundary",
+      "objective": "Mark the final selected capability implemented while keeping human support operations outside code evidence.",
+      "dependencies": [
+        "ISSUE-120-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "OPT-PRIORITY-SUPPORT is marked runtime-implemented.",
+        "All selected product options are non-planned.",
+        "Support page explicitly says response-time SLA/contact/escalation/staffing terms are separate.",
+        "No support ticket form or fabricated contact endpoint is added."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "Product/options registries mark OPT-PRIORITY-SUPPORT implemented.",
+        "PHASE-09 contract enforces the operational boundary."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-04",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Reconcile final capability state and closure evidence",
+      "objective": "Advance canonical project state to PHASE-09 only after full validation while preserving support-operations truth boundaries.",
+      "dependencies": [
+        "ISSUE-120-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "PHASE-09 module/work units are recorded in canonical registries.",
+        "Latest implementation-head App Validation passes all checks.",
+        "All selected product capabilities are runtime-implemented.",
+        "Operational support fulfillment is not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "PR #121 exact head 1a01e27e6b4d2c8c1c573fa680ccea15297e39ef passed App Validation #475 / run 37119934408.",
+        "PR #121 merged to development as ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Post-merge App Validation #476 / run 37119993769 passed all validation steps including PHASE-09 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect the final selected capability as implemented.",
+        "Operational support fulfillment remains outside repository evidence."
+      ]
+    },
+    {
+      "id": "ISSUE-128-WU-01",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-SUPPORT-FULFILLMENT",
+      "title": "Implement and certify in-app support request fulfillment",
+      "objective": "Add persistent authenticated support requests, plan-derived priority, hosted inbox notification and truthful operational boundaries without advancing environment runtime acceptance.",
+      "dependencies": [
+        "ISSUE-120-WU-04"
+      ],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "SupportRequest model and additive Local/cloud migrations are present.",
+        "/app/support authenticates merchants, accepts bounded subject/message input and lists only session.shop requests.",
+        "Priority comes only from resolveSupportEntitlement(current.plan).",
+        "Hosted notification uses EMAIL, ALERT_FROM_EMAIL and SUPPORT_INBOX_EMAIL; Local remains LOCAL_ONLY.",
+        "Notification failure does not discard the persisted support request.",
+        "ActivityEvent details exclude request message bodies and support inbox secrets.",
+        "No SLA or response-time guarantee is introduced."
+      ],
+      "required_checks": [
+        "Prisma Local/cloud schema parity",
+        "PHASE-09 priority support entitlement contract",
+        "PHASE-10 support fulfillment contract",
+        "Lint",
+        "Typecheck",
+        "Worker build",
+        "Cloudflare Staging dry-run",
+        "Cloudflare Production dry-run"
+      ],
+      "completion_evidence": [
+        "Certified on exact implementation head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936.",
+        "App Validation #496 / run 37126630330 passed.",
+        "Local/cloud Prisma parity and migration application passed.",
+        "PHASE-09 entitlement and PHASE-10 fulfillment contracts passed.",
+        "Lint, typecheck, Worker runtime contracts, Worker build and both Cloudflare dry-runs passed.",
+        "Merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
+        "No environment runtime acceptance or production deployment was performed."
+      ]
     }
   ],
   "status_values": [
@@ -430,5 +1739,16 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "c01ce81fa0e504a0e9bc693f67dfa1ca4910223f"
+  "last_reconciled_repository_ref": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
+  "active_issue_status": "none",
+  "active_issue_note": "PHASE-10 repository implementation is complete. Runtime Issue #125 remains separate and intentionally deferred until the final acceptance cycle.",
+  "runtime_track": {
+    "issue": 125,
+    "status": "repository_extension_complete_runtime_testing_deferred",
+    "repository_implementation": "complete",
+    "selected_capabilities": "26/26",
+    "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
+    "current_head_runtime_acceptance": "pending",
+    "next_gate": "After completion-evidence reconciliation, resolve exact development HEAD and perform final Local -> Staging -> Live acceptance."
+  }
 }

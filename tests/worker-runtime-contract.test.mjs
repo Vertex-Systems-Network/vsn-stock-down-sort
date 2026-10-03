@@ -69,7 +69,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     staging.vars.SCOPES,
-    "read_products,write_products,read_inventory",
+    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
   );
   assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!staging.secrets.required.includes("SCOPES"));
@@ -81,7 +81,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     production.vars.SCOPES,
-    "read_products,write_products,read_inventory",
+    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
   );
   assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!production.secrets.required.includes("SCOPES"));
@@ -957,42 +957,112 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.ok(manifest.roles.supervisor.includes("SUPERVISOR.md"));
   assert.ok(manifest.roles.worker.includes("AUTO-AGENT.md"));
 
-  assert.equal(state.current_phase, "PHASE-01");
-  assert.equal(state.active_issue, 32);
-  assert.equal(state.current_module, "production-live");
-  assert.equal(state.current_work_unit, "ISSUE-32-WU-07");
+  assert.equal(plan.active_issue, state.active_issue);
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.match(state.next_valid_work_unit, /PHASE-01 is complete/i);
-  assert.match(
-    state.next_valid_work_unit,
-    /516ab92a2d1a4a74fc9624dfc56d3fcc3f624182/,
+
+  const expectedActiveStatus =
+    state.active_issue === null ? "complete" : "in_progress";
+  assert.equal(
+    plan.phases.find((phase) => phase.id === state.current_phase)?.status,
+    expectedActiveStatus,
+  );
+  assert.equal(
+    plan.work_units.find(
+      (workUnit) => workUnit.id === state.current_work_unit,
+    )?.status,
+    expectedActiveStatus,
   );
 
-  assert.equal(plan.active_issue, 32);
-  assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 9);
-  assert.equal(plan.work_units[0].status, "complete");
-  assert.equal(plan.work_units[1].status, "deprecated");
-  assert.equal(plan.work_units[2].status, "complete");
-  assert.equal(plan.work_units[3].status, "complete");
-  assert.equal(plan.work_units[4].status, "complete");
-  assert.equal(plan.work_units[5].status, "complete");
-  assert.equal(plan.work_units[6].status, "complete");
-  assert.equal(plan.work_units[7].status, "complete");
-  assert.equal(plan.work_units[8].status, "complete");
-  assert.equal(plan.work_units[9].status, "complete");
-  assert.equal(plan.work_units[10].status, "complete");
-  assert.equal(plan.work_units[0].id, "ISSUE-32-WU-01");
-  assert.equal(plan.work_units[1].id, "ISSUE-32-WU-LOCAL-01");
-  assert.equal(plan.work_units[2].id, "ISSUE-32-WU-LOCAL-SQLITE-01");
-  assert.equal(plan.work_units[3].id, "ISSUE-32-WU-BILLING-01");
-  assert.equal(plan.work_units[4].id, "ISSUE-32-WU-DATABASE-01");
-  assert.equal(plan.work_units[5].id, "ISSUE-32-WU-02");
+  assert.equal(state.current_phase, "PHASE-10");
+  assert.equal(state.current_module, "support-fulfillment");
+  assert.equal(state.current_work_unit, "ISSUE-128-WU-01");
+  assert.equal(
+    state.active_issue_status,
+    state.active_issue === null ? "none" : "open",
+  );
+  if (state.active_issue === null) {
+    assert.match(state.next_valid_work_unit, /repository development.*complete/i);
+    assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
+  } else {
+    assert.match(state.next_valid_work_unit, /support request fulfillment/i);
+    assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
+  }
 
-  assert.ok(modules.modules.some((module) => module.id === "MOD-MGMT"));
-  assert.ok(modules.modules.some((module) => module.id === "MOD-LOCAL"));
-  assert.ok(modules.modules.some((module) => module.id === "MOD-STAGING"));
-  assert.ok(modules.modules.some((module) => module.id === "MOD-PRODUCTION"));
+  assert.equal(plan.phases[0].id, "PHASE-01");
+  assert.ok(plan.work_units.length >= 44);
+  for (const id of [
+    "ISSUE-97-WU-01",
+    "ISSUE-97-WU-02",
+    "ISSUE-97-WU-03",
+    "ISSUE-97-WU-04",
+    "ISSUE-100-WU-01",
+    "ISSUE-100-WU-02",
+    "ISSUE-100-WU-03",
+    "ISSUE-100-WU-04",
+    "ISSUE-103-WU-01",
+    "ISSUE-103-WU-02",
+    "ISSUE-103-WU-03",
+    "ISSUE-103-WU-04",
+    "ISSUE-106-WU-01",
+    "ISSUE-106-WU-02",
+    "ISSUE-106-WU-03",
+    "ISSUE-106-WU-04",
+    "ISSUE-109-WU-01",
+    "ISSUE-109-WU-02",
+    "ISSUE-109-WU-03",
+    "ISSUE-109-WU-04",
+    "ISSUE-113-WU-01",
+    "ISSUE-113-WU-02",
+    "ISSUE-113-WU-03",
+    "ISSUE-113-WU-04",
+    "ISSUE-117-WU-01",
+    "ISSUE-117-WU-02",
+    "ISSUE-117-WU-03",
+    "ISSUE-117-WU-04",
+    "ISSUE-120-WU-01",
+    "ISSUE-120-WU-02",
+    "ISSUE-120-WU-03",
+    "ISSUE-120-WU-04",
+  ]) {
+    assert.equal(
+      plan.work_units.find((workUnit) => workUnit.id === id)?.status,
+      "complete",
+      id,
+    );
+  }
+  assert.equal(
+    plan.work_units.find(
+      (workUnit) => workUnit.id === "ISSUE-128-WU-01",
+    )?.status,
+    expectedActiveStatus,
+  );
+
+  for (const id of [
+    "MOD-MGMT",
+    "MOD-LOCAL",
+    "MOD-STAGING",
+    "MOD-PRODUCTION",
+    "MOD-SORTING-CONTROLS",
+    "MOD-PRODUCT-VISIBILITY",
+    "MOD-ANALYTICS-HISTORY",
+    "MOD-AUTOMATION-RULES",
+    "MOD-LOW-STOCK-ALERTS",
+    "MOD-CONTEXT-VISIBILITY",
+    "MOD-API-INTEGRATIONS",
+    "MOD-PRIORITY-SUPPORT",
+  ]) {
+    assert.equal(
+      modules.modules.find((module) => module.id === id)?.status,
+      "complete",
+      id,
+    );
+  }
+  assert.equal(
+    modules.modules.find(
+      (module) => module.id === "MOD-SUPPORT-FULFILLMENT",
+    )?.status,
+    expectedActiveStatus,
+  );
 
   assert.equal(supervisor.supervisor.status, "unassigned");
   assert.equal(supervisor.supervisor.lease_status, "not_acquired");
@@ -1001,16 +1071,23 @@ test("repository management follows the VSN Metafields-style canonical state cha
 });
 
 test("legacy ai state is compatibility-only, not a competing source of truth", () => {
+  const state = JSON.parse(read("config/ai/project-state.json"));
   const current = read(".ai/state/CURRENT-STATE.yaml");
   const tasks = read(".ai/tasks/INDEX.yaml");
+  const expectedActive = state.active_issue === null ? "null" : String(state.active_issue);
+  const expectedTaskStatus =
+    state.active_issue === null ? "complete" : "in_progress";
 
   assert.match(current, /compatibility_mirror: true/);
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
-  assert.match(current, /ISSUE-32-WU-07/);
-  assert.match(tasks, /ISSUE-32-WU-07/);
-  assert.match(tasks, /status: complete/);
+  assert.ok(current.includes(`active_issue: ${expectedActive}`));
+  assert.ok(current.includes(`current_phase: ${state.current_phase}`));
+  assert.ok(current.includes(`current_work_unit: ${state.current_work_unit}`));
+  assert.ok(tasks.includes(`active_issue: ${expectedActive}`));
+  assert.ok(tasks.includes(`active_work_unit: ${state.current_work_unit}`));
+  assert.ok(tasks.includes(`status: ${expectedTaskStatus}`));
 });
 
 
@@ -1047,24 +1124,19 @@ test("environment gate records accepted SQLite Local evidence before Staging", (
   const releaseFlow = read("docs/development-release-flow.md");
 
   assert.equal(gates.local_dev.status, "accepted");
-  assert.equal(
-    gates.local_dev.accepted_source_ref,
-    "ca5851561ab7979712f11580ab951fda4650ef19",
-  );
+  assert.match(gates.local_dev.accepted_source_ref, /^[0-9a-f]{40}$/);
+  assert.ok(Number.isFinite(Date.parse(gates.local_dev.accepted_at)));
+  assert.equal(gates.local_dev.evidence_record.branch, "development");
   assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
+  assert.equal(gates.local_dev.evidence_record.database_file, "prisma/dev.sqlite");
+  assert.equal(gates.local_dev.evidence_record.sqlite_gitignored, true);
+  assert.equal(gates.local_dev.evidence_record.prisma_validate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_generate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_migrate_deploy, "passed");
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.environment, "development");
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
-  assert.equal(gates.local_dev.evidence_record.billing_catalog.trialDays, 10);
-  assert.ok(
-    gates.local_dev.required_checks.includes(
-      "Local SQLite Prisma validation/generation/migration",
-    ),
-  );
-  assert.ok(
-    gates.local_dev.required_checks.includes(
-      "Local/cloud Prisma model parity",
-    ),
-  );
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.database, "sqlite");
   assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
@@ -1259,10 +1331,17 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
   const wu06 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-06");
   assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
   assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
-  assert.equal(
-    gates.staging.deployed_source_ref,
-    "ca5851561ab7979712f11580ab951fda4650ef19",
-  );
-  assert.equal(gates.staging.deployment_record?.run_id, 36985118161);
-  assert.equal(gates.staging.deployment_record?.runtime_health, "passed");
+
+  assert.equal(gates.staging.status, "accepted");
+  assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
+  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
+  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "pending_main_promotion");
+  assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
+  assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
+  assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
+  assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
+  assert.equal(gates.staging.shopify_release_record?.version, "stock-down-sort-staging-5df0cb94446e-2");
 });
+
+

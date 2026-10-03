@@ -44,7 +44,7 @@ Local requires:
 - `SHOPIFY_BILLING_TEST_MODE=true`
 - dedicated Dev `SHOPIFY_API_KEY`
 - dedicated Dev `SHOPIFY_API_SECRET`
-- `SCOPES`
+- `SCOPES=read_products,write_products,read_inventory,read_locations,read_publications,write_publications`
 
 Local does not require Neon credentials, `DATABASE_URL`, or `DIRECT_URL`.
 
@@ -53,6 +53,7 @@ Staging and Production additionally require their isolated hosted values:
 - `SHOPIFY_APP_URL`
 - `DATABASE_URL` for pooled Neon runtime access
 - `DIRECT_URL` for direct Prisma migration/readiness access
+- `ALERT_FROM_EMAIL` for hosted low-stock email delivery
 
 `DIRECT_URL` is not uploaded to the Cloudflare Worker. It remains restricted
 to hosted migration/readiness jobs.
@@ -129,6 +130,7 @@ used by VSN Metafields:
    checkout, and creates an **unreleased** Shopify app version.
 4. `Shopify Staging Release` releases only the exact staging version supplied
    to the workflow.
+5. `Staging Runtime Acceptance` certifies the deployed/released exact source against the dedicated staging shop and active staging billing plan.
 
 The committed `shopify.app.staging.toml` intentionally keeps
 `__SHOPIFY_STAGING_CLIENT_ID__`. The real staging Client ID is a GitHub
