@@ -164,6 +164,7 @@ model ProductPublicationState {
   publicationId        String
   contextType          String
   previousPublished    Boolean   @default(false)
+  merchantOverride     Boolean   @default(false)
   managedUnpublishedAt DateTime?
   restoredAt           DateTime?
   createdAt            DateTime  @default(now())
