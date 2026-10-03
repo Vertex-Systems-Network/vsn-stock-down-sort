@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "lifecycle_stage": "production-development",
-  "current_phase": "PHASE-09",
-  "current_module": "priority-support",
-  "current_work_unit": "ISSUE-120-WU-04",
-  "active_issue": null,
+  "current_phase": "PHASE-10",
+  "current_module": "support-fulfillment",
+  "current_work_unit": "ISSUE-128-WU-01",
+  "active_issue": 128,
   "last_verified_completion": "PHASE-09 and the selected capability catalog are fully reconciled on development. Completion-evidence PR #122 exact head f0af4d767719e067d45a3841938b9da6290f0b48 passed App Validation #477 / run 37120141234, merged as b084cf80d2a67128ae4426cfd4949d721002c945, and final development App Validation #478 / run 37120204165 passed the complete validation chain.",
-  "next_valid_work_unit": "No repository implementation work remains in the selected 26-capability product catalog. Next work, when intentionally initiated, is guarded runtime acceptance/promotion for capabilities not yet live-accepted and/or separately configured operational support fulfillment; neither is claimed by repository completion.",
+  "next_valid_work_unit": "ISSUE-128-WU-01 — implement and certify authenticated in-app support request fulfillment; final Local/Staging/Live runtime acceptance remains deferred to the final deployment/testing cycle.",
   "progress": {
-    "total_work_units": 43,
+    "total_work_units": 44,
     "complete": 42,
-    "in_progress": 0,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
@@ -25,11 +25,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Selected capability catalog remains repository-complete. Pre-staging scope-parity PR #126 exact head 2937a0385633466e36473648af95bdbfcc2849c8 passed App Validation #488 / run 37123976766 across lint, typecheck, PHASE-02 through PHASE-09 contracts, Worker build, environment/local/database contracts and both Cloudflare dry-runs, then merged to development as 6b3ac8681e6e6c4429c26da11a07909f1acb689a. Current-head Local/Staging/Live runtime acceptance is still pending.",
+  "qa_readiness": "PHASE-10 repository implementation is in progress on Issue #128. The previously selected 26-capability baseline remains repository-complete; support fulfillment adds an operational request channel without changing the product option count. Full Local/Staging/Live runtime testing remains deferred to the final acceptance cycle.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
+  "last_reconciled_repository_ref": "08220891c670344bcda79e948d016782fb451c47",
   "last_reconciled_at": "2026-10-03",
-  "notes": "Repository capability implementation is complete: 26/26 selected options are runtime-implemented. Pre-staging scope parity is reconciled. Runtime issue #125 tracks current-head Local -> Staging -> Live recertification; historical environment acceptance must not be treated as acceptance of the current development head.",
+  "notes": "PHASE-10 intentionally extends the completed 26-capability baseline with operational support fulfillment: authenticated shop-scoped requests, plan-derived priority, persisted request history and hosted inbox notification. This branch does not claim Local/Staging/Live runtime acceptance.",
   "ci_evidence": {
     "workflow_run": 478,
     "run_id": 37120204165,
@@ -91,11 +91,11 @@
     ],
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
-  "active_issue_status": "none",
-  "active_issue_note": "No open repository implementation issue. current_phase/current_module/current_work_unit point to the last completed implementation checkpoint only.",
+  "active_issue_status": "open",
+  "active_issue_note": "Issue #128 is the active repository implementation issue for PHASE-10 support fulfillment. Runtime Issue #125 remains a separate promotion track and must not be advanced until PHASE-10 is merged and the final accepted development head is resolved.",
   "runtime_track": {
     "issue": 125,
-    "status": "pre_staging_prepared",
+    "status": "repository_extension_in_progress",
     "repository_preparation": "complete",
     "full_runtime_testing": "deferred_until_final_acceptance_cycle",
     "local_dev": {
@@ -110,8 +110,8 @@
       "current_head_accepted": false,
       "historical_authorized_source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182"
     },
-    "next_gate": "Resolve the exact development HEAD after this preparation batch, then run final Local certification before any Staging promotion.",
+    "next_gate": "Complete and merge PHASE-10, resolve the resulting exact development HEAD, then run final Local certification before any Staging promotion.",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
-    "development_head_resolution": "Resolve the exact development HEAD after this preparation batch merges; do not assume the scope-parity baseline is still HEAD."
+    "development_head_resolution": "Resolve exact development HEAD only after PHASE-10 completion; historical or pre-PHASE-10 accepted refs are not current-head acceptance."
   }
 }
