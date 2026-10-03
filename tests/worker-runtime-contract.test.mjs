@@ -980,8 +980,13 @@ test("repository management follows the VSN Metafields-style canonical state cha
     state.active_issue_status,
     state.active_issue === null ? "none" : "open",
   );
-  assert.match(state.next_valid_work_unit, /support request fulfillment/i);
-  assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
+  if (state.active_issue === null) {
+    assert.match(state.next_valid_work_unit, /repository development.*complete/i);
+    assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
+  } else {
+    assert.match(state.next_valid_work_unit, /support request fulfillment/i);
+    assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
+  }
 
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 44);
