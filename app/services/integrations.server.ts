@@ -285,6 +285,9 @@ export async function revokeIntegrationCredential(
   }
 
   const now = new Date();
+  const revokedTokenHash = await sha256Hex(
+    `revoked:${credentialId}:${now.toISOString()}:${randomBase64Url(16)}`,
+  );
   const credential = await withPrismaClient((db) =>
     db.integrationCredential.update({
       where: { id: credentialId },
@@ -292,9 +295,7 @@ export async function revokeIntegrationCredential(
         enabled: false,
         revokedAt: now,
         webhookSecretCiphertext: null,
-        tokenHash: await sha256Hex(
-          `revoked:${credentialId}:${now.toISOString()}:${randomBase64Url(16)}`,
-        ),
+        tokenHash: revokedTokenHash,
         rateWindowStartedAt: null,
         rateRequestCount: 0,
       },
