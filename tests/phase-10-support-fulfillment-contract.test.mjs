@@ -42,6 +42,7 @@ test("support request input is bounded and request priority is server-derived", 
   assert.equal(service.includes("input.priority"), false);
   assert.equal(route.includes('formData.get("priority")'), false);
   assert.ok(route.includes("resolveSupportEntitlement(current.plan)"));
+  assert.ok(shared.includes('.replace(/\\s+/g, " ")'));
 });
 
 test("support requests are authenticated, shop-scoped, persisted first and listed only for the current shop", () => {
@@ -57,6 +58,17 @@ test("support requests are authenticated, shop-scoped, persisted first and liste
   assert.ok(service.includes("db.supportRequest.create"));
   assert.ok(service.includes("shop,"));
   assert.ok(service.includes('notificationStatus: hosted ? "PENDING" : "LOCAL_ONLY"'));
+});
+
+test("support intake is shop-rate-limited before request persistence", () => {
+  const service = read("app/services/support.server.ts");
+
+  assert.ok(service.includes("SUPPORT_REQUEST_RATE_LIMIT"));
+  assert.ok(service.includes("windowMinutes: 10"));
+  assert.ok(service.includes("maxRequests: 5"));
+  assert.ok(service.includes("db.supportRequest.count"));
+  assert.ok(service.includes("createdAt: { gte: windowStart }"));
+  assert.ok(service.includes("await assertSupportRequestRateLimit(shop)"));
 });
 
 test("hosted support notification uses configured inbox without hardcoded operational promises", () => {
@@ -76,6 +88,7 @@ test("hosted support notification uses configured inbox without hardcoded operat
   assert.equal(route.includes("response within"), false);
   assert.equal(route.includes("mailto:"), false);
   assert.equal(service.includes("support@example"), false);
+  assert.equal(route.includes("notificationError"), false);
 });
 
 test("activity evidence excludes support message bodies and secret values", () => {
