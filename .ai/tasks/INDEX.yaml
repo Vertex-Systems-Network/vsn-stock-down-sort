@@ -1,12 +1,11 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: 109
+active_issue: 112
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-109-WU-04
+active_work_unit: ISSUE-112-WU-04
 status: complete
 note: >
-  PHASE-06 repository implementation is merged and post-merge CI-certified
-  on development. Issue #109 may close after this completion-evidence
-  reconciliation merges. Environment promotion and real notification delivery
-  acceptance remain separate.
+  PHASE-07 implementation is certified on PR #115 implementation head by
+  App Validation #442. Final repository-state reconciliation and latest-head
+  validation are required before merge and Issue #112 closure.
