@@ -1,12 +1,12 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: 128
+active_issue: null
 project: VSN Stock Down Sort
 active_work_unit: ISSUE-128-WU-01
-status: in_progress
+status: complete
 note: >
-  ISSUE-128-WU-01 implements PHASE-10 support fulfillment. Repository work adds
-  persisted support requests, server-derived priority, merchant request history
-  and hosted inbox notification. Final Local, Staging and Live runtime testing
-  remains deferred to the final acceptance cycle tracked separately by Issue #125.
+  ISSUE-128-WU-01 is the latest completed development checkpoint. PHASE-10
+  support fulfillment is merged and repository-certified. Runtime Issue #125
+  remains the separate final acceptance/promotion track; Local, Staging and Live
+  current-head runtime testing is intentionally deferred until the final cycle.
