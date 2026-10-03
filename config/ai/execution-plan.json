@@ -1662,7 +1662,16 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "b084cf80d2a67128ae4426cfd4949d721002c945",
-  "active_issue_status": "closed",
-  "active_issue_note": "Last completed issue retained as an integer compatibility pointer; no implementation issue is open."
+  "last_reconciled_repository_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
+  "active_issue_status": "none",
+  "active_issue_note": "No repository implementation issue is open. Runtime Issue #125 separately tracks current-head Local -> Staging -> Live recertification; final runtime testing remains evidence-gated.",
+  "runtime_track": {
+    "issue": 125,
+    "status": "pre_staging_preparation",
+    "repository_implementation": "complete",
+    "selected_capabilities": "26/26",
+    "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
+    "current_head_runtime_acceptance": "pending",
+    "next_gate": "Resolve the exact development HEAD after this preparation batch, run Local certification, then promote the same accepted source to Staging."
+  }
 }
