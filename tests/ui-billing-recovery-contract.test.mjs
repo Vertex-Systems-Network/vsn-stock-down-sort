@@ -30,9 +30,9 @@ test("packages UI exposes an explicit stale-subscription recovery action", () =>
   const route = read("app/routes/app.plans.tsx");
 
   assert.ok(route.includes("getSubscriptionMismatchDiagnostic"));
-  assert.ok(route.includes("Incompatible active subscription"));
+  assert.ok(route.includes("A previous subscription no longer matches the current catalog."));
   assert.ok(route.includes("Cancel incompatible subscription"));
-  assert.ok(route.includes("After cancellation, choose any current package below."));
+  assert.ok(route.includes("choose a current VSN plan"));
 });
 
 test("explicit cancellation accepts the exact active Shopify subscription even when catalog resolution fails", () => {
@@ -45,4 +45,34 @@ test("explicit cancellation accepts the exact active Shopify subscription even w
   assert.ok(route.includes('activeSubscription.id !== subscriptionId'));
   assert.ok(route.includes('activeSubscription.status !== "ACTIVE"'));
   assert.ok(route.includes("cancelSubscription(admin, subscriptionId)"));
+});
+
+
+test("embedded app uses the same branded workspace pattern as VSN Metafields", () => {
+  const app = read("app/routes/app.tsx");
+  const workspace = read("app/components/Workspace.tsx");
+  const styles = read("app/styles/workspace.css");
+  const home = read("app/routes/app._index.tsx");
+
+  assert.ok(app.includes("<Workspace"));
+  assert.ok(app.includes('appName="VSN | Stock Down Sort"'));
+  assert.ok(workspace.includes("vsn-sidebar"));
+  assert.ok(workspace.includes("Collapse menu"));
+  assert.ok(workspace.includes("Need a hand?"));
+  assert.ok(styles.includes(".vsn-hero"));
+  assert.ok(styles.includes(".vsn-plan-grid"));
+  assert.ok(styles.includes("#173e30"));
+  assert.ok(home.includes("Available first. Sold out last. Automatically."));
+  assert.ok(home.includes("vsn-task-grid"));
+});
+
+test("billing client uses App Bridge token auth and keeps an approval fallback link", () => {
+  const client = read("app/billing-client.ts");
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.ok(client.includes("await shopify.idToken()"));
+  assert.ok(client.includes('Authorization: `Bearer ${token}`'));
+  assert.ok(client.includes('redirect: "error"'));
+  assert.ok(plans.includes('window.open(response.confirmationUrl, "_top")'));
+  assert.ok(plans.includes("Continue to Shopify plan approval"));
 });
