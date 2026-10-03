@@ -520,6 +520,28 @@ test("billing entitlement requires the exact current plan", () => {
 
 
 
+test("manual billing submission strategy is explicit and mixed mode is blocked", () => {
+  const strategy = JSON.parse(read("config/shopify/billing-strategy.json"));
+  const billing = read("app/services/billing.server.ts");
+
+  assert.equal(strategy.submission_target, "shopify_app_store_public_app");
+  assert.equal(strategy.active_method, "manual_pricing_billing_api");
+  assert.equal(strategy.partner_dashboard_required_pricing_method, "manual_pricing");
+  assert.equal(strategy.mixed_mode_allowed, false);
+  assert.deepEqual(
+    strategy.public_plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
+    [
+      ["starter", 10.99, 10],
+      ["growth", 19.99, 10],
+      ["pro", 34.99, 10],
+      ["unlimited", 70, 10],
+    ],
+  );
+  assert.match(billing, /appSubscriptionCreate/);
+  assert.match(billing, /currentAppInstallation/);
+  assert.equal(strategy.shopify_app_pricing_migration.status, "deferred");
+});
+
 test("four-plan product catalog is canonical and all paid plans have 10-day trials", () => {
   const catalog = JSON.parse(read("config/ai/product-plan.json"));
   const plans = catalog.plans;
