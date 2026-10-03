@@ -2,7 +2,7 @@ type ShopifyBridge = {
   idToken?: () => Promise<string>;
 };
 
-type BillingSubmitResult = {
+export type BillingSubmitResult = {
   ok?: boolean;
   cancelled?: boolean;
   planId?: string;
