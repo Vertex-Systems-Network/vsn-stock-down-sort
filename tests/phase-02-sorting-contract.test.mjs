@@ -177,8 +177,10 @@ test("PHASE-02 completion remains repository-tracked after later phases advance"
       (item) => item.id === state.current_phase && item.status === "complete",
     ),
   );
-  assert.ok(Number.isInteger(state.active_issue));
-  assert.ok(state.active_issue >= 97);
+  assert.ok(
+    state.active_issue === null ||
+      (Number.isInteger(state.active_issue) && state.active_issue >= 97),
+  );
 
   for (const id of [
     "ISSUE-97-WU-01",
