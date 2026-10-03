@@ -78,7 +78,7 @@ test("Slack webhook secrets are validated and encrypted at rest", () => {
   assert.ok(shared.includes('"hooks.slack.com"'));
   assert.ok(shared.includes('"hooks.slack-gov.com"'));
   assert.ok(shared.includes('url.protocol !== "https:"'));
-  assert.ok(shared.includes("/services/"));
+  assert.match(shared, /services\\/\[\^\/\]\+/);
 
   assert.ok(crypto.includes('name: "AES-GCM"'));
   assert.ok(crypto.includes("SHOPIFY_API_SECRET"));
