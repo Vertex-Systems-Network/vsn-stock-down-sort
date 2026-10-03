@@ -170,17 +170,24 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("current Staging acceptance is signed and pending protected-main binding", () => {
+test("current Staging acceptance is bound to protected main", () => {
   assert.equal(gates.local_dev.status, "accepted");
   assert.equal(
     gates.staging.accepted_source_ref,
     gates.local_dev.accepted_source_ref,
   );
   assert.equal(gates.staging.status, "accepted");
-  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.accepted_main_ref,
+    "54c66ab35734efdc929212eb4c676eb062086e64",
+  );
   assert.equal(
     gates.staging.evidence_record?.accepted_main_ref_recording,
-    "pending_main_promotion",
+    "recorded",
+  );
+  assert.equal(
+    gates.staging.evidence_record?.accepted_main_ref,
+    gates.staging.accepted_main_ref,
   );
   assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
   assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");

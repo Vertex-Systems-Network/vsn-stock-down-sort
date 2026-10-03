@@ -63,7 +63,7 @@
       "local_and_live_configs_untouched": true
     },
     "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-    "accepted_main_ref": null,
+    "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64",
     "evidence_record": {
       "workflow": "Staging Runtime Acceptance",
       "run_number": 2,
@@ -83,7 +83,8 @@
       "subscription_read": "passed",
       "active_subscription_count": 1,
       "recognized_plan_id": "starter",
-      "accepted_main_ref_recording": "pending_main_promotion"
+      "accepted_main_ref_recording": "recorded",
+      "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64"
     }
   },
   "live": {
