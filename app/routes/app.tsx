@@ -36,6 +36,7 @@ export default function App() {
         <Link to={`/app${location.search}`} rel="home">
           Collections
         </Link>
+        <Link to={`/app/plans${location.search}`}>Packages</Link>
         <Link to={`/app/visibility${location.search}`}>Visibility</Link>
         <Link to={`/app/contexts${location.search}`}>Commerce Contexts</Link>
         <Link to={`/app/analytics${location.search}`}>Analytics</Link>
@@ -43,7 +44,6 @@ export default function App() {
         <Link to={`/app/alerts${location.search}`}>Alerts</Link>
         <Link to={`/app/integrations${location.search}`}>Integrations</Link>
         <Link to={`/app/support${location.search}`}>Support</Link>
-        <Link to={`/app/plans${location.search}`}>Plans</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
