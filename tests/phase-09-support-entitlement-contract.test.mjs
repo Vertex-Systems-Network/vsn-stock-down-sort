@@ -85,7 +85,7 @@ test("Plans page no longer implies 24/7 support for every plan", () => {
 test("Support page derives entitlement from authenticated current plan and states operational boundary", () => {
   const route = read("app/routes/app.support.tsx");
   const nav = read("app/routes/app.tsx");
-  const normalizedRoute = route.replace(/\\s+/g, " ");
+  const normalizedRoute = route.replace(/\s+/g, " ");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan(admin)"));
