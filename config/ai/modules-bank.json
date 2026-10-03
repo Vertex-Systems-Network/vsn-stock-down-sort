@@ -797,16 +797,20 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
-        "App Validation #441 / run 37115215210 passed the complete validation chain.",
-        "Local and hosted context visibility persistence is schema-parity validated.",
-        "Shopify publication scopes are declared in Local/Staging/Production app configs.",
-        "Market, B2B and sales-channel targets are discovered from existing publications without catalog creation.",
-        "publishedOnPublication checks and publicationUpdate mutations implement safe remove/restore ownership semantics.",
-        "No PHASE-07 Staging/Production scope or live publication-mutation acceptance is claimed."
+        "All three PHASE-07 option IDs are runtime-implemented in canonical product/options registries.",
+        "ContextVisibilityRule and ContextPublicationState are implemented in Local SQLite and hosted PostgreSQL with parity constraints.",
+        "Local/Staging/Production Shopify app configs request read_publications and write_publications.",
+        "Market, B2B CompanyLocation and sales-channel targets are discovered from existing publications without catalog creation.",
+        "Product membership checks and publicationUpdate mutations implement safe VSN-owned remove/restore semantics.",
+        "Product/inventory webhooks enqueue context_visibility jobs and Local runtime uses deterministic direct fallback.",
+        "Commerce Contexts UI surfaces scope/permission discovery failures instead of claiming runtime acceptance.",
+        "PR #114 exact head 7c889db5f1e19fc9bc1e61a3b4bea5b657fa08bd passed App Validation #446.",
+        "PR #114 merged to development as 26663def7f1052bceac0159ae491e0e555b5eac8.",
+        "Post-merge App Validation #452 / run 37115451403 passed the full validation chain.",
+        "No PHASE-07 Staging/Production scope acceptance or live publication mutation acceptance is claimed."
       ],
       "update_notes": [
-        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+        "Repository/development implementation is complete and CI-certified. Shopify scope reauthorization, merchant permissions and live publication acceptance remain separate guarded runtime activities."
       ],
       "removal_or_deprecation_notes": []
     }
