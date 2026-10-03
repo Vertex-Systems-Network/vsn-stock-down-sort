@@ -94,6 +94,9 @@ jobs:
       - name: PHASE-08 secure API integrations contract
         run: node --test tests/phase-08-api-integrations-contract.test.mjs
 
+      - name: PHASE-09 priority support entitlement contract
+        run: node --test tests/phase-09-support-entitlement-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 

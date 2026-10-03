@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 117,
+  "active_issue": 120,
   "phases": [
     {
       "id": "PHASE-01",
@@ -261,6 +261,29 @@
         "Bearer tokens are hash-only at rest and webhook signing secrets are AES-GCM encrypted.",
         "External API/webhook routes derive shop from authenticated credentials and enforce scope, rate, body, entitlement and replay boundaries.",
         "No PHASE-08 Staging/Production credential issuance or live external client/webhook acceptance occurred in this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-09",
+      "name": "Priority Support Entitlement Truth",
+      "objective": "Close the final selected capability by representing support entitlements exactly without fabricating operational support guarantees.",
+      "module_ids": [
+        "MOD-PRIORITY-SUPPORT",
+        "MOD-BILLING"
+      ],
+      "dependencies": [
+        "PHASE-08"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Starter/Growth resolve to Standard support.",
+        "Pro resolves to Priority support.",
+        "Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT is Pro/Unlimited-only and runtime-implemented.",
+        "Support entitlement is derived from the authenticated active plan.",
+        "Plan page does not advertise blanket 24/7 support.",
+        "Operational SLA/contact/escalation/staffing commitments remain outside repository claims.",
+        "Latest implementation-head App Validation, PHASE-09 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -1501,6 +1524,119 @@
         "OPT-PRIORITY-SUPPORT remains planned and outside PHASE-08.",
         "Live external integration acceptance remains a separate runtime gate."
       ]
+    },
+    {
+      "id": "ISSUE-120-WU-01",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Implement exact support entitlement resolver and catalog contract",
+      "objective": "Resolve each plan's support tier from the canonical billing catalog and fail on mapping drift.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Starter/Growth resolve to Standard support.",
+        "Pro resolves to Priority support.",
+        "Unlimited resolves to 24/7 Priority support.",
+        "OPT-PRIORITY-SUPPORT mapping exactly matches Pro + Unlimited."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "App Validation #470 / run 37119754081 passed.",
+        "app/services/support.ts validates plan support catalog and priority option mapping."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-02",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Add authenticated Support UI and correct plan-page support truth",
+      "objective": "Expose the active plan's support entitlement while removing blanket support claims.",
+      "dependencies": [
+        "ISSUE-120-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "/app/support authenticates the merchant and resolves the active plan server-side.",
+        "Support UI presents Standard, Priority or 24/7 Priority exactly.",
+        "Plan page derives support labels from the canonical resolver.",
+        "Blanket 24/7 support messaging is removed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract",
+        "Typecheck"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "/app/support is authenticated and plan-aware.",
+        "Plan support labels are derived from the exact support resolver."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-03",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Certify support option registry and operational truth boundary",
+      "objective": "Mark the final selected capability implemented while keeping human support operations outside code evidence.",
+      "dependencies": [
+        "ISSUE-120-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "OPT-PRIORITY-SUPPORT is marked runtime-implemented.",
+        "All selected product options are non-planned.",
+        "Support page explicitly says response-time SLA/contact/escalation/staffing terms are separate.",
+        "No support ticket form or fabricated contact endpoint is added."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract"
+      ],
+      "completion_evidence": [
+        "Certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "Product/options registries mark OPT-PRIORITY-SUPPORT implemented.",
+        "PHASE-09 contract enforces the operational boundary."
+      ]
+    },
+    {
+      "id": "ISSUE-120-WU-04",
+      "phase_id": "PHASE-09",
+      "module_id": "MOD-PRIORITY-SUPPORT",
+      "title": "Reconcile final capability state and closure evidence",
+      "objective": "Advance canonical project state to PHASE-09 only after full validation while preserving support-operations truth boundaries.",
+      "dependencies": [
+        "ISSUE-120-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "PHASE-09 module/work units are recorded in canonical registries.",
+        "Latest implementation-head App Validation passes all checks.",
+        "All selected product capabilities are runtime-implemented.",
+        "Operational support fulfillment is not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211 passed App Validation #470 / run 37119754081.",
+        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "No operational support SLA/contact/staffing acceptance is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -1515,5 +1651,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "57ef7973040206d4221860367f3ac4094ed68646"
+  "last_reconciled_repository_ref": "9ad2ff6bbfb74ef759b807c23d2d48a2b0675211"
 }

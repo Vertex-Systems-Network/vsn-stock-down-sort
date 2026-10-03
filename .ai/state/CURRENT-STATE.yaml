@@ -2,18 +2,17 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: 117
+active_issue: 120
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-08
-current_module: api-integrations
-current_work_unit: ISSUE-117-WU-04
+current_phase: PHASE-09
+current_module: priority-support
+current_work_unit: ISSUE-120-WU-04
 note: >
-  PHASE-08 Secure API & Signed Webhook Integrations merged to development as
-  57ef7973040206d4221860367f3ac4094ed68646. PR #118 exact-head App
-  Validation #462 / run 37118074935 passed, and post-merge App Validation
-  #463 / run 37118149572 passed the full chain. Staging/Production credential
-  issuance and live external client/webhook acceptance remain separate guarded
-  runtime activities.
+  PHASE-09 Priority Support Entitlement Truth implementation head
+  9ad2ff6bbfb74ef759b807c23d2d48a2b0675211 passed App Validation #470 /
+  run 37119754081. PR #121 final state-reconciliation head still requires
+  latest-head validation before merge. Response-time SLA, support contact,
+  escalation procedure and staffing fulfillment remain separate operations.
