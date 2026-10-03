@@ -9,6 +9,7 @@ name = "VSN | Stock Down Sort Staging"
 
 [access_scopes]
 scopes = "read_products,write_products,read_inventory"
+optional_scopes = [ "write_publications", "read_markets", "read_companies" ]
 
 [webhooks]
 api_version = "2026-07"
