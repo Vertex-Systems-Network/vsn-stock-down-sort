@@ -166,7 +166,7 @@ jobs:
               {"id": "starter", "amount": 10.99, "trial_days": 10},
               {"id": "growth", "amount": 19.99, "trial_days": 10},
               {"id": "pro", "amount": 34.99, "trial_days": 10},
-              {"id": "unlimited", "amount": 54.99, "trial_days": 10},
+              {"id": "unlimited", "amount": 70.0, "trial_days": 10},
           ]
 
           if billing.get("currency_code") != "USD":
