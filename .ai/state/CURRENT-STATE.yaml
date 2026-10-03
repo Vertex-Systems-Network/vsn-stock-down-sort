@@ -11,8 +11,9 @@ current_phase: PHASE-09
 current_module: priority-support
 current_work_unit: ISSUE-120-WU-04
 note: >
-  PHASE-09 Priority Support Entitlement Truth implementation head
-  9ad2ff6bbfb74ef759b807c23d2d48a2b0675211 passed App Validation #470 /
-  run 37119754081. PR #121 final state-reconciliation head still requires
-  latest-head validation before merge. Response-time SLA, support contact,
-  escalation procedure and staffing fulfillment remain separate operations.
+  PHASE-09 Priority Support Entitlement Truth merged to development as
+  ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1. PR #121 exact-head
+  App Validation #475 / run 37119934408 passed, and post-merge App Validation
+  #476 / run 37119993769 passed the full chain. All selected product
+  capabilities are repository-implemented. Human support operations remain
+  separate from repository evidence.
