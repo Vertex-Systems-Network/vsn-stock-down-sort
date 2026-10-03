@@ -12,6 +12,7 @@ name = "VSN | Stock Down Sort Dev"
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_products,write_products,read_inventory"
+optional_scopes = [ "write_publications", "read_markets", "read_companies" ]
 
 [webhooks]
 api_version = "2026-07"
