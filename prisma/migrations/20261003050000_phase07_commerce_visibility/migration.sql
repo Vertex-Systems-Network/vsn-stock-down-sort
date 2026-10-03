@@ -15,6 +15,7 @@ CREATE TABLE "ProductPublicationState" (
     "publicationId" TEXT NOT NULL,
     "contextType" TEXT NOT NULL,
     "previousPublished" BOOLEAN NOT NULL DEFAULT false,
+    "merchantOverride" BOOLEAN NOT NULL DEFAULT false,
     "managedUnpublishedAt" DATETIME,
     "restoredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
