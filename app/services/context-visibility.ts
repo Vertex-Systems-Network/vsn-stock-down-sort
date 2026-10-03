@@ -46,13 +46,12 @@ export function normalizeContextRuleInput(
 ): ContextRuleInput {
   const targetType = normalizeContextTargetType(input.targetType);
   const publicationId = String(input.publicationId ?? "").trim();
-  const targetTitle = String(input.targetTitle ?? "").trim().slice(0, 180);
+  const targetTitle =
+    String(input.targetTitle ?? "").trim().slice(0, 180) ||
+    "Selected Shopify publication";
 
   if (!publicationId.startsWith("gid://shopify/Publication/")) {
     throw new Error("A valid Shopify publication is required.");
-  }
-  if (!targetTitle) {
-    throw new Error("Commerce context title is required.");
   }
 
   return {
