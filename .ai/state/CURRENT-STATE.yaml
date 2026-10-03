@@ -2,18 +2,18 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: 109
+active_issue: 112
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
-current_phase: PHASE-06
-current_module: low-stock-alerts
-current_work_unit: ISSUE-109-WU-04
+current_phase: PHASE-07
+current_module: enterprise-commerce-visibility
+current_work_unit: ISSUE-112-WU-04
 note: >
-  PHASE-06 Low-Stock Email & Slack Alerts merged to development as
-  ad7cc32f72ec73905d597bb62f355dc9b77ac4fa. PR #110 exact-head
-  App Validation #434 / run 37113964101 passed, and post-merge
-  App Validation #435 / run 37114055964 passed the full chain.
-  No PHASE-06 Staging/Production promotion or real notification-delivery
-  acceptance is claimed.
+  PHASE-07 Enterprise Commerce Visibility Rules implementation head
+  79f4207ef6da2529548cd5491f51d6950cca5913 passed App Validation #442 /
+  run 37115290951. PR #115 final state-reconciliation head still requires
+  latest-head validation before merge. No Shopify app-version deployment,
+  optional-scope merchant grant, Staging/Production promotion or live
+  publication mutation acceptance is claimed.
