@@ -251,6 +251,16 @@
         "Per-credential bounded request/rate controls and no-store responses are enforced.",
         "Merchant credential UI exposes plaintext token/secret only on create/rotate.",
         "Latest implementation-head App Validation, PHASE-08 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #118 exact head 69c6333837b0823e6db77084add8ec1350b0e103 passed App Validation #462 / run 37118074935.",
+        "PR #118 merged to development as 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Post-merge App Validation #463 / run 37118149572 passed the complete validation chain on 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Local SQLite and hosted PostgreSQL integration credential/replay migrations are additive and schema-parity validated.",
+        "OPT-API-INTEGRATIONS is Unlimited-only; OPT-PRIORITY-SUPPORT remains separate and planned.",
+        "Bearer tokens are hash-only at rest and webhook signing secrets are AES-GCM encrypted.",
+        "External API/webhook routes derive shop from authenticated credentials and enforce scope, rate, body, entitlement and replay boundaries.",
+        "No PHASE-08 Staging/Production credential issuance or live external client/webhook acceptance occurred in this repository phase."
       ]
     }
   ],
@@ -1484,10 +1494,12 @@
         "Cloudflare dry-runs"
       ],
       "completion_evidence": [
-        "Implementation head b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa passed App Validation #457 / run 37117869035.",
-        "All validation steps including PHASE-08 contract, Worker build and both Cloudflare dry-runs passed.",
+        "PR #118 exact head 69c6333837b0823e6db77084add8ec1350b0e103 passed App Validation #462 / run 37118074935.",
+        "PR #118 merged to development as 57ef7973040206d4221860367f3ac4094ed68646.",
+        "Post-merge App Validation #463 / run 37118149572 passed all validation steps including PHASE-08 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-08 runtime implementation.",
         "OPT-PRIORITY-SUPPORT remains planned and outside PHASE-08.",
-        "No live external integration acceptance is claimed."
+        "Live external integration acceptance remains a separate runtime gate."
       ]
     }
   ],
@@ -1503,5 +1515,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa"
+  "last_reconciled_repository_ref": "57ef7973040206d4221860367f3ac4094ed68646"
 }
