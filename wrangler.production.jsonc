@@ -24,7 +24,7 @@
     "APP_ENV": "production",
     "SHOPIFY_BILLING_TEST_MODE": "false",
     "SHOPIFY_APP_URL": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
-    "SCOPES": "read_products,write_products,read_inventory"
+    "SCOPES": "read_products,write_products,read_inventory,read_publications,write_publications"
   },
   "queues": {
     "producers": [
