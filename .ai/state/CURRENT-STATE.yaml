@@ -12,8 +12,9 @@ current_module: priority-support
 current_work_unit: ISSUE-120-WU-04
 note: >
   Repository capability implementation is complete and no implementation issue
-  is open. PHASE-09 / ISSUE-120-WU-04 is retained only as the last completed
-  checkpoint. Final development head 524118a13358d397317bfc7fa73a0889c219f1c2
-  passed App Validation #483 / run 37121399888. Future runtime acceptance,
-  promotion or human support operations must be initiated and evidenced
-  separately.
+  is open. Runtime Issue #125 tracks the separate current-head Local -> Staging
+  -> Live recertification path. Pre-staging scope parity was merged as
+  6b3ac8681e6e6c4429c26da11a07909f1acb689a after PR #126 validation.
+  Historical environment acceptance must not be treated as acceptance of the
+  source that will be promoted after this preparation batch. Final runtime
+  testing and acceptance remain evidence-gated.
