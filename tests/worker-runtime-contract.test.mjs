@@ -972,8 +972,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
     ),
   );
   assert.equal(state.current_phase, "PHASE-09");
-  assert.equal(state.active_issue, 120);
-  assert.equal(state.active_issue_status, "closed");
+  assert.equal(state.active_issue, null);
+  assert.equal(state.active_issue_status, "none");
   assert.equal(state.current_module, "priority-support");
   assert.equal(state.current_work_unit, "ISSUE-120-WU-04");
   assert.match(state.next_valid_work_unit, /No repository implementation work remains in the selected 26-capability product catalog/i);
@@ -1058,10 +1058,10 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
-  assert.ok(current.includes(`active_issue: ${state.active_issue}`));
+  assert.ok(current.includes("active_issue: null"));
   assert.ok(current.includes(`current_phase: ${state.current_phase}`));
   assert.ok(current.includes(`current_work_unit: ${state.current_work_unit}`));
-  assert.ok(tasks.includes(`active_issue: ${state.active_issue}`));
+  assert.ok(tasks.includes("active_issue: null"));
   assert.ok(tasks.includes(`active_work_unit: ${state.current_work_unit}`));
   assert.match(tasks, /status: complete/);
 });
