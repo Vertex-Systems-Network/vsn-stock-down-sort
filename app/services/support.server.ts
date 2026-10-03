@@ -108,6 +108,31 @@ async function notifySupportInbox(
   await binding.send({ to, from, subject, text, html });
 }
 
+const SUPPORT_REQUEST_RATE_LIMIT = Object.freeze({
+  windowMinutes: 10,
+  maxRequests: 5,
+} as const);
+
+async function assertSupportRequestRateLimit(shop: string) {
+  const windowStart = new Date(
+    Date.now() - SUPPORT_REQUEST_RATE_LIMIT.windowMinutes * 60 * 1000,
+  );
+  const recentCount = await withPrismaClient((db) =>
+    db.supportRequest.count({
+      where: {
+        shop,
+        createdAt: { gte: windowStart },
+      },
+    }),
+  );
+
+  if (recentCount >= SUPPORT_REQUEST_RATE_LIMIT.maxRequests) {
+    throw new Error(
+      "Too many support requests were submitted recently. Please try again later.",
+    );
+  }
+}
+
 export async function createSupportRequest(
   shop: string,
   input: Partial<Record<keyof SupportRequestInput, unknown>>,
@@ -116,6 +141,7 @@ export async function createSupportRequest(
 ) {
   const normalized = normalizeSupportRequestInput(input);
   const hosted = getAppEnvironment() !== "development";
+  await assertSupportRequestRateLimit(shop);
 
   let request = await withPrismaClient((db) =>
     db.supportRequest.create({
