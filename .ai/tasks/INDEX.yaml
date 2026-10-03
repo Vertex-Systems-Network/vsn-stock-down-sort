@@ -7,6 +7,7 @@ active_work_unit: ISSUE-120-WU-04
 status: complete
 note: >
   No repository implementation issue is open. ISSUE-120-WU-04 is the last
-  completed checkpoint, not an active task. 26/26 selected product capabilities
-  are repository-implemented. Future runtime acceptance or operations work must
-  be initiated and evidenced separately.
+  completed capability checkpoint, not an active task. 26/26 selected product
+  capabilities are repository-implemented. Runtime Issue #125 is the separate
+  promotion track; current-head Local, Staging and Live acceptance remain
+  pending until the final evidence cycle.

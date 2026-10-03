@@ -17,7 +17,7 @@ The Shopify plan is:
 - Manual **Sort Now**
 - Bulk enable / disable
 - Previous Shopify sort-order restore
-- 24/7 support
+- Support entitlement by plan: Starter/Growth = Standard, Pro = Priority, Unlimited = 24/7 Priority
 
 Production only recognizes the exact current VSN Stock Down Sort subscription as an entitlement.
 
@@ -47,7 +47,7 @@ verification
 project-state update / next work unit
 ```
 
-The active phase is anchored to GitHub Issue #32. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+Capability implementation is complete through PHASE-09. Current-head runtime recertification/promotion is tracked separately by GitHub Issue #125. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
 
@@ -89,9 +89,9 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.local.toml` | test |
-| Staging | VSN | Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN | Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | test |
+| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | test |
+| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | real |
 
 Database topology is also isolated:
 - Local: gitignored SQLite file `prisma/dev.sqlite`
@@ -124,6 +124,8 @@ Local SQLite migrations, and creates `prisma/dev.sqlite` when needed.
 Normal Local development requires **no** Neon API key, Neon project ID,
 `DATABASE_URL`, or `DIRECT_URL`. The Local SQLite database is gitignored and
 must never be committed.
+
+Local `SCOPES` must include `read_products,write_products,read_inventory,read_publications,write_publications`.
 
 `npm run dev` explicitly uses `shopify.app.local.toml`. The repository Local
 runner regenerates/migrates the SQLite schema before React Router starts.
@@ -192,6 +194,9 @@ Run in this order:
 4. **Shopify Staging Release**
    - confirmation: `RELEASE_STAGING_SHOPIFY_VERSION`
    - requires the exact candidate version name
+5. **Staging Runtime Acceptance**
+   - confirmation: `CERTIFY_STAGING_RUNTIME`
+   - requires the exact accepted source SHA, dedicated staging shop domain, and actually active staging billing plan
 
 Staging Worker:
 
@@ -240,6 +245,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `ALERT_FROM_EMAIL`
 
 ### Production — GitHub Environment `cloudflare-production`
 
@@ -250,6 +256,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `ALERT_FROM_EMAIL`
 
 `DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
 

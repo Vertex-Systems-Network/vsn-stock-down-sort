@@ -48,6 +48,8 @@ Cloudflare Staging Deploy
 Shopify Staging Version
     ↓
 Shopify Staging Release
+    ↓
+Staging Runtime Acceptance
 ```
 
 Staging uses test billing and its own Shopify identity, Neon database, Cloudflare Worker and Queue.

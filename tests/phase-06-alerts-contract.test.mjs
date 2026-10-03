@@ -168,6 +168,29 @@ test("Cloudflare Email Service binding and sender prerequisite are explicit", ()
   assert.ok(envExample.includes("Cloudflare Email Service"));
 });
 
+test("hosted deployment workflows require and upload ALERT_FROM_EMAIL", () => {
+  const readinessPaths = [
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/production-readiness.yml",
+    ".github/workflows/environment-secrets-audit.yml",
+  ];
+  for (const path of readinessPaths) {
+    assert.ok(read(path).includes("ALERT_FROM_EMAIL"), path);
+  }
+
+  for (const path of [
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/cloudflare-production-prepare.yml",
+  ]) {
+    const workflow = read(path);
+    assert.ok(
+      workflow.includes("ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}"),
+      path,
+    );
+    assert.match(workflow, /"ALERT_FROM_EMAIL"/);
+  }
+});
+
 test("Alerts UI is authenticated, plan-aware and never renders stored Slack plaintext", () => {
   const route = read("app/routes/app.alerts.tsx");
   const nav = read("app/routes/app.tsx");
