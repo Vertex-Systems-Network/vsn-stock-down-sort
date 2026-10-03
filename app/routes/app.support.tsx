@@ -36,7 +36,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       priority: supportRequest.priority,
       status: supportRequest.status,
       notificationStatus: supportRequest.notificationStatus,
-      notificationError: supportRequest.notificationError,
       createdAt: supportRequest.createdAt.toISOString(),
     })),
   };
@@ -249,11 +248,6 @@ export default function SupportPage() {
                   <s-text color="subdued">
                     {supportRequest.id} · {createdLabel(supportRequest.createdAt)}
                   </s-text>
-                  {supportRequest.notificationError ? (
-                    <s-text color="subdued">
-                      Notification issue: {supportRequest.notificationError}
-                    </s-text>
-                  ) : null}
                 </s-stack>
               </s-box>
             ))}
