@@ -1001,7 +1001,8 @@
         "Notification failure must not discard a persisted request.",
         "Support message bodies and inbox addresses must not be copied into ActivityEvent details.",
         "No response-time SLA, staffing level or escalation deadline is defined by repository implementation.",
-        "Staging/Production runtime delivery acceptance remains part of the final environment testing cycle."
+        "Staging/Production runtime delivery acceptance remains part of the final environment testing cycle.",
+        "Merchant UI must not expose provider or hosted-delivery error details."
       ],
       "dependencies": [
         "MOD-PRIORITY-SUPPORT",
@@ -1023,7 +1024,8 @@
         "Support message maximum: 5000 characters",
         "Recent request list maximum: 50",
         "Hosted support notification binding: EMAIL",
-        "Hosted support inbox variable: SUPPORT_INBOX_EMAIL"
+        "Hosted support inbox variable: SUPPORT_INBOX_EMAIL",
+        "Support request rate limit: 5 per shop per 10 minutes"
       ],
       "ui_surfaces": [
         "/app/support"
@@ -1041,7 +1043,8 @@
         "Plan-derived priority cannot be overridden by client input.",
         "Recent request history is shop-scoped.",
         "Hosted notification configuration fails closed when SUPPORT_INBOX_EMAIL is absent.",
-        "Repository contracts preserve the no-SLA truth boundary."
+        "Repository contracts preserve the no-SLA truth boundary.",
+        "Merchant-facing history exposes delivery state but not provider/configuration error details."
       ],
       "quality_gates": [
         "App Validation",
