@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "released",
-  "release_authorized": false,
+  "status": "authorized_pending_release",
+  "release_authorized": true,
   "production_worker": {
     "name": "vsn-stock-down-sort-production",
     "url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
@@ -32,9 +32,9 @@
     "migrate_during_shopify_release": false,
     "require_migration_status_clean": true
   },
-  "authorized_version": "stock-down-sort-production-516ab92a2d1a-1",
-  "authorized_source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
-  "authorization_record": "Shopify Production Candidate #1 / run 36998433149 succeeded on protected main. Exact candidate stock-down-sort-production-516ab92a2d1a-1 was created with --no-release from source 516ab92a2d1a4a74fc9624dfc56d3fcc3f624182 after Production Worker health, PostgreSQL, real billing mode, four-plan/10-day catalog and isolated Live Shopify identity checks passed. Committed Production config name is VSN | Stock Down Sort.",
+  "authorized_version": "stock-down-sort-production-930bb2039244-2",
+  "authorized_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+  "authorization_record": "Shopify Production Candidate #2 / run 37150173141 succeeded on protected main. Exact candidate stock-down-sort-production-930bb2039244-2 was created with --no-release from source 930bb2039244ecafd0ae9d3bb538898094e86638 after Production Worker health, PostgreSQL, real billing mode, four-plan/10-day catalog and isolated Live Shopify identity checks passed. Cloudflare Production Prepare #1 / run 37146826906 and Production Readiness #4 / run 37149923735 also passed for this production cycle.",
   "governance": {
     "promotion_order": [
       "local_dev",
@@ -46,19 +46,5 @@
     "staging_acceptance_authoritative_branch": "main",
     "live_source_branch": "main",
     "explicit_release_authorization_required": true
-  },
-  "release_record": {
-    "workflow": "Shopify Production Release",
-    "run_number": 1,
-    "run_id": 37002956869,
-    "branch": "main",
-    "control_head_sha": "f7ed64bdd7f158d954950ca753525a8de489a7ba",
-    "version": "stock-down-sort-production-516ab92a2d1a-1",
-    "source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
-    "version_released_to_users": true,
-    "version_visible_after_release": true,
-    "remote_app_name": "VSN | Stock Down Sort",
-    "remote_name_verified_from_cli_output": true,
-    "workflow_conclusion": "failure_due_to_output_capture_bug_after_successful_release"
   }
 }
