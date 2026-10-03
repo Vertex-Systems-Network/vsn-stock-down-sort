@@ -1331,16 +1331,17 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
   const wu06 = plan.work_units.find((workUnit) => workUnit.id === "ISSUE-32-WU-06");
   assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
   assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
-  assert.equal(gates.staging.status, "verification_required");
-  assert.equal(
-    gates.staging.deployed_source_ref,
-    gates.local_dev.accepted_source_ref,
-  );
+
+  assert.equal(gates.staging.status, "accepted");
+  assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
+  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
+  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "pending_main_promotion");
+  assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
+  assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
+  assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
   assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
-  assert.equal(gates.staging.deployment_record?.runtime_health, "passed");
-  assert.equal(
-    gates.staging.shopify_release_record?.version,
-    "stock-down-sort-staging-5df0cb94446e-2",
-  );
+  assert.equal(gates.staging.shopify_release_record?.version, "stock-down-sort-staging-5df0cb94446e-2");
 });
+
 
