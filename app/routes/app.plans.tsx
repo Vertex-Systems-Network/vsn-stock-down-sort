@@ -12,6 +12,7 @@ import { authenticate } from "../shopify.server";
 import {
   getAnyActiveSubscription,
   getCurrentSubscriptionPlan,
+  getSubscriptionMismatchDiagnostic,
 } from "../services/billing.server";
 import { resolveSupportEntitlement } from "../services/support";
 
@@ -33,14 +34,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     current,
     activeSubscription,
+    subscriptionMismatch:
+      activeSubscription && !current
+        ? getSubscriptionMismatchDiagnostic(activeSubscription)
+        : null,
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
   };
 }
 
 export default function PlansPage() {
-  const { current, activeSubscription, environment, billingTestMode } =
-    useLoaderData<typeof loader>();
+  const {
+    current,
+    activeSubscription,
+    subscriptionMismatch,
+    environment,
+    billingTestMode,
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<SubscriptionActionResult>();
   const errorRef = useRef<HTMLDivElement | null>(null);
   const isLoading = fetcher.state !== "idle";
@@ -122,11 +132,51 @@ export default function PlansPage() {
         ) : null}
 
         {activeIsUnknown ? (
-          <s-banner tone="critical" heading="Subscription needs review">
-            An active Shopify subscription is attached to this app, but it does
-            not match an approved VSN plan. Plan changes are blocked until that
-            subscription is reviewed.
-          </s-banner>
+          <s-section heading="Incompatible active subscription">
+            <s-stack gap="base">
+              <s-banner tone="warning" heading="A previous subscription no longer matches">
+                This store has an active Shopify subscription created from older
+                billing metadata. Plan changes stay blocked until that
+                incompatible subscription is cancelled.
+              </s-banner>
+
+              {subscriptionMismatch ? (
+                <s-box
+                  background="subdued"
+                  borderRadius="large"
+                  padding="base"
+                >
+                  <s-stack gap="small-200">
+                    <s-text type="strong">{subscriptionMismatch.name}</s-text>
+                    <s-text>
+                      {subscriptionMismatch.test ? "Test" : "Live"} billing ·{" "}
+                      {subscriptionMismatch.amount == null
+                        ? "Price unavailable"
+                        : `${subscriptionMismatch.amount.toFixed(2)} ${subscriptionMismatch.currencyCode ?? ""}`} ·{" "}
+                      {subscriptionMismatch.trialDays ?? 0}-day trial
+                    </s-text>
+                    {subscriptionMismatch.reasons.map((reason) => (
+                      <s-text key={reason}>• {reason}</s-text>
+                    ))}
+                  </s-stack>
+                </s-box>
+              ) : null}
+
+              <s-stack direction="inline" gap="base">
+                <s-button
+                  tone="critical"
+                  loading={isLoading}
+                  disabled={isLoading || !activeSubscription}
+                  onClick={cancelActiveSubscription}
+                >
+                  Cancel incompatible subscription
+                </s-button>
+                <s-text color="subdued">
+                  After cancellation, choose any current package below.
+                </s-text>
+              </s-stack>
+            </s-stack>
+          </s-section>
         ) : null}
 
         {fetcher.data?.error ? (
@@ -296,10 +346,12 @@ export default function PlansPage() {
               <s-button
                 tone="critical"
                 loading={isLoading}
-                disabled={isLoading || activeIsUnknown}
+                disabled={isLoading}
                 onClick={cancelActiveSubscription}
               >
-                Cancel subscription
+                {activeIsUnknown
+                  ? "Cancel incompatible subscription"
+                  : "Cancel subscription"}
               </s-button>
             </s-stack>
           </s-box>
