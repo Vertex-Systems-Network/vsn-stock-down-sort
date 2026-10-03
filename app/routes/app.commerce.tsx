@@ -261,7 +261,7 @@ export default function CommerceVisibilityPage() {
                 </s-badge>
               </s-stack>
               <s-text>
-                Requires Shopify's optional write_publications scope.
+                Requires Shopify&apos;s optional write_publications scope.
               </s-text>
               <form method="post">
                 <input type="hidden" name="intent" value="requestScopes" />
