@@ -1334,14 +1334,22 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
 
   assert.equal(gates.staging.status, "accepted");
   assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
-  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.accepted_main_ref,
+    "54c66ab35734efdc929212eb4c676eb062086e64",
+  );
   assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
-  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "pending_main_promotion");
+  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "recorded");
+  assert.equal(
+    gates.staging.evidence_record?.accepted_main_ref,
+    gates.staging.accepted_main_ref,
+  );
   assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
   assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
   assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
   assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
   assert.equal(gates.staging.shopify_release_record?.version, "stock-down-sort-staging-5df0cb94446e-2");
 });
+
 
 
