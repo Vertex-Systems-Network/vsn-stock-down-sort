@@ -101,9 +101,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return Response.json({ ok: true, result });
   }
 
-  const results = await sortEnabledCollections(admin, payload.shop, [
-    payload.collectionId,
-  ]);
+  if (payload.kind === "sort") {
+    const results = await sortEnabledCollections(admin, payload.shop, [
+      payload.collectionId,
+    ]);
 
-  return Response.json({ ok: true, results });
+    return Response.json({ ok: true, results });
+  }
+
+  return Response.json(
+    { ok: false, error: "Unsupported queue job" },
+    { status: 400 },
+  );
 }
