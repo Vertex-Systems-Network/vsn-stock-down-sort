@@ -397,7 +397,7 @@ export default function AppIndex() {
   }
 
   return (
-    <s-page heading="Stock First" inlineSize="large">
+    <s-page heading="VSN Stock Down Sort">
       <s-button
         slot="primary-action"
         variant="primary"
@@ -418,7 +418,7 @@ export default function AppIndex() {
         Disable all
       </s-button>
 
-      <s-section>
+      <s-section heading="Collections">
         <s-stack gap="base">
           <s-text>
             Keep available products first, pin priority products, exclude
