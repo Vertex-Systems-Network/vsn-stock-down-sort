@@ -102,6 +102,9 @@ jobs:
       - name: PHASE-10 support fulfillment contract
         run: node --test tests/phase-10-support-fulfillment-contract.test.mjs
 
+      - name: UI and billing recovery contract
+        run: node --test tests/ui-billing-recovery-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 
