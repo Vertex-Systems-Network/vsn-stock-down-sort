@@ -1,6 +1,14 @@
 import fs from "node:fs";
 import process from "node:process";
 
+const REQUIRED_SHOPIFY_SCOPES = [
+  "read_products",
+  "write_products",
+  "read_inventory",
+  "read_publications",
+  "write_publications",
+];
+
 function fail(message) {
   throw new Error(`[local-sqlite] ${message}`);
 }
@@ -27,6 +35,18 @@ function validateLocalShopifyEnv() {
 
   const apiSecret = process.env.SHOPIFY_API_SECRET?.trim();
   if (!apiSecret) fail("SHOPIFY_API_SECRET is required for Local/Dev.");
+
+  const scopes = new Set(
+    (process.env.SCOPES || "")
+      .split(",")
+      .map((scope) => scope.trim())
+      .filter(Boolean),
+  );
+  for (const scope of REQUIRED_SHOPIFY_SCOPES) {
+    if (!scopes.has(scope)) {
+      fail(`SCOPES must include ${scope} for Local/Dev.`);
+    }
+  }
 }
 
 function validateLocalShopifyConfig() {
@@ -44,6 +64,11 @@ function validateLocalShopifyConfig() {
   }
   if (!/automatically_update_urls_on_dev\s*=\s*true/.test(config)) {
     fail("Local/Dev Shopify config must allow Shopify CLI local URL updates.");
+  }
+  for (const scope of REQUIRED_SHOPIFY_SCOPES) {
+    if (!config.includes(scope)) {
+      fail(`shopify.app.local.toml must include ${scope}.`);
+    }
   }
 }
 
