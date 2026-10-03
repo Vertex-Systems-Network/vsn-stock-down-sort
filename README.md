@@ -246,6 +246,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
 - `ALERT_FROM_EMAIL`
+- `SUPPORT_INBOX_EMAIL`
 
 ### Production — GitHub Environment `cloudflare-production`
 
@@ -257,6 +258,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
 - `ALERT_FROM_EMAIL`
+- `SUPPORT_INBOX_EMAIL`
 
 `DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
 
@@ -293,6 +295,10 @@ The app declares:
   - `shop/redact`
 
 Shop-scoped persisted data is purged for uninstall / shop-redact lifecycle events.
+
+## Support requests
+
+Authenticated merchants can submit support requests from `/app/support`. Requests are persisted shop-scoped before notification delivery. Local development records requests without external delivery. Hosted Staging/Production use the existing Cloudflare `EMAIL` binding plus `ALERT_FROM_EMAIL` and `SUPPORT_INBOX_EMAIL` to notify the configured VSN support inbox. Priority is derived server-side from the active plan; the repository does not publish a response-time SLA.
 
 ## Important docs
 
