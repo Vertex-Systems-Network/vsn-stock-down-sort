@@ -972,11 +972,11 @@ test("repository management follows the VSN Metafields-style canonical state cha
     ),
   );
   assert.equal(state.current_phase, "PHASE-09");
-  assert.equal(state.active_issue, 120);
+  assert.equal(state.active_issue, null);
   assert.equal(state.current_module, "priority-support");
   assert.equal(state.current_work_unit, "ISSUE-120-WU-04");
-  assert.match(state.next_valid_work_unit, /PHASE-09 repository implementation is complete/i);
-  assert.match(state.next_valid_work_unit, /response-time SLA, support contact method, escalation procedure and staffing fulfillment remain separate operational activities/i);
+  assert.match(state.next_valid_work_unit, /No repository implementation work remains in the selected 26-capability product catalog/i);
+  assert.match(state.next_valid_work_unit, /guarded runtime acceptance\/promotion/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 43);
