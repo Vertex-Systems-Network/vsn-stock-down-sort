@@ -674,7 +674,7 @@ export function parseIntegrationJsonBody(raw: string) {
   return parsed as Record<string, unknown>;
 }
 
-export async function readIntegrationJson(request: Request) {
+export async function readIntegrationRawBody(request: Request) {
   const contentLength = request.headers.get("content-length");
   if (
     contentLength &&
@@ -688,7 +688,21 @@ export async function readIntegrationJson(request: Request) {
     );
   }
 
-  return parseIntegrationJsonBody(await request.text());
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > MAX_INTEGRATION_BODY_BYTES) {
+    throw new IntegrationHttpError(
+      413,
+      "payload_too_large",
+      "Integration request body exceeds the allowed size.",
+    );
+  }
+  return raw;
+}
+
+export async function readIntegrationJson(request: Request) {
+  return parseIntegrationJsonBody(
+    await readIntegrationRawBody(request),
+  );
 }
 
 export function requireCollectionId(value: unknown) {
