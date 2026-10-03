@@ -972,7 +972,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
     ),
   );
   assert.equal(state.current_phase, "PHASE-09");
-  assert.equal(state.active_issue, null);
+  assert.equal(state.active_issue, 120);
+  assert.equal(state.active_issue_status, "closed");
   assert.equal(state.current_module, "priority-support");
   assert.equal(state.current_work_unit, "ISSUE-120-WU-04");
   assert.match(state.next_valid_work_unit, /No repository implementation work remains in the selected 26-capability product catalog/i);
