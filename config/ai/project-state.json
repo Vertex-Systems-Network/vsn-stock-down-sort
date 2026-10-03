@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "lifecycle_stage": "production-development",
+  "lifecycle_stage": "development-finalization",
   "current_phase": "PHASE-10",
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-10 support fulfillment is repository-complete. PR #129 exact head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App Validation #496 / run 37126630330, including Local/cloud Prisma parity and migrations, lint, typecheck, Worker runtime contracts, PHASE-02 through PHASE-10 contracts, environment/local/database contracts, Worker build and both Cloudflare bundle dry-runs, then merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
-  "next_valid_work_unit": "Repository development through PHASE-10 is complete. The next release work is the intentionally deferred final acceptance cycle: resolve exact development HEAD, certify Local/Dev, promote and accept Staging, then authorize Live/Production only from accepted evidence.",
+  "last_verified_completion": "PHASE-10 repository implementation and the previous Local → Staging → Live release cycle are verified complete. Shopify Production Release #2 / run 37151020224 released stock-down-sort-production-930bb2039244-2 successfully, Live evidence was recorded by PR #139, and final release evidence was reverse-synced to development by PR #140.",
+  "next_valid_work_unit": "Repository development through PHASE-10 is complete. The final acceptance cycle is now a six-item development-only finalization track; do not promote the new development head to Staging or Production until all six items are complete.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -25,11 +25,11 @@
     "Shopify App Pricing is the current recommended billing path for public apps; the repository retains manual Billing API compatibility for existing billing until an explicit migration is performed."
   ],
   "critical_defects": [],
-  "qa_readiness": "PHASE-10 repository implementation is complete and exact implementation head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App Validation #496 / run 37126630330. Full Local/Staging/Live runtime acceptance remains intentionally deferred to the final testing/deployment cycle.",
+  "qa_readiness": "The previous release cycle is accepted in Local, Staging and Live. New finalization changes, including the Unlimited USD 70 catalog, remain development-only and require fresh CI/runtime evidence before any future promotion.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
-  "last_reconciled_at": "2026-10-03",
-  "notes": "Repository development through PHASE-10 is complete. The existing 26-option product catalog remains unchanged; PHASE-10 operationalizes support fulfillment with authenticated shop-scoped intake, plan-derived priority, rate limiting, persisted history and hosted inbox notification. No current-head environment runtime acceptance is claimed.",
+  "last_reconciled_repository_ref": "08c5bd1367efef96ddc3e9ca4f563d6ae47942c3",
+  "last_reconciled_at": "2026-10-04",
+  "notes": "PHASE-01 through PHASE-10 are complete. The previous production release remains accepted. Current development finalization changes must remain on development until all six finalization items are closed; Unlimited is now USD 70 / 30 days / 10-day trial in the next development catalog.",
   "ci_evidence": {
     "workflow_run": 478,
     "run_id": 37120204165,
@@ -86,7 +86,7 @@
     ],
     "status": "complete",
     "repository_implementation": "complete_for_currently_automatable_controls",
-    "runtime_acceptance": "Historical Production release was verified for source 516ab92a2d1a4a74fc9624dfc56d3fcc3f624182. Current development head 6b3ac8681e6e6c4429c26da11a07909f1acb689a requires fresh Local, Staging and Live runtime acceptance before current-head release can be claimed.",
+    "runtime_acceptance": "The previous release cycle is accepted: Local source 5df0cb94446e008e67ba636ae09ab55d4c416980, Staging source 5df0cb94446e008e67ba636ae09ab55d4c416980, and Production source 930bb2039244ecafd0ae9d3bb538898094e86638 released as stock-down-sort-production-930bb2039244-2. New development changes require a fresh promotion cycle only after finalization is complete.",
     "completed_repository_controls": [
       "isolated PostgreSQL topology and additive Session.shop index",
       "manual Staging and Production release gates bound to isolated environments",
@@ -98,26 +98,65 @@
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
   "active_issue_status": "none",
-  "active_issue_note": "No open repository implementation issue. ISSUE-128-WU-01 is the latest completed development checkpoint. Runtime Issue #125 remains the separate final acceptance/promotion track.",
+  "active_issue_note": "No open repository implementation issue. Runtime Issue #125 is closed; its Local, Staging and Live acceptance evidence is recorded. Current work is the six-item development-only finalization track.",
   "runtime_track": {
     "issue": 125,
-    "status": "repository_extension_complete_runtime_testing_deferred",
+    "issue_status": "closed",
+    "status": "previous_release_cycle_accepted_new_development_pending",
     "repository_preparation": "complete",
-    "full_runtime_testing": "deferred_until_final_acceptance_cycle",
+    "previous_release_runtime_testing": "complete",
     "local_dev": {
-      "current_head_accepted": false,
-      "historical_accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19"
+      "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "status": "accepted_previous_release"
     },
     "staging": {
-      "current_head_accepted": false,
-      "historical_accepted_source_ref": "ca5851561ab7979712f11580ab951fda4650ef19"
+      "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "status": "accepted_previous_release",
+      "acceptance_run_id": 37140631538
     },
     "live": {
-      "current_head_accepted": false,
-      "historical_authorized_source_ref": "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182"
+      "accepted_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+      "status": "accepted_previous_release",
+      "production_version": "stock-down-sort-production-930bb2039244-2",
+      "release_run_id": 37151020224
     },
-    "next_gate": "Resolve the exact development HEAD after PHASE-10 completion, then run final Local certification before any Staging promotion.",
-    "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
-    "development_head_resolution": "PHASE-10 implementation merged as cc3a6879b7d685f6730dbe3e447caebd4e05c988; resolve exact development HEAD again after this completion-evidence reconciliation merges before final Local certification."
+    "next_gate": "Keep all new work on development until the six-item finalization track is complete; only then recertify the exact new development head for a future promotion.",
+    "development_head_resolution": "Final Live evidence was reverse-synced from main to development by PR #140 before new finalization work began."
+  },
+  "finalization_track": {
+    "promotion_lock": true,
+    "rule": "All six items must be complete before any new Staging or Production promotion.",
+    "items": [
+      {
+        "id": 1,
+        "title": "Repository state reconciliation",
+        "status": "implemented_pending_ci"
+      },
+      {
+        "id": 2,
+        "title": "Environment gate top-level cleanup",
+        "status": "implemented_pending_ci"
+      },
+      {
+        "id": 3,
+        "title": "README and release documentation refresh",
+        "status": "implemented_pending_ci"
+      },
+      {
+        "id": 4,
+        "title": "Shopify App Store submission completion",
+        "status": "pending"
+      },
+      {
+        "id": 5,
+        "title": "Public-app billing verification and Unlimited USD 70 alignment",
+        "status": "implemented_pending_ci"
+      },
+      {
+        "id": 6,
+        "title": "Final production merchant smoke test",
+        "status": "pending"
+      }
+    ]
   }
 }
