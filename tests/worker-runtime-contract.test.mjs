@@ -975,8 +975,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.active_issue, 113);
   assert.equal(state.current_module, "commerce-context-visibility");
   assert.equal(state.current_work_unit, "ISSUE-113-WU-04");
-  assert.match(state.next_valid_work_unit, /Finish PR #114 state reconciliation/i);
-  assert.match(state.next_valid_work_unit, /PHASE-07 Shopify scope reauthorization, merchant publication permissions, Staging\/Production promotion and live publication-mutation acceptance remain separate guarded runtime activities/i);
+  assert.match(state.next_valid_work_unit, /PHASE-07 repository implementation is complete/i);
+  assert.match(state.next_valid_work_unit, /Shopify scope reauthorization, merchant publication permissions, Staging\/Production promotion and live publication-mutation acceptance remain separate guarded runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 35);
