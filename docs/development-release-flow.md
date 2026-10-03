@@ -84,7 +84,7 @@ The approved catalog contains exactly four stable IDs:
 | `starter` | USD 10.99 | 10 days |
 | `growth` | USD 19.99 | 10 days |
 | `pro` | USD 34.99 | 10 days |
-| `unlimited` | USD 54.99 | 10 days |
+| `unlimited` | USD 70.00 | 10 days |
 
 Products and collections are unlimited for all four tiers. Capability differences are capability-based rather than catalog-count limits.
 
@@ -93,3 +93,7 @@ Products and collections are unlimited for all four tiers. Capability difference
 **Local/Dev → Staging → Live.**
 
 Missing, stale or failed evidence blocks promotion. A deployment is not itself an acceptance record.
+
+## Finalization rule
+
+All new work remains on `development` until the six pending finalization items in `config/ai/project-state.json` are complete. A previously accepted Live release does not automatically certify a newer development head.
