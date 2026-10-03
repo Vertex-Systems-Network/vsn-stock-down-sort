@@ -6,6 +6,7 @@ import {
 } from "../services/collection-sorter.server";
 import { reconcileProductVisibility } from "../services/product-visibility.server";
 import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileCommerceVisibilitySafe } from "../services/commerce-visibility.server";
 import type { SortQueueJob } from "../sort-queue.server";
 
 type QueueConsumerContextLike = {
@@ -79,7 +80,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
       payload.shop,
       payload.productId,
     );
-    return Response.json({ ok: true, result });
+    const commerceResult = await reconcileCommerceVisibilitySafe(
+      admin,
+      payload.shop,
+      payload.productId,
+    );
+    return Response.json({ ok: true, result, commerceResult });
   }
 
   if (payload.kind === "alert") {
