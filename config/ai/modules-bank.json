@@ -908,6 +908,74 @@
         "Repository/development implementation is complete and CI-certified. Live credential issuance and external-client acceptance remain separate guarded runtime activities."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-PRIORITY-SUPPORT",
+      "name": "Priority Support Entitlement Truth",
+      "objective": "Represent the four-plan support entitlement exactly in runtime UI without inventing operational support promises.",
+      "scope": [
+        "support entitlement resolver",
+        "Starter/Growth standard support mapping",
+        "Pro priority support mapping",
+        "Unlimited 24/7 priority support mapping",
+        "authenticated Support entitlement UI",
+        "plan-page support truth correction"
+      ],
+      "boundaries": [
+        "Priority support is a commercial entitlement, not a repository-certified response-time SLA.",
+        "No support contact method is invented or certified by this phase.",
+        "No escalation procedure or staffing commitment is invented or certified by this phase.",
+        "Operational support fulfillment remains outside repository evidence unless separately configured and published."
+      ],
+      "dependencies": [
+        "MOD-BILLING"
+      ],
+      "option_ids": [
+        "OPT-PRIORITY-SUPPORT"
+      ],
+      "data_entities": [],
+      "contracts": [
+        "Starter: standard support",
+        "Growth: standard support",
+        "Pro: priority support",
+        "Unlimited: 24/7 priority support",
+        "OPT-PRIORITY-SUPPORT: Pro + Unlimited only"
+      ],
+      "ui_surfaces": [
+        "/app/support",
+        "/app/plans"
+      ],
+      "security_responsibilities": [
+        "Resolve support entitlement server-side from the authenticated merchant's active Shopify subscription plan.",
+        "Do not trust client-supplied support tier or plan labels.",
+        "Do not expose false operational guarantees beyond the canonical catalog."
+      ],
+      "acceptance_criteria": [
+        "Support tier resolves exactly from the active billing plan catalog.",
+        "OPT-PRIORITY-SUPPORT is runtime-implemented for Pro and Unlimited only.",
+        "Starter/Growth are never labeled priority or 24/7 priority.",
+        "The plan page no longer claims 24/7 support for every plan.",
+        "Authenticated Support UI states the operational evidence boundary.",
+        "No response-time SLA, contact method, escalation procedure or staffing commitment is fabricated.",
+        "App Validation, PHASE-09 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-09 priority support entitlement contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
+        "App Validation #470 / run 37119754081 passed the complete validation chain.",
+        "Canonical support resolver maps Starter/Growth to Standard, Pro to Priority, and Unlimited to 24/7 Priority.",
+        "Support page derives the entitlement from the authenticated current Shopify plan.",
+        "Plan-page blanket 24/7 support claim is removed.",
+        "Operational SLA/contact/escalation/staffing fulfillment is explicitly outside repository evidence."
+      ],
+      "update_notes": [
+        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
