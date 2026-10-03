@@ -87,18 +87,6 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 function createdLabel(value: string) {
   return value.replace("T", " ").replace(".000Z", " UTC");
 }
@@ -178,28 +166,21 @@ export default function SupportPage() {
       <s-section heading="Open a support request">
         <form method="post">
           <s-stack gap="base">
-            <label>
-              <strong>Subject</strong>
-              <input
-                type="text"
-                name="subject"
-                required
-                maxLength={SUPPORT_REQUEST_LIMITS.subject}
-                placeholder="What do you need help with?"
-                style={fieldStyle()}
-              />
-            </label>
+            <s-text-field
+              label="Subject"
+              name="subject"
+              required
+              maxLength={SUPPORT_REQUEST_LIMITS.subject}
+              placeholder="What do you need help with?"
+            />
 
-            <label>
-              <strong>Message</strong>
-              <textarea
-                name="message"
-                required
-                maxLength={SUPPORT_REQUEST_LIMITS.message}
-                placeholder="Describe the issue, expected behavior, and any relevant collection or product context."
-                style={{ ...fieldStyle(), minHeight: 150 }}
-              />
-            </label>
+            <s-text-area
+              label="Message"
+              name="message"
+              required
+              maxLength={SUPPORT_REQUEST_LIMITS.message}
+              placeholder="Describe the issue, expected behavior, and any relevant collection or product context."
+            />
 
             <s-text color="subdued">
               Do not paste passwords, Shopify access tokens, database
