@@ -344,6 +344,121 @@ export function resolveSubscriptionPlan(
   return null;
 }
 
+export type SubscriptionMismatchDiagnostic = {
+  name: string;
+  status: string;
+  test: boolean;
+  trialDays: number | null;
+  amount: number | null;
+  currencyCode: string | null;
+  interval: string | null;
+  candidatePlanId: PlanId | null;
+  reasons: string[];
+};
+
+export function getSubscriptionMismatchDiagnostic(
+  subscription: AppSubscription,
+): SubscriptionMismatchDiagnostic | null {
+  if (resolveSubscriptionPlan(subscription)) return null;
+
+  const pricing = subscription.lineItems?.[0]?.plan.pricingDetails;
+  const amount =
+    pricing?.price?.amount == null ? null : Number(pricing.price.amount);
+  const currencyCode = pricing?.price?.currencyCode ?? null;
+  const interval = pricing?.interval ?? null;
+  const currentPlan = BILLING_PLANS.find(
+    (plan) => plan.shopify_name === subscription.name,
+  );
+  const legacyNameMatches = subscription.name === LEGACY_PLAN.legacy_name;
+  const reasons: string[] = [];
+
+  if (subscription.status !== "ACTIVE") {
+    reasons.push(`Status is ${subscription.status}, not ACTIVE.`);
+  }
+
+  if (subscription.test !== isBillingTestMode()) {
+    reasons.push(
+      `Subscription is ${subscription.test ? "test" : "live"} billing, but this environment expects ${isBillingTestMode() ? "test" : "live"} billing.`,
+    );
+  }
+
+  if (subscription.lineItems?.length !== 1) {
+    reasons.push("Subscription must contain exactly one recurring line item.");
+  }
+
+  if (pricing?.__typename !== "AppRecurringPricing") {
+    reasons.push("Subscription does not use the expected recurring pricing type.");
+  }
+
+  if (currentPlan) {
+    if (subscription.trialDays !== currentPlan.trial_days) {
+      reasons.push(
+        `Trial is ${subscription.trialDays ?? 0} days; ${currentPlan.name} now requires ${currentPlan.trial_days} days.`,
+      );
+    }
+    if (amount !== currentPlan.amount) {
+      reasons.push(
+        `Price is ${amount == null ? "unavailable" : `${amount.toFixed(2)}`}; ${currentPlan.name} now requires ${currentPlan.amount.toFixed(2)}.`,
+      );
+    }
+    if (currencyCode !== BILLING_CATALOG.currencyCode) {
+      reasons.push(
+        `Currency is ${currencyCode ?? "unavailable"}; expected ${BILLING_CATALOG.currencyCode}.`,
+      );
+    }
+    if (interval !== BILLING_CATALOG.interval) {
+      reasons.push(
+        `Billing interval is ${interval ?? "unavailable"}; expected ${BILLING_CATALOG.interval}.`,
+      );
+    }
+  } else if (legacyNameMatches) {
+    if (subscription.trialDays !== LEGACY_PLAN.legacy_trial_days) {
+      reasons.push(
+        `Legacy trial is ${subscription.trialDays ?? 0} days; expected ${LEGACY_PLAN.legacy_trial_days}.`,
+      );
+    }
+    if (amount !== LEGACY_PLAN.legacy_amount) {
+      reasons.push(
+        `Legacy price is ${amount == null ? "unavailable" : `${amount.toFixed(2)}`}; expected ${LEGACY_PLAN.legacy_amount.toFixed(2)}.`,
+      );
+    }
+    if (currencyCode !== "USD") {
+      reasons.push(
+        `Legacy currency is ${currencyCode ?? "unavailable"}; expected USD.`,
+      );
+    }
+    if (interval !== "EVERY_30_DAYS") {
+      reasons.push(
+        `Legacy billing interval is ${interval ?? "unavailable"}; expected EVERY_30_DAYS.`,
+      );
+    }
+  } else {
+    reasons.push(
+      `Subscription name "${subscription.name}" does not match the current VSN plan catalog.`,
+    );
+  }
+
+  if (reasons.length === 0) {
+    reasons.push(
+      "Subscription metadata does not match the current approved billing catalog.",
+    );
+  }
+
+  return {
+    name: subscription.name,
+    status: subscription.status,
+    test: subscription.test,
+    trialDays: subscription.trialDays ?? null,
+    amount,
+    currencyCode,
+    interval,
+    candidatePlanId: currentPlan?.id ?? (legacyNameMatches
+      ? (LEGACY_PLAN.maps_to_plan_id as PlanId)
+      : null),
+    reasons,
+  };
+}
+
 export function getPlanForSubscription(
   subscription: AppSubscription | null | undefined,
 ) {
