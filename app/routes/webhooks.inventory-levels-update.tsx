@@ -11,6 +11,7 @@ import {
   reconcileProductVisibility,
 } from "../services/product-visibility.server";
 import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileContextVisibilityForProduct } from "../services/context-visibility.server";
 
 type InventoryLevelWebhookPayload = {
   inventory_item_id?: string | number;
@@ -53,6 +54,12 @@ export async function action({ request, context }: ActionFunctionArgs) {
               productId,
               reason: "inventory-update" as const,
             },
+            {
+              kind: "context_visibility" as const,
+              shop: session.shop,
+              productId,
+              reason: "inventory-update" as const,
+            },
           ]
         : []),
       ...collectionIds.map((collectionId) => ({
@@ -76,6 +83,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
             session.shop,
             productId,
             context,
+          );
+          await reconcileContextVisibilityForProduct(
+            admin,
+            session.shop,
+            productId,
           );
         }
         if (collectionIds.length) {
