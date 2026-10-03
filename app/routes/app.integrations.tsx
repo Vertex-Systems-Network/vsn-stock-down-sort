@@ -159,7 +159,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <s-page heading="API & webhook integrations" inlineSize="large">
+    <s-page heading="API & webhook integrations">
       <s-section>
         <s-stack gap="base">
           <s-text>
