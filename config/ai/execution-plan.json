@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 113,
+  "active_issue": 117,
   "phases": [
     {
       "id": "PHASE-01",
@@ -225,6 +225,32 @@
         "Markets, B2B catalogs and sales-channel rules operate only on existing Shopify publications.",
         "Sold-out removal and restock restoration preserve merchant-owned publication state through VSN ownership tracking.",
         "No PHASE-07 Staging/Production scope acceptance or live publication mutation acceptance occurred in this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-08",
+      "name": "Secure API & Signed Webhook Integrations",
+      "objective": "Expose Unlimited-only external automation APIs with hash-only bearer credentials, encrypted webhook secrets and replay/rate protections.",
+      "module_ids": [
+        "MOD-API-INTEGRATIONS",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS",
+        "MOD-AUTOMATION-RULES"
+      ],
+      "dependencies": [
+        "PHASE-07"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "IntegrationCredential and IntegrationReplayNonce exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "OPT-API-INTEGRATIONS is Unlimited-only and fail-closed server-side.",
+        "API bearer plaintext is never persisted and webhook signing secret is encrypted at rest.",
+        "External API routes derive shop from authenticated credentials and enforce exact scopes.",
+        "Signed webhooks enforce HMAC-SHA256, timestamp freshness and replay nonce uniqueness.",
+        "Per-credential bounded request/rate controls and no-store responses are enforced.",
+        "Merchant credential UI exposes plaintext token/secret only on create/rotate.",
+        "Latest implementation-head App Validation, PHASE-08 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -1337,6 +1363,132 @@
         "Canonical product/options/state registries reflect only verified PHASE-07 runtime implementation.",
         "Shopify publication-scope reauthorization and live mutation acceptance remain separate runtime gates."
       ]
+    },
+    {
+      "id": "ISSUE-117-WU-01",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Add integration persistence, crypto and Unlimited entitlement contract",
+      "objective": "Create parity-validated credential/replay persistence with hash-only API tokens, encrypted webhook secrets and exact Unlimited-only capability gating.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/cloud schemas contain matching IntegrationCredential and IntegrationReplayNonce models.",
+        "OPT-API-INTEGRATIONS is Unlimited-only.",
+        "API token plaintext has no persistence field and tokenHash stores SHA-256 output.",
+        "Webhook secret is stored only as encrypted ciphertext.",
+        "Credential loader/public shape never returns token hash or webhook ciphertext."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-08 secure API integrations contract"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "App Validation #457 / run 37117869035 passed.",
+        "Integration persistence migrations validate in Local and hosted schemas.",
+        "Credential create/rotate uses hash-only bearer token storage and AES-GCM webhook encryption."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-02",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Implement API authentication, scopes, rate limiting and replay guard",
+      "objective": "Authenticate external credentials without browser sessions while deriving merchant identity from credential state and bounding abuse/replay.",
+      "dependencies": [
+        "ISSUE-117-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Bearer authentication resolves credentials by non-secret prefix and constant-time hash comparison.",
+        "Required scopes fail closed before endpoint action.",
+        "Caller-supplied shop identity is rejected.",
+        "Current Unlimited entitlement is rechecked through offline Shopify admin access.",
+        "Credential use is limited to 60 accepted authenticated requests per one-minute database window.",
+        "Signed webhook timestamp, HMAC and replay nonce checks are enforced.",
+        "Integration responses are no-store and request bodies are bounded to 16 KiB."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "authenticateIntegrationApi and authenticateSignedWebhook implement credential/scope guards.",
+        "Rate-window state and replay nonce persistence are database-backed.",
+        "External request parser rejects shop fields and oversized/non-object JSON."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-03",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Expose external API/webhook routes and merchant credential UI",
+      "objective": "Provide scoped activity/sort/automation APIs, signed sort webhook and one-time-secret credential management UI.",
+      "dependencies": [
+        "ISSUE-117-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "GET /api/v1/activity requires activity:read.",
+        "POST /api/v1/collections/sort requires collections:sort.",
+        "POST /api/v1/automation/run requires automation:run.",
+        "POST /api/v1/webhooks/sort requires a valid webhooks:sort HMAC signature.",
+        "Mutation routes are POST-only.",
+        "/app/integrations supports create/rotate/revoke and never loader-reads plaintext credentials.",
+        "Activity evidence excludes token and webhook secret material."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "All four external routes are implemented without browser Shopify session authentication.",
+        "Offline Shopify admin access is derived only after credential authentication.",
+        "Merchant Integrations UI documents endpoints/signing and shows secrets only in create/rotate action responses."
+      ]
+    },
+    {
+      "id": "ISSUE-117-WU-04",
+      "phase_id": "PHASE-08",
+      "module_id": "MOD-API-INTEGRATIONS",
+      "title": "Certify PHASE-08 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified API integration implementation and preserve live-acceptance boundaries.",
+      "dependencies": [
+        "ISSUE-117-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark OPT-API-INTEGRATIONS implemented while OPT-PRIORITY-SUPPORT remains separate.",
+        "Dedicated PHASE-08 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "No Staging/Production credential issuance or live external-client/webhook acceptance is claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa passed App Validation #457 / run 37117869035.",
+        "All validation steps including PHASE-08 contract, Worker build and both Cloudflare dry-runs passed.",
+        "OPT-PRIORITY-SUPPORT remains planned and outside PHASE-08.",
+        "No live external integration acceptance is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -1351,5 +1503,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "26663def7f1052bceac0159ae491e0e555b5eac8"
+  "last_reconciled_repository_ref": "b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa"
 }
