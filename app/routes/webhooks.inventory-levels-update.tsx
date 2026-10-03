@@ -11,6 +11,7 @@ import {
   reconcileProductVisibility,
 } from "../services/product-visibility.server";
 import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileCommerceVisibilitySafe } from "../services/commerce-visibility.server";
 
 type InventoryLevelWebhookPayload = {
   inventory_item_id?: string | number;
@@ -71,6 +72,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
       await runWithWorkerLifetime(context, async () => {
         if (productId) {
           await reconcileProductVisibility(admin, session.shop, productId);
+          await reconcileCommerceVisibilitySafe(
+            admin,
+            session.shop,
+            productId,
+          );
           await processLowStockAlert(
             admin,
             session.shop,
