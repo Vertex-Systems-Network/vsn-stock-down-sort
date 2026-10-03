@@ -82,3 +82,39 @@ export function resolveSupportEntitlement(plan: {
     catalogSupport: expectedSupport,
   };
 }
+
+export const SUPPORT_REQUEST_LIMITS = Object.freeze({
+  subject: 160,
+  message: 5000,
+} as const);
+
+export type SupportRequestInput = {
+  subject: string;
+  message: string;
+};
+
+export function normalizeSupportRequestInput(
+  input: Partial<Record<keyof SupportRequestInput, unknown>>,
+): SupportRequestInput {
+  const subject = String(input.subject ?? "").trim();
+  const message = String(input.message ?? "").trim();
+
+  if (!subject) {
+    throw new Error("Support request subject is required.");
+  }
+  if (subject.length > SUPPORT_REQUEST_LIMITS.subject) {
+    throw new Error(
+      `Support request subject must be ${SUPPORT_REQUEST_LIMITS.subject} characters or fewer.`,
+    );
+  }
+  if (!message) {
+    throw new Error("Support request message is required.");
+  }
+  if (message.length > SUPPORT_REQUEST_LIMITS.message) {
+    throw new Error(
+      `Support request message must be ${SUPPORT_REQUEST_LIMITS.message} characters or fewer.`,
+    );
+  }
+
+  return { subject, message };
+}
