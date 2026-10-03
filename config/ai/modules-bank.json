@@ -723,6 +723,92 @@
         "Repository/development implementation is complete and CI-certified. Environment promotion and external notification-delivery acceptance remain separate guarded activities."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-CONTEXT-VISIBILITY",
+      "name": "Markets, B2B Catalog & Sales-Channel Visibility",
+      "objective": "Apply Unlimited-only sold-out visibility automation to existing Shopify Market, B2B and sales-channel publications while preserving merchant ownership.",
+      "scope": [
+        "publication scope configuration",
+        "Market publication discovery",
+        "B2B CompanyLocation publication discovery",
+        "sales-channel publication discovery",
+        "sold-out product removal",
+        "VSN-owned restock restoration",
+        "product/inventory webhook and Queue integration",
+        "merchant Commerce Contexts UI"
+      ],
+      "boundaries": [
+        "Do not silently create Shopify catalogs or publications.",
+        "Only existing publications discovered from Shopify may be targeted.",
+        "Only VSN-managed removals may be automatically restored.",
+        "Merchant-owned unpublished state must not be overwritten.",
+        "Publication mutations are bounded to Shopify's 50-publishable limit.",
+        "Existing installs may require read_publications/write_publications reauthorization.",
+        "Merchant catalog permissions and store feature availability remain runtime acceptance gates.",
+        "No Staging/Production publication-mutation acceptance is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "option_ids": [
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES"
+      ],
+      "data_entities": [
+        "ContextVisibilityRule",
+        "ContextPublicationState",
+        "ActivityEvent"
+      ],
+      "contracts": [
+        "Unlimited: Shopify Markets rules",
+        "Unlimited: B2B catalog rules",
+        "Unlimited: sales-channel visibility rules",
+        "Shopify publication scopes: read_publications, write_publications",
+        "Publication mutation batch maximum: 50"
+      ],
+      "ui_surfaces": [
+        "/app/contexts"
+      ],
+      "security_responsibilities": [
+        "Resolve Unlimited entitlements server-side from the active Shopify subscription.",
+        "Scope all rule/state records by merchant shop.",
+        "Use Shopify-discovered publication IDs instead of trusting arbitrary client IDs.",
+        "Never auto-restore merchant-owned publication changes.",
+        "Fail closed when publication scopes or merchant permissions are unavailable."
+      ],
+      "acceptance_criteria": [
+        "All three PHASE-07 option IDs are runtime-implemented and Unlimited-only.",
+        "Local SQLite and hosted PostgreSQL context visibility models remain schema-parity validated.",
+        "All app configs request read_publications and write_publications.",
+        "Only existing Shopify publications are discoverable/selectable.",
+        "Sold-out removal checks current publication membership.",
+        "Restock restoration occurs only for VSN-managed removals.",
+        "Product/inventory webhooks use hosted Queue plus deterministic Local fallback.",
+        "App Validation, PHASE-07 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "App Validation #441 / run 37115215210 passed the complete validation chain.",
+        "Local and hosted context visibility persistence is schema-parity validated.",
+        "Shopify publication scopes are declared in Local/Staging/Production app configs.",
+        "Market, B2B and sales-channel targets are discovered from existing publications without catalog creation.",
+        "publishedOnPublication checks and publicationUpdate mutations implement safe remove/restore ownership semantics.",
+        "No PHASE-07 Staging/Production scope or live publication-mutation acceptance is claimed."
+      ],
+      "update_notes": [
+        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [

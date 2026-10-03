@@ -971,15 +971,15 @@ test("repository management follows the VSN Metafields-style canonical state cha
         workUnit.status === "complete",
     ),
   );
-  assert.equal(state.current_phase, "PHASE-06");
-  assert.equal(state.active_issue, 109);
-  assert.equal(state.current_module, "low-stock-alerts");
-  assert.equal(state.current_work_unit, "ISSUE-109-WU-04");
-  assert.match(state.next_valid_work_unit, /PHASE-06 repository implementation is complete/i);
-  assert.match(state.next_valid_work_unit, /PHASE-06 Staging\/Production promotion and real email\/Slack delivery acceptance remain separate guarded release\/runtime activities/i);
+  assert.equal(state.current_phase, "PHASE-07");
+  assert.equal(state.active_issue, 113);
+  assert.equal(state.current_module, "commerce-context-visibility");
+  assert.equal(state.current_work_unit, "ISSUE-113-WU-04");
+  assert.match(state.next_valid_work_unit, /Finish PR #114 state reconciliation/i);
+  assert.match(state.next_valid_work_unit, /PHASE-07 Shopify scope reauthorization, merchant publication permissions, Staging\/Production promotion and live publication-mutation acceptance remain separate guarded runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 31);
+  assert.ok(plan.work_units.length >= 35);
   for (const id of [
     "ISSUE-97-WU-01",
     "ISSUE-97-WU-02",
@@ -1001,6 +1001,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "ISSUE-109-WU-02",
     "ISSUE-109-WU-03",
     "ISSUE-109-WU-04",
+    "ISSUE-113-WU-01",
+    "ISSUE-113-WU-02",
+    "ISSUE-113-WU-03",
+    "ISSUE-113-WU-04",
   ]) {
     assert.equal(
       plan.work_units.find((workUnit) => workUnit.id === id)?.status,
@@ -1019,6 +1023,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "MOD-ANALYTICS-HISTORY",
     "MOD-AUTOMATION-RULES",
     "MOD-LOW-STOCK-ALERTS",
+    "MOD-CONTEXT-VISIBILITY",
   ]) {
     assert.equal(
       modules.modules.find((module) => module.id === id)?.status,

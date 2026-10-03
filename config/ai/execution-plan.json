@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 109,
+  "active_issue": 113,
   "phases": [
     {
       "id": "PHASE-01",
@@ -190,6 +190,31 @@
         "Hosted email runtime requires EMAIL binding and ALERT_FROM_EMAIL without hardcoded sender identity.",
         "Inventory/product webhook + Queue paths and Local evaluation fallback are implemented.",
         "No PHASE-06 Staging/Production deployment, Cloudflare Email onboarding, or real email/Slack delivery acceptance is claimed."
+      ]
+    },
+    {
+      "id": "PHASE-07",
+      "name": "Markets, B2B Catalog & Sales-Channel Visibility",
+      "objective": "Apply Unlimited-only sold-out visibility automation to existing Shopify commerce-context publications with safe merchant-state preservation.",
+      "module_ids": [
+        "MOD-CONTEXT-VISIBILITY",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "dependencies": [
+        "PHASE-06"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "ContextVisibilityRule and ContextPublicationState exist in Local SQLite and hosted PostgreSQL with schema parity.",
+        "All Shopify app configs request read_publications/write_publications.",
+        "Markets/B2B/sales-channel capabilities are Unlimited-only and fail closed server-side.",
+        "Only existing publications are discovered; no catalog/publication creation occurs.",
+        "Sold-out products are removed only when currently published to the selected publication.",
+        "Restock re-add occurs only for VSN-managed removals.",
+        "Product/inventory webhooks integrate hosted Queue and deterministic Local fallback.",
+        "Latest implementation-head App Validation, PHASE-07 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -1179,6 +1204,127 @@
         "Canonical product/options/state registries reflect only verified PHASE-06 runtime implementation.",
         "No PHASE-06 Staging/Production runtime promotion or real notification delivery is claimed."
       ]
+    },
+    {
+      "id": "ISSUE-113-WU-01",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Add publication scopes, persistence and Unlimited entitlements",
+      "objective": "Declare required Shopify publication scopes and create parity-validated rule/state persistence with exact Unlimited-only gates.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Local/Staging/Production app configs include read_publications/write_publications.",
+        "Local/cloud schemas contain matching ContextVisibilityRule and ContextPublicationState models.",
+        "Markets, B2B and sales-channel rules are Unlimited-only.",
+        "Arbitrary non-Shopify publication IDs are rejected."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-07 commerce context visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "App Validation #441 / run 37115215210 passed.",
+        "Publication scopes are declared in all three Shopify app configs.",
+        "Context persistence migrations validate in Local and hosted schemas."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-02",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Implement publication discovery and safe context visibility engine",
+      "objective": "Discover existing Market/B2B/sales-channel publications and safely remove/restore product membership.",
+      "dependencies": [
+        "ISSUE-113-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "MARKET, COMPANY_LOCATION and NONE publication types are discovered without creation.",
+        "Product membership is checked with publishedOnPublication before removal.",
+        "publicationUpdate is bounded to 50 publishables.",
+        "Merchant-owned unpublished state is preserved.",
+        "Only VSN-managed removals are automatically restored."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "Existing Shopify publications are queried by catalog type.",
+        "publicationUpdate handles remove/add membership changes.",
+        "ContextPublicationState tracks VSN ownership and merchant override behavior."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-03",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Integrate commerce contexts with webhooks, Queue and merchant UI",
+      "objective": "Run context visibility from product/inventory events and expose authenticated publication-rule management.",
+      "dependencies": [
+        "ISSUE-113-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product and inventory update webhooks enqueue context_visibility jobs.",
+        "Hosted Queue consumer handles context_visibility jobs.",
+        "Local fallback reconciles the same product deterministically.",
+        "Commerce Contexts UI lists only Shopify-discovered targets.",
+        "Scope/permission discovery failures are surfaced without fake acceptance.",
+        "Pause/delete safeguards prevent stranded VSN-managed removals."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 49ac61489dfc8fd8a5cce9d64df17291f10ac10b.",
+        "Queue union/consumer and both webhooks implement context_visibility jobs.",
+        "/app/contexts is authenticated, plan-aware and exposes runtime scope boundaries.",
+        "Rule lifecycle blocks unsafe target changes, pauses and deletes while managed hidden states exist."
+      ]
+    },
+    {
+      "id": "ISSUE-113-WU-04",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-CONTEXT-VISIBILITY",
+      "title": "Certify PHASE-07 and reconcile repository truth",
+      "objective": "Align product/options/state registries with only CI-verified PHASE-07 implementation and preserve runtime permission boundaries.",
+      "dependencies": [
+        "ISSUE-113-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Product/options registries mark exactly the three implemented PHASE-07 capabilities.",
+        "Dedicated PHASE-07 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "Scope reauthorization and live publication mutation acceptance are not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 commerce context visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 49ac61489dfc8fd8a5cce9d64df17291f10ac10b passed App Validation #441 / run 37115215210.",
+        "All validation steps including Worker build and both Cloudflare dry-runs passed.",
+        "No PHASE-07 Staging/Production scope acceptance or live publication mutation acceptance is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -1193,5 +1339,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "ad7cc32f72ec73905d597bb62f355dc9b77ac4fa"
+  "last_reconciled_repository_ref": "49ac61489dfc8fd8a5cce9d64df17291f10ac10b"
 }

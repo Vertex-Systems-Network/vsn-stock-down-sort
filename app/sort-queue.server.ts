@@ -16,7 +16,7 @@ export type SortQueueJob =
       reason: "inventory-update" | "product-update";
     }
   | {
-      kind: "alert";
+      kind: "alert" | "context_visibility";
       shop: string;
       productId: string;
       reason: "inventory-update" | "product-update";

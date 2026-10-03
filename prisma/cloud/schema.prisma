@@ -148,3 +148,35 @@ model LowStockAlertState {
   @@unique([shop, productId])
   @@index([shop, lastObservedAt])
 }
+
+
+model ContextVisibilityRule {
+  id            String   @id @default(cuid())
+  shop          String
+  targetType    String
+  publicationId String
+  targetTitle   String
+  enabled       Boolean  @default(true)
+  autoRestore   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([shop, publicationId])
+  @@index([shop, targetType, enabled])
+}
+
+model ContextPublicationState {
+  id            String    @id @default(cuid())
+  shop          String
+  ruleId        String
+  productId     String
+  publicationId String
+  managedHidden Boolean   @default(false)
+  hiddenAt      DateTime?
+  restoredAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([shop, ruleId, productId])
+  @@index([shop, publicationId, managedHidden])
+}
