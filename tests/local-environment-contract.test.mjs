@@ -21,7 +21,7 @@ function setValidLocalEnv() {
   delete process.env.DIRECT_URL;
   process.env.SHOPIFY_API_KEY = "675de0e3834ce61a75473de19df457c4";
   process.env.SHOPIFY_API_SECRET = "local-secret";
-  process.env.SCOPES = "read_products,write_products,read_inventory,read_publications,write_publications";
+  process.env.SCOPES = "read_products,write_products,read_inventory,read_locations,read_publications,write_publications";
   process.env.APP_ENV = "development";
   process.env.SHOPIFY_BILLING_TEST_MODE = "true";
 }
@@ -61,9 +61,15 @@ test("rejects missing Local Shopify secret", () => {
   expectFailure("SHOPIFY_API_SECRET is required");
 });
 
+test("rejects Local scope drift that drops location access", () => {
+  setValidLocalEnv();
+  process.env.SCOPES = "read_products,write_products,read_inventory,read_publications,write_publications";
+  expectFailure("SCOPES must include read_locations");
+});
+
 test("rejects Local scope drift that drops publication access", () => {
   setValidLocalEnv();
-  process.env.SCOPES = "read_products,write_products,read_inventory";
+  process.env.SCOPES = "read_products,write_products,read_inventory,read_locations";
   expectFailure("SCOPES must include read_publications");
 });
 
