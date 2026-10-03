@@ -89,9 +89,9 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN | Stock Down Sort Dev | `shopify.app.local.toml` | test |
-| Staging | VSN | Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN | Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | test |
+| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | test |
+| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | real |
 
 Database topology is also isolated:
 - Local: gitignored SQLite file `prisma/dev.sqlite`
