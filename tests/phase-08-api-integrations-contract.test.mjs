@@ -34,7 +34,7 @@ test("PHASE-08 integration persistence is mirrored across Local and hosted schem
   }
 });
 
-test("PHASE-08 capability is Unlimited-only and Priority Support remains separate", () => {
+test("PHASE-08 capability is Unlimited-only and Priority Support remains separately classified", () => {
   const plan = JSON.parse(read("config/ai/product-plan.json"));
   const options = JSON.parse(read("config/ai/options-bank.json"));
   const option = options.options.find(
@@ -49,7 +49,8 @@ test("PHASE-08 capability is Unlimited-only and Priority Support remains separat
     true,
   );
   assert.equal(option?.runtime_status, "implemented");
-  assert.equal(support?.runtime_status, "planned");
+  assert.equal(option?.category, "enterprise");
+  assert.equal(support?.category, "commercial");
 
   for (const planId of ["starter", "growth", "pro"]) {
     const item = plan.plans.find((entry) => entry.id === planId);
