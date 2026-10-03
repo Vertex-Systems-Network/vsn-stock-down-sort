@@ -148,17 +148,19 @@ export function Workspace({
     navigation.state === "submitting" ||
     fetchers.some((fetcher) => fetcher.state === "submitting");
 
-  const routes = useMemo(
+  const routes = useMemo<
+    Array<{ to: string; label: string; icon: IconName }>
+  >(
     () => [
-      ["/app", "Collections", "collections" as IconName],
-      ["/app/visibility", "Visibility", "visibility" as IconName],
-      ["/app/contexts", "Commerce contexts", "contexts" as IconName],
-      ["/app/analytics", "Analytics", "analytics" as IconName],
-      ["/app/automation", "Automation", "automation" as IconName],
-      ["/app/alerts", "Alerts", "alerts" as IconName],
-      ["/app/integrations", "Integrations", "integrations" as IconName],
-      ["/app/plans", "Plans", "plans" as IconName],
-      ["/app/support", "Help center", "support" as IconName],
+      { to: "/app", label: "Collections", icon: "collections" },
+      { to: "/app/visibility", label: "Visibility", icon: "visibility" },
+      { to: "/app/contexts", label: "Commerce contexts", icon: "contexts" },
+      { to: "/app/analytics", label: "Analytics", icon: "analytics" },
+      { to: "/app/automation", label: "Automation", icon: "automation" },
+      { to: "/app/alerts", label: "Alerts", icon: "alerts" },
+      { to: "/app/integrations", label: "Integrations", icon: "integrations" },
+      { to: "/app/plans", label: "Plans", icon: "plans" },
+      { to: "/app/support", label: "Help center", icon: "support" },
     ],
     [],
   );
@@ -228,7 +230,7 @@ export function Workspace({
         </button>
 
         <nav className="vsn-navigation" aria-label="Workspace">
-          {routes.map(([to, label, icon]) => (
+          {routes.map(({ to, label, icon }) => (
             <NavLink
               key={to}
               to={{ pathname: to, search }}
