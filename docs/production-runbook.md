@@ -17,6 +17,10 @@ Use `cloudflare-production` for:
 
 Production credentials must not be reused by Staging.
 
+## Public submission billing method
+
+For the initial public release, keep Partner Dashboard pricing set to **Manual Pricing** because the current app uses the Shopify Billing API to create recurring subscriptions. Enabling Shopify App Pricing before the code is migrated would create a mixed billing model and must be avoided. The policy is recorded in `config/shopify/billing-strategy.json`.
+
 ## Billing safety
 
 Production requires:

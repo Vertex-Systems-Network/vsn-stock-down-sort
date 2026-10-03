@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "submission_target": "shopify_app_store_public_app",
+  "active_method": "manual_pricing_billing_api",
+  "partner_dashboard_required_pricing_method": "manual_pricing",
+  "mixed_mode_allowed": false,
+  "rationale": "The current application creates recurring subscriptions with the Shopify Billing API (appSubscriptionCreate) and reads current subscriptions from currentAppInstallation. Shopify App Pricing must not be enabled until the app is migrated to hosted plan selection and Partner API subscription reads.",
+  "public_plans": [
+    {
+      "id": "starter",
+      "amount": 10.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "growth",
+      "amount": 19.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "pro",
+      "amount": 34.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "unlimited",
+      "amount": 70,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    }
+  ],
+  "legacy_compatibility": {
+    "name": "VSN Stock Down Sort Pro",
+    "amount": 55,
+    "trial_days": 5,
+    "maps_to_plan_id": "unlimited"
+  },
+  "shopify_app_pricing_migration": {
+    "status": "deferred",
+    "requires": [
+      "Partner API Active Subscription integration",
+      "Shopify-hosted plan selection redirect",
+      "Removal of appSubscriptionCreate for new subscriptions",
+      "Plan migration/testing in Partner Dashboard"
+    ]
+  }
+}
