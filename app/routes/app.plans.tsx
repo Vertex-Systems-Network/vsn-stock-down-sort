@@ -326,7 +326,7 @@ export default function PlansPage() {
           </s-stack>
         </s-box>
 
-        {activeSubscription ? (
+        {activeSubscription && !activeIsUnknown ? (
           <s-box
             border="base base solid"
             borderRadius="large"
