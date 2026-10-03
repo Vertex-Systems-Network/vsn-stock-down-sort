@@ -27,6 +27,8 @@ jobs:
       SCOPES: read_products,write_products,read_inventory,read_publications,write_publications
       DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
       DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
+      ALERT_FROM_EMAIL: ci-sender@example.invalid
+      SUPPORT_INBOX_EMAIL: ci-support@example.invalid
 
     steps:
       - name: Checkout
@@ -96,6 +98,9 @@ jobs:
 
       - name: PHASE-09 priority support entitlement contract
         run: node --test tests/phase-09-support-entitlement-contract.test.mjs
+
+      - name: PHASE-10 support fulfillment contract
+        run: node --test tests/phase-10-support-fulfillment-contract.test.mjs
 
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs

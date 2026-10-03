@@ -17,7 +17,8 @@
       "DATABASE_URL",
       "SHOPIFY_API_KEY",
       "SHOPIFY_API_SECRET",
-      "ALERT_FROM_EMAIL"
+      "ALERT_FROM_EMAIL",
+      "SUPPORT_INBOX_EMAIL"
     ]
   },
   "vars": {

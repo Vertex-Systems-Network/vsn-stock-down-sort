@@ -209,3 +209,20 @@ model IntegrationReplayNonce {
   @@unique([credentialId, nonceHash])
   @@index([expiresAt])
 }
+
+model SupportRequest {
+  id                 String    @id @default(cuid())
+  shop               String
+  subject            String
+  message            String
+  priority           String
+  status             String    @default("OPEN")
+  notificationStatus String    @default("PENDING")
+  notificationError  String?
+  notifiedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([shop, createdAt])
+  @@index([shop, status, createdAt])
+}

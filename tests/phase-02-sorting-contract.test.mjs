@@ -172,9 +172,13 @@ test("PHASE-02 completion remains repository-tracked after later phases advance"
   assert.equal(phase.status, "complete");
   assert.equal(module.status, "complete");
 
+  const expectedCurrentPhaseStatus =
+    state.active_issue === null ? "complete" : "in_progress";
   assert.ok(
     plan.phases.some(
-      (item) => item.id === state.current_phase && item.status === "complete",
+      (item) =>
+        item.id === state.current_phase &&
+        item.status === expectedCurrentPhaseStatus,
     ),
   );
   assert.ok(
