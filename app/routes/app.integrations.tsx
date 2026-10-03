@@ -439,7 +439,7 @@ export default function IntegrationsPage() {
           </s-text>
           <s-text color="subdued">
             Each credential is limited to 60 accepted API/webhook authentication
-            attempts per rolling one-minute database window.
+            attempts per one-minute database window.
           </s-text>
         </s-stack>
       </s-section>
