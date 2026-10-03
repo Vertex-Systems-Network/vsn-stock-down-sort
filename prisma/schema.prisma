@@ -178,3 +178,34 @@ model ContextPublicationState {
   @@unique([shop, ruleId, productId])
   @@index([shop, publicationId, managedHidden])
 }
+
+
+model IntegrationCredential {
+  id                      String    @id @default(cuid())
+  shop                    String
+  name                    String
+  tokenPrefix             String    @unique
+  tokenHash               String
+  webhookSecretCiphertext String?
+  scopes                  String    @default("")
+  enabled                 Boolean   @default(true)
+  rateWindowStartedAt     DateTime?
+  rateRequestCount        Int       @default(0)
+  lastUsedAt              DateTime?
+  revokedAt               DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([shop, enabled])
+}
+
+model IntegrationReplayNonce {
+  id           String   @id @default(cuid())
+  credentialId String
+  nonceHash    String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@unique([credentialId, nonceHash])
+  @@index([expiresAt])
+}
