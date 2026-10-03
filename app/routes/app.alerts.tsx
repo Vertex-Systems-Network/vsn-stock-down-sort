@@ -111,8 +111,8 @@ export default function AlertsPage() {
       : setting;
 
   return (
-    <s-page heading="Low-stock alerts" inlineSize="large">
-      <s-section>
+    <s-page heading="Low-stock alerts">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Notify your team when a tracked Shopify product reaches or falls
