@@ -566,18 +566,26 @@
       "category": "commercial",
       "description": "Priority support entitlement",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
-      "ux_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-09 exact active-plan support entitlement resolution and authenticated Support UI."
+      ],
+      "ux_implications": [
+        "Pro displays Priority support; Unlimited displays 24/7 priority support; Starter/Growth display Standard support."
+      ],
       "data_implications": [],
-      "security_implications": [],
-      "qa_implications": []
+      "security_implications": [
+        "Support entitlement is derived server-side from the authenticated merchant's active Shopify subscription plan; no client-supplied tier is trusted."
+      ],
+      "qa_implications": [
+        "Covered by PHASE-09 exact plan mapping, plan-page truth and operational-boundary contracts."
+      ]
     }
   ],
   "status_values": [
