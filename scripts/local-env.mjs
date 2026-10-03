@@ -5,6 +5,7 @@ const REQUIRED_SHOPIFY_SCOPES = [
   "read_products",
   "write_products",
   "read_inventory",
+  "read_locations",
   "read_publications",
   "write_publications",
 ];
