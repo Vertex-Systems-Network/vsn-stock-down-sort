@@ -115,27 +115,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
-function secretStyle() {
-  return {
-    ...fieldStyle(),
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-    wordBreak: "break-all" as const,
-    whiteSpace: "pre-wrap" as const,
-  };
-}
-
 function formatDate(value: string | Date | null | undefined) {
   if (!value) return "Never";
   return new Date(value).toLocaleString();
@@ -160,7 +139,7 @@ export default function IntegrationsPage() {
 
   return (
     <s-page heading="API & webhook integrations">
-      <s-section>
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Connect external systems without exposing Shopify session tokens.
@@ -204,22 +183,16 @@ export default function IntegrationsPage() {
             disappear after navigation or refresh.
           </s-banner>
           <s-stack gap="base">
-            <label>
-              <strong>API bearer token</strong>
-              <textarea
-                readOnly
-                value={actionData.oneTime.apiToken}
-                style={{ ...secretStyle(), minHeight: 90 }}
-              />
-            </label>
-            <label>
-              <strong>Webhook HMAC secret</strong>
-              <textarea
-                readOnly
-                value={actionData.oneTime.webhookSecret}
-                style={{ ...secretStyle(), minHeight: 90 }}
-              />
-            </label>
+            <s-text-area
+              label="API bearer token"
+              readOnly
+              value={actionData.oneTime.apiToken}
+            />
+            <s-text-area
+              label="Webhook HMAC secret"
+              readOnly
+              value={actionData.oneTime.webhookSecret}
+            />
           </s-stack>
         </s-section>
       ) : null}
@@ -235,36 +208,24 @@ export default function IntegrationsPage() {
           <form method="post">
             <input type="hidden" name="intent" value="create" />
             <s-stack gap="base">
-              <label>
-                <strong>Integration name</strong>
-                <input
-                  name="name"
-                  required
-                  maxLength={120}
-                  placeholder="Warehouse automation"
-                  style={fieldStyle()}
-                />
-              </label>
+              <s-text-field
+                label="Integration name"
+                name="name"
+                required
+                maxLength={120}
+                placeholder="Warehouse automation"
+              />
 
               <s-box background="subdued" borderRadius="large" padding="base">
                 <s-stack gap="small-200">
                   <s-text type="strong">Scopes</s-text>
                   {INTEGRATION_SCOPES.map((scope) => (
-                    <label
+                    <s-checkbox
                       key={scope}
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        alignItems: "center",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        name="scopes"
-                        value={scope}
-                      />
-                      {scope}
-                    </label>
+                      name="scopes"
+                      value={scope}
+                      label={scope}
+                    />
                   ))}
                 </s-stack>
               </s-box>
