@@ -339,16 +339,20 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.authorized_version,
-    "stock-down-sort-production-516ab92a2d1a-1",
+    "stock-down-sort-production-930bb2039244-2",
   );
   assert.equal(
     policy.authorized_source_ref,
-    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+    "930bb2039244ecafd0ae9d3bb538898094e86638",
   );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
   assert.equal(policy.billing.trial_days, 10);
+  assert.equal(policy.status, "released");
+  assert.equal(policy.release_record?.run_id, 37151020224);
+  assert.equal(policy.release_record?.version_released_to_users, true);
+  assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
 });
 
 
@@ -1334,14 +1338,22 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
 
   assert.equal(gates.staging.status, "accepted");
   assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
-  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.accepted_main_ref,
+    "54c66ab35734efdc929212eb4c676eb062086e64",
+  );
   assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
-  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "pending_main_promotion");
+  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "recorded");
+  assert.equal(
+    gates.staging.evidence_record?.accepted_main_ref,
+    gates.staging.accepted_main_ref,
+  );
   assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
   assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
   assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
   assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
   assert.equal(gates.staging.shopify_release_record?.version, "stock-down-sort-staging-5df0cb94446e-2");
 });
+
 
 

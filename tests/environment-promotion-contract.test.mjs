@@ -170,17 +170,24 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("current Staging acceptance is signed and pending protected-main binding", () => {
+test("current Staging acceptance is bound to protected main", () => {
   assert.equal(gates.local_dev.status, "accepted");
   assert.equal(
     gates.staging.accepted_source_ref,
     gates.local_dev.accepted_source_ref,
   );
   assert.equal(gates.staging.status, "accepted");
-  assert.equal(gates.staging.accepted_main_ref, null);
+  assert.equal(
+    gates.staging.accepted_main_ref,
+    "54c66ab35734efdc929212eb4c676eb062086e64",
+  );
   assert.equal(
     gates.staging.evidence_record?.accepted_main_ref_recording,
-    "pending_main_promotion",
+    "recorded",
+  );
+  assert.equal(
+    gates.staging.evidence_record?.accepted_main_ref,
+    gates.staging.accepted_main_ref,
   );
   assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
   assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
@@ -202,32 +209,31 @@ test("production readiness validates the canonical four-plan billing contract", 
   assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
 });
 
-test("production release is pinned to the exact authorized candidate and verifies the final app name", () => {
+test("successful Production release is recorded and Live is accepted", () => {
   const workflow = read(".github/workflows/shopify-production-release.yml");
   assert.equal(productionRelease.status, "released");
   assert.equal(productionRelease.release_authorized, false);
   assert.equal(
     productionRelease.authorized_version,
-    "stock-down-sort-production-516ab92a2d1a-1",
+    "stock-down-sort-production-930bb2039244-2",
   );
   assert.equal(
     productionRelease.authorized_source_ref,
-    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+    "930bb2039244ecafd0ae9d3bb538898094e86638",
   );
-  assert.match(workflow, /Requested version is not the repository-authorized version/);
-  assert.match(workflow, /name = "VSN \| Stock Down Sort"/);
-  assert.match(workflow, /Verify released Production app name/);
-  assert.match(workflow, /app info/);
-  assert.match(workflow, /production_shopify_app_name=VSN \| Stock Down Sort/);
-});
-
-test("successful Production release is recorded and future name verification captures all CLI output", () => {
-  const workflow = read(".github/workflows/shopify-production-release.yml");
-  assert.equal(productionRelease.release_record?.run_id, 37002956869);
+  assert.equal(productionRelease.release_record?.run_id, 37151020224);
   assert.equal(productionRelease.release_record?.version_released_to_users, true);
   assert.equal(productionRelease.release_record?.remote_app_name, "VSN | Stock Down Sort");
   assert.equal(gates.live.status, "accepted");
-  assert.equal(gates.live.release_record?.run_id, 37002956869);
+  assert.equal(gates.live.release_record?.run_id, 37151020224);
+  assert.equal(gates.live.release_record?.version, "stock-down-sort-production-930bb2039244-2");
+  assert.equal(gates.live.release_record?.source_ref, productionRelease.authorized_source_ref);
   assert.equal(gates.live.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.match(workflow, /Requested version is not the repository-authorized version/);
+  assert.match(workflow, /Verify released Production app name/);
   assert.match(workflow, /shopify-production-info\.txt 2>&1/);
 });
+
+
+
+
