@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": null,
+  "active_issue": 128,
   "phases": [
     {
       "id": "PHASE-01",
@@ -293,6 +293,31 @@
         "OPT-PRIORITY-SUPPORT is runtime-implemented for Pro and Unlimited only.",
         "All selected product capability options are now non-planned/runtime-implemented.",
         "No response-time SLA, support contact method, escalation procedure or staffing fulfillment is claimed by this repository phase."
+      ]
+    },
+    {
+      "id": "PHASE-10",
+      "name": "In-app Support Request Fulfillment",
+      "objective": "Provide authenticated shop-scoped support request intake and hosted inbox notification while preserving server-derived plan priority and a no-SLA truth boundary.",
+      "module_ids": [
+        "MOD-SUPPORT-FULFILLMENT",
+        "MOD-PRIORITY-SUPPORT",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "dependencies": [
+        "PHASE-09"
+      ],
+      "status": "in_progress",
+      "exit_criteria": [
+        "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
+        "Authenticated merchants can create and view only their own shop-scoped support requests.",
+        "Support request priority is derived server-side from the active Shopify plan support entitlement and cannot be upgraded by client input.",
+        "Local development persists requests without claiming external delivery.",
+        "Hosted Staging/Production notify a configured VSN support inbox through the existing Cloudflare EMAIL binding and require SUPPORT_INBOX_EMAIL.",
+        "ActivityEvent evidence records request creation and notification outcome without support message bodies or inbox secrets.",
+        "No response-time SLA, staffing level or escalation deadline is fabricated.",
+        "PHASE-10 contract, lint, typecheck, Worker build and Cloudflare dry-runs pass; final environment runtime acceptance remains deferred."
       ]
     }
   ],
@@ -1648,6 +1673,39 @@
         "Canonical product/options/state registries reflect the final selected capability as implemented.",
         "Operational support fulfillment remains outside repository evidence."
       ]
+    },
+    {
+      "id": "ISSUE-128-WU-01",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-SUPPORT-FULFILLMENT",
+      "title": "Implement and certify in-app support request fulfillment",
+      "objective": "Add persistent authenticated support requests, plan-derived priority, hosted inbox notification and truthful operational boundaries without advancing environment runtime acceptance.",
+      "dependencies": [
+        "ISSUE-120-WU-04"
+      ],
+      "priority": 100,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "SupportRequest model and additive Local/cloud migrations are present.",
+        "/app/support authenticates merchants, accepts bounded subject/message input and lists only session.shop requests.",
+        "Priority comes only from resolveSupportEntitlement(current.plan).",
+        "Hosted notification uses EMAIL, ALERT_FROM_EMAIL and SUPPORT_INBOX_EMAIL; Local remains LOCAL_ONLY.",
+        "Notification failure does not discard the persisted support request.",
+        "ActivityEvent details exclude request message bodies and support inbox secrets.",
+        "No SLA or response-time guarantee is introduced."
+      ],
+      "required_checks": [
+        "Prisma Local/cloud schema parity",
+        "PHASE-09 priority support entitlement contract",
+        "PHASE-10 support fulfillment contract",
+        "Lint",
+        "Typecheck",
+        "Worker build",
+        "Cloudflare Staging dry-run",
+        "Cloudflare Production dry-run"
+      ],
+      "completion_evidence": []
     }
   ],
   "status_values": [
@@ -1662,16 +1720,16 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
-  "active_issue_status": "none",
-  "active_issue_note": "No repository implementation issue is open. Runtime Issue #125 separately tracks current-head Local -> Staging -> Live recertification; final runtime testing remains evidence-gated.",
+  "last_reconciled_repository_ref": "08220891c670344bcda79e948d016782fb451c47",
+  "active_issue_status": "open",
+  "active_issue_note": "Issue #128 is active for PHASE-10 support fulfillment. Runtime Issue #125 remains separate and final runtime testing is intentionally deferred.",
   "runtime_track": {
     "issue": 125,
-    "status": "pre_staging_preparation",
+    "status": "repository_extension_in_progress",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "Resolve the exact development HEAD after this preparation batch, run Local certification, then promote the same accepted source to Staging."
+    "next_gate": "Merge PHASE-10, resolve the new development head, then perform the final Local -> Staging -> Live acceptance cycle."
   }
 }
