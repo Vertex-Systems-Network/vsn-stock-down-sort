@@ -959,28 +959,32 @@ test("repository management follows the VSN Metafields-style canonical state cha
 
   assert.equal(plan.active_issue, state.active_issue);
   assert.equal(state.last_reconciled_repository_ref.length, 40);
-  assert.ok(
-    plan.phases.some(
-      (phase) => phase.id === state.current_phase && phase.status === "complete",
-    ),
+
+  const expectedActiveStatus =
+    state.active_issue === null ? "complete" : "in_progress";
+  assert.equal(
+    plan.phases.find((phase) => phase.id === state.current_phase)?.status,
+    expectedActiveStatus,
   );
-  assert.ok(
-    plan.work_units.some(
-      (workUnit) =>
-        workUnit.id === state.current_work_unit &&
-        workUnit.status === "complete",
-    ),
+  assert.equal(
+    plan.work_units.find(
+      (workUnit) => workUnit.id === state.current_work_unit,
+    )?.status,
+    expectedActiveStatus,
   );
-  assert.equal(state.current_phase, "PHASE-09");
-  assert.equal(state.active_issue, null);
-  assert.equal(state.active_issue_status, "none");
-  assert.equal(state.current_module, "priority-support");
-  assert.equal(state.current_work_unit, "ISSUE-120-WU-04");
-  assert.match(state.next_valid_work_unit, /No repository implementation work remains in the selected 26-capability product catalog/i);
-  assert.match(state.next_valid_work_unit, /guarded runtime acceptance\/promotion/i);
+
+  assert.equal(state.current_phase, "PHASE-10");
+  assert.equal(state.current_module, "support-fulfillment");
+  assert.equal(state.current_work_unit, "ISSUE-128-WU-01");
+  assert.equal(
+    state.active_issue_status,
+    state.active_issue === null ? "none" : "open",
+  );
+  assert.match(state.next_valid_work_unit, /support request fulfillment/i);
+  assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 43);
+  assert.ok(plan.work_units.length >= 44);
   for (const id of [
     "ISSUE-97-WU-01",
     "ISSUE-97-WU-02",
@@ -1021,6 +1025,12 @@ test("repository management follows the VSN Metafields-style canonical state cha
       id,
     );
   }
+  assert.equal(
+    plan.work_units.find(
+      (workUnit) => workUnit.id === "ISSUE-128-WU-01",
+    )?.status,
+    expectedActiveStatus,
+  );
 
   for (const id of [
     "MOD-MGMT",
@@ -1042,6 +1052,12 @@ test("repository management follows the VSN Metafields-style canonical state cha
       id,
     );
   }
+  assert.equal(
+    modules.modules.find(
+      (module) => module.id === "MOD-SUPPORT-FULFILLMENT",
+    )?.status,
+    expectedActiveStatus,
+  );
 
   assert.equal(supervisor.supervisor.status, "unassigned");
   assert.equal(supervisor.supervisor.lease_status, "not_acquired");
@@ -1053,17 +1069,20 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   const state = JSON.parse(read("config/ai/project-state.json"));
   const current = read(".ai/state/CURRENT-STATE.yaml");
   const tasks = read(".ai/tasks/INDEX.yaml");
+  const expectedActive = state.active_issue === null ? "null" : String(state.active_issue);
+  const expectedTaskStatus =
+    state.active_issue === null ? "complete" : "in_progress";
 
   assert.match(current, /compatibility_mirror: true/);
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
   assert.match(tasks, /compatibility_mirror: true/);
   assert.match(tasks, /canonical_plan: config\/ai\/execution-plan\.json/);
-  assert.ok(current.includes("active_issue: null"));
+  assert.ok(current.includes(`active_issue: ${expectedActive}`));
   assert.ok(current.includes(`current_phase: ${state.current_phase}`));
   assert.ok(current.includes(`current_work_unit: ${state.current_work_unit}`));
-  assert.ok(tasks.includes("active_issue: null"));
+  assert.ok(tasks.includes(`active_issue: ${expectedActive}`));
   assert.ok(tasks.includes(`active_work_unit: ${state.current_work_unit}`));
-  assert.match(tasks, /status: complete/);
+  assert.ok(tasks.includes(`status: ${expectedTaskStatus}`));
 });
 
 
