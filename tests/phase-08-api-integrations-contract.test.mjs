@@ -228,4 +228,4 @@ test("integration activity evidence excludes bearer and webhook secrets", () => 
   }
 
   assert.ok(server.includes("recordIntegrationRequest("));
-}
+});
