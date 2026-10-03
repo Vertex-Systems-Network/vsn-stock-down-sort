@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": null,
+  "active_issue": 120,
   "phases": [
     {
       "id": "PHASE-01",
@@ -1662,5 +1662,7 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "b084cf80d2a67128ae4426cfd4949d721002c945"
+  "last_reconciled_repository_ref": "b084cf80d2a67128ae4426cfd4949d721002c945",
+  "active_issue_status": "closed",
+  "active_issue_note": "Last completed issue retained as an integer compatibility pointer; no implementation issue is open."
 }
