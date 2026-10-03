@@ -31,8 +31,25 @@ test("PHASE-07 context visibility persistence is mirrored across Local and hoste
 test("PHASE-07 publication scopes are explicit in all Shopify app configs", () => {
   for (const path of [
     "shopify.app.toml",
+    "shopify.app.local.toml",
     "shopify.app.staging.toml",
     "shopify.app.production.toml",
+  ]) {
+    const source = read(path);
+    assert.ok(source.includes("read_publications"), path);
+    assert.ok(source.includes("write_publications"), path);
+  }
+});
+
+test("PHASE-07 publication scopes are propagated to Worker and CI runtime environments", () => {
+  for (const path of [
+    "wrangler.staging.jsonc",
+    "wrangler.production.jsonc",
+    ".github/workflows/app-validation.yml",
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/production-readiness.yml",
+    ".github/workflows/cloudflare-production-prepare.yml",
   ]) {
     const source = read(path);
     assert.ok(source.includes("read_publications"), path);
