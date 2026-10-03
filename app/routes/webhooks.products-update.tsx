@@ -8,6 +8,7 @@ import {
 } from "../services/collection-sorter.server";
 import { reconcileProductVisibility } from "../services/product-visibility.server";
 import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileCommerceVisibilitySafe } from "../services/commerce-visibility.server";
 
 type ProductUpdateWebhookPayload = {
   id?: string | number;
@@ -53,6 +54,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
     if (!queued) {
       await runWithWorkerLifetime(context, async () => {
         await reconcileProductVisibility(admin, session.shop, productId);
+        await reconcileCommerceVisibilitySafe(
+          admin,
+          session.shop,
+          productId,
+        );
         await processLowStockAlert(
           admin,
           session.shop,
