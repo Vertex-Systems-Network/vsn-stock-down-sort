@@ -539,18 +539,26 @@
       "category": "enterprise",
       "description": "API and webhook integrations",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-08 merchant-managed scoped API credentials, hash-only bearer token storage, encrypted webhook signing secrets, signed/replay-protected webhooks and external API routes."
+      ],
       "ux_implications": [],
       "data_implications": [],
-      "security_implications": [],
-      "qa_implications": []
+      "security_implications": [
+        "Bearer token plaintext is returned only at create/rotate and stored only as SHA-256 hash plus prefix.",
+        "Webhook signing secret is AES-GCM encrypted at rest and never returned by the credential loader.",
+        "External routes derive merchant shop from the authenticated credential and re-check current Unlimited entitlement."
+      ],
+      "qa_implications": [
+        "Covered by PHASE-08 credential storage, scope, rate-limit, HMAC timestamp/replay, no-store response and external-route contracts."
+      ]
     },
     {
       "id": "OPT-PRIORITY-SUPPORT",

@@ -19,7 +19,7 @@ type AdminClient = {
   ) => Promise<Response>;
 };
 
-export type AutomationRunSource = "manual" | "scheduled";
+export type AutomationRunSource = "manual" | "scheduled" | "api";
 
 const MAX_DUE_RULES_PER_TICK = 25;
 const RULE_LEASE_MINUTES = 15;

@@ -36,7 +36,8 @@
     "OPT-SLACK-ALERTS",
     "OPT-MARKETS",
     "OPT-B2B-CATALOGS",
-    "OPT-SALES-CHANNEL-RULES"
+    "OPT-SALES-CHANNEL-RULES",
+    "OPT-API-INTEGRATIONS"
   ],
   "plans": [
     {

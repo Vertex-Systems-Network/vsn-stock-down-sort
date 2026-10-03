@@ -971,15 +971,15 @@ test("repository management follows the VSN Metafields-style canonical state cha
         workUnit.status === "complete",
     ),
   );
-  assert.equal(state.current_phase, "PHASE-07");
-  assert.equal(state.active_issue, 113);
-  assert.equal(state.current_module, "commerce-context-visibility");
-  assert.equal(state.current_work_unit, "ISSUE-113-WU-04");
-  assert.match(state.next_valid_work_unit, /PHASE-07 repository implementation is complete/i);
-  assert.match(state.next_valid_work_unit, /Shopify scope reauthorization, merchant publication permissions, Staging\/Production promotion and live publication-mutation acceptance remain separate guarded runtime activities/i);
+  assert.equal(state.current_phase, "PHASE-08");
+  assert.equal(state.active_issue, 117);
+  assert.equal(state.current_module, "api-integrations");
+  assert.equal(state.current_work_unit, "ISSUE-117-WU-04");
+  assert.match(state.next_valid_work_unit, /Finish PR #118 state reconciliation/i);
+  assert.match(state.next_valid_work_unit, /PHASE-08 Staging\/Production integration credential issuance and live external client\/webhook acceptance remain separate guarded runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 35);
+  assert.ok(plan.work_units.length >= 39);
   for (const id of [
     "ISSUE-97-WU-01",
     "ISSUE-97-WU-02",
@@ -1005,6 +1005,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "ISSUE-113-WU-02",
     "ISSUE-113-WU-03",
     "ISSUE-113-WU-04",
+    "ISSUE-117-WU-01",
+    "ISSUE-117-WU-02",
+    "ISSUE-117-WU-03",
+    "ISSUE-117-WU-04",
   ]) {
     assert.equal(
       plan.work_units.find((workUnit) => workUnit.id === id)?.status,
@@ -1024,6 +1028,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "MOD-AUTOMATION-RULES",
     "MOD-LOW-STOCK-ALERTS",
     "MOD-CONTEXT-VISIBILITY",
+    "MOD-API-INTEGRATIONS",
   ]) {
     assert.equal(
       modules.modules.find((module) => module.id === id)?.status,

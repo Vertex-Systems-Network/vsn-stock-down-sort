@@ -813,6 +813,96 @@
         "Repository/development implementation is complete and CI-certified. Shopify scope reauthorization, merchant permissions and live publication acceptance remain separate guarded runtime activities."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-API-INTEGRATIONS",
+      "name": "Secure API & Signed Webhook Integrations",
+      "objective": "Expose Unlimited-only external automation surfaces without exposing Shopify credentials or trusting caller-supplied merchant identity.",
+      "scope": [
+        "integration credential persistence",
+        "hash-only bearer API tokens",
+        "encrypted webhook signing secrets",
+        "scoped external activity API",
+        "scoped collection sort API",
+        "scoped automation run API",
+        "signed collection-sort webhook",
+        "timestamp and replay protection",
+        "per-credential database rate limiting",
+        "merchant Integrations settings UI"
+      ],
+      "boundaries": [
+        "Bearer token plaintext is returned only during create/rotate and is never persisted.",
+        "Webhook signing secret is AES-GCM encrypted at rest and never returned by the loader.",
+        "External routes derive shop only from authenticated IntegrationCredential state.",
+        "Caller-supplied shop fields are rejected.",
+        "Current Unlimited entitlement is revalidated before Shopify runtime actions.",
+        "Signed webhooks require fresh timestamp, HMAC-SHA256 and a single-use replay nonce.",
+        "Mutation routes are POST-only and integration responses are no-store.",
+        "No Staging/Production credential issuance or live external-client acceptance is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-SORTING-CONTROLS",
+        "MOD-AUTOMATION-RULES",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "option_ids": [
+        "OPT-API-INTEGRATIONS"
+      ],
+      "data_entities": [
+        "IntegrationCredential",
+        "IntegrationReplayNonce",
+        "ActivityEvent"
+      ],
+      "contracts": [
+        "Unlimited: API and webhook integrations",
+        "API token storage: SHA-256 hash + non-secret prefix only",
+        "Webhook signing secret storage: AES-GCM ciphertext",
+        "Integration request body maximum: 16 KiB",
+        "Per-credential rate limit: 60 accepted authenticated requests per one-minute database window",
+        "Signed webhook freshness tolerance: 300 seconds",
+        "Replay nonce retention: 10 minutes"
+      ],
+      "ui_surfaces": [
+        "/app/integrations"
+      ],
+      "security_responsibilities": [
+        "Generate high-entropy API bearer tokens and never persist plaintext.",
+        "Encrypt webhook HMAC secrets using app-secret-derived authenticated encryption.",
+        "Fail closed by integration scope and current Unlimited entitlement.",
+        "Resolve offline Shopify admin access only after integration credential authentication.",
+        "Reject caller-supplied shop identity.",
+        "Bound request bodies, rate-limit credential use and reject replayed webhook nonces.",
+        "Keep API tokens, webhook secrets and ciphertext out of ActivityEvent details."
+      ],
+      "acceptance_criteria": [
+        "OPT-API-INTEGRATIONS is runtime-implemented and Unlimited-only.",
+        "Local SQLite and hosted PostgreSQL integration models remain schema-parity validated.",
+        "Bearer tokens are hash-only at rest and webhook signing secrets are encrypted.",
+        "External activity/sort/automation endpoints use scoped credential authentication.",
+        "Signed sort webhook verifies timestamp, nonce and HMAC before action.",
+        "External routes derive shop from IntegrationCredential and re-check current plan entitlement.",
+        "Merchant UI supports create/rotate/revoke without stored plaintext read-back.",
+        "App Validation, PHASE-08 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-08 secure API integrations contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa.",
+        "App Validation #457 / run 37117869035 passed the complete validation chain.",
+        "IntegrationCredential and IntegrationReplayNonce persistence is schema-parity validated.",
+        "Bearer token hashing, encrypted webhook secrets, scope checks, rate limiting and replay protection are repository-implemented.",
+        "External activity/sort/automation and signed webhook routes plus /app/integrations are implemented.",
+        "No Staging/Production integration credential or live external-client acceptance is claimed."
+      ],
+      "update_notes": [
+        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [

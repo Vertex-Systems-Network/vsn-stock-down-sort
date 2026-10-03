@@ -91,6 +91,9 @@ jobs:
       - name: PHASE-07 commerce context visibility contract
         run: node --test tests/phase-07-context-visibility-contract.test.mjs
 
+      - name: PHASE-08 secure API integrations contract
+        run: node --test tests/phase-08-api-integrations-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 

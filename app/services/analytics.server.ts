@@ -9,7 +9,7 @@ export type ActivityOutcome = "SUCCESS" | "ERROR" | "SKIPPED";
 
 export type ActivityEventInput = {
   shop: string;
-  category: "sorting" | "visibility" | "settings" | "analytics" | "alerts";
+  category: "sorting" | "visibility" | "settings" | "analytics" | "alerts" | "integrations";
   action: string;
   outcome?: ActivityOutcome;
   source?: string;
