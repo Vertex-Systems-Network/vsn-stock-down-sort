@@ -36,7 +36,7 @@ jobs:
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory
+      SCOPES: read_products,write_products,read_inventory,read_publications,write_publications
       SORT_QUEUE_NAME: vsn-stock-down-sort-production-sort-jobs
 
     steps:
