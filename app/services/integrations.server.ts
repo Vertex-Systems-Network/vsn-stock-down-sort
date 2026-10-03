@@ -148,7 +148,9 @@ export async function createIntegrationCredential(
   shop: string,
   nameInput: unknown,
   scopeInputs: unknown[],
+  optionIds: readonly string[],
 ) {
+  assertApiIntegrationEntitlement(optionIds);
   const name = String(nameInput ?? "").trim().slice(0, 120);
   if (!name) throw new Error("Integration name is required.");
 
@@ -211,7 +213,9 @@ export async function createIntegrationCredential(
 export async function rotateIntegrationCredential(
   shop: string,
   credentialId: string,
+  optionIds: readonly string[],
 ) {
+  assertApiIntegrationEntitlement(optionIds);
   const existing = await withPrismaClient((db) =>
     db.integrationCredential.findUnique({
       where: { id: credentialId },
