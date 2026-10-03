@@ -965,15 +965,18 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on 9ad2ff6bbfb74ef759b807c23d2d48a2b0675211.",
-        "App Validation #470 / run 37119754081 passed the complete validation chain.",
-        "Canonical support resolver maps Starter/Growth to Standard, Pro to Priority, and Unlimited to 24/7 Priority.",
-        "Support page derives the entitlement from the authenticated current Shopify plan.",
-        "Plan-page blanket 24/7 support claim is removed.",
-        "Operational SLA/contact/escalation/staffing fulfillment is explicitly outside repository evidence."
+        "OPT-PRIORITY-SUPPORT is runtime-implemented in canonical product/options registries.",
+        "Canonical support resolver validates exact plan support strings and option mapping.",
+        "Starter/Growth display Standard support; Pro displays Priority support; Unlimited displays 24/7 Priority support.",
+        "Authenticated Support UI resolves the active merchant plan server-side.",
+        "Plans UI no longer makes a blanket 24/7-support-for-all-plans claim.",
+        "PR #121 exact head 1a01e27e6b4d2c8c1c573fa680ccea15297e39ef passed App Validation #475.",
+        "PR #121 merged to development as ff86b51d4d85811d53c6110dbdcb9ef54f71a9f1.",
+        "Post-merge App Validation #476 / run 37119993769 passed the full validation chain.",
+        "No response-time SLA, support contact method, escalation procedure or staffing fulfillment is claimed."
       ],
       "update_notes": [
-        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires CI before merge."
+        "Repository/development commercial entitlement implementation is complete and CI-certified. Human support operations remain separate from repository evidence."
       ],
       "removal_or_deprecation_notes": []
     }
