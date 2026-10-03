@@ -185,18 +185,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 function formatDate(value: string | Date | null | undefined) {
   if (!value) return "Never";
   return new Date(value).toLocaleString();
@@ -236,79 +224,66 @@ function RuleFields({
 }) {
   return (
     <s-stack gap="base">
-      <div>
-        <label>
-          <strong>Rule name</strong>
-          <input
-            name="name"
-            required
-            maxLength={120}
-            defaultValue={defaults?.name ?? ""}
-            placeholder="Daily stock cleanup"
-            style={fieldStyle()}
-          />
-        </label>
-      </div>
+      <s-text-field
+        label="Rule name"
+        name="name"
+        required
+        maxLength={120}
+        defaultValue={defaults?.name ?? ""}
+        placeholder="Daily stock cleanup"
+      />
 
-      <div>
-        <label>
-          <strong>Enabled collection</strong>
-          <select
-            name="collectionId"
-            required
-            defaultValue={defaults?.collectionId ?? ""}
-            style={fieldStyle()}
+      <s-select
+        label="Enabled collection"
+        name="collectionId"
+        required
+        details="Only collections currently enabled in VSN Stock Down Sort can be targeted."
+      >
+        <s-option
+          value=""
+          disabled
+          defaultSelected={!defaults?.collectionId}
+        >
+          Select a collection
+        </s-option>
+        {collections.map((collection) => (
+          <s-option
+            key={collection.id}
+            value={collection.id}
+            defaultSelected={defaults?.collectionId === collection.id}
           >
-            <option value="" disabled>
-              Select a collection
-            </option>
-            {collections.map((collection) => (
-              <option key={collection.id} value={collection.id}>
-                {collection.title} /{collection.handle}
-              </option>
-            ))}
-          </select>
-        </label>
-        <small>
-          Only collections currently enabled in VSN Stock Down Sort can be
-          targeted.
-        </small>
-      </div>
+            {collection.title} /{collection.handle}
+          </s-option>
+        ))}
+      </s-select>
 
-      <div>
-        <label>
-          <strong>Schedule</strong>
-          <select
-            name="scheduleMinutes"
-            defaultValue={
-              defaults?.scheduleMinutes == null
-                ? ""
-                : String(defaults.scheduleMinutes)
-            }
-            style={fieldStyle()}
+      <s-select
+        label="Schedule"
+        name="scheduleMinutes"
+        details="Hosted schedules are checked hourly by the Cloudflare Worker. Local development supports manual Run now only."
+      >
+        <s-option
+          value=""
+          defaultSelected={defaults?.scheduleMinutes == null}
+        >
+          Manual only
+        </s-option>
+        {AUTOMATION_SCHEDULE_MINUTES.map((minutes) => (
+          <s-option
+            key={minutes}
+            value={String(minutes)}
+            defaultSelected={defaults?.scheduleMinutes === minutes}
           >
-            <option value="">Manual only</option>
-            {AUTOMATION_SCHEDULE_MINUTES.map((minutes) => (
-              <option key={minutes} value={minutes}>
-                {scheduleLabel(minutes)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <small>
-          Hosted schedules are checked hourly by the Cloudflare Worker. Local
-          development does not claim a background scheduler.
-        </small>
-      </div>
+            {scheduleLabel(minutes)}
+          </s-option>
+        ))}
+      </s-select>
 
-      <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <input
-          type="checkbox"
-          name="enabled"
-          defaultChecked={defaults?.enabled ?? true}
-        />
-        Enable this rule
-      </label>
+      <s-checkbox
+        name="enabled"
+        label="Enable this rule"
+        defaultChecked={defaults?.enabled ?? true}
+      />
 
       <s-box background="subdued" borderRadius="large" padding="base">
         <s-stack gap="small-200">
@@ -322,44 +297,45 @@ function RuleFields({
             gridTemplateColumns="repeat(auto-fit, minmax(190px, 1fr))"
             gap="base"
           >
-            <label>
-              Sold-out products ≥
-              <input
-                type="number"
-                min={0}
-                max={1000000}
-                name="minSoldOutProducts"
-                defaultValue={defaults?.minSoldOutProducts ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Sold-out products ≥"
+              min={0}
+              max={1000000}
+              name="minSoldOutProducts"
+              defaultValue={
+                defaults?.minSoldOutProducts == null
+                  ? ""
+                  : String(defaults.minSoldOutProducts)
+              }
+              disabled={!canUseRuleBuilder}
+            />
 
-            <label>
-              Sold-out percentage ≥
-              <input
-                type="number"
-                min={0}
-                max={100}
-                name="minSoldOutPercent"
-                defaultValue={defaults?.minSoldOutPercent ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Sold-out percentage ≥"
+              min={0}
+              max={100}
+              name="minSoldOutPercent"
+              defaultValue={
+                defaults?.minSoldOutPercent == null
+                  ? ""
+                  : String(defaults.minSoldOutPercent)
+              }
+              disabled={!canUseRuleBuilder}
+              suffix="%"
+            />
 
-            <label>
-              Total products ≥
-              <input
-                type="number"
-                min={0}
-                max={1000000}
-                name="minTotalProducts"
-                defaultValue={defaults?.minTotalProducts ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Total products ≥"
+              min={0}
+              max={1000000}
+              name="minTotalProducts"
+              defaultValue={
+                defaults?.minTotalProducts == null
+                  ? ""
+                  : String(defaults.minTotalProducts)
+              }
+              disabled={!canUseRuleBuilder}
+            />
           </s-grid>
 
           {!canUseRuleBuilder ? (
@@ -452,8 +428,7 @@ export default function AutomationPage() {
               collections={collections}
               canUseRuleBuilder={canUseRuleBuilder}
             />
-            <div style={{ marginTop: 16 }}>
-              <s-button
+            <s-button
                 type="submit"
                 variant="primary"
                 loading={busy && submittedIntent === "save" && !submittedRuleId}
@@ -461,7 +436,6 @@ export default function AutomationPage() {
               >
                 Create rule
               </s-button>
-            </div>
           </form>
         </s-section>
       )}
