@@ -975,7 +975,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.active_issue, 117);
   assert.equal(state.current_module, "api-integrations");
   assert.equal(state.current_work_unit, "ISSUE-117-WU-04");
-  assert.match(state.next_valid_work_unit, /Finish PR #118 state reconciliation/i);
+  assert.match(state.next_valid_work_unit, /PHASE-08 repository implementation is complete/i);
   assert.match(state.next_valid_work_unit, /PHASE-08 Staging\/Production integration credential issuance and live external client\/webhook acceptance remain separate guarded runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
