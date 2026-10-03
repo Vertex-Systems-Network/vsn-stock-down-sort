@@ -105,7 +105,7 @@ export default function VisibilityPage() {
 
   return (
     <s-page heading="Product visibility">
-      <s-section>
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Automatically hide tracked sold-out products and restore only products
@@ -125,38 +125,39 @@ export default function VisibilityPage() {
 
           <form method="post">
             <s-stack gap="large-200">
-              <label>
-                <strong>Sold-out product behavior</strong>
-                <select
-                  name="productMode"
-                  defaultValue={setting.productMode}
-                  disabled={busy}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    marginTop: 8,
-                    padding: "10px 12px",
-                  }}
+              <s-select
+                label="Sold-out product behavior"
+                name="productMode"
+                disabled={busy}
+              >
+                <s-option
+                  value="OFF"
+                  defaultSelected={setting.productMode === "OFF"}
                 >
-                  <option value="OFF">Off</option>
-                  <option value="DRAFT" disabled={!canAutoHide}>
-                    Unpublish as Draft
-                  </option>
-                  <option value="UNLISTED" disabled={!canSeoSafe}>
-                    SEO-safe soft hide (Unlisted)
-                  </option>
-                </select>
-              </label>
+                  Off
+                </s-option>
+                <s-option
+                  value="DRAFT"
+                  defaultSelected={setting.productMode === "DRAFT"}
+                  disabled={!canAutoHide}
+                >
+                  Unpublish as Draft
+                </s-option>
+                <s-option
+                  value="UNLISTED"
+                  defaultSelected={setting.productMode === "UNLISTED"}
+                  disabled={!canSeoSafe}
+                >
+                  SEO-safe soft hide (Unlisted)
+                </s-option>
+              </s-select>
 
-              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  name="autoRepublish"
-                  defaultChecked={setting.autoRepublish}
-                  disabled={busy || !canAutoRepublish}
-                />
-                Automatically restore products when inventory returns
-              </label>
+              <s-checkbox
+                name="autoRepublish"
+                label="Automatically restore products when inventory returns"
+                defaultChecked={setting.autoRepublish}
+                disabled={busy || !canAutoRepublish}
+              />
 
               <s-text color="subdued">
                 SEO-safe mode uses Shopify Unlisted product status, keeping the

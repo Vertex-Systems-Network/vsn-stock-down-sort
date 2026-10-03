@@ -161,18 +161,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 function targetTypeLabel(targetType: string) {
   if (targetType === "MARKET") return "Shopify Market";
   if (targetType === "COMPANY_LOCATION") return "B2B catalog";
@@ -217,8 +205,8 @@ export default function CommerceContextsPage() {
   ];
 
   return (
-    <s-page heading="Commerce contexts" inlineSize="large">
-      <s-section>
+    <s-page heading="Commerce contexts">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Automatically remove sold-out products from selected Shopify
@@ -288,41 +276,33 @@ export default function CommerceContextsPage() {
               <input type="hidden" name="targetType" value={group.type} />
 
               <s-stack gap="base">
-                <label>
-                  <strong>Existing Shopify publication</strong>
-                  <select
-                    name="publicationId"
-                    required
-                    defaultValue=""
-                    style={fieldStyle()}
-                  >
-                    <option value="" disabled>
-                      Select a publication
-                    </option>
-                    {group.data.items.map((target) => (
-                      <option
-                        key={target.publicationId}
-                        value={target.publicationId}
-                      >
-                        {target.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label
-                  style={{ display: "flex", gap: 8, alignItems: "center" }}
+                <s-select
+                  label="Existing Shopify publication"
+                  name="publicationId"
+                  required
+                  placeholder="Select a publication"
                 >
-                  <input type="checkbox" name="enabled" defaultChecked />
-                  Enable sold-out visibility automation
-                </label>
+                  {group.data.items.map((target) => (
+                    <s-option
+                      key={target.publicationId}
+                      value={target.publicationId}
+                    >
+                      {target.title}
+                    </s-option>
+                  ))}
+                </s-select>
 
-                <label
-                  style={{ display: "flex", gap: 8, alignItems: "center" }}
-                >
-                  <input type="checkbox" name="autoRestore" defaultChecked />
-                  Restore VSN-managed removals after restock
-                </label>
+                <s-checkbox
+                  name="enabled"
+                  label="Enable sold-out visibility automation"
+                  defaultChecked
+                />
+
+                <s-checkbox
+                  name="autoRestore"
+                  label="Restore VSN-managed removals after restock"
+                  defaultChecked
+                />
 
                 <s-button type="submit" variant="primary" disabled={busy}>
                   Add {group.label} rule

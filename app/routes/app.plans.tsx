@@ -104,7 +104,7 @@ export default function PlansPage() {
   }
 
   return (
-    <s-page heading="Plans & pricing" inlineSize="large">
+    <s-page heading="Packages">
       <s-stack gap="large-300">
         {billingTestMode ? (
           <s-banner tone="info" heading="Test billing is enabled">

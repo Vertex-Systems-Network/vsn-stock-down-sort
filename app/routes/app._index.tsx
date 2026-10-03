@@ -293,18 +293,6 @@ const INVENTORY_MODE_LABELS = {
   ALL_SELECTED_LOCATIONS: "In stock at every selected location",
 } as const;
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 export default function AppIndex() {
   const { collections, currentPlan, planOptionIds, locations } =
     useLoaderData<typeof loader>();
@@ -397,7 +385,7 @@ export default function AppIndex() {
   }
 
   return (
-    <s-page heading="Stock First" inlineSize="large">
+    <s-page heading="VSN Stock Down Sort">
       <s-button
         slot="primary-action"
         variant="primary"
@@ -418,7 +406,7 @@ export default function AppIndex() {
         Disable all
       </s-button>
 
-      <s-section>
+      <s-section heading="Collections">
         <s-stack gap="base">
           <s-text>
             Keep available products first, pin priority products, exclude
@@ -643,125 +631,88 @@ export default function AppIndex() {
                 gridTemplateColumns="repeat(auto-fit, minmax(260px, 1fr))"
                 gap="base"
               >
-                <div>
-                  <label htmlFor="excludedTags">
-                    <strong>Excluded tags</strong>
-                  </label>
-                  <textarea
-                    id="excludedTags"
-                    name="excludedTags"
-                    defaultValue={editingCollection.setting?.excludedTags ?? ""}
-                    disabled={!canUseExclusions}
-                    placeholder="clearance, preorder"
-                    style={{ ...fieldStyle(), minHeight: "90px" }}
-                  />
-                  <small>
-                    One value per line or comma separated. Starter and above.
-                  </small>
-                </div>
+                <s-text-area
+                  label="Excluded tags"
+                  name="excludedTags"
+                  defaultValue={editingCollection.setting?.excludedTags ?? ""}
+                  disabled={!canUseExclusions}
+                  placeholder="clearance, preorder"
+                  details="One value per line or comma separated. Starter and above."
+                />
 
-                <div>
-                  <label htmlFor="excludedVendors">
-                    <strong>Excluded vendors</strong>
-                  </label>
-                  <textarea
-                    id="excludedVendors"
-                    name="excludedVendors"
-                    defaultValue={
-                      editingCollection.setting?.excludedVendors ?? ""
-                    }
-                    disabled={!canUseExclusions}
-                    placeholder="Vendor A, Vendor B"
-                    style={{ ...fieldStyle(), minHeight: "90px" }}
-                  />
-                  <small>Matching is case-insensitive.</small>
-                </div>
+                <s-text-area
+                  label="Excluded vendors"
+                  name="excludedVendors"
+                  defaultValue={
+                    editingCollection.setting?.excludedVendors ?? ""
+                  }
+                  disabled={!canUseExclusions}
+                  placeholder="Vendor A, Vendor B"
+                  details="Matching is case-insensitive."
+                />
 
-                <div>
-                  <label htmlFor="excludedProducts">
-                    <strong>Excluded products</strong>
-                  </label>
-                  <textarea
-                    id="excludedProducts"
-                    name="excludedProducts"
-                    defaultValue={
-                      editingCollection.setting?.excludedProducts ?? ""
-                    }
-                    disabled={!canUseExclusions}
-                    placeholder="product-handle or gid://shopify/Product/..."
-                    style={{ ...fieldStyle(), minHeight: "90px" }}
-                  />
-                  <small>Use product handles or Shopify product GIDs.</small>
-                </div>
+                <s-text-area
+                  label="Excluded products"
+                  name="excludedProducts"
+                  defaultValue={
+                    editingCollection.setting?.excludedProducts ?? ""
+                  }
+                  disabled={!canUseExclusions}
+                  placeholder="product-handle or gid://shopify/Product/..."
+                  details="Use product handles or Shopify product GIDs."
+                />
 
-                <div>
-                  <label htmlFor="pinnedProducts">
-                    <strong>Pinned products</strong>
-                  </label>
-                  <textarea
-                    id="pinnedProducts"
-                    name="pinnedProducts"
-                    defaultValue={
-                      editingCollection.setting?.pinnedProducts ?? ""
-                    }
-                    disabled={!canUsePinnedProducts}
-                    placeholder="first-product&#10;second-product"
-                    style={{ ...fieldStyle(), minHeight: "90px" }}
-                  />
-                  <small>
-                    Order in this list is pin priority. Growth and above.
-                  </small>
-                </div>
+                <s-text-area
+                  label="Pinned products"
+                  name="pinnedProducts"
+                  defaultValue={
+                    editingCollection.setting?.pinnedProducts ?? ""
+                  }
+                  disabled={!canUsePinnedProducts}
+                  placeholder={"first-product\nsecond-product"}
+                  details="Order in this list is pin priority. Growth and above."
+                />
               </s-grid>
 
-              <div>
-                <label htmlFor="availableSortMode">
-                  <strong>In-stock product order</strong>
-                </label>
-                <select
-                  id="availableSortMode"
-                  name="availableSortMode"
-                  defaultValue={
-                    editingCollection.setting?.availableSortMode ?? "PRESERVE"
-                  }
-                  disabled={!canUseAdvancedSort}
-                  style={fieldStyle()}
-                >
-                  {AVAILABLE_SORT_MODES.map((mode) => (
-                    <option key={mode} value={mode}>
-                      {SORT_MODE_LABELS[mode]}
-                    </option>
-                  ))}
-                </select>
-                <small>
-                  Advanced sorting is available on Growth and above.
-                </small>
-              </div>
+              <s-select
+                label="In-stock product order"
+                name="availableSortMode"
+                disabled={!canUseAdvancedSort}
+                details="Advanced sorting is available on Growth and above."
+              >
+                {AVAILABLE_SORT_MODES.map((mode) => (
+                  <s-option
+                    key={mode}
+                    value={mode}
+                    defaultSelected={
+                      (editingCollection.setting?.availableSortMode ??
+                        "PRESERVE") === mode
+                    }
+                  >
+                    {SORT_MODE_LABELS[mode]}
+                  </s-option>
+                ))}
+              </s-select>
 
-              <div>
-                <label htmlFor="inventoryMode">
-                  <strong>Inventory rule</strong>
-                </label>
-                <select
-                  id="inventoryMode"
-                  name="inventoryMode"
-                  defaultValue={
-                    editingCollection.setting?.inventoryMode ?? "ALL_LOCATIONS"
-                  }
-                  disabled={!canUseMultiLocation}
-                  style={fieldStyle()}
-                >
-                  {INVENTORY_MODES.map((mode) => (
-                    <option key={mode} value={mode}>
-                      {INVENTORY_MODE_LABELS[mode]}
-                    </option>
-                  ))}
-                </select>
-                <small>
-                  Selected-location rules are available on Pro and Unlimited.
-                  Aggregate inventory remains the default for every plan.
-                </small>
-              </div>
+              <s-select
+                label="Inventory rule"
+                name="inventoryMode"
+                disabled={!canUseMultiLocation}
+                details="Selected-location rules are available on Pro and Unlimited. Aggregate inventory remains the default for every plan."
+              >
+                {INVENTORY_MODES.map((mode) => (
+                  <s-option
+                    key={mode}
+                    value={mode}
+                    defaultSelected={
+                      (editingCollection.setting?.inventoryMode ??
+                        "ALL_LOCATIONS") === mode
+                    }
+                  >
+                    {INVENTORY_MODE_LABELS[mode]}
+                  </s-option>
+                ))}
+              </s-select>
 
               {canUseMultiLocation ? (
                 <s-box
@@ -772,28 +723,20 @@ export default function AppIndex() {
                   <s-stack gap="small-300">
                     <s-text type="strong">Inventory locations</s-text>
                     {locations.length ? (
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns:
-                            "repeat(auto-fit, minmax(220px, 1fr))",
-                          gap: "10px",
-                        }}
+                      <s-grid
+                        gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
+                        gap="small"
                       >
                         {locations.map((location) => (
-                          <label key={location.id}>
-                            <input
-                              type="checkbox"
-                              name="inventoryLocationIds"
-                              value={location.id}
-                              defaultChecked={selectedLocationIds.has(
-                                location.id,
-                              )}
-                            />{" "}
-                            {location.name}
-                          </label>
+                          <s-checkbox
+                            key={location.id}
+                            name="inventoryLocationIds"
+                            value={location.id}
+                            label={location.name}
+                            defaultChecked={selectedLocationIds.has(location.id)}
+                          />
                         ))}
-                      </div>
+                      </s-grid>
                     ) : (
                       <s-text>No active Shopify locations were returned.</s-text>
                     )}
@@ -824,7 +767,7 @@ export default function AppIndex() {
         </s-section>
       ) : null}
 
-      <s-section heading="How PHASE-02 sorting works">
+      <s-section heading="How sorting works">
         <s-stack gap="base">
           <s-text>
             Exclusion rules keep matching products at their exact collection
