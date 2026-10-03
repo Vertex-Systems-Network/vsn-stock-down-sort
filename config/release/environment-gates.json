@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "verification_required",
+  "status": "accepted",
   "local_dev": {
     "status": "accepted",
     "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
@@ -161,5 +161,15 @@
     "staging_acceptance_must_be_recorded_on_main_before_live": true,
     "live_source_must_be_main": true,
     "missing_or_failed_evidence_blocks_promotion": true
+  },
+  "accepted_release": {
+    "production_version": "stock-down-sort-production-930bb2039244-2",
+    "production_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+    "production_release_run_id": 37151020224
+  },
+  "development_promotion_lock": {
+    "enabled": true,
+    "reason": "six_item_finalization_incomplete",
+    "requires_fresh_recertification_after_unlock": true
   }
 }
