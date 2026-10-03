@@ -51,6 +51,10 @@ Capability implementation is complete through PHASE-10. Runtime Issue #125 is cl
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
 
+## Public submission billing method
+
+The initial Shopify App Store submission uses **Manual Pricing / Shopify Billing API**. The application currently creates subscriptions with `appSubscriptionCreate`, so the Partner Dashboard pricing method must remain **Manual Pricing** for this release. Do not enable Shopify App Pricing until the application is explicitly migrated to Shopify-hosted plan selection plus Partner API subscription reads. The canonical decision is `config/shopify/billing-strategy.json`.
+
 ## Runtime architecture
 
 VSN Stock Down Sort uses Prisma in all environments, with different database
