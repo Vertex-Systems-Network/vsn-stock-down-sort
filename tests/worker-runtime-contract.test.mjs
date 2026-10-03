@@ -336,7 +336,7 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, true);
+  assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.authorized_version,
     "stock-down-sort-production-930bb2039244-2",
@@ -349,6 +349,10 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
   assert.equal(policy.billing.trial_days, 10);
+  assert.equal(policy.status, "released");
+  assert.equal(policy.release_record?.run_id, 37151020224);
+  assert.equal(policy.release_record?.version_released_to_users, true);
+  assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
 });
 
 
