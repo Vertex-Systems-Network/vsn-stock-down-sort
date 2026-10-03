@@ -971,15 +971,15 @@ test("repository management follows the VSN Metafields-style canonical state cha
         workUnit.status === "complete",
     ),
   );
-  assert.equal(state.current_phase, "PHASE-05");
-  assert.equal(state.active_issue, 106);
-  assert.equal(state.current_module, "rule-builder-scheduled-automation");
-  assert.equal(state.current_work_unit, "ISSUE-106-WU-04");
-  assert.match(state.next_valid_work_unit, /PHASE-05 repository implementation is complete/i);
-  assert.match(state.next_valid_work_unit, /PHASE-05 Staging\/Production promotion remains a separate guarded release activity/i);
+  assert.equal(state.current_phase, "PHASE-06");
+  assert.equal(state.active_issue, 109);
+  assert.equal(state.current_module, "low-stock-alerts");
+  assert.equal(state.current_work_unit, "ISSUE-109-WU-04");
+  assert.match(state.next_valid_work_unit, /Finish PR #110 state reconciliation/i);
+  assert.match(state.next_valid_work_unit, /PHASE-06 Staging\/Production promotion and real notification delivery acceptance remain separate guarded release\/runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
-  assert.ok(plan.work_units.length >= 27);
+  assert.ok(plan.work_units.length >= 31);
   for (const id of [
     "ISSUE-97-WU-01",
     "ISSUE-97-WU-02",
@@ -997,6 +997,10 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "ISSUE-106-WU-02",
     "ISSUE-106-WU-03",
     "ISSUE-106-WU-04",
+    "ISSUE-109-WU-01",
+    "ISSUE-109-WU-02",
+    "ISSUE-109-WU-03",
+    "ISSUE-109-WU-04",
   ]) {
     assert.equal(
       plan.work_units.find((workUnit) => workUnit.id === id)?.status,
@@ -1014,6 +1018,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
     "MOD-PRODUCT-VISIBILITY",
     "MOD-ANALYTICS-HISTORY",
     "MOD-AUTOMATION-RULES",
+    "MOD-LOW-STOCK-ALERTS",
   ]) {
     assert.equal(
       modules.modules.find((module) => module.id === id)?.status,
