@@ -7,7 +7,7 @@ VSN Stock Down Sort is an embedded Shopify app by Vertex Systems Network that ke
 The Shopify plan is:
 
 - Four plan IDs: `starter`, `growth`, `pro`, `unlimited`
-- Prices: USD 10.99 / 19.99 / 34.99 / 54.99 every 30 days
+- Prices: USD 10.99 / 19.99 / 34.99 / 70.00 every 30 days
 - Free trial: 10 days on every paid plan
 - Products and collections: unlimited on every plan
 - Unlimited products
@@ -47,7 +47,7 @@ verification
 project-state update / next work unit
 ```
 
-Capability implementation is complete through PHASE-09. Current-head runtime recertification/promotion is tracked separately by GitHub Issue #125. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work is a six-item development-only finalization track; no new Staging or Production promotion is allowed until all six items are complete. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
 
@@ -212,17 +212,20 @@ Production is a separate, controlled flow from protected `main`.
 
 Run in this order:
 
-1. **Production Readiness**
-   - confirmation: `VALIDATE_PRODUCTION`
+1. **Environment Secrets Audit**
+   - environment: `cloudflare-production`
+   - confirmation: `AUDIT_ENVIRONMENT_SECRETS`
 2. **Cloudflare Production Prepare**
    - confirmation: `PREPARE_PRODUCTION_WORKER_ONLY`
-   - prepares and verifies the Worker without Shopify cutover
-3. **Shopify Production Candidate**
+   - applies pending production migrations and prepares/verifies the Worker without Shopify cutover
+3. **Production Readiness**
+   - confirmation: `VALIDATE_PRODUCTION`
+4. **Shopify Production Candidate**
    - confirmation: `CREATE_PRODUCTION_SHOPIFY_VERSION`
    - creates an unreleased production Shopify version
-4. Explicitly authorize the exact candidate in:
+5. Explicitly authorize the exact candidate in:
    - `config/shopify/production-release.json`
-5. **Shopify Production Release**
+6. **Shopify Production Release**
    - confirmation: `RELEASE_PRODUCTION_SHOPIFY_VERSION`
    - requires the exact authorized version
 
@@ -230,7 +233,7 @@ Production Worker:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-Production release is blocked unless the repository authorization record, version name, and source SHA match.
+Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes remain on `development` until the six-item finalization track is complete.
 
 ## Environment secrets
 
