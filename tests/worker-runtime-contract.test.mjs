@@ -336,14 +336,14 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, false);
+  assert.equal(policy.release_authorized, true);
   assert.equal(
     policy.authorized_version,
-    "stock-down-sort-production-516ab92a2d1a-1",
+    "stock-down-sort-production-930bb2039244-2",
   );
   assert.equal(
     policy.authorized_source_ref,
-    "516ab92a2d1a4a74fc9624dfc56d3fcc3f624182",
+    "930bb2039244ecafd0ae9d3bb538898094e86638",
   );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
