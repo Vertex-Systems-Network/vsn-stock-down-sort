@@ -182,6 +182,19 @@ export async function saveContextVisibilityRule(
     if (!existing || existing.shop !== shop) {
       throw new Error("Commerce context rule not found.");
     }
+
+    if (existing.publicationId !== normalized.publicationId) {
+      const managed = await withPrismaClient((db) =>
+        db.contextPublicationState.count({
+          where: { shop, ruleId, managedHidden: true },
+        }),
+      );
+      if (managed > 0) {
+        throw new Error(
+          "This rule still has VSN-managed hidden products. Let the rule restore them before changing its publication.",
+        );
+      }
+    }
   }
 
   const data = {
@@ -231,12 +244,31 @@ export async function setContextVisibilityRuleEnabled(
   shop: string,
   ruleId: string,
   enabled: boolean,
+  optionIds: readonly string[],
 ) {
   const existing = await withPrismaClient((db) =>
     db.contextVisibilityRule.findUnique({ where: { id: ruleId } }),
   );
   if (!existing || existing.shop !== shop) {
     throw new Error("Commerce context rule not found.");
+  }
+
+  assertContextRuleEntitlement(
+    existing.targetType as ContextTargetType,
+    optionIds,
+  );
+
+  if (!enabled) {
+    const managed = await withPrismaClient((db) =>
+      db.contextPublicationState.count({
+        where: { shop, ruleId, managedHidden: true },
+      }),
+    );
+    if (managed > 0) {
+      throw new Error(
+        "This rule still has VSN-managed hidden products. Keep it enabled until those products are restored.",
+      );
+    }
   }
 
   const rule = await withPrismaClient((db) =>
