@@ -89,7 +89,7 @@ test("Support page derives entitlement from authenticated current plan and state
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan(admin)"));
   assert.ok(route.includes("resolveSupportEntitlement(current.plan)"));
-  assert.ok(route.includes("Standard support entitlement"));
+  assert.ok(route.includes("standard support entitlement"));
   assert.ok(route.includes("priority support entitlement"));
   assert.ok(route.includes("24/7 priority"));
   assert.ok(route.includes("Operational boundary"));
