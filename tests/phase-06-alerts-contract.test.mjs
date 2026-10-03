@@ -98,7 +98,7 @@ test("Slack webhook secrets are validated and encrypted at rest", () => {
     false,
   );
 
-  assert.ok(route.includes('type="password"'));
+  assert.ok(route.includes("<s-password-field"));
   assert.ok(route.includes("slackWebhookConfigured"));
   assert.ok(route.includes("The secret is never returned to this page."));
 });
