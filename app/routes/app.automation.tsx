@@ -393,8 +393,8 @@ export default function AutomationPage() {
   );
 
   return (
-    <s-page heading="Automation" inlineSize="large">
-      <s-section>
+    <s-page heading="Automation">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Schedule the existing VSN collection sorting engine and optionally
