@@ -61,7 +61,13 @@ test("rejects missing Local Shopify secret", () => {
   expectFailure("SHOPIFY_API_SECRET is required");
 });
 
-test("rejects Local scope drift that drops location access", () => {\n  setValidLocalEnv();\n  process.env.SCOPES = "read_products,write_products,read_inventory,read_publications,write_publications";\n  expectFailure("SCOPES must include read_locations");\n});\n\ntest("rejects Local scope drift that drops publication access", () => {
+test("rejects Local scope drift that drops location access", () => {
+  setValidLocalEnv();
+  process.env.SCOPES = "read_products,write_products,read_inventory,read_publications,write_publications";
+  expectFailure("SCOPES must include read_locations");
+});
+
+test("rejects Local scope drift that drops publication access", () => {
   setValidLocalEnv();
   process.env.SCOPES = "read_products,write_products,read_inventory,read_locations";
   expectFailure("SCOPES must include read_publications");
