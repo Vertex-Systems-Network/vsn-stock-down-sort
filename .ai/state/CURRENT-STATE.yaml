@@ -11,9 +11,9 @@ current_phase: PHASE-07
 current_module: commerce-context-visibility
 current_work_unit: ISSUE-113-WU-04
 note: >
-  PHASE-07 Markets, B2B Catalog & Sales-Channel Visibility implementation
-  head 49ac61489dfc8fd8a5cce9d64df17291f10ac10b passed App Validation #441 /
-  run 37115215210. PR #114 final state-reconciliation head still requires
-  latest-head validation before merge. Shopify scope reauthorization,
-  merchant publication permissions and live publication-mutation acceptance
-  remain separate runtime gates.
+  PHASE-07 Markets, B2B Catalog & Sales-Channel Visibility merged to
+  development as 26663def7f1052bceac0159ae491e0e555b5eac8. PR #114
+  exact-head App Validation #446 / run 37115378500 passed, and post-merge
+  App Validation #452 / run 37115451403 passed the full chain. Shopify scope
+  reauthorization, merchant publication permissions and live publication
+  mutation acceptance remain separate guarded runtime activities.
