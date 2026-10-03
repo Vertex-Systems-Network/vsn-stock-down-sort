@@ -631,21 +631,7 @@ export async function authorizeIntegrationRuntime(
 
 const MAX_INTEGRATION_BODY_BYTES = 16 * 1024;
 
-export async function readIntegrationJson(request: Request) {
-  const contentLength = request.headers.get("content-length");
-  if (
-    contentLength &&
-    Number.isFinite(Number(contentLength)) &&
-    Number(contentLength) > MAX_INTEGRATION_BODY_BYTES
-  ) {
-    throw new IntegrationHttpError(
-      413,
-      "payload_too_large",
-      "Integration request body exceeds the allowed size.",
-    );
-  }
-
-  const raw = await request.text();
+export function parseIntegrationJsonBody(raw: string) {
   if (new TextEncoder().encode(raw).byteLength > MAX_INTEGRATION_BODY_BYTES) {
     throw new IntegrationHttpError(
       413,
@@ -682,6 +668,23 @@ export async function readIntegrationJson(request: Request) {
   }
 
   return parsed as Record<string, unknown>;
+}
+
+export async function readIntegrationJson(request: Request) {
+  const contentLength = request.headers.get("content-length");
+  if (
+    contentLength &&
+    Number.isFinite(Number(contentLength)) &&
+    Number(contentLength) > MAX_INTEGRATION_BODY_BYTES
+  ) {
+    throw new IntegrationHttpError(
+      413,
+      "payload_too_large",
+      "Integration request body exceeds the allowed size.",
+    );
+  }
+
+  return parseIntegrationJsonBody(await request.text());
 }
 
 export function requireCollectionId(value: unknown) {
