@@ -530,7 +530,7 @@ test("four-plan product catalog is canonical and all paid plans have 10-day tria
   );
   assert.deepEqual(
     plans.map((plan) => plan.amount),
-    [10.99, 19.99, 34.99, 54.99],
+    [10.99, 19.99, 34.99, 70],
   );
   assert.deepEqual(plans.map((plan) => plan.trial_days), [10, 10, 10, 10]);
   assert.deepEqual(
@@ -987,6 +987,12 @@ test("repository management follows the VSN Metafields-style canonical state cha
   if (state.active_issue === null) {
     assert.match(state.next_valid_work_unit, /repository development.*complete/i);
     assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
+    assert.equal(state.finalization_track?.promotion_lock, true);
+    assert.equal(state.finalization_track?.items?.length, 6);
+    assert.equal(
+      state.finalization_track.items.find((item) => item.id === 5)?.title,
+      "Public-app billing verification and Unlimited USD 70 alignment",
+    );
   } else {
     assert.match(state.next_valid_work_unit, /support request fulfillment/i);
     assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);

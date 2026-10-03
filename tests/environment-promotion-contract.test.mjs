@@ -56,7 +56,7 @@ test("staging readiness validates the current four-plan billing catalog", () => 
   assert.match(workflow, /\{"id": "starter", "amount": 10\.99, "trial_days": 10\}/);
   assert.match(workflow, /\{"id": "growth", "amount": 19\.99, "trial_days": 10\}/);
   assert.match(workflow, /\{"id": "pro", "amount": 34\.99, "trial_days": 10\}/);
-  assert.match(workflow, /\{"id": "unlimited", "amount": 54\.99, "trial_days": 10\}/);
+  assert.match(workflow, /\{"id": "unlimited", "amount": 70\.0, "trial_days": 10\}/);
   assert.match(workflow, /billing_interval"\) != "EVERY_30_DAYS"/);
   assert.match(workflow, /catalog trial_days must be 10/);
   assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
@@ -171,6 +171,8 @@ test("production release policy references the staging acceptance gate", () => {
 });
 
 test("current Staging acceptance is bound to protected main", () => {
+  assert.equal(gates.status, "accepted");
+  assert.equal(gates.development_promotion_lock?.enabled, true);
   assert.equal(gates.local_dev.status, "accepted");
   assert.equal(
     gates.staging.accepted_source_ref,

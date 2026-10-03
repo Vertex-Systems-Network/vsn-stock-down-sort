@@ -475,7 +475,7 @@
       "blockers": [],
       "acceptance_criteria": [
         "Exactly starter/growth/pro/unlimited are canonical IDs.",
-        "Prices are 10.99/19.99/34.99/54.99 USD every 30 days.",
+        "Prices are 10.99/19.99/34.99/70.00 USD every 30 days.",
         "Every plan has a 10-day trial.",
         "Plan changes use Shopify replacement behavior.",
         "Legacy USD 55/5-day subscription remains recognized.",

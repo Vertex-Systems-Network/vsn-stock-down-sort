@@ -186,7 +186,7 @@ jobs:
               {"id": "starter", "amount": 10.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
               {"id": "growth", "amount": 19.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
               {"id": "pro", "amount": 34.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
-              {"id": "unlimited", "amount": 54.99, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
+              {"id": "unlimited", "amount": 70.0, "currencyCode": "USD", "interval": "EVERY_30_DAYS", "trialDays": 10},
           ]
 
           last_error = None
