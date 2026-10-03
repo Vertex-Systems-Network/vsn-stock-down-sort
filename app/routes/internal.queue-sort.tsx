@@ -6,6 +6,7 @@ import {
 } from "../services/collection-sorter.server";
 import { reconcileProductVisibility } from "../services/product-visibility.server";
 import { processLowStockAlert } from "../services/alerts.server";
+import { reconcileContextVisibilityForProduct } from "../services/context-visibility.server";
 import type { SortQueueJob } from "../sort-queue.server";
 
 type QueueConsumerContextLike = {
@@ -34,7 +35,11 @@ function isValidJob(value: unknown): value is SortQueueJob {
   const job = value as Partial<SortQueueJob>;
   if (!validShop(job.shop)) return false;
 
-  if (job.kind === "visibility" || job.kind === "alert") {
+  if (
+    job.kind === "visibility" ||
+    job.kind === "alert" ||
+    job.kind === "context_visibility"
+  ) {
     return (
       typeof (job as { productId?: unknown }).productId === "string" &&
       (job as { productId: string }).productId.startsWith(
@@ -88,6 +93,15 @@ export async function action({ request, context }: ActionFunctionArgs) {
       payload.shop,
       payload.productId,
       context,
+    );
+    return Response.json({ ok: true, result });
+  }
+
+  if (payload.kind === "context_visibility") {
+    const result = await reconcileContextVisibilityForProduct(
+      admin,
+      payload.shop,
+      payload.productId,
     );
     return Response.json({ ok: true, result });
   }
