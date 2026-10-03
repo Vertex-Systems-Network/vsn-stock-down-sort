@@ -90,9 +90,10 @@ test("Support page derives entitlement from authenticated current plan and state
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan(admin)"));
   assert.ok(route.includes("resolveSupportEntitlement(current.plan)"));
-  assert.ok(normalizedRoute.includes("standard support entitlement"));
-  assert.ok(normalizedRoute.includes("priority support entitlement"));
-  assert.ok(normalizedRoute.includes("24/7 priority"));
+  assert.ok(route.includes('support.tier === "STANDARD"'));
+  assert.ok(route.includes('support.tier === "PRIORITY"'));
+  assert.ok(route.includes("{support.label}"));
+  assert.ok(route.includes("catalog&apos;s 24/7 priority"));
   assert.ok(route.includes("Operational boundary"));
   assert.ok(normalizedRoute.includes("does not define or publish a response-time SLA"));
   assert.ok(normalizedRoute.includes("support contact"));
