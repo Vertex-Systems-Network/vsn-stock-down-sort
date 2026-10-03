@@ -976,7 +976,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.current_module, "low-stock-alerts");
   assert.equal(state.current_work_unit, "ISSUE-109-WU-04");
   assert.match(state.next_valid_work_unit, /PHASE-06 repository implementation is complete/i);
-  assert.match(state.next_valid_work_unit, /PHASE-06 Staging\/Production promotion and real notification delivery acceptance remain separate guarded release\/runtime activities/i);
+  assert.match(state.next_valid_work_unit, /PHASE-06 Staging\/Production promotion and real email\/Slack delivery acceptance remain separate guarded release\/runtime activities/i);
 
   assert.equal(plan.phases[0].id, "PHASE-01");
   assert.ok(plan.work_units.length >= 31);
