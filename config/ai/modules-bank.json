@@ -723,6 +723,95 @@
         "Repository/development implementation is complete and CI-certified. Environment promotion and external notification-delivery acceptance remain separate guarded activities."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+      "name": "Enterprise Commerce Visibility Rules",
+      "objective": "Control sold-out publication visibility for Shopify Markets, B2B catalog publications and sales channels using progressive optional permissions and VSN-owned safe restoration.",
+      "scope": [
+        "Unlimited Shopify Markets publication rules",
+        "Unlimited B2B catalog publication rules",
+        "Unlimited sales-channel publication rules",
+        "progressive optional scope query/request",
+        "publication target discovery by Shopify CatalogType",
+        "sold-out publishableUnpublish reconciliation",
+        "VSN-owned publishablePublish restoration",
+        "merchant manual-republish override suppression",
+        "webhook/Queue reconciliation integration",
+        "merchant Commerce UI"
+      ],
+      "boundaries": [
+        "Base install scopes remain unchanged.",
+        "write_publications, read_markets and read_companies are optional scopes only.",
+        "Merchant grant is required before related enterprise targets can be enabled.",
+        "B2B/Market publication availability remains Shopify-store dependent.",
+        "At most 25 publication targets may be selected.",
+        "Merchant-owned publication states must not be blindly overwritten.",
+        "Only VSN-managed unpublished publication states are eligible for automatic restoration.",
+        "Enterprise scope/API failure must not break core stock sorting or product visibility processing.",
+        "No Shopify app-version deployment, merchant scope grant, Staging/Production promotion or live publication mutation acceptance is implied by repository implementation."
+      ],
+      "dependencies": [
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-PRODUCT-VISIBILITY",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "option_ids": [
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES"
+      ],
+      "data_entities": [
+        "CommerceVisibilitySetting",
+        "ProductPublicationState",
+        "ActivityEvent"
+      ],
+      "contracts": [
+        "All three enterprise commerce capabilities are Unlimited-only.",
+        "Optional scopes: write_publications, read_markets, read_companies.",
+        "Catalog classifications: APP/NONE => CHANNEL, MARKET => MARKET, COMPANY_LOCATION => B2B.",
+        "Selected publication targets are capped at 25.",
+        "Current mutation APIs: publishablePublish / publishableUnpublish.",
+        "Merchant override suppresses repeated VSN unpublish until restock."
+      ],
+      "ui_surfaces": [
+        "/app/commerce"
+      ],
+      "security_responsibilities": [
+        "Query granted Shopify scopes server-side before publication discovery or mutation.",
+        "Request only declared optional scopes for the specific enterprise capability.",
+        "Validate selected publication IDs against server-discovered targets before persistence.",
+        "Fail closed below Unlimited entitlement.",
+        "Preserve merchant manual publication overrides.",
+        "Use safe reconciliation so publication permission/API errors do not fail core webhook processing."
+      ],
+      "acceptance_criteria": [
+        "All three PHASE-07 options are runtime-implemented and Unlimited-only.",
+        "Local SQLite and hosted PostgreSQL enterprise visibility models remain schema-parity validated.",
+        "Required install scopes remain unchanged while enterprise scopes are optional.",
+        "Publication discovery uses current CatalogType-aware Publication APIs.",
+        "Publication reconciliation uses publishablePublish/publishableUnpublish rather than deprecated product publication mutations.",
+        "Merchant overrides and VSN-owned restoration are explicitly tracked.",
+        "App Validation, PHASE-07 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-07 enterprise commerce visibility contract"
+      ],
+      "status": "complete",
+      "completion_evidence": [
+        "Repository implementation certified on 79f4207ef6da2529548cd5491f51d6950cca5913.",
+        "App Validation #442 / run 37115290951 passed the complete validation chain.",
+        "Optional enterprise scopes are declared without widening required install scopes.",
+        "Current Publication/Publishable discovery and mutation engine is repository-implemented.",
+        "Merchant override state and VSN-owned restoration are persistence-backed.",
+        "No Shopify app-version deployment, merchant optional-scope grant, Staging/Production deployment or live publication mutation acceptance is claimed."
+      ],
+      "update_notes": [
+        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires exact-head CI before merge."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
