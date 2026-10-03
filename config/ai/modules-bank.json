@@ -707,16 +707,20 @@
       ],
       "status": "complete",
       "completion_evidence": [
-        "Repository implementation certified on 17234dc7ac243e50265e35983c5c3bd93b36021b.",
-        "App Validation #429 / run 37113777777 passed the complete validation chain.",
+        "Both PHASE-06 option IDs are runtime-implemented in canonical product/options registries.",
         "AlertSetting and LowStockAlertState are implemented in Local SQLite and hosted PostgreSQL with parity constraints.",
-        "Starter+ email and Growth+ Slack entitlements are enforced server-side.",
-        "Slack webhook storage uses AES-GCM and strict Slack URL validation.",
-        "Hosted email delivery uses an EMAIL Worker binding and ALERT_FROM_EMAIL prerequisite.",
-        "No PHASE-06 Staging/Production deployment or real notification delivery is claimed."
+        "Starter+ low-stock email and Growth+ Slack entitlements are enforced server-side.",
+        "Slack webhook secrets are AES-GCM encrypted at rest and approved Slack HTTPS webhook hosts are allowlisted.",
+        "Hosted email runtime is explicitly bound through EMAIL and requires ALERT_FROM_EMAIL.",
+        "Inventory/product webhooks enqueue alert jobs and Local runtime uses direct low-stock evaluation fallback.",
+        "Merchant Alerts UI does not return stored Slack plaintext or ciphertext.",
+        "PR #110 exact head a819ed4e72607e74fadd11b7af7996394848ca9a passed App Validation #434.",
+        "PR #110 merged to development as ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Post-merge App Validation #435 / run 37114055964 passed the full validation chain.",
+        "No PHASE-06 Staging/Production deployment, external email onboarding, or real notification delivery is claimed."
       ],
       "update_notes": [
-        "Repository implementation is complete at the implementation-head checkpoint; final state-reconciliation head still requires exact-head CI before merge."
+        "Repository/development implementation is complete and CI-certified. Environment promotion and external notification-delivery acceptance remain separate guarded activities."
       ],
       "removal_or_deprecation_notes": []
     }

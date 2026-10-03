@@ -179,6 +179,17 @@
         "Webhook/Queue and Local fallback paths evaluate alerts without breaking sorting/visibility processing.",
         "Hosted email binding and sender prerequisite are explicit without claiming external onboarding acceptance.",
         "Latest implementation-head App Validation, PHASE-06 contract, Worker build and both Cloudflare dry-runs pass."
+      ],
+      "completion_evidence": [
+        "PR #110 exact head a819ed4e72607e74fadd11b7af7996394848ca9a passed App Validation #434 / run 37113964101.",
+        "PR #110 merged to development as ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Post-merge App Validation #435 / run 37114055964 passed the complete validation chain on ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Local SQLite and hosted PostgreSQL alert persistence migrations are additive and schema-parity validated.",
+        "Starter+ email and Growth+ Slack alert entitlements are enforced server-side.",
+        "Slack webhook configuration is encrypted at rest and restricted to validated Slack HTTPS incoming-webhook URLs.",
+        "Hosted email runtime requires EMAIL binding and ALERT_FROM_EMAIL without hardcoded sender identity.",
+        "Inventory/product webhook + Queue paths and Local evaluation fallback are implemented.",
+        "No PHASE-06 Staging/Production deployment, Cloudflare Email onboarding, or real email/Slack delivery acceptance is claimed."
       ]
     }
   ],
@@ -1162,9 +1173,11 @@
         "Cloudflare dry-runs"
       ],
       "completion_evidence": [
-        "Implementation head 17234dc7ac243e50265e35983c5c3bd93b36021b passed App Validation #429 / run 37113777777.",
-        "All validation steps including PHASE-06 contract, Worker build and both Cloudflare dry-runs passed.",
-        "No PHASE-06 Staging/Production deployment or real notification delivery is claimed."
+        "PR #110 exact head a819ed4e72607e74fadd11b7af7996394848ca9a passed App Validation #434 / run 37113964101.",
+        "PR #110 merged to development as ad7cc32f72ec73905d597bb62f355dc9b77ac4fa.",
+        "Post-merge App Validation #435 / run 37114055964 passed all validation steps including PHASE-06 contract, Worker build and both Cloudflare dry-runs.",
+        "Canonical product/options/state registries reflect only verified PHASE-06 runtime implementation.",
+        "No PHASE-06 Staging/Production runtime promotion or real notification delivery is claimed."
       ]
     }
   ],
@@ -1180,5 +1193,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "17234dc7ac243e50265e35983c5c3bd93b36021b"
+  "last_reconciled_repository_ref": "ad7cc32f72ec73905d597bb62f355dc9b77ac4fa"
 }
