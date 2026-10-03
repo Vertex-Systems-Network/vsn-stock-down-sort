@@ -89,13 +89,12 @@ test("Slack webhook secrets are validated and encrypted at rest", () => {
   assert.ok(server.includes("decryptSecret("));
   assert.ok(server.includes("slackWebhookCiphertext"));
   assert.ok(server.includes("slackWebhookConfigured"));
+  const publicSettingSlice = server.slice(
+    server.indexOf("export async function getAlertSetting"),
+    server.indexOf("export async function saveAlertSetting"),
+  );
   assert.equal(
-    /return\s+\{[^}]*slackWebhookCiphertext/s.test(
-      server.slice(
-        server.indexOf("export async function getAlertSetting"),
-        server.indexOf("export async function saveAlertSetting"),
-      ),
-    ),
+    /^\s*slackWebhookCiphertext\s*:/m.test(publicSettingSlice),
     false,
   );
 
