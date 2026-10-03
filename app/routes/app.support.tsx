@@ -111,8 +111,8 @@ export default function SupportPage() {
   const busy = navigation.state !== "idle";
 
   return (
-    <s-page heading="Support" inlineSize="large">
-      <s-section>
+    <s-page heading="Support">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Your active plan determines the support priority applied to every
