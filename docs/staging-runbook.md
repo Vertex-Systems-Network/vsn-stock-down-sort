@@ -6,11 +6,11 @@ VSN Stock Down Sort keeps Local development isolated from hosted environments.
 
 | Tier | Shopify config | Database | Billing |
 | --- | --- | --- | --- |
-| Local / dev | `shopify.app.local.toml` | Dedicated Neon PostgreSQL | Test |
+| Local / dev | `shopify.app.local.toml` | Prisma SQLite (`prisma/dev.sqlite`, gitignored) | Test |
 | Staging | `shopify.app.staging.toml` | Isolated Neon PostgreSQL | Test |
 | Production | `shopify.app.production.toml` | Isolated Neon PostgreSQL | Real |
 
-The active Prisma schema for all three tiers is `prisma/cloud/schema.prisma`.
+Local uses `prisma/schema.prisma`. Hosted Staging and Production use `prisma/cloud/schema.prisma`.
 
 ## GitHub staging environment
 
@@ -23,6 +23,7 @@ Use the existing `cloudflare-staging` GitHub Environment and keep all real crede
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `ALERT_FROM_EMAIL`
 
 Do not copy Production credentials into Staging.
 
@@ -47,7 +48,7 @@ The canonical catalog is `config/ai/product-plan.json`:
 
 All four plans have unlimited products and collections. Capability differences are represented by option IDs in the catalog.
 
-The runtime currently marks only the implemented base sorting capabilities as available. Planned capabilities remain explicitly labelled as planned until their own implementation and verification evidence exists.
+All 26 selected product capabilities are repository-implemented. Environment acceptance remains separate: the exact source under promotion must still pass Local, Staging and Live runtime gates.
 
 ## Shopify staging app
 
@@ -77,7 +78,7 @@ The deployed `/healthz` must report:
 - `billingTestMode=true`
 - exactly four catalog plans with the approved IDs, prices, 30-day interval and 10-day trials.
 
-The optional signed `/internal/staging-acceptance` probe additionally checks Shopify Admin GraphQL and reports whether the active subscription matches one of the approved plans. It is read-only and never creates or cancels a subscription.
+The signed `/internal/staging-acceptance` probe is part of the final **Staging Runtime Acceptance** gate. It checks Shopify Admin GraphQL and confirms that the active subscription matches the expected approved plan. It is read-only and never creates or cancels a subscription.
 
 ## Shopify staging promotion
 
@@ -86,6 +87,7 @@ After Worker acceptance:
 1. Run **Shopify Staging Version** with `CREATE_STAGING_SHOPIFY_VERSION`.
 2. Record the exact unreleased candidate version and source SHA.
 3. Run **Shopify Staging Release** with `RELEASE_STAGING_SHOPIFY_VERSION` and the exact candidate name.
+4. Run **Staging Runtime Acceptance** with `CERTIFY_STAGING_RUNTIME`, the exact accepted source SHA, the dedicated staging shop domain, and the actually active staging plan.
 
 No Staging action may mutate the Live Shopify app identity.
 
