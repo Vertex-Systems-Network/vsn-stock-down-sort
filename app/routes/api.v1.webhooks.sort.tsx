@@ -8,13 +8,21 @@ import {
   integrationErrorResponse,
   integrationJson,
   parseIntegrationJsonBody,
+  readIntegrationRawBody,
   recordIntegrationRequest,
   requireCollectionId,
 } from "../services/integrations.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const rawBody = await request.text();
+    if (request.method !== "POST") {
+      throw new IntegrationHttpError(
+        405,
+        "method_not_allowed",
+        "This integration endpoint accepts POST only.",
+      );
+    }
+    const rawBody = await readIntegrationRawBody(request);
     const { credential } = await authenticateSignedWebhook(
       request,
       rawBody,
