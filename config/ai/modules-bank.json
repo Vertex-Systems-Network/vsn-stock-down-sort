@@ -1050,11 +1050,21 @@
         "App Validation",
         "PHASE-10 support fulfillment contract"
       ],
-      "status": "in_progress",
-      "completion_evidence": [],
+      "status": "complete",
+      "completion_evidence": [
+        "PR #129 exact head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App Validation #496 / run 37126630330.",
+        "Merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
+        "SupportRequest persists authenticated shop-scoped requests in Local SQLite and hosted PostgreSQL.",
+        "Plan-derived priority, input bounds, subject normalization and 5-per-10-minute shop rate limiting are enforced server-side.",
+        "Hosted notification requires EMAIL, ALERT_FROM_EMAIL and SUPPORT_INBOX_EMAIL; Local does not claim external delivery.",
+        "Notification failures preserve the request while merchant UI hides provider/configuration details.",
+        "ActivityEvent evidence excludes request message bodies and support inbox secret/config values.",
+        "No final Staging/Production delivery acceptance is claimed."
+      ],
       "update_notes": [
+        "Repository/development implementation is complete and CI-certified.",
         "PHASE-10 operationalizes the already implemented support entitlement; it does not add a 27th product option.",
-        "Full environment runtime acceptance is intentionally deferred until the final deployment/testing cycle."
+        "Full environment runtime acceptance remains deferred until the final deployment/testing cycle."
       ],
       "removal_or_deprecation_notes": []
     }
