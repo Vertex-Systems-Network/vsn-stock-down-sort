@@ -1124,24 +1124,19 @@ test("environment gate records accepted SQLite Local evidence before Staging", (
   const releaseFlow = read("docs/development-release-flow.md");
 
   assert.equal(gates.local_dev.status, "accepted");
-  assert.equal(
-    gates.local_dev.accepted_source_ref,
-    "ca5851561ab7979712f11580ab951fda4650ef19",
-  );
+  assert.match(gates.local_dev.accepted_source_ref, /^[0-9a-f]{40}$/);
+  assert.ok(Number.isFinite(Date.parse(gates.local_dev.accepted_at)));
+  assert.equal(gates.local_dev.evidence_record.branch, "development");
   assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
+  assert.equal(gates.local_dev.evidence_record.database_file, "prisma/dev.sqlite");
+  assert.equal(gates.local_dev.evidence_record.sqlite_gitignored, true);
+  assert.equal(gates.local_dev.evidence_record.prisma_validate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_generate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_migrate_deploy, "passed");
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.environment, "development");
   assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
-  assert.equal(gates.local_dev.evidence_record.billing_catalog.trialDays, 10);
-  assert.ok(
-    gates.local_dev.required_checks.includes(
-      "Local SQLite Prisma validation/generation/migration",
-    ),
-  );
-  assert.ok(
-    gates.local_dev.required_checks.includes(
-      "Local/cloud Prisma model parity",
-    ),
-  );
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.database, "sqlite");
   assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });

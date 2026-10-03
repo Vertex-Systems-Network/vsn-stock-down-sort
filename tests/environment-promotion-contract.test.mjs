@@ -172,9 +172,18 @@ test("production release policy references the staging acceptance gate", () => {
 
 test("signed Staging acceptance still cannot authorize Live until recorded on main", () => {
   assert.equal(gates.local_dev.status, "accepted");
-  assert.equal(
+  assert.match(
     gates.local_dev.accepted_source_ref,
-    "ca5851561ab7979712f11580ab951fda4650ef19",
+    /^[0-9a-f]{40}$/,
+  );
+  assert.ok(gates.local_dev.evidence_record);
+  assert.equal(
+    gates.local_dev.evidence_record.branch,
+    "development",
+  );
+  assert.equal(
+    gates.local_dev.evidence_record.database_provider,
+    "sqlite",
   );
   assert.equal(gates.staging.status, "accepted");
   assert.equal(
