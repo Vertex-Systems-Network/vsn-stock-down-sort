@@ -217,8 +217,8 @@ export default function CommerceContextsPage() {
   ];
 
   return (
-    <s-page heading="Commerce contexts" inlineSize="large">
-      <s-section>
+    <s-page heading="Commerce contexts">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Automatically remove sold-out products from selected Shopify
