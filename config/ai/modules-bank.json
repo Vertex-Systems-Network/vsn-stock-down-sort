@@ -979,6 +979,81 @@
         "Repository/development commercial entitlement implementation is complete and CI-certified. Human support operations remain separate from repository evidence."
       ],
       "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-SUPPORT-FULFILLMENT",
+      "name": "In-app Support Request Fulfillment",
+      "objective": "Convert the plan-derived support entitlement into a real authenticated request channel without inventing SLA or staffing promises.",
+      "scope": [
+        "SupportRequest persistence",
+        "authenticated support request intake",
+        "shop-scoped recent request history",
+        "server-derived support priority",
+        "hosted VSN support inbox notification",
+        "request notification outcome tracking",
+        "ActivityEvent request evidence"
+      ],
+      "boundaries": [
+        "Client input cannot select or upgrade support priority.",
+        "Support requests and history are always scoped by authenticated session.shop.",
+        "Local development persists requests but does not claim external notification delivery.",
+        "Hosted notification requires EMAIL, ALERT_FROM_EMAIL and SUPPORT_INBOX_EMAIL.",
+        "Notification failure must not discard a persisted request.",
+        "Support message bodies and inbox addresses must not be copied into ActivityEvent details.",
+        "No response-time SLA, staffing level or escalation deadline is defined by repository implementation.",
+        "Staging/Production runtime delivery acceptance remains part of the final environment testing cycle."
+      ],
+      "dependencies": [
+        "MOD-PRIORITY-SUPPORT",
+        "MOD-DATABASE",
+        "MOD-ANALYTICS-HISTORY"
+      ],
+      "option_ids": [
+        "OPT-PRIORITY-SUPPORT"
+      ],
+      "data_entities": [
+        "SupportRequest",
+        "ActivityEvent"
+      ],
+      "contracts": [
+        "Starter/Growth requests: STANDARD priority",
+        "Pro requests: PRIORITY",
+        "Unlimited requests: PRIORITY_24_7",
+        "Support subject maximum: 160 characters",
+        "Support message maximum: 5000 characters",
+        "Recent request list maximum: 50",
+        "Hosted support notification binding: EMAIL",
+        "Hosted support inbox variable: SUPPORT_INBOX_EMAIL"
+      ],
+      "ui_surfaces": [
+        "/app/support"
+      ],
+      "security_responsibilities": [
+        "Authenticate every merchant support request through Shopify admin session.",
+        "Derive support priority server-side from the active Shopify subscription.",
+        "Scope persistence and history reads by shop.",
+        "Do not log request message bodies, credentials or support inbox addresses in ActivityEvent details.",
+        "Validate hosted sender and inbox email configuration before delivery."
+      ],
+      "acceptance_criteria": [
+        "SupportRequest persistence is parity-safe across Local SQLite and hosted PostgreSQL.",
+        "Support request input is bounded and authenticated.",
+        "Plan-derived priority cannot be overridden by client input.",
+        "Recent request history is shop-scoped.",
+        "Hosted notification configuration fails closed when SUPPORT_INBOX_EMAIL is absent.",
+        "Repository contracts preserve the no-SLA truth boundary."
+      ],
+      "quality_gates": [
+        "App Validation",
+        "PHASE-10 support fulfillment contract"
+      ],
+      "status": "in_progress",
+      "completion_evidence": [],
+      "update_notes": [
+        "PHASE-10 operationalizes the already implemented support entitlement; it does not add a 27th product option.",
+        "Full environment runtime acceptance is intentionally deferred until the final deployment/testing cycle."
+      ],
+      "removal_or_deprecation_notes": []
     }
   ],
   "status_values": [
