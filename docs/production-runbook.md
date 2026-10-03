@@ -13,6 +13,7 @@ Use `cloudflare-production` for:
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `ALERT_FROM_EMAIL`
 
 Production credentials must not be reused by Staging.
 
