@@ -11,8 +11,9 @@ current_phase: PHASE-08
 current_module: api-integrations
 current_work_unit: ISSUE-117-WU-04
 note: >
-  PHASE-08 Secure API & Signed Webhook Integrations implementation head
-  b5e8b9d857d2c2f26d4d5ac1fd743e8b4996a9aa passed App Validation #457 /
-  run 37117869035. PR #118 final state-reconciliation head still requires
-  latest-head validation before merge. Staging/Production credential issuance
-  and live external client/webhook acceptance remain separate runtime gates.
+  PHASE-08 Secure API & Signed Webhook Integrations merged to development as
+  57ef7973040206d4221860367f3ac4094ed68646. PR #118 exact-head App
+  Validation #462 / run 37118074935 passed, and post-merge App Validation
+  #463 / run 37118149572 passed the full chain. Staging/Production credential
+  issuance and live external client/webhook acceptance remain separate guarded
+  runtime activities.
