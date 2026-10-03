@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": 109,
+  "active_issue": 112,
   "phases": [
     {
       "id": "PHASE-01",
@@ -190,6 +190,30 @@
         "Hosted email runtime requires EMAIL binding and ALERT_FROM_EMAIL without hardcoded sender identity.",
         "Inventory/product webhook + Queue paths and Local evaluation fallback are implemented.",
         "No PHASE-06 Staging/Production deployment, Cloudflare Email onboarding, or real email/Slack delivery acceptance is claimed."
+      ]
+    },
+    {
+      "id": "PHASE-07",
+      "name": "Enterprise Commerce Visibility Rules",
+      "objective": "Manage sold-out publication visibility across Shopify Markets, B2B catalog publications and sales channels with progressive optional permissions and merchant-safe restoration.",
+      "module_ids": [
+        "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+        "MOD-BILLING",
+        "MOD-DATABASE",
+        "MOD-PRODUCT-VISIBILITY"
+      ],
+      "dependencies": [
+        "PHASE-06"
+      ],
+      "status": "complete",
+      "exit_criteria": [
+        "Required app scopes remain unchanged and enterprise scopes are declared optional.",
+        "All three enterprise commerce options are Unlimited-only and fail closed server-side.",
+        "Publication targets are server-discovered, bounded and validated before save.",
+        "Current Publishable APIs reconcile sold-out and restocked product publication states.",
+        "Merchant manual republish overrides are preserved rather than repeatedly undone.",
+        "Scope/API failures are isolated from core product visibility and sorting processing.",
+        "Latest implementation-head App Validation, PHASE-07 contract, Worker build and both Cloudflare dry-runs pass."
       ]
     }
   ],
@@ -1179,6 +1203,127 @@
         "Canonical product/options/state registries reflect only verified PHASE-06 runtime implementation.",
         "No PHASE-06 Staging/Production runtime promotion or real notification delivery is claimed."
       ]
+    },
+    {
+      "id": "ISSUE-112-WU-01",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+      "title": "Add optional-scope and enterprise publication persistence contract",
+      "objective": "Declare progressive Shopify enterprise scopes and persist bounded publication settings plus VSN-managed publication state with Local/hosted parity.",
+      "dependencies": [],
+      "priority": 100,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Base required scopes remain read_products, write_products and read_inventory.",
+        "write_publications, read_markets and read_companies are declared optional in all app configs.",
+        "CommerceVisibilitySetting and ProductPublicationState exist in Local/hosted schemas with parity.",
+        "Merchant override state is persisted."
+      ],
+      "required_checks": [
+        "App Validation",
+        "Prisma schema parity",
+        "PHASE-07 enterprise commerce visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 79f4207ef6da2529548cd5491f51d6950cca5913.",
+        "App Validation #442 / run 37115290951 passed.",
+        "Local and hosted PHASE-07 migrations validate.",
+        "Required and optional Shopify scope boundaries are contract-tested."
+      ]
+    },
+    {
+      "id": "ISSUE-112-WU-02",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+      "title": "Implement publication discovery and safe reconciliation engine",
+      "objective": "Discover authorized Publication targets and reconcile sold-out/restock states with current Publishable APIs while respecting merchant overrides.",
+      "dependencies": [
+        "ISSUE-112-WU-01"
+      ],
+      "priority": 90,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "APP/NONE/MARKET/COMPANY_LOCATION publication targets are classified server-side.",
+        "Selection is bounded to 25 and entitlement/scope validated.",
+        "Sold-out products are unpublished only from selected authorized targets.",
+        "Merchant manual republish creates an override rather than repeated unpublish.",
+        "Restock restores only VSN-owned unpublished publication states.",
+        "Deprecated productPublish/productUnpublish mutations are not used."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 enterprise commerce visibility contract"
+      ],
+      "completion_evidence": [
+        "Certified on 79f4207ef6da2529548cd5491f51d6950cca5913.",
+        "publishedOnPublication snapshots current target state.",
+        "publishablePublish/publishableUnpublish perform current mutations.",
+        "ProductPublicationState tracks previousPublished, merchantOverride and managedUnpublishedAt."
+      ]
+    },
+    {
+      "id": "ISSUE-112-WU-03",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+      "title": "Integrate enterprise reconciliation and progressive Commerce UI",
+      "objective": "Run enterprise reconciliation after core product visibility and provide merchant target/permission management without widening install-time access.",
+      "dependencies": [
+        "ISSUE-112-WU-02"
+      ],
+      "priority": 80,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Hosted visibility Queue processing runs Phase-03 then safe Phase-07 reconciliation.",
+        "Local product/inventory webhook fallbacks preserve the same order.",
+        "Commerce loader queries granted optional scopes.",
+        "Commerce actions request capability-specific optional scopes and validate targets before save.",
+        "Core automation continues when enterprise reconciliation fails."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 enterprise commerce visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Certified on 79f4207ef6da2529548cd5491f51d6950cca5913.",
+        "Queue and Local webhook flows call reconcileCommerceVisibilitySafe after reconcileProductVisibility.",
+        "/app/commerce provides progressive permission and publication target management.",
+        "No merchant optional-scope grant is claimed by repository implementation."
+      ]
+    },
+    {
+      "id": "ISSUE-112-WU-04",
+      "phase_id": "PHASE-07",
+      "module_id": "MOD-ENTERPRISE-COMMERCE-VISIBILITY",
+      "title": "Certify PHASE-07 and reconcile repository truth",
+      "objective": "Align canonical registries/state with only CI-verified enterprise publication implementation and explicit runtime acceptance boundaries.",
+      "dependencies": [
+        "ISSUE-112-WU-03"
+      ],
+      "priority": 70,
+      "status": "complete",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Canonical product/options registries mark exactly the three implemented PHASE-07 capabilities.",
+        "Dedicated PHASE-07 contract passes.",
+        "Latest implementation-head App Validation passes all checks.",
+        "Shopify app config deployment, merchant grants and live publication mutation acceptance are not claimed."
+      ],
+      "required_checks": [
+        "App Validation",
+        "PHASE-07 enterprise commerce visibility contract",
+        "Worker build",
+        "Cloudflare dry-runs"
+      ],
+      "completion_evidence": [
+        "Implementation head 79f4207ef6da2529548cd5491f51d6950cca5913 passed App Validation #442 / run 37115290951.",
+        "All validation steps including PHASE-07 contract, Worker build and both Cloudflare dry-runs passed.",
+        "No Shopify app-version deployment, optional-scope merchant grant, Staging/Production promotion or live publication mutation acceptance is claimed."
+      ]
     }
   ],
   "status_values": [
@@ -1193,5 +1338,5 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "ad7cc32f72ec73905d597bb62f355dc9b77ac4fa"
+  "last_reconciled_repository_ref": "79f4207ef6da2529548cd5491f51d6950cca5913"
 }
