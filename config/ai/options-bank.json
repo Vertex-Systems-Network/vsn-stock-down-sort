@@ -470,18 +470,22 @@
       "category": "enterprise",
       "description": "Shopify Markets rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 optional read_markets + write_publications access, MARKET publication discovery and sold-out publication reconciliation."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 optional-scope, Unlimited entitlement, publication discovery and safe restore contracts."
+      ]
     },
     {
       "id": "OPT-B2B-CATALOGS",
@@ -489,18 +493,22 @@
       "category": "enterprise",
       "description": "B2B catalog rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 optional read_companies + write_publications access, COMPANY_LOCATION publication discovery and sold-out publication reconciliation."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 B2B scope/capability, publication discovery and safe restore contracts; runtime B2B availability remains store-dependent."
+      ]
     },
     {
       "id": "OPT-SALES-CHANNEL-RULES",
@@ -508,18 +516,22 @@
       "category": "automation",
       "description": "Sales-channel visibility rules",
       "status": "selected",
-      "runtime_status": "planned",
+      "runtime_status": "implemented",
       "requirement_source": [
         "Owner-approved four-plan product expansion",
         "Competitor capability audit"
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by PHASE-07 optional write_publications access, APP/NONE publication discovery and sold-out sales-channel publication reconciliation."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Covered by PHASE-07 current Publishable API, progressive-scope and merchant-override contracts."
+      ]
     },
     {
       "id": "OPT-API-INTEGRATIONS",
