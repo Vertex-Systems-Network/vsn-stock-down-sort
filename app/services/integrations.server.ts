@@ -629,6 +629,85 @@ export async function authorizeIntegrationRuntime(
   return assertUnlimitedPlan(admin);
 }
 
+const MAX_INTEGRATION_BODY_BYTES = 16 * 1024;
+
+export async function readIntegrationJson(request: Request) {
+  const contentLength = request.headers.get("content-length");
+  if (
+    contentLength &&
+    Number.isFinite(Number(contentLength)) &&
+    Number(contentLength) > MAX_INTEGRATION_BODY_BYTES
+  ) {
+    throw new IntegrationHttpError(
+      413,
+      "payload_too_large",
+      "Integration request body exceeds the allowed size.",
+    );
+  }
+
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > MAX_INTEGRATION_BODY_BYTES) {
+    throw new IntegrationHttpError(
+      413,
+      "payload_too_large",
+      "Integration request body exceeds the allowed size.",
+    );
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = raw ? JSON.parse(raw) : {};
+  } catch {
+    throw new IntegrationHttpError(
+      400,
+      "invalid_json",
+      "Integration request body must be valid JSON.",
+    );
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new IntegrationHttpError(
+      400,
+      "invalid_request",
+      "Integration request body must be a JSON object.",
+    );
+  }
+
+  if ("shop" in parsed) {
+    throw new IntegrationHttpError(
+      400,
+      "shop_not_allowed",
+      "Shop is derived from the authenticated integration credential.",
+    );
+  }
+
+  return parsed as Record<string, unknown>;
+}
+
+export function requireCollectionId(value: unknown) {
+  const collectionId = String(value ?? "").trim();
+  if (!/^gid:\/\/shopify\/Collection\/\d+$/.test(collectionId)) {
+    throw new IntegrationHttpError(
+      400,
+      "invalid_collection_id",
+      "A valid Shopify collection GID is required.",
+    );
+  }
+  return collectionId;
+}
+
+export function requireAutomationRuleId(value: unknown) {
+  const ruleId = String(value ?? "").trim();
+  if (!/^[a-z0-9_-]{8,64}$/i.test(ruleId)) {
+    throw new IntegrationHttpError(
+      400,
+      "invalid_rule_id",
+      "A valid automation rule ID is required.",
+    );
+  }
+  return ruleId;
+}
+
 export function integrationJson(
   payload: unknown,
   init: ResponseInit = {},
