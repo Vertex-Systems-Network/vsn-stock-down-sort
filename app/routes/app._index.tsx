@@ -562,39 +562,7 @@ export default function AppIndex() {
                 <s-table-row key={collection.id}>
                   <s-table-cell>
                     <s-stack gap="small-200">
-                      <div className="vsn-collection-title-row">
-                        <s-text type="strong">{collection.title}</s-text>
-                        <button
-                          className={[
-                            "vsn-collection-toggle",
-                            enabled ? "is-enabled" : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          type="button"
-                          onClick={() =>
-                            runAction(
-                              enabled ? "disable" : "enable",
-                              collection.id,
-                              enabled ? false : undefined,
-                            )
-                          }
-                          disabled={busy}
-                          aria-label={
-                            (enabled ? "Disable " : "Enable ") +
-                            collection.title +
-                            " auto-sort"
-                          }
-                        >
-                          {rowBusy &&
-                          (submittedIntent === "enable" ||
-                            submittedIntent === "disable")
-                            ? "Updating…"
-                            : enabled
-                              ? "Disable"
-                              : "Enable"}
-                        </button>
-                      </div>
+                      <s-text type="strong">{collection.title}</s-text>
                       <s-text>/{collection.handle}</s-text>
                       {error ? <s-text tone="critical">{error}</s-text> : null}
                     </s-stack>
@@ -625,15 +593,38 @@ export default function AppIndex() {
                   <s-table-cell>
                     <s-button-group>
                       {enabled ? (
+                        <>
+                          <s-button
+                            variant="secondary"
+                            onClick={() => runAction("sort", collection.id)}
+                            loading={rowBusy && submittedIntent === "sort"}
+                            disabled={busy}
+                          >
+                            Sort now
+                          </s-button>
+
+                          <s-button
+                            variant="tertiary"
+                            tone="critical"
+                            onClick={() =>
+                              runAction("disable", collection.id, false)
+                            }
+                            loading={rowBusy && submittedIntent === "disable"}
+                            disabled={busy}
+                          >
+                            Disable
+                          </s-button>
+                        </>
+                      ) : (
                         <s-button
-                          variant="secondary"
-                          onClick={() => runAction("sort", collection.id)}
-                          loading={rowBusy && submittedIntent === "sort"}
+                          variant="primary"
+                          onClick={() => runAction("enable", collection.id)}
+                          loading={rowBusy && submittedIntent === "enable"}
                           disabled={busy}
                         >
-                          Sort now
+                          Enable
                         </s-button>
-                      ) : null}
+                      )}
 
                       {enabled && collection.setting?.previousSortOrder ? (
                         <s-button
