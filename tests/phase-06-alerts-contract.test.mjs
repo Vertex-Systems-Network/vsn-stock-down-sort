@@ -193,7 +193,7 @@ test("hosted deployment workflows require and upload ALERT_FROM_EMAIL", () => {
 
 test("Alerts UI is authenticated, plan-aware and never renders stored Slack plaintext", () => {
   const route = read("app/routes/app.alerts.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));
