@@ -170,3 +170,43 @@ test("collection table renders visible branded row actions instead of shadow but
   assert.ok(styles.includes("min-width: 330px"));
   assert.ok(styles.includes("background: var(--vsn-accent)"));
 });
+
+
+test("all app screens use the shared Vertex page and control system", () => {
+  const styles = read("app/styles/workspace.css");
+  const brandUi = read("app/components/BrandUi.tsx");
+  const routes = [
+    "app/routes/app._index.tsx",
+    "app/routes/app.alerts.tsx",
+    "app/routes/app.analytics.tsx",
+    "app/routes/app.automation.tsx",
+    "app/routes/app.contexts.tsx",
+    "app/routes/app.integrations.tsx",
+    "app/routes/app.plans.tsx",
+    "app/routes/app.support.tsx",
+    "app/routes/app.visibility.tsx",
+    "app/routes/app.documentation.tsx",
+  ];
+
+  assert.ok(brandUi.includes("export function PageShell"));
+  assert.ok(brandUi.includes("export function BrandBadge"));
+  assert.ok(brandUi.includes("export function BrandNotice"));
+  assert.ok(brandUi.includes("export function BrandButton"));
+  assert.ok(styles.includes("Global Vertex UI system: shared by every app screen"));
+  assert.ok(styles.includes(".vsn-route-heading"));
+  assert.ok(styles.includes(".vsn-brand-badge"));
+  assert.ok(styles.includes(".vsn-brand-notice"));
+  assert.ok(styles.includes(".vsn-page-wide"));
+
+  for (const routePath of routes) {
+    const route = read(routePath);
+    assert.equal(route.includes("<s-page"), false, routePath + " must not use capped s-page");
+    assert.equal(route.includes("<s-button"), false, routePath + " must not use default s-button");
+    assert.equal(route.includes("<s-badge"), false, routePath + " must not use default s-badge");
+    assert.equal(route.includes("<s-banner"), false, routePath + " must not use default s-banner");
+    assert.ok(
+      route.includes("<PageShell") || route.includes('className="vsn-page-wide"'),
+      routePath + " must use the shared wide page shell",
+    );
+  }
+});
