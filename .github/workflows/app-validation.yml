@@ -108,6 +108,9 @@ jobs:
       - name: AI-Native plan alignment contract
         run: node --test tests/ai-plan-alignment-contract.test.mjs
 
+      - name: Shopify App Pricing contract
+        run: node --test tests/shopify-app-pricing-contract.test.mjs
+
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs
 
