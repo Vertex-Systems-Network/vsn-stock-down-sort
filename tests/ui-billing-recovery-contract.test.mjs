@@ -61,7 +61,10 @@ test("embedded app uses the same branded workspace pattern as VSN Metafields", (
   assert.ok(workspace.includes("Need a hand?"));
   assert.ok(styles.includes(".vsn-hero"));
   assert.ok(styles.includes(".vsn-plan-grid"));
-  assert.ok(styles.includes("#173e30"));
+  assert.ok(styles.includes("#3f4245"));
+  assert.ok(styles.includes("#625ba8"));
+  assert.ok(styles.includes("#5ac8d6"));
+  assert.ok(styles.includes("#6188c6"));
   assert.ok(home.includes("Available first. Sold out last. Automatically."));
   assert.ok(home.includes("vsn-task-grid"));
 });
