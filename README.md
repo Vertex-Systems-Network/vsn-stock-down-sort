@@ -53,7 +53,9 @@ The repository includes Supervisor, Worker, governance, risk, audit, release, op
 
 ## Public submission billing method
 
-The initial Shopify App Store submission uses **Manual Pricing / Shopify Billing API**. The application currently creates subscriptions with `appSubscriptionCreate`, so the Partner Dashboard pricing method must remain **Manual Pricing** for this release. Do not enable Shopify App Pricing until the application is explicitly migrated to Shopify-hosted plan selection plus Partner API subscription reads. The canonical decision is `config/shopify/billing-strategy.json`.
+The Shopify App Store submission target is **Shopify App Pricing**. New subscriptions and plan changes use Shopify's hosted pricing page, and subscription state is read through the Partner API Active Subscription API. Existing Billing API subscriptions remain supported as a compatibility fallback until Shopify migration tooling moves them.
+
+Hosted App Pricing requires `SHOPIFY_BILLING_MODE=shopify_app_pricing`, `SHOPIFY_PARTNER_ORG_ID`, `SHOPIFY_PARTNER_API_ACCESS_TOKEN`, and `SHOPIFY_APP_GID`. The app fails closed if App Pricing mode is enabled without a usable Partner API configuration. The canonical decision is `config/shopify/billing-strategy.json`.
 
 ## Runtime architecture
 
@@ -265,6 +267,9 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `SHOPIFY_PARTNER_ORG_ID`
+- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
+- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
@@ -277,10 +282,13 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `SHOPIFY_PARTNER_ORG_ID`
+- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
+- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
-`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
+`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Hosted Staging and Production set `SHOPIFY_BILLING_MODE=shopify_app_pricing`; the three Partner API values are uploaded as Worker secrets.
 
 ## Sort job queues
 
@@ -327,6 +335,8 @@ Authenticated merchants can submit support requests from `/app/support`. Request
 - `docs/staging-runbook.md` — Staging setup and promotion
 - `docs/production-runbook.md` — Production readiness and release gates
 - `config/shopify/production-release.json` — production release authorization policy
+- `config/shopify/app-store-submission.json` — App Pricing + App Store finalization record
+- `docs/shopify-app-store-submission.md` — Partner Dashboard, review and final smoke runbook
 
 ## Safety rules
 

@@ -34,6 +34,10 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_PARTNER_ORG_ID: ${{ secrets.SHOPIFY_PARTNER_ORG_ID }}
+      SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}
+      SHOPIFY_APP_GID: ${{ secrets.SHOPIFY_APP_GID }}
+      SHOPIFY_BILLING_MODE: shopify_app_pricing
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
@@ -81,7 +85,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET ALERT_FROM_EMAIL SUPPORT_INBOX_EMAIL
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_PARTNER_ORG_ID SHOPIFY_PARTNER_API_ACCESS_TOKEN SHOPIFY_APP_GID ALERT_FROM_EMAIL SUPPORT_INBOX_EMAIL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing staging value: $name" >&2
@@ -158,6 +162,9 @@ jobs:
             "DATABASE_URL",
             "SHOPIFY_API_KEY",
             "SHOPIFY_API_SECRET",
+            "SHOPIFY_PARTNER_ORG_ID",
+            "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+            "SHOPIFY_APP_GID",
             "ALERT_FROM_EMAIL",
             "SUPPORT_INBOX_EMAIL",
           ];
@@ -209,6 +216,8 @@ jobs:
                       raise RuntimeError("unexpected environment")
                   if payload.get("billingTestMode") is not True:
                       raise RuntimeError("staging billing is not in test mode")
+                  if payload.get("billingMethod") != "shopify_app_pricing":
+                      raise RuntimeError("staging billing method is not Shopify App Pricing")
                   if payload.get("database") != "postgresql":
                       raise RuntimeError("unexpected database mode")
 

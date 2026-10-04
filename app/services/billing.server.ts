@@ -8,6 +8,10 @@ import {
 } from "../billing-config";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
+import {
+  getShopifyAppPricingSubscription,
+  resolveShopifyAppPricingPlan,
+} from "./shopify-app-pricing.server";
 
 type AdminClient = Awaited<ReturnType<typeof authenticate.admin>>["admin"];
 
@@ -524,7 +528,7 @@ export function isCurrentPlanSubscription(subscription: AppSubscription) {
   return resolveSubscriptionPlan(subscription) !== null;
 }
 
-export async function getCurrentSubscription(admin: AdminClient) {
+async function getCurrentManualSubscription(admin: AdminClient) {
   const subscriptions = await getActiveSubscriptions(admin);
 
   return (
@@ -533,8 +537,68 @@ export async function getCurrentSubscription(admin: AdminClient) {
   );
 }
 
+function normalizeShopifyAppPricingSubscription(
+  managed: Awaited<ReturnType<typeof getShopifyAppPricingSubscription>>,
+  planId: PlanId,
+): AppSubscription {
+  if (!managed) {
+    throw new Error("Shopify App Pricing subscription is required.");
+  }
+
+  const plan = BILLING_PLAN_BY_ID[planId];
+  const resolved = resolveShopifyAppPricingPlan(managed);
+  if (!resolved) {
+    throw new Error("Shopify App Pricing subscription does not match the approved VSN catalog.");
+  }
+
+  return {
+    id:
+      managed.legacySubscriptionId ??
+      `shopify-app-pricing:${managed.shop.id}`,
+    name: plan.shopify_name,
+    status: "ACTIVE",
+    test: isBillingTestMode(),
+    currentPeriodEnd: managed.currentBillingCycle?.endTime ?? null,
+    trialDays: managed.trialEndsAt ? plan.trial_days : null,
+    lineItems: [
+      {
+        plan: {
+          pricingDetails: {
+            __typename: "AppRecurringPricing",
+            interval: managed.billingPeriod,
+            price: {
+              amount: String(resolved.amount),
+              currencyCode: resolved.currencyCode,
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
 export async function getCurrentSubscriptionPlan(admin: AdminClient) {
-  const subscription = await getCurrentSubscription(admin);
+  const managed = await getShopifyAppPricingSubscription(admin);
+  if (managed) {
+    const resolved = resolveShopifyAppPricingPlan(managed);
+    if (!resolved) {
+      throw new Error(
+        "An active Shopify App Pricing subscription exists but does not match the approved VSN plan catalog.",
+      );
+    }
+
+    return {
+      subscription: normalizeShopifyAppPricingSubscription(
+        managed,
+        resolved.planId,
+      ),
+      managedSubscription: managed,
+      plan: resolved.plan,
+      source: "shopify_app_pricing" as const,
+    };
+  }
+
+  const subscription = await getCurrentManualSubscription(admin);
   if (!subscription) return null;
 
   const resolved = resolveSubscriptionPlan(subscription);
@@ -542,9 +606,15 @@ export async function getCurrentSubscriptionPlan(admin: AdminClient) {
 
   return {
     subscription,
+    managedSubscription: null,
     plan: BILLING_PLAN_BY_ID[resolved.planId],
     source: resolved.source,
   };
+}
+
+export async function getCurrentSubscription(admin: AdminClient) {
+  const current = await getCurrentSubscriptionPlan(admin);
+  return current?.subscription ?? null;
 }
 
 type CurrentAppHandlePayload = {

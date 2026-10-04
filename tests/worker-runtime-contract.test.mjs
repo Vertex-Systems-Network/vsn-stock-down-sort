@@ -115,8 +115,8 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(diagnostic, /crypto\.subtle\.verify/);
   assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
   assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
-  assert.match(diagnostic, /currentAppInstallation/);
-  assert.match(diagnostic, /activeSubscriptions/);
+  assert.match(diagnostic, /getCurrentSubscriptionPlan/);
+  assert.match(diagnostic, /getShopifyBillingMode/);
   assert.match(diagnostic, /process\.env\.APP_ENV !== "staging"/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
@@ -505,14 +505,26 @@ test("billing entitlement requires the exact current plan", () => {
 
 
 
-test("manual billing submission strategy is explicit and mixed mode is blocked", () => {
+test("Shopify App Pricing is the submission target while Billing API remains legacy-compatible", () => {
   const strategy = JSON.parse(read("config/shopify/billing-strategy.json"));
   const billing = read("app/services/billing.server.ts");
+  const partner = read("app/services/shopify-app-pricing.server.ts");
 
   assert.equal(strategy.submission_target, "shopify_app_store_public_app");
-  assert.equal(strategy.active_method, "manual_pricing_billing_api");
-  assert.equal(strategy.partner_dashboard_required_pricing_method, "manual_pricing");
-  assert.equal(strategy.mixed_mode_allowed, false);
+  assert.equal(strategy.active_method, "shopify_app_pricing");
+  assert.equal(
+    strategy.partner_dashboard_required_pricing_method,
+    "shopify_app_pricing",
+  );
+  assert.equal(
+    strategy.repository_mode,
+    "dual_compatibility_until_legacy_migration",
+  );
+  assert.equal(
+    strategy.manual_pricing_legacy_compatibility
+      .new_subscription_creation_allowed,
+    false,
+  );
   assert.deepEqual(
     strategy.public_plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
     [
@@ -522,9 +534,14 @@ test("manual billing submission strategy is explicit and mixed mode is blocked",
       ["unlimited", 70, 10],
     ],
   );
+  assert.match(partner, /activeSubscription/);
+  assert.match(partner, /pricing_plans/);
+  assert.match(billing, /getShopifyAppPricingSubscription/);
   assert.match(billing, /appSubscriptionCreate/);
-  assert.match(billing, /currentAppInstallation/);
-  assert.equal(strategy.shopify_app_pricing_migration.status, "deferred");
+  assert.equal(
+    strategy.shopify_app_pricing_migration.status,
+    "repository_ready_dashboard_configuration_pending",
+  );
 });
 
 test("four-plan product catalog is canonical and all paid plans have 10-day trials", () => {

@@ -4,25 +4,19 @@ import { sessionStorage, unauthenticated } from "../shopify.server";
 import { getCurrentSubscriptionPlan } from "../services/billing.server";
 import { getShopifyBillingMode } from "../services/shopify-app-pricing.server";
 
-const EXPECTED_STAGING_APP_URL =
-  "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev";
+const EXPECTED_PRODUCTION_APP_URL =
+  "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev";
 const SIGNATURE_MAX_AGE_SECONDS = 300;
-const SIGNED_PATH = "/internal/staging-acceptance";
+const SIGNED_PATH = "/internal/production-acceptance";
 const SHOP_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/;
 
 const encoder = new TextEncoder();
 
 function hexToBytes(value: string) {
-  if (!/^[a-f0-9]{64}$/i.test(value)) {
-    return null;
-  }
-
+  if (!/^[a-f0-9]{64}$/i.test(value)) return null;
   const pairs = value.match(/.{2}/g);
   if (!pairs) return null;
-
-  return Uint8Array.from(
-    pairs.map((pair) => Number.parseInt(pair, 16)),
-  );
+  return Uint8Array.from(pairs.map((pair) => Number.parseInt(pair, 16)));
 }
 
 async function verifySignature(
@@ -31,17 +25,12 @@ async function verifySignature(
   signatureHex: string,
 ) {
   const signature = hexToBytes(signatureHex);
-  if (!signature) {
-    return false;
-  }
+  if (!signature) return false;
 
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
-    {
-      name: "HMAC",
-      hash: "SHA-256",
-    },
+    { name: "HMAC", hash: "SHA-256" },
     false,
     ["verify"],
   );
@@ -57,17 +46,13 @@ async function verifySignature(
 function noStoreJson(payload: unknown, init: ResponseInit = {}) {
   const headers = new Headers(init.headers);
   headers.set("Cache-Control", "no-store");
-
-  return Response.json(payload, {
-    ...init,
-    headers,
-  });
+  return Response.json(payload, { ...init, headers });
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
   if (
-    process.env.APP_ENV !== "staging" ||
-    process.env.SHOPIFY_APP_URL !== EXPECTED_STAGING_APP_URL
+    process.env.APP_ENV !== "production" ||
+    process.env.SHOPIFY_APP_URL !== EXPECTED_PRODUCTION_APP_URL
   ) {
     return new Response(null, { status: 404 });
   }
@@ -75,7 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const secret = process.env.SHOPIFY_API_SECRET;
   if (!secret) {
     return noStoreJson(
-      { ok: false, error: "Staging diagnostic unavailable." },
+      { ok: false, error: "Production diagnostic unavailable." },
       { status: 503 },
     );
   }
@@ -92,17 +77,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     Math.abs(now - timestamp) > SIGNATURE_MAX_AGE_SECONDS
   ) {
     return noStoreJson(
-      { ok: false, error: "Invalid staging diagnostic request." },
+      { ok: false, error: "Invalid production diagnostic request." },
       { status: 401 },
     );
   }
 
   const message = `${timestamp}\n${shop}\n${SIGNED_PATH}`;
-  const validSignature = await verifySignature(secret, message, signature);
-
-  if (!validSignature) {
+  if (!(await verifySignature(secret, message, signature))) {
     return noStoreJson(
-      { ok: false, error: "Invalid staging diagnostic signature." },
+      { ok: false, error: "Invalid production diagnostic signature." },
       { status: 401 },
     );
   }
@@ -110,7 +93,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const storedSessions = await sessionStorage.findSessionsByShop(shop);
     const { admin, session } = await unauthenticated.admin(shop);
-
     const current = await getCurrentSubscriptionPlan(admin);
     const recognizedPlanIds = current ? [current.plan.id] : [];
 
@@ -124,9 +106,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           (storedSession) => storedSession.isOnline,
         ).length,
       },
-      adminGraphql: {
-        ok: true,
-      },
+      adminGraphql: { ok: true },
       subscriptions: {
         readOk: true,
         activeCount: current ? 1 : 0,
@@ -155,15 +135,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   } catch (error) {
     console.error(
-      "[stock-down-sort-staging-acceptance] read-only diagnostic failed",
+      "[stock-down-sort-production-acceptance] read-only diagnostic failed",
       error,
     );
 
     return noStoreJson(
-      {
-        ok: false,
-        error: "Read-only staging acceptance failed.",
-      },
+      { ok: false, error: "Read-only production acceptance failed." },
       { status: 502 },
     );
   }
