@@ -174,9 +174,11 @@ test("current Staging acceptance is bound to protected main", () => {
   assert.equal(gates.status, "accepted");
   assert.equal(gates.development_promotion_lock?.enabled, true);
   assert.equal(gates.local_dev.status, "accepted");
+  // Historical Staging remains pinned to what was deployed, while Local
+  // may advance independently before the next Staging promotion.
   assert.equal(
     gates.staging.accepted_source_ref,
-    gates.local_dev.accepted_source_ref,
+    gates.staging.deployed_source_ref,
   );
   assert.equal(gates.staging.status, "accepted");
   assert.equal(
