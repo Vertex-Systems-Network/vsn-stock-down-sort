@@ -540,7 +540,7 @@ test("Shopify App Pricing is the submission target while Billing API remains leg
   assert.equal(
     strategy.manual_pricing_legacy_compatibility
       .new_subscription_creation_allowed,
-    false,
+    "local_and_staging_only",
   );
   assert.deepEqual(
     strategy.public_plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
