@@ -336,6 +336,7 @@ Authenticated merchants can submit support requests from `/app/support`. Request
 - `config/shopify/production-release.json` — production release authorization policy
 - `config/shopify/app-store-submission.json` — App Pricing + App Store finalization record
 - `docs/shopify-app-store-submission.md` — Partner Dashboard, review and final smoke runbook
+- `docs/shopify-app-store-listing-pack.md` — prepared English listing copy, reviewer steps, screenshot plan and demo screencast outline
 
 ## Safety rules
 
