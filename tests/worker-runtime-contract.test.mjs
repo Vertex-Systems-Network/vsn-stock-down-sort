@@ -1450,7 +1450,21 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
   assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
 
   assert.equal(gates.staging.status, "accepted");
-  assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
+  // Historical Staging evidence remains bound to the deployed source even
+  // after Local/Dev has accepted a newer development head.
+  assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
+  assert.equal(
+    gates.staging.deployment_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
+  assert.equal(
+    gates.staging.shopify_release_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
+  assert.equal(
+    gates.staging.evidence_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
   assert.equal(
     gates.staging.accepted_main_ref,
     "54c66ab35734efdc929212eb4c676eb062086e64",
