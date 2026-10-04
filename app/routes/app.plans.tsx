@@ -19,6 +19,12 @@ import {
 } from "../services/billing.server";
 import { resolveSupportEntitlement } from "../services/support";
 
+const ALL_IMPLEMENTED_FEATURES = Array.from(
+  new Set(
+    BILLING_PLANS.flatMap((plan) => getImplementedPlanFeatureNames(plan.id)),
+  ),
+);
+
 const PLAN_DESCRIPTIONS: Record<PlanId, string> = {
   starter:
     "Core stock-aware sorting, exclusions and low-stock email alerts for everyday collection maintenance.",
@@ -253,6 +259,21 @@ export default function PlansPage() {
           const featured = plan.id === "growth";
           const support = resolveSupportEntitlement(plan);
           const features = getImplementedPlanFeatureNames(plan.id);
+          const planIndex = BILLING_PLANS.findIndex(
+            (candidate) => candidate.id === plan.id,
+          );
+          const previousPlan =
+            planIndex > 0 ? BILLING_PLANS[planIndex - 1] : null;
+          const previousFeatures = new Set(
+            previousPlan
+              ? getImplementedPlanFeatureNames(previousPlan.id)
+              : [],
+          );
+          const addedFeatures = features.filter(
+            (feature) =>
+              !previousFeatures.has(feature) &&
+              feature !== "Priority support entitlement",
+          );
 
           return (
             <article
@@ -291,10 +312,21 @@ export default function PlansPage() {
                     " every 30 days"}
               </div>
 
+              <div className="vsn-plan-summary">
+                {previousPlan
+                  ? "Everything in " +
+                    previousPlan.name +
+                    ", plus " +
+                    addedFeatures.length +
+                    " capability" +
+                    (addedFeatures.length === 1 ? "" : "ies")
+                  : features.length +
+                    " core capabilities included from day one"}
+              </div>
+
               <ul>
-                <li>Unlimited products & collections</li>
                 <li>{support.label}</li>
-                {features.slice(1, 7).map((feature) => (
+                {addedFeatures.map((feature) => (
                   <li key={feature}>{feature}</li>
                 ))}
               </ul>
@@ -383,6 +415,28 @@ export default function PlansPage() {
                 <td key={plan.id}>{resolveSupportEntitlement(plan).label}</td>
               ))}
             </tr>
+            {ALL_IMPLEMENTED_FEATURES.map((feature) => (
+              <tr key={feature}>
+                <th scope="row">{feature}</th>
+                {BILLING_PLANS.map((plan) => {
+                  const included =
+                    getImplementedPlanFeatureNames(plan.id).includes(feature);
+
+                  return (
+                    <td key={plan.id}>
+                      <span
+                        className={
+                          included ? "vsn-feature-check" : "vsn-feature-empty"
+                        }
+                        aria-label={included ? "Included" : "Not included"}
+                      >
+                        {included ? "✓ Included" : "—"}
+                      </span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

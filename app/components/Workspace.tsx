@@ -22,6 +22,7 @@ type IconName =
   | "alerts"
   | "integrations"
   | "plans"
+  | "documentation"
   | "support"
   | "menu"
   | "collapse";
@@ -87,6 +88,13 @@ function Icon({ name }: { name: IconName }) {
       <>
         <rect x="4" y="5" width="16" height="14" rx="2" />
         <path d="M7 9h10M7 13h6" />
+      </>
+    ),
+    documentation: (
+      <>
+        <path d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3Z" />
+        <path d="M8 8h6M8 12h6M8 16h4" />
+        <path d="M17 7.5h2a2 2 0 0 1 2 2V20h-4" />
       </>
     ),
     support: (
@@ -160,6 +168,11 @@ export function Workspace({
       { to: "/app/alerts", label: "Alerts", icon: "alerts" },
       { to: "/app/integrations", label: "Integrations", icon: "integrations" },
       { to: "/app/plans", label: "Plans", icon: "plans" },
+      {
+        to: "/app/documentation",
+        label: "Documentation",
+        icon: "documentation",
+      },
       { to: "/app/support", label: "Help center", icon: "support" },
     ],
     [],
@@ -210,12 +223,14 @@ export function Workspace({
           className="vsn-sidebar-collapse"
           type="button"
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-          title={collapsed ? "Expand navigation" : "Collapse navigation"}
           onClick={() => setCollapsed((value) => !value)}
         >
           <Icon name="collapse" />
           <span className="vsn-nav-label">
             {collapsed ? "Expand menu" : "Collapse menu"}
+          </span>
+          <span className="vsn-nav-tooltip" role="tooltip">
+            {collapsed ? "Expand navigation" : "Collapse navigation"}
           </span>
         </button>
 
@@ -235,7 +250,7 @@ export function Workspace({
               key={to}
               to={{ pathname: to, search }}
               end={to === "/app"}
-              title={collapsed ? label : undefined}
+              aria-label={collapsed ? label : undefined}
               className={({ isActive }) =>
                 isActive ? "vsn-nav-link active" : "vsn-nav-link"
               }
@@ -244,6 +259,9 @@ export function Workspace({
                 <Icon name={icon} />
               </span>
               <span className="vsn-nav-label">{label}</span>
+              <span className="vsn-nav-tooltip" role="tooltip">
+                {label}
+              </span>
             </NavLink>
           ))}
         </nav>
