@@ -213,6 +213,8 @@ jobs:
                       raise RuntimeError("unexpected environment")
                   if payload.get("billingTestMode") is not False:
                       raise RuntimeError("production billing test mode is not false")
+                  if payload.get("billingMethod") != "shopify_app_pricing":
+                      raise RuntimeError("production billing method is not Shopify App Pricing")
                   if payload.get("database") != "postgresql":
                       raise RuntimeError("unexpected database mode")
 
