@@ -5,8 +5,8 @@
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-10 repository implementation and the previous Local → Staging → Live release cycle are verified complete. Shopify Production Release #2 / run 37151020224 released stock-down-sort-production-930bb2039244-2 successfully, Live evidence was recorded by PR #139, and final release evidence was reverse-synced to development by PR #140.",
-  "next_valid_work_unit": "Repository development through PHASE-10 is complete. In the final acceptance cycle, items 1-3 are complete; item 5 now needs Partner Dashboard Manual Pricing confirmation, then continue item 4 Shopify App Store submission and item 6 final merchant smoke test. No new Staging or Production promotion until all six items are complete.",
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. Global Vertex UI alignment merged in PR #151. AI-Native plan audit PR #152 exact head 3a520d1738f0befb7fd6960bec4b968ed42a5c8a passed App Validation #561 / run 37170586736, including the new 26-option AI-Native plan alignment contract.",
+  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan: no additional repository feature development is identified by the 26-option audit. In the final acceptance cycle, the remaining gates are external/manual: confirm Partner Dashboard Manual Pricing for item 5, complete Shopify App Store submission item 4, then perform item 6 final merchant smoke test. No new Staging or Production promotion until all six items are complete.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,17 +24,17 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "The previous release cycle is accepted in Local, Staging and Live. New finalization changes, including the Unlimited USD 70 catalog, remain development-only and require fresh CI/runtime evidence before any future promotion.",
+  "qa_readiness": "Repository development through PHASE-10 plus current UI/billing/AI-plan alignment is CI-green. App Validation #561 / run 37170586736 passed lint, typecheck, PHASE-02 through PHASE-10 contracts, UI/billing recovery, the 26-option AI-Native plan alignment contract, Worker build and both Cloudflare dry-runs. New finalization changes remain development-only until external gates close.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "08c5bd1367efef96ddc3e9ca4f563d6ae47942c3",
+  "last_reconciled_repository_ref": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a",
   "last_reconciled_at": "2026-10-04",
-  "notes": "PHASE-01 through PHASE-10 are complete. The previous production release remains accepted. Current development finalization changes must remain on development until all six finalization items are closed; Unlimited is now USD 70 / 30 days / 10-day trial in the next development catalog.",
+  "notes": "PHASE-01 through PHASE-10 are complete. The AI-Native audit confirms all 26 selected options are runtime-implemented, plan-assigned, module-owned, documented and source-evidenced. MOD-BILLING now owns the full runtime capability catalog. App Validation SCOPES and README include read_locations for multi-location inventory. Remaining work is external/manual finalization only; promotion lock remains enabled.",
   "ci_evidence": {
-    "workflow_run": 478,
-    "run_id": 37120204165,
+    "workflow_run": 561,
+    "run_id": 37170586736,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "b084cf80d2a67128ae4426cfd4949d721002c945",
+    "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a",
     "completion_evidence_pr_number": 122,
     "completion_evidence_pr_head_sha": "f0af4d767719e067d45a3841938b9da6290f0b48",
     "completion_evidence_pr_validation_run": 37120141234,
@@ -74,7 +74,9 @@
     "phase_10_validation_run": 37126630330,
     "phase_10_validation_number": 496,
     "phase_10_validation_conclusion": "success",
-    "phase_10_merge_sha": "cc3a6879b7d685f6730dbe3e447caebd4e05c988"
+    "phase_10_merge_sha": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
+    "ai_native_plan_alignment_contract": "passed",
+    "ui_billing_recovery_contract": "passed"
   },
   "batch_06_09": {
     "scope": [
@@ -130,7 +132,7 @@
         "id": 1,
         "title": "Repository state reconciliation",
         "status": "complete",
-        "evidence": "App Validation #521 / run 37152214918 passed on PR #141 head 1e437db062e60e9a621dd4265bacb48fd136d571."
+        "evidence": "Repository state was re-audited after global UI and billing fixes. AI-Native plan audit PR #152 exact head 3a520d1738f0befb7fd6960bec4b968ed42a5c8a passed App Validation #561 / run 37170586736 including 26-option cross-layer alignment."
       },
       {
         "id": 2,
@@ -163,10 +165,10 @@
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 521,
-      "run_id": 37152214918,
+      "run_number": 561,
+      "run_id": 37170586736,
       "conclusion": "success",
-      "validated_head_sha": "1e437db062e60e9a621dd4265bacb48fd136d571"
+      "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a"
     }
   },
   "billing_strategy": {
@@ -175,5 +177,26 @@
     "policy_file": "config/shopify/billing-strategy.json",
     "dashboard_confirmation_required": true,
     "shopify_app_pricing_migration": "deferred"
+  },
+  "ai_plan_alignment": {
+    "status": "complete_for_repository_development",
+    "runtime_option_count": 26,
+    "option_bank_alignment": "26_of_26_selected_and_implemented",
+    "plan_assignment_alignment": "26_of_26_assigned",
+    "module_ownership_alignment": "26_of_26_owned",
+    "documentation_alignment": "26_of_26_documented",
+    "source_evidence_alignment": "26_of_26_verified",
+    "shopify_scope_alignment": [
+      "read_products",
+      "write_products",
+      "read_inventory",
+      "read_locations",
+      "read_publications",
+      "write_publications"
+    ],
+    "contract": "tests/ai-plan-alignment-contract.test.mjs",
+    "validation_run": 37170586736,
+    "validation_number": 561,
+    "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a"
   }
 }

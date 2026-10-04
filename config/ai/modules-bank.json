@@ -279,7 +279,24 @@
         "OPT-TAG-EXCLUSIONS",
         "OPT-PINNED-PRODUCTS",
         "OPT-ADVANCED-SORT-RULES",
-        "OPT-MULTI-LOCATION"
+        "OPT-MULTI-LOCATION",
+        "OPT-AUTO-HIDE-PRODUCTS",
+        "OPT-AUTO-REPUBLISH",
+        "OPT-SEO-SAFE-HIDE",
+        "OPT-HIDE-SOLD-OUT-VARIANTS",
+        "OPT-VARIANT-RESTORE",
+        "OPT-ANALYTICS",
+        "OPT-ACTIVITY-HISTORY",
+        "OPT-CSV-EXPORT",
+        "OPT-SCHEDULED-AUTOMATION",
+        "OPT-RULE-BUILDER",
+        "OPT-LOW-STOCK-EMAIL",
+        "OPT-SLACK-ALERTS",
+        "OPT-MARKETS",
+        "OPT-B2B-CATALOGS",
+        "OPT-SALES-CHANNEL-RULES",
+        "OPT-API-INTEGRATIONS",
+        "OPT-PRIORITY-SUPPORT"
       ],
       "data_entities": [
         "Shopify AppSubscription"
@@ -318,7 +335,8 @@
       "update_notes": [
         "PHASE-02 runtime entitlements now include exclusions, pinned products, advanced sorting and multi-location inventory according to the canonical plan tiers."
       ],
-      "removal_or_deprecation_notes": []
+      "removal_or_deprecation_notes": [],
+      "description": "Four-tier Shopify billing and server-side capability entitlements."
     },
     {
       "id": "MOD-SORTING-CONTROLS",

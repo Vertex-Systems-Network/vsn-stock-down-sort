@@ -129,7 +129,7 @@ Normal Local development requires **no** Neon API key, Neon project ID,
 `DATABASE_URL`, or `DIRECT_URL`. The Local SQLite database is gitignored and
 must never be committed.
 
-Local `SCOPES` must include `read_products,write_products,read_inventory,read_publications,write_publications`.
+Local `SCOPES` must include `read_products,write_products,read_inventory,read_locations,read_publications,write_publications`. `read_locations` is required by the Pro/Unlimited multi-location inventory capability.
 
 `npm run dev` explicitly uses `shopify.app.local.toml`. The repository Local
 runner regenerates/migrates the SQLite schema before React Router starts.
@@ -154,6 +154,19 @@ Staging begin.
 
 Do not manually switch the Local app to Staging or Production with
 `shopify app config use`.
+
+## AI-Native capability alignment
+
+The AI-Native product contract currently contains **26 selected runtime capabilities** across Starter, Growth, Pro, and Unlimited. The canonical sources are:
+
+- `config/ai/product-plan.json` — plan pricing, trials, hierarchy, support and option assignment
+- `config/ai/options-bank.json` — option requirement/evidence metadata
+- `config/ai/modules-bank.json` — module ownership
+- `tests/ai-plan-alignment-contract.test.mjs` — machine-checkable cross-layer alignment
+
+Every runtime option must be selected + implemented in the option bank, assigned to at least one plan, owned by a module, represented in merchant documentation, and backed by repository implementation evidence. `MOD-BILLING` owns the complete runtime option catalog because Shopify subscription resolution is the source of all plan entitlements.
+
+The App Validation workflow also verifies the full Shopify scope contract required by the implemented feature set, including `read_locations` for multi-location inventory and `read_publications`/`write_publications` for commerce-context visibility.
 
 ## Validation
 

@@ -14,11 +14,19 @@
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
-      "ux_implications": [],
-      "data_implications": [],
+      "technical_implications": [
+        "Implemented by paginated Shopify collection/product reads; VSN does not impose a product or collection count ceiling."
+      ],
+      "ux_implications": [
+        "Plan tiers must never imply product-count or collection-count upgrade limits."
+      ],
+      "data_implications": [
+        "Pagination processes the Shopify catalog in bounded API pages without storing a VSN catalog-limit counter."
+      ],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "AI plan alignment contract verifies every plan has unlimited catalog limits and the sorter paginates collections."
+      ]
     },
     {
       "id": "OPT-SOLD-OUT-PUSH-DOWN",
@@ -33,11 +41,15 @@
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by the certified collection sorter, which partitions movable products into pinned, available and sold-out groups and places sold-out products last."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "PHASE-02 sorting contract and AI plan alignment contract verify available-first / sold-out-last behavior."
+      ]
     },
     {
       "id": "OPT-REALTIME-RESORT",
@@ -52,11 +64,15 @@
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by inventory_levels/update and products/update webhook paths using Cloudflare Queue in hosted environments with deterministic direct fallback locally."
+      ],
       "ux_implications": [],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "Worker runtime, PHASE-02 and AI plan alignment contracts verify webhook-triggered re-sort paths."
+      ]
     },
     {
       "id": "OPT-RESTORE-ORIGINAL-POSITION",
@@ -71,11 +87,17 @@
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
+      "technical_implications": [
+        "Implemented by persisting the pre-VSN Shopify collection sort order and restoring it only when the merchant chooses Disable & restore."
+      ],
       "ux_implications": [],
-      "data_implications": [],
+      "data_implications": [
+        "CollectionSetting.previousSortOrder preserves the merchant-owned Shopify sort mode needed for safe restore."
+      ],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "PHASE-02 and AI plan alignment contracts verify previous-sort capture and explicit restore behavior."
+      ]
     },
     {
       "id": "OPT-MANUAL-BULK-SORT",
@@ -90,11 +112,17 @@
       ],
       "dependencies": [],
       "conflicts": [],
-      "technical_implications": [],
-      "ux_implications": [],
+      "technical_implications": [
+        "Implemented by authenticated Sort now plus Enable all / Disable all controls; hosted bulk enablement can enqueue bounded sort jobs."
+      ],
+      "ux_implications": [
+        "Collections UI exposes per-row Sort now and global Enable all / Disable all controls."
+      ],
       "data_implications": [],
       "security_implications": [],
-      "qa_implications": []
+      "qa_implications": [
+        "PHASE-02, worker runtime and AI plan alignment contracts verify manual and bulk control paths."
+      ]
     },
     {
       "id": "OPT-TAG-EXCLUSIONS",
