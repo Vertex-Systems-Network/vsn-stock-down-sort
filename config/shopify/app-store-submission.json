@@ -70,7 +70,7 @@
     {
       "id": "partner_api_client",
       "status": "pending",
-      "requirement": "Create a Partner API client with Manage apps permission and configure hosted runtime credentials."
+      "requirement": "Create a Partner API client with Manage apps permission and configure SHOPIFY_PARTNER_API_ACCESS_TOKEN in hosted environments. Organization ID and per-environment App GIDs are already committed runtime configuration."
     },
     {
       "id": "listing_content",
@@ -107,5 +107,12 @@
       "status": "pending",
       "requirement": "After the accepted release, run Final Production Merchant Smoke and record PASS evidence."
     }
-  ]
+  ],
+  "partner_api_runtime": {
+    "organization_id": "214077920",
+    "staging_app_gid": "gid://shopify/App/430575026177",
+    "production_app_gid": "gid://shopify/App/405802811393",
+    "identifiers_source": "existing successful Shopify CLI workflow evidence",
+    "only_secret_required": "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
+  }
 }
