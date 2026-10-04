@@ -10,6 +10,7 @@ import {
   getActivityHistory,
   getAutomationAnalytics,
 } from "../services/analytics.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -103,7 +104,7 @@ export default function AnalyticsPage() {
   } = useLoaderData<typeof loader>();
 
   return (
-    <s-page heading="Analytics & activity">
+    <PageShell heading="Analytics & activity">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -255,6 +256,6 @@ export default function AnalyticsPage() {
           )}
         </s-section>
       ) : null}
-    </s-page>
+    </PageShell>
   );
 }
