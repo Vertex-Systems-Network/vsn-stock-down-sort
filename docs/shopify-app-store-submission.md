@@ -28,11 +28,13 @@ Plan descriptions must be configured for every language published in the App Sto
 
 ## Partner API runtime setup
 
-Create a Partner API client with **Manage apps** permission and configure these hosted runtime values in both `cloudflare-staging` and `cloudflare-production`:
+Create a Partner API client with **Manage apps** permission. The repository has already resolved and committed the non-secret identifiers:
 
-- `SHOPIFY_PARTNER_ORG_ID`
-- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
-- `SHOPIFY_APP_GID`
+- Partner organization: `214077920`
+- Staging app: `gid://shopify/App/430575026177`
+- Production app: `gid://shopify/App/405802811393`
+
+The only Partner API value that must be configured as a GitHub Environment / Worker secret in both hosted environments is `SHOPIFY_PARTNER_API_ACCESS_TOKEN`.
 
 Hosted Workers use `SHOPIFY_BILLING_MODE=shopify_app_pricing`.
 
