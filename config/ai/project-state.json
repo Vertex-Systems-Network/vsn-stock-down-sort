@@ -3,7 +3,7 @@
   "lifecycle_stage": "development-finalization",
   "current_phase": "PHASE-10",
   "current_module": "support-fulfillment",
-  "current_work_unit": "FINALIZATION-ISSUE-154",
+  "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
   "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option AI-Native alignment remain complete. Shopify App Pricing repository architecture, branch-aligned environment audits, resolved Partner identifiers, single-secret Partner token model, and real Partner API authentication/Manage-apps verification automation are merged to development. Development head 4ed660335fa19e42aa2138600a052feeedcec033 passed post-merge App Validation #579 / run 37196866839.",
   "next_valid_work_unit": "Repository development is complete for the current plan. In the final acceptance cycle, GitHub Issue #154 is the tracking surface. The immediate verified Staging blocker is external: create a Shopify Partner API client with Manage apps permission and configure SHOPIFY_PARTNER_API_ACCESS_TOKEN in cloudflare-staging, then rerun Environment Secrets Audit #11 / run 37196866854 so the real Partner API authentication and app-identity check can execute. Production Partner API token status remains unverified until a production-aligned audit runs. Partner Dashboard App Pricing plans, App Store submission, fresh promotion, and Final Production Merchant Smoke remain pending real external/runtime evidence.",
