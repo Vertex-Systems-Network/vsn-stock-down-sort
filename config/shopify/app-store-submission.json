@@ -59,7 +59,9 @@
     "plan_catalog_source": "config/ai/product-plan.json",
     "billing_strategy_source": "config/shopify/billing-strategy.json",
     "app_pricing_runtime_contract": "tests/shopify-app-pricing-contract.test.mjs",
-    "final_merchant_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
+    "final_merchant_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml",
+    "app_store_listing_pack": "config/shopify/app-store-listing-pack.json",
+    "app_store_listing_pack_doc": "docs/shopify-app-store-listing-pack.md"
   },
   "external_gates": [
     {
@@ -74,8 +76,8 @@
     },
     {
       "id": "listing_content",
-      "status": "pending",
-      "requirement": "Complete at least one English App Store listing and all required listing fields/assets."
+      "status": "repository_copy_ready_external_dashboard_and_assets_pending",
+      "requirement": "Enter the prepared English listing copy in Partner Dashboard and upload compliant actual UI media/screenshots."
     },
     {
       "id": "emergency_contact",
@@ -89,8 +91,8 @@
     },
     {
       "id": "review_instructions",
-      "status": "pending",
-      "requirement": "Provide reviewer instructions/test-store access needed to exercise billing and core app flows."
+      "status": "repository_instructions_ready_external_submission_pending",
+      "requirement": "Enter the prepared reviewer instructions/test-store steps and attach the required demo screencast."
     },
     {
       "id": "automated_submission_checks",
@@ -127,5 +129,13 @@
     "local_dev": "Use Dev app with Billing API test subscriptions.",
     "staging": "Use Staging app with Billing API test subscriptions.",
     "live_app_pricing": "Install the Live app on a Partner development store and select each public Shopify App Pricing plan at no charge before submission."
+  },
+  "repository_preparation": {
+    "english_listing_copy": "ready",
+    "reviewer_instructions": "ready",
+    "screenshot_capture_plan": "ready_external_capture_pending",
+    "demo_screencast_script": "ready_external_recording_pending",
+    "live_app_pricing_audit": "ready",
+    "listing_pack_source": "config/shopify/app-store-listing-pack.json"
   }
 }
