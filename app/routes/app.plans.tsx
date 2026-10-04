@@ -19,6 +19,7 @@ import {
   getSubscriptionMismatchDiagnostic,
 } from "../services/billing.server";
 import { resolveSupportEntitlement } from "../services/support";
+import { getShopifyBillingMode } from "../services/shopify-app-pricing.server";
 
 const ALL_IMPLEMENTED_FEATURES = Array.from(
   new Set(
@@ -39,10 +40,9 @@ const PLAN_DESCRIPTIONS: Record<PlanId, string> = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  const [current, activeSubscription] = await Promise.all([
-    getCurrentSubscriptionPlan(admin),
-    getAnyActiveSubscription(admin),
-  ]);
+  const current = await getCurrentSubscriptionPlan(admin);
+  const activeSubscription =
+    current?.subscription ?? (await getAnyActiveSubscription(admin));
 
   return {
     current,
@@ -53,6 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         : null,
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
+    billingMethod: getShopifyBillingMode(),
   };
 }
 
@@ -63,6 +64,7 @@ export default function PlansPage() {
     subscriptionMismatch,
     environment,
     billingTestMode,
+    billingMethod,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
 
@@ -73,6 +75,10 @@ export default function PlansPage() {
   const activeKnownPlan = current?.plan ?? null;
   const activeIsUnknown =
     Boolean(activeSubscription) && activeKnownPlan === null;
+  const manualMigrationRequired =
+    billingMethod === "shopify_app_pricing" &&
+    Boolean(current) &&
+    current?.source !== "shopify_app_pricing";
 
   async function runBilling(formData: FormData, pending: string) {
     if (submitting) return;
@@ -169,10 +175,24 @@ export default function PlansPage() {
         description="Every plan keeps product and collection counts unlimited. Upgrade capabilities as your merchandising workflow grows."
       />
 
-      {billingTestMode ? (
+      {billingMethod === "shopify_app_pricing" ? (
         <div className="vsn-notice">
-          <strong>Test billing is enabled.</strong> This {environment} environment
+          <strong>Shopify-hosted pricing is enabled.</strong> Plan selection,
+          approval and plan changes are handled by Shopify. In eligible
+          development stores, App Pricing can be tested without a real charge.
+        </div>
+      ) : billingTestMode ? (
+        <div className="vsn-notice">
+          <strong>Legacy test billing is enabled.</strong> This {environment} environment
           uses Shopify test subscriptions. No real merchant charge is created.
+        </div>
+      ) : null}
+
+      {manualMigrationRequired ? (
+        <div className="vsn-notice warning">
+          <strong>Billing migration required.</strong> This store still uses a
+          Billing API subscription. Keep its existing access, but migrate the
+          subscription to Shopify App Pricing before changing plans.
         </div>
       ) : null}
 
@@ -235,14 +255,18 @@ export default function PlansPage() {
 
       {result?.confirmationUrl ? (
         <div className="vsn-notice" role="status">
-          Shopify approval is ready.{" "}
+          {billingMethod === "shopify_app_pricing"
+            ? "Shopify plan selection is ready. "
+            : "Shopify approval is ready. "}
           <a
             className="vsn-approval-link"
             href={result.confirmationUrl}
             target="_top"
             rel="noreferrer"
           >
-            Continue to Shopify plan approval
+            {billingMethod === "shopify_app_pricing"
+              ? "Continue to Shopify pricing"
+              : "Continue to Shopify plan approval"}
           </a>
           . If Shopify did not open automatically, use this link.
         </div>
@@ -343,6 +367,7 @@ export default function PlansPage() {
                 disabled={
                   submitting ||
                   activeIsUnknown ||
+                  manualMigrationRequired ||
                   currentPlan ||
                   Boolean(result?.confirmationUrl)
                 }
@@ -352,9 +377,15 @@ export default function PlansPage() {
                   ? "Opening Shopify…"
                   : currentPlan
                     ? "Current plan"
-                    : activeKnownPlan
-                      ? "Switch to " + plan.name
-                      : "Start " + plan.trial_days + "-day trial"}
+                    : manualMigrationRequired
+                      ? "Migration required"
+                      : billingMethod === "shopify_app_pricing"
+                        ? activeKnownPlan
+                          ? "Change plan in Shopify"
+                          : "Choose in Shopify"
+                        : activeKnownPlan
+                          ? "Switch to " + plan.name
+                          : "Start " + plan.trial_days + "-day trial"}
               </button>
 
               <div className="vsn-plan-status">
@@ -449,7 +480,9 @@ export default function PlansPage() {
         new subscription or plan change.
       </div>
 
-      {activeSubscription && !activeIsUnknown ? (
+      {activeSubscription &&
+      !activeIsUnknown &&
+      current?.source !== "shopify_app_pricing" ? (
         <div className="vsn-hero-actions">
           <button
             className="vsn-button danger"
