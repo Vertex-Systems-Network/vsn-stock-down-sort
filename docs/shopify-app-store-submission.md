@@ -30,7 +30,7 @@ Plan descriptions must be configured for every language published in the App Sto
 
 Create a Partner API client with **Manage apps** permission. The repository has already resolved and committed the non-secret identifiers:
 
-- Partner organization: `214077920`
+- Partner organization: `4859256`
 - Staging app: `gid://shopify/App/430575026177`
 - Production app: `gid://shopify/App/405802811393`
 
