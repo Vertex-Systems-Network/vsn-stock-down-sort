@@ -112,7 +112,7 @@ The Staging client ID remains a placeholder in git and is injected from `cloudfl
 
 ### Live App Pricing pre-submission test
 
-Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, USD amount, monthly interval and 10-day trial against the Live Partner API subscription state.
+Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, monthly interval and 10-day trial. On a same-Partner development store, the active subscription must show an effective USD 0.00 no-charge price while the historical plan event must still match the configured Live public catalog amount.
 
 ## Local development
 
