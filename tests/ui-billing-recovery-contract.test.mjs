@@ -61,10 +61,10 @@ test("embedded app uses the same branded workspace pattern as VSN Metafields", (
   assert.ok(workspace.includes("Need a hand?"));
   assert.ok(styles.includes(".vsn-hero"));
   assert.ok(styles.includes(".vsn-plan-grid"));
-  assert.ok(styles.includes("#3f4245"));
+  assert.ok(styles.includes("#3e4144"));
   assert.ok(styles.includes("#625ba8"));
-  assert.ok(styles.includes("#5ac8d6"));
-  assert.ok(styles.includes("#6188c6"));
+  assert.ok(styles.includes("#5cc9d7"));
+  assert.ok(styles.includes("#6488c6"));
   assert.ok(home.includes("Available first. Sold out last. Automatically."));
   assert.ok(home.includes("vsn-task-grid"));
 });
@@ -113,10 +113,15 @@ test("workspace UX improvements stay inside the app and expose beginner document
   const plans = read("app/routes/app.plans.tsx");
 
   assert.ok(styles.includes("padding: 22px 8px 40px"));
-  assert.ok(styles.includes("inline-size: calc(100% - min(12vw, 190px))"));
+  assert.ok(styles.includes("inline-size: calc(100% - min(6vw, 96px))"));
   assert.equal(home.includes("vsn-collection-toggle"), false);
+  assert.ok(home.includes('className="vsn-collections-table"'));
+  assert.ok(home.includes('className="vsn-row-actions"'));
+  assert.ok(home.includes('className="vsn-row-action primary"'));
+  assert.ok(home.includes('className="vsn-row-action toggle"'));
   assert.ok(home.includes('onClick={() => runAction("enable", collection.id)}'));
   assert.ok(home.includes('runAction("disable", collection.id, false)'));
+  assert.equal(home.includes("<s-button-group>"), false);
   assert.ok(home.includes("Enable all collections"));
   assert.ok(home.includes("Disable all collections"));
   assert.equal(home.includes('slot="primary-action"'), false);
@@ -127,9 +132,9 @@ test("workspace UX improvements stay inside the app and expose beginner document
   assert.ok(workspace.includes("/app/documentation"));
 
   assert.ok(styles.includes("--vsn-accent: #625ba8"));
-  assert.ok(styles.includes("--vsn-accent-teal: #5ac8d6"));
-  assert.ok(styles.includes("--vsn-accent-blue: #6188c6"));
-  assert.ok(styles.includes("--vsn-ink: #3f4245"));
+  assert.ok(styles.includes("--vsn-accent-teal: #5cc9d7"));
+  assert.ok(styles.includes("--vsn-accent-blue: #6488c6"));
+  assert.ok(styles.includes("--vsn-ink: #3e4144"));
 
   assert.ok(docs.includes("Learn VSN Stock Down Sort from zero."));
   assert.ok(docs.includes("What it does:"));
@@ -149,4 +154,19 @@ test("collections page does not render escaped newline text", () => {
   const home = read("app/routes/app._index.tsx");
 
   assert.equal(home.includes('/>\\n      <s-section padding="none">'), false);
+});
+
+
+test("collection table renders visible branded row actions instead of shadow button groups", () => {
+  const home = read("app/routes/app._index.tsx");
+  const styles = read("app/styles/workspace.css");
+
+  assert.ok(home.includes("<table className=\"vsn-collections-table\">"));
+  assert.ok(home.includes(">Enable</button>") || home.includes('"Enable"'));
+  assert.ok(home.includes(">Disable</button>") || home.includes('"Disable"'));
+  assert.ok(home.includes("Sort now"));
+  assert.ok(home.includes("Rules"));
+  assert.ok(home.includes("vsn-status-badge"));
+  assert.ok(styles.includes("min-width: 330px"));
+  assert.ok(styles.includes("background: var(--vsn-accent)"));
 });

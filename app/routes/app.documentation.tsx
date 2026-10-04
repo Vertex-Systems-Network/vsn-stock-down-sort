@@ -291,9 +291,9 @@ function UiSnapshot({
       >
         <rect width="720" height="210" fill="#f4f6fa" />
         <rect width="720" height="38" fill="#ffffff" />
-        <rect x="14" y="9" width="22" height="22" rx="6" fill="#3f4245" />
+        <rect x="14" y="9" width="22" height="22" rx="6" fill="#3e4144" />
         <text x="21" y="25" fill="#ffffff" fontSize="12" fontWeight="700">V</text>
-        <text x="46" y="24" fill="#3f4245" fontSize="12" fontWeight="700">
+        <text x="46" y="24" fill="#3e4144" fontSize="12" fontWeight="700">
           VSN | Stock Down Sort
         </text>
         <rect x="0" y="38" width="118" height="172" fill="#ffffff" />
@@ -304,15 +304,15 @@ function UiSnapshot({
         <text x="138" y="67" fill="#625ba8" fontSize="8" fontWeight="700">
           {screen.toUpperCase()}
         </text>
-        <text x="138" y="91" fill="#3f4245" fontSize="16" fontWeight="700">
+        <text x="138" y="91" fill="#3e4144" fontSize="16" fontWeight="700">
           {option.length > 48 ? option.slice(0, 45) + "…" : option}
         </text>
         <rect x="138" y="108" width="548" height="70" rx="10" fill="#ffffff" stroke="#dde1ea" />
         <rect x="154" y="123" width="190" height="10" rx="5" fill="#e2e4eb" />
         <rect x="154" y="143" width="310" height="8" rx="4" fill="#f0f1f5" />
         <rect x="154" y="159" width="245" height="8" rx="4" fill="#f0f1f5" />
-        <rect x="548" y="128" width="116" height="32" rx="7" fill="#5ac8d6" />
-        <text x="576" y="148" fill="#3f4245" fontSize="10" fontWeight="700">
+        <rect x="548" y="128" width="116" height="32" rx="7" fill="#5cc9d7" />
+        <text x="576" y="148" fill="#3e4144" fontSize="10" fontWeight="700">
           {action}
         </text>
         <text x="138" y="197" fill="#72767b" fontSize="9">
