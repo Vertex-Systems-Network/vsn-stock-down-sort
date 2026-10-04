@@ -5,8 +5,8 @@
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. AI-Native 26-option alignment remains complete. Shopify App Pricing repository migration PR #153 exact head 96bfa231042726033d7403bf817846427284bddb passed App Validation #566 / run 37195061429, including Partner API entitlement reads, hosted pricing flow, legacy Billing API compatibility, final production merchant smoke automation, Worker build and both Cloudflare dry-runs.",
-  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan and Shopify App Pricing submission architecture. In the final acceptance cycle, configure the four Shopify App Pricing plans and Partner API client/credentials in the Partner Dashboard and hosted environments, complete the App Store listing/submission, promote the accepted source through Local → Staging → Live, then run Final Production Merchant Smoke. No production finalization item may be marked complete without real external/runtime evidence.",
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. AI-Native 26-option alignment remains complete. Shopify App Pricing repository migration PR #153 exact head 3ec30b01dcf6d8845d6f24902723eb93eebc3762 passed final App Validation #567 / run 37195136199, then merged to development as 34da8391b7359146986e818fa271433d07b8a223.",
+  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan and Shopify App Pricing submission architecture. In the final acceptance cycle, external/runtime finalization is tracked in GitHub Issue #154: configure Partner Dashboard App Pricing and Partner API credentials, complete the App Store listing/submission, promote the exact accepted source through Local → Staging → Live, then run Final Production Merchant Smoke. Do not mark external gates complete without real evidence.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,17 +24,17 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and Shopify App Pricing migration is CI-green. App Validation #566 / run 37195061429 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, Worker build and both Cloudflare dry-runs. Partner Dashboard configuration and real runtime acceptance remain external gates.",
+  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and Shopify App Pricing migration is CI-green. Final exact-head App Validation #567 / run 37195136199 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, Worker build and both Cloudflare dry-runs on PR #153 head 3ec30b01dcf6d8845d6f24902723eb93eebc3762.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "96bfa231042726033d7403bf817846427284bddb",
+  "last_reconciled_repository_ref": "34da8391b7359146986e818fa271433d07b8a223",
   "last_reconciled_at": "2026-10-04",
   "notes": "PHASE-01 through PHASE-10 and all 26 runtime options are repository-complete. Shopify App Pricing is now the public submission target; existing Billing API subscriptions are compatibility-only until migration. Hosted Staging/Production require Partner API credentials and SHOPIFY_BILLING_MODE=shopify_app_pricing. App Store submission and final production merchant smoke remain pending external/runtime gates.",
   "ci_evidence": {
-    "workflow_run": 566,
-    "run_id": 37195061429,
+    "workflow_run": 567,
+    "run_id": 37195136199,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "96bfa231042726033d7403bf817846427284bddb",
+    "validated_head_sha": "3ec30b01dcf6d8845d6f24902723eb93eebc3762",
     "completion_evidence_pr_number": 122,
     "completion_evidence_pr_head_sha": "f0af4d767719e067d45a3841938b9da6290f0b48",
     "completion_evidence_pr_validation_run": 37120141234,
@@ -100,7 +100,7 @@
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
   "active_issue_status": "none",
-  "active_issue_note": "No open repository implementation issue. Runtime Issue #125 is closed; its Local, Staging and Live acceptance evidence is recorded. Current work is the six-item development-only finalization track.",
+  "active_issue_note": "No open repository implementation issue. Runtime Issue #125 is closed. External/runtime finalization is tracked by Issue #154; it is not treated as an active repository implementation issue because its remaining gates require Partner Dashboard, Shopify review, environment configuration, promotion, and real merchant runtime evidence.",
   "runtime_track": {
     "issue": 125,
     "issue_status": "closed",
@@ -168,11 +168,14 @@
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 566,
-      "run_id": 37195061429,
+      "run_number": 567,
+      "run_id": 37195136199,
       "conclusion": "success",
-      "validated_head_sha": "96bfa231042726033d7403bf817846427284bddb"
-    }
+      "validated_head_sha": "3ec30b01dcf6d8845d6f24902723eb93eebc3762",
+      "merged_development_sha": "34da8391b7359146986e818fa271433d07b8a223"
+    },
+    "tracking_issue": 154,
+    "tracking_issue_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/154"
   },
   "billing_strategy": {
     "status": "repository_ready_dashboard_cutover_pending",
