@@ -72,7 +72,7 @@
     "new_subscription_flow": "Shopify-hosted pricing_plans page",
     "direct_appSubscriptionCreate_when_app_pricing_enabled": false,
     "public_partner_identifiers": {
-      "organization_id": "214077920",
+      "organization_id": "4859256",
       "staging_app_gid": "gid://shopify/App/430575026177",
       "production_app_gid": "gid://shopify/App/405802811393"
     },
