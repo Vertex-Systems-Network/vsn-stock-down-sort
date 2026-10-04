@@ -77,16 +77,29 @@ test("plan UI blocks unsafe manual-to-App-Pricing switches", () => {
 });
 
 test("hosted Workers and promotion workflows carry Partner API configuration", () => {
-  for (const path of ["wrangler.staging.jsonc", "wrangler.production.jsonc"]) {
+  const expectedRuntime = {
+    "wrangler.staging.jsonc": "gid://shopify/App/430575026177",
+    "wrangler.production.jsonc": "gid://shopify/App/405802811393",
+  };
+
+  for (const [path, appGid] of Object.entries(expectedRuntime)) {
     const source = read(path);
-    assert.ok(source.includes('"SHOPIFY_BILLING_MODE": "shopify_app_pricing"'), path);
-    for (const name of [
-      "SHOPIFY_PARTNER_ORG_ID",
-      "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
-      "SHOPIFY_APP_GID",
-    ]) {
-      assert.ok(source.includes(name), path + " missing " + name);
-    }
+    const config = JSON.parse(source);
+    assert.equal(config.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing", path);
+    assert.equal(config.vars.SHOPIFY_PARTNER_ORG_ID, "214077920", path);
+    assert.equal(config.vars.SHOPIFY_APP_GID, appGid, path);
+    assert.ok(
+      config.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+      path + " missing Partner API token secret",
+    );
+    assert.ok(
+      !config.secrets.required.includes("SHOPIFY_PARTNER_ORG_ID"),
+      path + " must not treat Partner organization ID as a secret",
+    );
+    assert.ok(
+      !config.secrets.required.includes("SHOPIFY_APP_GID"),
+      path + " must not treat App GID as a secret",
+    );
   }
 
   for (const path of [
@@ -104,6 +117,18 @@ test("hosted Workers and promotion workflows carry Partner API configuration", (
     ]) {
       assert.ok(source.includes(name), path + " missing " + name);
     }
+    assert.ok(
+      source.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}"),
+      path + " must secret-back the Partner API token",
+    );
+    assert.ok(
+      !source.includes("SHOPIFY_PARTNER_ORG_ID: ${{ secrets.SHOPIFY_PARTNER_ORG_ID }}"),
+      path + " must not secret-back the organization ID",
+    );
+    assert.ok(
+      !source.includes("SHOPIFY_APP_GID: ${{ secrets.SHOPIFY_APP_GID }}"),
+      path + " must not secret-back the App GID",
+    );
   }
 });
 
