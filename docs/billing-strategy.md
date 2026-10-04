@@ -1,12 +1,20 @@
 # Billing strategy
 
-## Public submission target
+## Three Shopify app identities
 
-VSN Stock Down Sort targets **Shopify App Pricing** for the Shopify App Store submission.
+VSN Stock Down Sort intentionally uses three separate Shopify app registrations:
 
-Shopify hosts the plan-selection and approval experience. The application reads the merchant's current subscription through the Partner API `activeSubscription` query when `SHOPIFY_BILLING_MODE=shopify_app_pricing`.
+| Environment | Shopify app | Billing mode | Purpose |
+| --- | --- | --- | --- |
+| Local/Dev | VSN \| Stock Down Sort Dev | `manual_legacy`, test billing | Local development and Billing API test subscriptions |
+| Staging | VSN \| Stock Down Sort Staging | `manual_legacy`, test billing | Hosted pre-production functional/runtime testing |
+| Live/Production | VSN \| Stock Down Sort | `shopify_app_pricing` | App Store submission, public plans and merchant billing |
 
-Public catalog:
+Only the **Live/Production app** owns the Shopify App Store listing and public Shopify App Pricing catalog.
+
+## Live public pricing
+
+Canonical Live plans:
 
 - Starter — USD 10.99 / 30 days / 10-day trial
 - Growth — USD 19.99 / 30 days / 10-day trial
@@ -15,41 +23,45 @@ Public catalog:
 
 Every plan has unlimited product and collection counts. Capability entitlements remain defined by `config/ai/product-plan.json`.
 
-## Runtime configuration
+## How billing is tested
 
-Hosted App Pricing requires:
+Local/Dev and Staging do **not** need copies of the Live App Pricing plans. They use Billing API test subscriptions so environment isolation stays intact.
+
+Shopify App Pricing is tested on the **Live app itself** by installing that Live app on a development store in the same Partner organization. Shopify permits development stores to select the app's plans without a real charge. The Live audit workflow is:
+
+`.github/workflows/shopify-live-app-pricing-audit.yml`
+
+It verifies the Live app's plan handle, USD amount, monthly interval and configured 10-day trial against Partner API subscription/event data.
+
+## Live runtime configuration
+
+Live App Pricing requires:
 
 - `SHOPIFY_BILLING_MODE=shopify_app_pricing`
-- committed Partner organization ID `4859256`
-- committed per-environment app GID:
-  - Staging: `gid://shopify/App/430575026177`
-  - Production: `gid://shopify/App/405802811393`
-- secret credential `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
+- Partner organization ID `4859256`
+- Live App GID `gid://shopify/App/405802811393`
+- secret `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
 
-The Partner API client must have **Manage apps** permission. Organization ID and App GIDs are identifiers, not credentials; only the Partner API access token is stored as a hosted secret.
+The Partner API client must have the permissions required by the Live subscription queries. The application fails closed if Live App Pricing mode is enabled without usable Partner API configuration.
 
-If App Pricing mode is enabled and Partner API configuration is incomplete or the Partner API request fails, the app fails closed instead of treating a paying merchant as unsubscribed.
+## Staging runtime configuration
 
-## Merchant flow
+Staging uses:
 
-For new subscriptions and plan changes in App Pricing mode:
+- `SHOPIFY_BILLING_MODE=manual_legacy`
+- `SHOPIFY_BILLING_TEST_MODE=true`
+- the dedicated Staging Shopify client identity
+- Billing API test subscriptions for Starter/Growth/Pro/Unlimited behavior
 
-1. The app verifies the merchant session.
-2. The app reads the active subscription through the Partner API.
-3. If the merchant needs a plan, the app sends them to Shopify's hosted `pricing_plans` page.
-4. Shopify handles plan selection, charge approval, trials, billing and redirects.
-5. The app verifies the resulting active subscription through the Partner API before granting paid access.
+Staging does not depend on the Live App Store listing, Live plan handles or Partner API Active Subscription reads.
 
-The app does **not** call `appSubscriptionCreate` for new subscriptions while App Pricing mode is enabled.
+## Legacy Live Billing API compatibility
 
-## Legacy Billing API compatibility
+Existing Live Billing API subscriptions remain recognized during migration.
 
-Existing Billing API subscriptions are preserved during migration.
-
-- Current four-plan Billing API subscriptions remain recognized.
-- Legacy USD 55 / 5-day subscriptions remain mapped to Unlimited-compatible access.
-- An unmigrated Billing API merchant keeps access but cannot silently switch through the App Pricing flow; migrate the subscription first.
-- Migration can use Shopify's Partner Dashboard subscription migration tool or Shopify CLI subscription-migration commands.
-- Direct Billing API subscription creation remains available only when the explicit runtime mode is `manual_legacy`; it is not the public-submission target.
+- Existing four-plan Billing API subscriptions remain mapped to the correct capability tier.
+- Legacy USD 55 / 5-day subscriptions remain Unlimited-compatible.
+- Once Live Shopify App Pricing is enabled, the Live app must not create new Billing API subscriptions.
+- Existing Live Billing API merchants keep access until their subscriptions are migrated.
 
 Canonical machine-readable policy: `config/shopify/billing-strategy.json`.

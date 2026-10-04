@@ -44,15 +44,13 @@
   "shopify_app_pricing_migration": {
     "status": "repository_ready_dashboard_configuration_pending",
     "requires": [
-      "Configure Starter, Growth, Pro, Unlimited as Shopify App Pricing public monthly plans",
-      "Set a 10-day free trial on every public plan",
-      "Configure plan descriptions for every published listing language",
-      "Configure a welcome link back to the app",
-      "Create a Partner API client with Manage apps permission",
-      "Create a Partner API client with Manage apps permission and store only SHOPIFY_PARTNER_API_ACCESS_TOKEN as a hosted secret; organization/app identifiers are committed runtime configuration.",
-      "Set SHOPIFY_BILLING_MODE=shopify_app_pricing",
-      "Test hosted plan selection and Active Subscription API on the development/staging store",
-      "Migrate any existing Billing API subscriptions before allowing those merchants to change plans"
+      "Configure Starter, Growth, Pro, Unlimited on the Live Shopify app only.",
+      "Set a 10-day free trial on every Live public plan.",
+      "Configure plan descriptions and welcome link on the Live App Store listing.",
+      "Use the Partner API client to read Live-app subscription state.",
+      "Keep Local/Dev and Staging on manual_legacy test billing.",
+      "Test Shopify App Pricing by installing the Live app on a development store in the same Partner organization.",
+      "Migrate existing Live Billing API subscriptions before those merchants change plans."
     ]
   },
   "repository_mode": "dual_compatibility_until_legacy_migration",
@@ -73,7 +71,6 @@
     "direct_appSubscriptionCreate_when_app_pricing_enabled": false,
     "public_partner_identifiers": {
       "organization_id": "4859256",
-      "staging_app_gid": "gid://shopify/App/430575026177",
       "production_app_gid": "gid://shopify/App/405802811393"
     },
     "secret_partner_api_values": [
@@ -81,9 +78,31 @@
     ]
   },
   "manual_pricing_legacy_compatibility": {
-    "status": "preserve_existing_subscriptions_only",
-    "new_subscription_creation_allowed": false,
+    "status": "local_and_staging_test_flow_plus_existing_live_subscription_compatibility",
+    "new_subscription_creation_allowed": "local_and_staging_only",
     "migration_method": "Partner Dashboard subscription migration tool or Shopify CLI subscription-migrations",
-    "access_policy": "Existing valid Billing API subscriptions retain their mapped VSN entitlements until migration completes."
+    "access_policy": "Local/Dev and Staging may create Billing API test subscriptions. Live must not create new Billing API subscriptions once Shopify App Pricing is enabled; existing Live Billing API subscriptions remain entitled until migration."
+  },
+  "environment_billing": {
+    "local_dev": {
+      "shopify_app_identity": "VSN | Stock Down Sort Dev",
+      "mode": "manual_legacy",
+      "billing_test_mode": true,
+      "purpose": "Local development and Billing API test subscriptions only. No App Store listing or Shopify App Pricing catalog."
+    },
+    "staging": {
+      "shopify_app_identity": "VSN | Stock Down Sort Staging",
+      "mode": "manual_legacy",
+      "billing_test_mode": true,
+      "purpose": "Hosted pre-production functional/runtime testing with Billing API test subscriptions. This app does not own the App Store listing or public pricing catalog."
+    },
+    "production_live": {
+      "shopify_app_identity": "VSN | Stock Down Sort",
+      "mode": "shopify_app_pricing",
+      "billing_test_mode": false,
+      "partner_org_id": "4859256",
+      "app_gid": "gid://shopify/App/405802811393",
+      "purpose": "Only App Store submission identity. Owns public Shopify App Pricing plans and merchant production billing."
+    }
   }
 }

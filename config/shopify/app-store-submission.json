@@ -65,12 +65,12 @@
     {
       "id": "pricing_dashboard",
       "status": "pending",
-      "requirement": "Configure the four public Shopify App Pricing plans exactly as recorded here."
+      "requirement": "Configure the four public Shopify App Pricing plans on the Live app only."
     },
     {
       "id": "partner_api_client",
       "status": "pending",
-      "requirement": "Create a Partner API client with Manage apps permission and configure SHOPIFY_PARTNER_API_ACCESS_TOKEN in hosted environments. Organization ID and per-environment App GIDs are already committed runtime configuration."
+      "requirement": "Use the Partner API client for Live app pricing/subscription verification. Dev and Staging do not depend on Partner API billing reads."
     },
     {
       "id": "listing_content",
@@ -110,9 +110,22 @@
   ],
   "partner_api_runtime": {
     "organization_id": "4859256",
-    "staging_app_gid": "gid://shopify/App/430575026177",
     "production_app_gid": "gid://shopify/App/405802811393",
-    "identifiers_source": "existing successful Shopify CLI workflow evidence",
-    "only_secret_required": "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
+    "identifiers_source": "Partner Dashboard / successful Shopify CLI evidence",
+    "only_secret_required": "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+    "scope": "Live app pricing/subscription verification only"
+  },
+  "live_app_only": true,
+  "live_app_identity": {
+    "name": "VSN | Stock Down Sort",
+    "app_gid": "gid://shopify/App/405802811393",
+    "partner_org_id": "4859256",
+    "owns_app_store_submission": true,
+    "owns_public_pricing": true
+  },
+  "test_strategy": {
+    "local_dev": "Use Dev app with Billing API test subscriptions.",
+    "staging": "Use Staging app with Billing API test subscriptions.",
+    "live_app_pricing": "Install the Live app on a Partner development store and select each public Shopify App Pricing plan at no charge before submission."
   }
 }

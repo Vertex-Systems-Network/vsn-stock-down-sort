@@ -63,6 +63,12 @@ test("Wrangler environments are isolated and declare required secrets", () => {
 
   assert.equal(staging.vars.APP_ENV, "staging");
   assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(staging.vars.SHOPIFY_BILLING_MODE, "manual_legacy");
+  assert.equal(staging.vars.SHOPIFY_PARTNER_ORG_ID, undefined);
+  assert.equal(staging.vars.SHOPIFY_APP_GID, undefined);
+  assert.ok(
+    !staging.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
   assert.equal(
     staging.vars.SHOPIFY_APP_URL,
     "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
@@ -75,6 +81,15 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   assert.ok(!staging.secrets.required.includes("SCOPES"));
   assert.equal(production.vars.APP_ENV, "production");
   assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
+  assert.equal(production.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing");
+  assert.equal(production.vars.SHOPIFY_PARTNER_ORG_ID, "4859256");
+  assert.equal(
+    production.vars.SHOPIFY_APP_GID,
+    "gid://shopify/App/405802811393",
+  );
+  assert.ok(
+    production.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
   assert.equal(
     production.vars.SHOPIFY_APP_URL,
     "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
@@ -95,6 +110,8 @@ test("staging deployment is manual, development-sourced, and test-billed", () =>
   assert.match(workflow, /ref: development/);
   assert.match(workflow, /APP_ENV: staging/);
   assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "true"/);
+  assert.match(workflow, /SHOPIFY_BILLING_MODE: manual_legacy/);
+  assert.doesNotMatch(workflow, /SHOPIFY_PARTNER_API_ACCESS_TOKEN/);
   assert.match(
     workflow,
     /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
@@ -523,7 +540,7 @@ test("Shopify App Pricing is the submission target while Billing API remains leg
   assert.equal(
     strategy.manual_pricing_legacy_compatibility
       .new_subscription_creation_allowed,
-    false,
+    "local_and_staging_only",
   );
   assert.deepEqual(
     strategy.public_plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
@@ -939,7 +956,7 @@ test("environment secrets audit checks required deployment credentials", () => {
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
   assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
   assert.match(workflow, /SHOPIFY_PARTNER_ORG_ID: "4859256"/);
-  assert.match(workflow, /gid:\/\/shopify\/App\/430575026177/);
+  assert.doesNotMatch(workflow, /gid:\/\/shopify\/App\/430575026177/);
   assert.match(workflow, /gid:\/\/shopify\/App\/405802811393/);
   assert.match(
     workflow,
@@ -963,7 +980,7 @@ test("environment secrets audit checks required deployment credentials", () => {
   assert.match(workflow, /app\(id: \$id\)/);
   assert.match(workflow, /X-Shopify-Access-Token/);
   assert.match(workflow, /app\.get\("apiKey"\) != expected_api_key/);
-  assert.match(workflow, /staging_partner_api_manage_apps=pass/);
+  assert.doesNotMatch(workflow, /staging_partner_api_manage_apps=pass/);
   assert.match(workflow, /production_partner_api_manage_apps=pass/);
   assert.doesNotMatch(
     workflow,
