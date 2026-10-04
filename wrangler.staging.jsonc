@@ -26,7 +26,7 @@
     "APP_ENV": "staging",
     "SHOPIFY_BILLING_TEST_MODE": "true",
     "SHOPIFY_BILLING_MODE": "shopify_app_pricing",
-    "SHOPIFY_PARTNER_ORG_ID": "214077920",
+    "SHOPIFY_PARTNER_ORG_ID": "4859256",
     "SHOPIFY_APP_GID": "gid://shopify/App/430575026177",
     "SHOPIFY_APP_URL": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
     "SCOPES": "read_products,write_products,read_inventory,read_locations,read_publications,write_publications"
