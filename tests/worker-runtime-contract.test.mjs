@@ -956,7 +956,7 @@ test("environment secrets audit checks required deployment credentials", () => {
 
   assert.match(
     workflow,
-    /https:\/\/partners\.shopify\.com\/\$\{org_id\}\/api\/2026-07\/graphql\.json/,
+    /https:\/\/partners\.shopify\.com\/\{org_id\}\/api\/2026-07\/graphql\.json/,
   );
   assert.match(workflow, /gid:\/\/partners\/App\/\{app_id\}/);
   assert.match(workflow, /query AuditPartnerApp\(\$id: ID!\)/);
