@@ -19,7 +19,19 @@ test("Shopify App Pricing is the public submission target with legacy compatibil
   assert.equal(strategy.runtime.target_value, "shopify_app_pricing");
   assert.equal(
     strategy.manual_pricing_legacy_compatibility.new_subscription_creation_allowed,
-    false,
+    "local_and_staging_only",
+  );
+  assert.equal(strategy.environment_billing.local_dev.mode, "manual_legacy");
+  assert.equal(strategy.environment_billing.local_dev.billing_test_mode, true);
+  assert.equal(strategy.environment_billing.staging.mode, "manual_legacy");
+  assert.equal(strategy.environment_billing.staging.billing_test_mode, true);
+  assert.equal(
+    strategy.environment_billing.production_live.mode,
+    "shopify_app_pricing",
+  );
+  assert.equal(
+    strategy.environment_billing.production_live.app_gid,
+    "gid://shopify/App/405802811393",
   );
   assert.equal(
     strategy.shopify_app_pricing_migration.status,
@@ -76,59 +88,46 @@ test("plan UI blocks unsafe manual-to-App-Pricing switches", () => {
   assert.ok(plans.includes('current?.source !== "shopify_app_pricing"'));
 });
 
-test("hosted Workers and promotion workflows carry Partner API configuration", () => {
-  const expectedRuntime = {
-    "wrangler.staging.jsonc": "gid://shopify/App/430575026177",
-    "wrangler.production.jsonc": "gid://shopify/App/405802811393",
-  };
+test("billing modes are isolated across Staging and Live", () => {
+  const staging = JSON.parse(read("wrangler.staging.jsonc"));
+  const production = JSON.parse(read("wrangler.production.jsonc"));
 
-  for (const [path, appGid] of Object.entries(expectedRuntime)) {
+  assert.equal(staging.vars.SHOPIFY_BILLING_MODE, "manual_legacy");
+  assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(staging.vars.SHOPIFY_PARTNER_ORG_ID, undefined);
+  assert.equal(staging.vars.SHOPIFY_APP_GID, undefined);
+  assert.ok(
+    !staging.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
+
+  assert.equal(production.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing");
+  assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
+  assert.equal(production.vars.SHOPIFY_PARTNER_ORG_ID, "4859256");
+  assert.equal(
+    production.vars.SHOPIFY_APP_GID,
+    "gid://shopify/App/405802811393",
+  );
+  assert.ok(
+    production.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
+
+  for (const path of [
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/staging-runtime-acceptance.yml",
+  ]) {
     const source = read(path);
-    const config = JSON.parse(source);
-    assert.equal(config.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing", path);
-    assert.equal(config.vars.SHOPIFY_PARTNER_ORG_ID, "4859256", path);
-    assert.equal(config.vars.SHOPIFY_APP_GID, appGid, path);
-    assert.ok(
-      config.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
-      path + " missing Partner API token secret",
-    );
-    assert.ok(
-      !config.secrets.required.includes("SHOPIFY_PARTNER_ORG_ID"),
-      path + " must not treat Partner organization ID as a secret",
-    );
-    assert.ok(
-      !config.secrets.required.includes("SHOPIFY_APP_GID"),
-      path + " must not treat App GID as a secret",
-    );
+    assert.ok(source.includes("SHOPIFY_BILLING_MODE: manual_legacy"), path);
+    assert.equal(source.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"), false, path);
   }
 
   for (const path of [
-    ".github/workflows/environment-secrets-audit.yml",
-    ".github/workflows/cloudflare-staging-deploy.yml",
     ".github/workflows/cloudflare-production-prepare.yml",
-    ".github/workflows/staging-readiness.yml",
     ".github/workflows/production-readiness.yml",
+    ".github/workflows/final-production-merchant-smoke.yml",
   ]) {
     const source = read(path);
-    for (const name of [
-      "SHOPIFY_PARTNER_ORG_ID",
-      "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
-      "SHOPIFY_APP_GID",
-    ]) {
-      assert.ok(source.includes(name), path + " missing " + name);
-    }
-    assert.ok(
-      source.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}"),
-      path + " must secret-back the Partner API token",
-    );
-    assert.ok(
-      !source.includes("SHOPIFY_PARTNER_ORG_ID: ${{ secrets.SHOPIFY_PARTNER_ORG_ID }}"),
-      path + " must not secret-back the organization ID",
-    );
-    assert.ok(
-      !source.includes("SHOPIFY_APP_GID: ${{ secrets.SHOPIFY_APP_GID }}"),
-      path + " must not secret-back the App GID",
-    );
+    assert.ok(source.includes("shopify_app_pricing"), path);
   }
 });
 
@@ -146,6 +145,10 @@ test("runtime acceptance uses unified subscription truth and final production sm
   assert.ok(workflow.includes("/internal/production-acceptance"));
   assert.ok(workflow.includes('billingMethod") != "shopify_app_pricing"'));
   assert.ok(workflow.includes('subscriptions.get("source") != "shopify_app_pricing"'));
+
+  const stagingWorkflow = read(".github/workflows/staging-runtime-acceptance.yml");
+  assert.ok(stagingWorkflow.includes("SHOPIFY_BILLING_MODE: manual_legacy"));
+  assert.ok(stagingWorkflow.includes('billingMethod") != "manual_legacy"'));
 });
 
 test("App Store submission record matches the canonical four-plan catalog", () => {
@@ -175,13 +178,12 @@ test("App Store submission record matches the canonical four-plan catalog", () =
 });
 
 
-test("live staging App Pricing audit verifies active handle price interval and trial contract", () => {
-  const workflow = read(".github/workflows/shopify-app-pricing-staging-audit.yml");
+test("Live App Pricing audit targets the Live app on a Partner development store", () => {
+  const workflow = read(".github/workflows/shopify-live-app-pricing-audit.yml");
 
   for (const marker of [
-    "staging-oath3rth.myshopify.com",
     'SHOPIFY_PARTNER_ORG_ID: "4859256"',
-    'SHOPIFY_APP_GID: "gid://shopify/App/430575026177"',
+    'SHOPIFY_APP_GID: "gid://shopify/App/405802811393"',
     "activeSubscription(appId: $appId, shopId: $shopId)",
     "trialDays",
     "EVERY_30_DAYS",
@@ -189,7 +191,8 @@ test("live staging App Pricing audit verifies active handle price interval and t
     '"growth": 19.99',
     '"pro": 34.99',
     '"unlimited": 70.00',
-    "staging_app_pricing_live_subscription=pass",
+    "live_app_pricing_audit=pass",
+    "Partner development store domain",
   ]) {
     assert.ok(workflow.includes(marker), marker);
   }
@@ -198,53 +201,16 @@ test("live staging App Pricing audit verifies active handle price interval and t
   assert.ok(workflow.includes("FlatRatePlanPrice"));
   assert.ok(workflow.includes("FlatRatePrice"));
   assert.ok(workflow.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"));
-  assert.equal(workflow.includes("214077920"), false);
+  assert.ok(workflow.includes("environment: cloudflare-production"));
+  assert.ok(workflow.includes("ref: main"));
 });
 
-test("all hosted promotion workflows use the corrected Partner organization ID", () => {
-  for (const path of [
-    ".github/workflows/cloudflare-staging-deploy.yml",
-    ".github/workflows/staging-readiness.yml",
-    ".github/workflows/cloudflare-production-prepare.yml",
-    ".github/workflows/production-readiness.yml",
-    ".github/workflows/environment-secrets-audit.yml",
-  ]) {
-    const source = read(path);
-    assert.ok(source.includes("4859256"), path + " missing corrected Partner org ID");
-    assert.equal(
-      source.includes("214077920"),
-      false,
-      path + " still contains stale Partner org ID",
-    );
-  }
-});
-
-
-test("staging pricing audit reports legacy migration eligibility without mutating billing", () => {
-  const workflow = read(".github/workflows/shopify-app-pricing-staging-audit.yml");
-
-  for (const marker of [
-    "migratableAppSubscriptions",
-    "manualSubscriptionName",
-    "manualSubscriptionInterval",
-    "manualSubscriptionPrice",
-    "targetPlanHandle",
-    "priceBehavior",
-    "effectiveDate",
-    "lastFailureReason",
-    "staging_migration_status=",
-    "staging_migration_target_plan_handle=",
-  ]) {
-    assert.ok(workflow.includes(marker), marker);
-  }
-
-  assert.ok(workflow.includes("/api/unstable/graphql.json"));
+test("Staging App Pricing audit is retired because pricing belongs to Live", () => {
   assert.equal(
-    workflow.includes("appSubscriptionMigrationOperationCreate"),
+    fs.existsSync(".github/workflows/shopify-app-pricing-staging-audit.yml"),
     false,
   );
-  assert.equal(
-    workflow.includes("subscription-migrations schedule"),
-    false,
-  );
+  const staging = read("wrangler.staging.jsonc");
+  assert.equal(staging.includes("shopify_app_pricing"), false);
+  assert.equal(staging.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"), false);
 });
