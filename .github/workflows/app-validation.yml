@@ -132,3 +132,56 @@ jobs:
           SHOPIFY_BILLING_TEST_MODE: "false"
           SHOPIFY_APP_URL: https://production.example.invalid
         run: npx wrangler@4.141.0 deploy --dry-run --config wrangler.production.jsonc
+
+  audit-staging-partner-api-secrets:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: cloudflare-staging
+    env:
+      SHOPIFY_PARTNER_ORG_ID: ${{ secrets.SHOPIFY_PARTNER_ORG_ID }}
+      SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}
+      SHOPIFY_APP_GID: ${{ secrets.SHOPIFY_APP_GID }}
+    steps:
+      - name: Audit staging Partner API secret presence
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SHOPIFY_PARTNER_ORG_ID SHOPIFY_PARTNER_API_ACCESS_TOKEN SHOPIFY_APP_GID
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "::error title=Missing staging Partner API secret::$name is not configured in cloudflare-staging."
+              missing=1
+            else
+              echo "present=$name"
+            fi
+          done
+          exit "$missing"
+
+  audit-production-partner-api-secrets:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: cloudflare-production
+    env:
+      SHOPIFY_PARTNER_ORG_ID: ${{ secrets.SHOPIFY_PARTNER_ORG_ID }}
+      SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}
+      SHOPIFY_APP_GID: ${{ secrets.SHOPIFY_APP_GID }}
+    steps:
+      - name: Audit production Partner API secret presence
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SHOPIFY_PARTNER_ORG_ID SHOPIFY_PARTNER_API_ACCESS_TOKEN SHOPIFY_APP_GID
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "::error title=Missing production Partner API secret::$name is not configured in cloudflare-production."
+              missing=1
+            else
+              echo "present=$name"
+            fi
+          done
+          exit "$missing"
+
