@@ -29,7 +29,34 @@ export function validateBillingConfirmation(value: string) {
     throw new Error("Shopify returned an invalid billing confirmation URL.");
   }
 
+  if (
+    url.hostname.endsWith(".myshopify.com") &&
+    url.pathname.startsWith("/admin/charges/")
+  ) {
+    const storeHandle = url.hostname.slice(0, -".myshopify.com".length);
+    const modernAdminUrl = new URL(
+      `https://admin.shopify.com/store/${storeHandle}${url.pathname.slice("/admin".length)}`,
+    );
+    modernAdminUrl.search = url.search;
+    modernAdminUrl.hash = url.hash;
+    return modernAdminUrl.href;
+  }
+
   return url.href;
+}
+
+export function openBillingConfirmation(value: string) {
+  const confirmationUrl = validateBillingConfirmation(value);
+
+  const opened = window.open(confirmationUrl, "_top");
+
+  if (!opened) {
+    throw new Error(
+      "Shopify plan approval could not open automatically. Use the Continue to Shopify plan approval link.",
+    );
+  }
+
+  return confirmationUrl;
 }
 
 export async function submitBilling(

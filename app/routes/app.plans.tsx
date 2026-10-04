@@ -8,7 +8,7 @@ import {
   getImplementedPlanFeatureNames,
   type PlanId,
 } from "../billing-config";
-import { submitBilling, type BillingSubmitResult } from "../billing-client";
+import { openBillingConfirmation, submitBilling, type BillingSubmitResult } from "../billing-client";
 import { PageIntro } from "../components/Workspace";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
@@ -80,9 +80,15 @@ export default function PlansPage() {
 
       if (response.confirmationUrl) {
         try {
-          window.open(response.confirmationUrl, "_top");
-        } catch {
-          // The visible approval link remains available.
+          openBillingConfirmation(response.confirmationUrl);
+        } catch (navigationError) {
+          setResult({
+            ...response,
+            error:
+              navigationError instanceof Error
+                ? navigationError.message
+                : "Shopify plan approval could not open automatically.",
+          });
         }
       }
 
