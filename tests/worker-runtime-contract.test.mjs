@@ -649,13 +649,31 @@ test("Shopify configs use the latest stable API and mandatory compliance webhook
 
 test("privacy lifecycle purges all shop-scoped persisted data", () => {
   const purge = read("app/services/shop-data.server.ts");
+  const schema = read("prisma/cloud/schema.prisma");
   const uninstall = read("app/routes/webhooks.app.uninstalled.tsx");
   const shopRedact = read("app/routes/webhooks.shop.redact.tsx");
   const dataRequest = read("app/routes/webhooks.customers.data_request.tsx");
   const customerRedact = read("app/routes/webhooks.customers.redact.tsx");
 
-  assert.match(purge, /collectionSetting\.deleteMany/);
-  assert.match(purge, /session\.deleteMany/);
+  const shopScopedModels = Array.from(
+    schema.matchAll(/model\s+(\w+)\s*\{([\s\S]*?)\n\}/g),
+  )
+    .filter(([, , body]) => /^\s*shop\s+String\b/m.test(body))
+    .map(([, model]) => model);
+
+  assert.ok(shopScopedModels.length > 0);
+  for (const model of shopScopedModels) {
+    const clientAccessor = model[0].toLowerCase() + model.slice(1);
+    assert.match(
+      purge,
+      new RegExp(`db\\.${clientAccessor}\\.deleteMany`),
+      `${model} is shop-scoped in Prisma but missing from purgeShopData`,
+    );
+  }
+
+  assert.match(purge, /integrationCredential\.findMany/);
+  assert.match(purge, /integrationReplayNonce\.deleteMany/);
+  assert.match(purge, /credentialId:\s*\{\s*in:\s*credentialIds/s);
   assert.match(purge, /db\.\$transaction/);
 
   for (const route of [uninstall, shopRedact]) {
