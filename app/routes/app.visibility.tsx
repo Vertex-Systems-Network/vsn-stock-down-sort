@@ -15,6 +15,7 @@ import {
   saveVisibilitySetting,
   syncVariantVisibilityEntitlement,
 } from "../services/product-visibility.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -104,7 +105,7 @@ export default function VisibilityPage() {
   const canAutoRepublish = optionIds.includes(PHASE3_OPTION_IDS.autoRepublish);
 
   return (
-    <s-page heading="Product visibility">
+    <PageShell heading="Product visibility">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -207,6 +208,6 @@ export default function VisibilityPage() {
           )}
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
