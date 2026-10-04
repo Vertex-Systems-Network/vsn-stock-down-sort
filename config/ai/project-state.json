@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
   "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. AI-Native 26-option alignment remains complete. Shopify App Pricing repository migration PR #153 exact head 3ec30b01dcf6d8845d6f24902723eb93eebc3762 passed final App Validation #567 / run 37195136199, then merged to development as 34da8391b7359146986e818fa271433d07b8a223.",
-  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan and Shopify App Pricing submission architecture. External/runtime finalization is tracked in GitHub Issue #154: configure Partner Dashboard App Pricing and Partner API credentials, complete the App Store listing/submission, promote the exact accepted source through Local → Staging → Live, then run Final Production Merchant Smoke. Do not mark external gates complete without real evidence.",
+  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan and Shopify App Pricing submission architecture. In the final acceptance cycle, external/runtime finalization is tracked in GitHub Issue #154: configure Partner Dashboard App Pricing and Partner API credentials, complete the App Store listing/submission, promote the exact accepted source through Local → Staging → Live, then run Final Production Merchant Smoke. Do not mark external gates complete without real evidence.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
