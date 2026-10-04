@@ -49,7 +49,7 @@
       "Configure plan descriptions for every published listing language",
       "Configure a welcome link back to the app",
       "Create a Partner API client with Manage apps permission",
-      "Set SHOPIFY_PARTNER_ORG_ID, SHOPIFY_PARTNER_API_ACCESS_TOKEN, SHOPIFY_APP_GID in hosted environments",
+      "Create a Partner API client with Manage apps permission and store only SHOPIFY_PARTNER_API_ACCESS_TOKEN as a hosted secret; organization/app identifiers are committed runtime configuration.",
       "Set SHOPIFY_BILLING_MODE=shopify_app_pricing",
       "Test hosted plan selection and Active Subscription API on the development/staging store",
       "Migrate any existing Billing API subscriptions before allowing those merchants to change plans"
@@ -70,7 +70,15 @@
       "legacy Admin API activeSubscriptions fallback for unmigrated Billing API merchants"
     ],
     "new_subscription_flow": "Shopify-hosted pricing_plans page",
-    "direct_appSubscriptionCreate_when_app_pricing_enabled": false
+    "direct_appSubscriptionCreate_when_app_pricing_enabled": false,
+    "public_partner_identifiers": {
+      "organization_id": "214077920",
+      "staging_app_gid": "gid://shopify/App/430575026177",
+      "production_app_gid": "gid://shopify/App/405802811393"
+    },
+    "secret_partner_api_values": [
+      "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
+    ]
   },
   "manual_pricing_legacy_compatibility": {
     "status": "preserve_existing_subscriptions_only",
