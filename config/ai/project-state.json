@@ -5,8 +5,8 @@
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option AI-Native alignment remain complete. PR #165 aligned the actual three-Shopify-app billing topology: Local/Dev and Staging use manual_legacy test billing, while Live/Production alone uses Shopify App Pricing and owns the App Store submission/public plans. PR #165 exact head passed App Validation #593 / run 37203783453; merge d157f7ecdfed1ac917e9b439683b17d2f16708a7 passed post-merge App Validation #594 / run 37203858177 and Environment Secrets Audit #13 / run 37203858171.",
-  "next_valid_work_unit": "Repository development is complete for the current plan. In the final acceptance cycle, GitHub Issue #154 is the tracking surface. Verify Live Shopify App Pricing by installing the Live app on a Partner development store and auditing each public plan; verify the production Partner API environment; complete the Live App Store submission; then recertify and promote the exact accepted source through Dev -> Staging -> Live. Staging acceptance uses Billing API test subscriptions and must not depend on Live App Pricing.",
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option alignment remain complete. PR #165–#169 are merged to development; App Validation #602 / run 37206271869 passed on exact development head 22d566d6fef99a265dbfd46f319fd5824e537115. No acceptance is claimed for the newer development source in Local, Staging or Live.",
+  "next_valid_work_unit": "Repository development through PHASE-10 is complete. The final acceptance cycle is to recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,9 +24,9 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and the three-app billing topology is CI-green. Post-merge App Validation #594 / run 37203858177 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, environment promotion, Worker build and both Cloudflare dry-runs on development head d157f7ecdfed1ac917e9b439683b17d2f16708a7. Environment Secrets Audit #13 / run 37203858171 passed under the corrected Staging manual-billing model.",
+  "qa_readiness": "App Validation #602 / run 37206271869 passed on development head 22d566d6fef99a265dbfd46f319fd5824e537115. Local acceptance is still recorded for older source 5df0cb94446e008e67ba636ae09ab55d4c416980, and Staging/Live records are from prior releases. Fresh Local -> Staging -> Live acceptance is pending.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "d157f7ecdfed1ac917e9b439683b17d2f16708a7",
+  "last_reconciled_repository_ref": "22d566d6fef99a265dbfd46f319fd5824e537115",
   "last_reconciled_at": "2026-10-04",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
@@ -57,18 +57,6 @@
     "phase_07_commerce_context_visibility_contract": "passed",
     "phase_08_secure_api_integrations_contract": "passed",
     "phase_09_priority_support_entitlement_contract": "passed",
-    "environment_promotion_contract": "passed",
-    "local_environment_contract": "passed",
-    "database_architecture_contracts": "passed",
-    "worker_build": "passed",
-    "cloudflare_staging_dry_run": "passed",
-    "cloudflare_production_dry_run": "passed",
-    "runtime_prep_pr_number": 126,
-    "runtime_prep_pr_head_sha": "2937a0385633466e36473648af95bdbfcc2849c8",
-    "runtime_prep_validation_run": 37123976766,
-    "runtime_prep_validation_number": 488,
-    "runtime_prep_validation_conclusion": "success",
-    "runtime_prep_merge_sha": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "phase_10_implementation_pr_number": 129,
     "phase_10_implementation_head_sha": "60fe3bbd1f62fad6b7ff97792f2721acf2a70936",
     "phase_10_validation_run": 37126630330,
@@ -91,6 +79,15 @@
     "environment_secrets_audit_production": {
       "status": "pending_live_environment_verification",
       "reason": "Live/Production is the only Shopify App Pricing environment and must pass the production-aligned Partner API audit."
+    },
+    "latest_development_validation": {
+      "workflow": "App Validation",
+      "run_number": 602,
+      "run_id": 37206271869,
+      "status": "completed",
+      "conclusion": "success",
+      "validated_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115",
+      "evidence_source": "GitHub Issue #154 final acceptance record"
     }
   },
   "batch_06_09": {
@@ -118,7 +115,7 @@
   "runtime_track": {
     "issue": 125,
     "issue_status": "closed",
-    "status": "previous_release_cycle_accepted_new_development_pending",
+    "status": "new_development_head_requires_fresh_acceptance",
     "repository_preparation": "complete",
     "previous_release_runtime_testing": "complete",
     "local_dev": {
@@ -136,18 +133,18 @@
       "production_version": "stock-down-sort-production-930bb2039244-2",
       "release_run_id": 37151020224
     },
-    "next_gate": "Keep all new work on development until the six-item finalization track is complete; only then recertify the exact new development head for a future promotion.",
-    "development_head_resolution": "Final Live evidence was reverse-synced from main to development by PR #140 before new finalization work began."
+    "next_gate": "Run Local/Dev certification on exact current development HEAD 22d566d6fef99a265dbfd46f319fd5824e537115; previous Local/Staging evidence is for older source and cannot authorize this promotion.",
+    "development_head_resolution": "Current development HEAD is 22d566d6fef99a265dbfd46f319fd5824e537115 (PR #169 merge); exact current source has App Validation #602 pass, but no current-head runtime acceptance."
   },
   "finalization_track": {
     "promotion_lock": true,
-    "rule": "All six items must be complete before any new Staging or Production promotion.",
+    "rule": "Promotion gates are sequential, not a six-item pre-promotion bundle. Current source requires fresh Local/Dev acceptance before Staging. After Staging acceptance is recorded on protected main, complete Live-only pricing, production Partner API/secrets, legacy-subscription review, and App Store listing/media/review prerequisites before Production release. Final Production Merchant Smoke is a post-release check and must not block Dev -> Staging or Staging -> Live preparation; keep the finalization track open until it passes.",
     "items": [
       {
         "id": 1,
         "title": "Repository state reconciliation",
         "status": "complete",
-        "evidence": "Repository state was re-audited after global UI and billing fixes. AI-Native plan audit PR #152 exact head 3a520d1738f0befb7fd6960bec4b968ed42a5c8a passed App Validation #561 / run 37170586736 including 26-option cross-layer alignment."
+        "evidence": "Reconciled against current development head 22d566d6fef99a265dbfd46f319fd5824e537115, PRs #165–#169 and App Validation #602 / run 37206271869. Current-head runtime acceptance remains pending."
       },
       {
         "id": 2,
@@ -177,16 +174,16 @@
         "id": 6,
         "title": "Final production merchant smoke test",
         "status": "automation_ready_runtime_pending",
-        "evidence": "Signed production acceptance endpoint and Final Production Merchant Smoke workflow exist and passed repository validation. A real production run after App Pricing cutover is still required."
+        "evidence": "Signed production acceptance endpoint and Final Production Merchant Smoke workflow are repository-prepared. This check is intentionally post-release; it is the final closure gate, not a prerequisite for Dev -> Staging or Staging -> Live preparation."
       }
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 594,
-      "run_id": 37203858177,
+      "run_number": 602,
+      "run_id": 37206271869,
       "conclusion": "success",
-      "validated_head_sha": "d157f7ecdfed1ac917e9b439683b17d2f16708a7",
-      "development_head_sha": "d157f7ecdfed1ac917e9b439683b17d2f16708a7"
+      "validated_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115",
+      "development_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115"
     },
     "tracking_issue": 154,
     "tracking_issue_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/154",
@@ -224,26 +221,5 @@
     "live_app_pricing_audit": ".github/workflows/shopify-live-app-pricing-audit.yml",
     "legacy_live_billing_api_compatibility": "preserved_until_migration",
     "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
-  },
-  "ai_plan_alignment": {
-    "status": "complete_for_repository_development",
-    "runtime_option_count": 26,
-    "option_bank_alignment": "26_of_26_selected_and_implemented",
-    "plan_assignment_alignment": "26_of_26_assigned",
-    "module_ownership_alignment": "26_of_26_owned",
-    "documentation_alignment": "26_of_26_documented",
-    "source_evidence_alignment": "26_of_26_verified",
-    "shopify_scope_alignment": [
-      "read_products",
-      "write_products",
-      "read_inventory",
-      "read_locations",
-      "read_publications",
-      "write_publications"
-    ],
-    "contract": "tests/ai-plan-alignment-contract.test.mjs",
-    "validation_run": 37170586736,
-    "validation_number": 561,
-    "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a"
   }
 }
