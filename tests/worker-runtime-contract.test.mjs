@@ -421,7 +421,10 @@ test("billing confirmation URL has automatic top navigation plus a visible appro
 
   assert.match(client, /validateBillingConfirmation/);
   assert.match(client, /admin\.shopify\.com/);
-  assert.match(plans, /window\.open\(response\.confirmationUrl, "_top"\)/);
+  assert.match(client, /url\.hostname\.endsWith\("\.myshopify\.com"\)/);
+  assert.match(client, /url\.pathname\.startsWith\("\/admin\/charges\/"\)/);
+  assert.match(client, /window\.open\(confirmationUrl, "_top"\)/);
+  assert.match(plans, /openBillingConfirmation\(response\.confirmationUrl\)/);
   assert.match(plans, /Continue to Shopify plan approval/);
   assert.match(plans, /target="_top"/);
 });
