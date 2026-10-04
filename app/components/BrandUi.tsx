@@ -64,6 +64,16 @@ export function BrandNotice({
   );
 }
 
+type BrandButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "variant"
+> & {
+  variant?: BrandButtonVariant;
+  tone?: "critical" | "neutral";
+  loading?: boolean;
+  children: ReactNode;
+};
+
 export function BrandButton({
   variant = "secondary",
   loading = false,
@@ -72,12 +82,7 @@ export function BrandButton({
   className,
   tone,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: BrandButtonVariant;
-  tone?: "critical" | "neutral";
-  loading?: boolean;
-  children: ReactNode;
-}) {
+}: BrandButtonProps) {
   return (
     <button
       {...props}
@@ -101,6 +106,6 @@ export function BrandButton({
 
 export function BrandButtonRow({
   children,
-}: PropsWithChildren<Record<string, never>>) {
+}: PropsWithChildren<object>) {
   return <div className="vsn-button-row">{children}</div>;
 }
