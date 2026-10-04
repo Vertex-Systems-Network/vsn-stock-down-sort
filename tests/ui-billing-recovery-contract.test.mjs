@@ -73,7 +73,11 @@ test("billing client uses App Bridge token auth and keeps an approval fallback l
   assert.ok(client.includes("await shopify.idToken()"));
   assert.ok(client.includes('Authorization: `Bearer ${token}`'));
   assert.ok(client.includes('redirect: "error"'));
-  assert.ok(plans.includes('window.open(response.confirmationUrl, "_top")'));
+  assert.ok(client.includes('url.hostname.endsWith(".myshopify.com")'));
+  assert.ok(client.includes('url.pathname.startsWith("/admin/charges/")'));
+  assert.ok(client.includes("https://admin.shopify.com/store/"));
+  assert.ok(client.includes('window.open(confirmationUrl, "_top")'));
+  assert.ok(plans.includes("openBillingConfirmation(response.confirmationUrl)"));
   assert.ok(plans.includes("Continue to Shopify plan approval"));
 });
 
