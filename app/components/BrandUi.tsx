@@ -51,6 +51,7 @@ export function BrandNotice({
   tone?: BrandTone;
   heading?: string;
   role?: "alert" | "status";
+  dismissible?: boolean;
 }>) {
   return (
     <div
@@ -69,9 +70,11 @@ export function BrandButton({
   disabled,
   children,
   className,
+  tone,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: BrandButtonVariant;
+  tone?: "critical" | "neutral";
   loading?: boolean;
   children: ReactNode;
 }) {
@@ -81,7 +84,7 @@ export function BrandButton({
       className={[
         "vsn-button",
         variant === "primary" ? "primary" : "",
-        variant === "danger" ? "danger" : "",
+        variant === "danger" || tone === "critical" ? "danger" : "",
         variant === "tertiary" ? "tertiary" : "",
         className ?? "",
       ]
