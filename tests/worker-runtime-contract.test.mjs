@@ -492,10 +492,11 @@ test("billing entitlement requires the exact current plan", () => {
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
-  assert.match(plans, /Incompatible active subscription/);
+  assert.match(plans, /A previous subscription no longer matches the current catalog/);
   assert.match(plans, /Cancel incompatible subscription/);
-  assert.match(plans, /disabled=\{isLoading \|\| activeIsUnknown \|\| isCurrent\}/);
+  assert.match(plans, /activeIsUnknown/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
+  assert.match(plans, /submitBilling\(formData, location\.search\)/);
 });
 
 
