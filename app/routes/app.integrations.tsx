@@ -16,6 +16,7 @@ import {
   revokeIntegrationCredential,
   rotateIntegrationCredential,
 } from "../services/integrations.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -138,7 +139,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <s-page heading="API & webhook integrations">
+    <PageShell heading="API & webhook integrations">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -404,6 +405,6 @@ export default function IntegrationsPage() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
