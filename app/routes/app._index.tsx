@@ -1,11 +1,13 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Link,
   useActionData,
   useLoaderData,
   useNavigation,
   useSubmit,
 } from "react-router";
 import { useMemo, useState } from "react";
+import { PageIntro } from "../components/Workspace";
 import { authenticate } from "../shopify.server";
 import { enqueueSortJobs } from "../sort-queue.server";
 import { withPrismaClient } from "../db.server";
@@ -385,7 +387,90 @@ export default function AppIndex() {
   }
 
   return (
-    <s-page heading="VSN Stock Down Sort">
+    <s-page inline-size="large" heading="VSN Stock Down Sort">
+      <PageIntro
+        eyebrow="Your collection workspace"
+        title="Keep available products where shoppers see them first."
+        description="Automate collection order, protect priority products, and keep merchandising aligned with live inventory."
+      >
+        <Link className="vsn-button" to="/app/support">
+          Need help? ↗
+        </Link>
+      </PageIntro>
+
+      <div className="vsn-hero">
+        <div>
+          <div className="vsn-eyebrow">Stock-aware merchandising</div>
+          <h2>Available first. Sold out last. Automatically.</h2>
+          <p>
+            Apply stock-aware sorting across your collections, keep pinned
+            products in place, exclude selected items, and re-sort when
+            inventory changes.
+          </p>
+          <div className="vsn-hero-actions">
+            <button
+              className="vsn-button primary"
+              type="button"
+              onClick={() => runAction("enableAll")}
+              disabled={busy}
+            >
+              Enable all collections
+            </button>
+            <Link className="vsn-button" to="/app/automation">
+              Configure automation ↗
+            </Link>
+          </div>
+        </div>
+
+        <div className="vsn-hero-status">
+          <strong>{currentPlan?.name ?? "Choose a plan"}</strong>
+          <span>
+            {currentPlan
+              ? "Shopify subscription verified"
+              : "A subscription is required to enable sorting"}
+          </span>
+          <div className="vsn-hero-metrics">
+            <div className="vsn-hero-metric">
+              <span>Collections</span>
+              <strong>{collections.length}</strong>
+            </div>
+            <div className="vsn-hero-metric">
+              <span>Enabled</span>
+              <strong>{enabledCount}</strong>
+            </div>
+            <div className="vsn-hero-metric">
+              <span>Attention</span>
+              <strong>{attentionCount}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="vsn-task-grid">
+        <div className="vsn-task-card">
+          <span className="vsn-task-number">01</span>
+          <h3>Choose collections</h3>
+          <p>Enable automatic stock sorting only where it fits your storefront.</p>
+        </div>
+        <div className="vsn-task-card">
+          <span className="vsn-task-number">02</span>
+          <h3>Fine-tune the rules</h3>
+          <p>Pin, exclude and choose how available products should be ordered.</p>
+        </div>
+        <div className="vsn-task-card">
+          <span className="vsn-task-number">03</span>
+          <h3>Let inventory drive updates</h3>
+          <p>Use webhooks and schedules to keep collection order current.</p>
+        </div>
+      </div>
+
+      <nav className="vsn-filter-links" aria-label="Collection workspace sections">
+        <a href="#collections-table">Collections</a>
+        <a href="#collection-rules">Rules</a>
+        <Link to="/app/automation">Automation</Link>
+        <Link to="/app/analytics">Activity</Link>
+      </nav>
+
       <s-button
         slot="primary-action"
         variant="primary"
@@ -439,7 +524,7 @@ export default function AppIndex() {
         </s-banner>
       ) : null}
 
-      <s-section padding="none">
+      <div id="collections-table" />\n      <s-section padding="none">
         <s-table loading={busy}>
           <s-stack slot="filters" direction="inline" gap="base">
             <s-search-field

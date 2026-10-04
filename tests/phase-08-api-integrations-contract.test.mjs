@@ -187,7 +187,7 @@ test("external mutation routes are POST-only and use explicit scopes", () => {
 
 test("merchant Integrations UI is authenticated and never reads stored plaintext secrets", () => {
   const route = read("app/routes/app.integrations.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));

@@ -112,7 +112,7 @@ test("Cloudflare scheduled runtime is explicit, hourly and not exposed as a publ
 
 test("Automation UI is authenticated, shop-scoped and only targets enabled collections", () => {
   const route = read("app/routes/app.automation.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));

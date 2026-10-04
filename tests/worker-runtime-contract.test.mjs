@@ -356,17 +356,16 @@ test("production Shopify promotion is action driven and authorization gated", ()
 });
 
 
-test("plans page uses modern responsive cards with single-dollar pricing", () => {
+test("plans page uses the Metafields-style responsive workspace cards", () => {
   const plans = read("app/routes/app.plans.tsx");
+  const workspace = read("app/styles/workspace.css");
 
-  assert.match(
-    plans,
-    /gridTemplateColumns="repeat\(auto-fit, minmax\(250px, 1fr\)\)"/,
-  );
+  assert.match(plans, /vsn-plan-grid/);
   assert.match(plans, /Most popular/);
-  assert.match(plans, /Unlimited catalog\. Simple plans\./);
+  assert.match(plans, /PageIntro/);
   assert.match(plans, /plan\.amount\.toFixed\(2\)/);
-  assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
+  assert.match(workspace, /\.vsn-plan-grid/);
+  assert.match(workspace, /grid-template-columns: repeat\(4, minmax\(220px, 1fr\)\)/);
   assert.doesNotMatch(plans, /window\.top\.location\.href/);
 });
 
@@ -396,53 +395,35 @@ test("billing approval return URL uses the Shopify Admin app handle", () => {
   );
 });
 
-test("plan switching skips fetcher loader revalidation before approval navigation", () => {
+test("plan switching uses a fresh App Bridge token instead of fetcher revalidation", () => {
   const plans = read("app/routes/app.plans.tsx");
+  const client = read("app/billing-client.ts");
   const api = read("app/routes/app.api.subscription.tsx");
 
-  assert.match(
-    plans,
-    /fetcher\.submit\(formData, \{[\s\S]*method: "post",[\s\S]*defaultShouldRevalidate: false,[\s\S]*\}\)/,
-  );
-  assert.match(
-    api,
-    /\[billing\] subscription confirmation created/,
-  );
-  assert.match(api, /currentPlanId: current\?\.plan\.id \?\? null/);
-  assert.match(api, /requestedPlanId,/);
-  assert.match(api, /confirmationHost: confirmation\.host/);
-  assert.match(api, /confirmationPath: confirmation\.pathname/);
+  assert.match(plans, /submitBilling\(formData, location\.search\)/);
+  assert.doesNotMatch(plans, /useFetcher/);
+  assert.match(client, /shopify\?\.idToken/);
+  assert.match(client, /await shopify\.idToken\(\)/);
+  assert.match(client, /Authorization: `Bearer \$\{token\}`/);
+  assert.match(client, /redirect: "error"/);
+  assert.match(client, /cache: "no-store"/);
+  assert.match(api, /\[billing\] subscription confirmation created/);
 });
 
-test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
+test("billing confirmation URL has automatic top navigation plus a visible approval fallback", () => {
   const api = read("app/routes/app.api.subscription.tsx");
   const plans = read("app/routes/app.plans.tsx");
+  const client = read("app/billing-client.ts");
 
-  assert.match(
-    api,
-    /confirmationUrl: result\.confirmationUrl/,
-  );
-  assert.match(
-    api,
-    /planId: requestedPlanId/,
-  );
-  assert.doesNotMatch(
-    api,
-    /return redirect\(result\.confirmationUrl/,
-  );
+  assert.match(api, /confirmationUrl: result\.confirmationUrl/);
+  assert.match(api, /planId: requestedPlanId/);
+  assert.doesNotMatch(api, /return redirect\(result\.confirmationUrl/);
 
-  assert.match(
-    plans,
-    /confirmationUrl\?: string/,
-  );
-  assert.match(
-    plans,
-    /open\(fetcher\.data\.confirmationUrl, "_top"\)/,
-  );
-  assert.doesNotMatch(
-    plans,
-    /window\.top\.location\.href/,
-  );
+  assert.match(client, /validateBillingConfirmation/);
+  assert.match(client, /admin\.shopify\.com/);
+  assert.match(plans, /window\.open\(response\.confirmationUrl, "_top"\)/);
+  assert.match(plans, /Continue to Shopify plan approval/);
+  assert.match(plans, /target="_top"/);
 });
 
 test("billing failures decode SDK shapes and expose safe diagnostics", () => {
@@ -472,16 +453,14 @@ test("billing failures decode SDK shapes and expose safe diagnostics", () => {
   assert.match(api, /\[billing\] subscription action failed/);
 });
 
-test("plans page scrolls billing failures into view", () => {
+test("plans page renders billing failures and approval state inside the workspace", () => {
   const plans = read("app/routes/app.plans.tsx");
 
-  assert.match(plans, /useEffect, useRef/);
-  assert.match(plans, /const errorRef = useRef<HTMLDivElement \| null>/);
-  assert.match(plans, /scrollIntoView\(\{/);
-  assert.match(plans, /behavior: "smooth"/);
-  assert.match(plans, /block: "start"/);
-  assert.match(plans, /focus\(\{ preventScroll: true \}\)/);
-  assert.match(plans, /<div ref=\{errorRef\} tabIndex=\{-1\}>/);
+  assert.match(plans, /vsn-notice error/);
+  assert.match(plans, /result\?\.error/);
+  assert.match(plans, /result\?\.confirmationUrl/);
+  assert.match(plans, /If Shopify did not open automatically/);
+  assert.doesNotMatch(plans, /useFetcher/);
 });
 
 test("billing entitlement requires the exact current plan", () => {
@@ -513,10 +492,11 @@ test("billing entitlement requires the exact current plan", () => {
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
-  assert.match(plans, /Incompatible active subscription/);
+  assert.match(plans, /A previous subscription no longer matches the current catalog/);
   assert.match(plans, /Cancel incompatible subscription/);
-  assert.match(plans, /disabled=\{isLoading \|\| activeIsUnknown \|\| isCurrent\}/);
+  assert.match(plans, /activeIsUnknown/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
+  assert.match(plans, /submitBilling\(formData, location\.search\)/);
 });
 
 
