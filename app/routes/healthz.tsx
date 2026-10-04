@@ -8,6 +8,7 @@ import {
   getDatabaseMode,
   isBillingTestMode,
 } from "../environment.server";
+import { getShopifyBillingMode } from "../services/shopify-app-pricing.server";
 
 type CloudflareHealthContext = {
   cloudflare?: {
@@ -33,6 +34,7 @@ export function loader({ context }: LoaderFunctionArgs) {
       service: "vsn-stock-down-sort",
       environment,
       billingTestMode: isBillingTestMode(),
+      billingMethod: getShopifyBillingMode(),
       database: getDatabaseMode(),
       sortQueue: {
         required: sortQueueRequired,
