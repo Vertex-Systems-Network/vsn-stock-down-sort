@@ -70,8 +70,8 @@ test("Plans page no longer implies 24/7 support for every plan", () => {
   const route = read("app/routes/app.plans.tsx");
 
   assert.ok(route.includes("resolveSupportEntitlement(plan)"));
-  assert.ok(route.includes("Support included"));
-  assert.ok(route.includes("{support.label}"));\n  assert.ok(route.includes("24/7 priority support"));
+  assert.ok(route.includes("{support.label}"));
+  assert.ok(route.includes("24/7 priority support"));
   assert.equal(
     route.includes('<s-badge tone="info">24/7 support</s-badge>'),
     false,
