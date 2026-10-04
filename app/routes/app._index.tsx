@@ -26,6 +26,7 @@ import {
   saveCollectionRules,
   sortCollection,
 } from "../services/collection-sorter.server";
+import { BrandButton } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -844,7 +845,7 @@ export default function AppIndex() {
               ) : null}
 
               <s-stack direction="inline" gap="base">
-                <s-button
+                <BrandButton
                   type="submit"
                   variant="primary"
                   loading={
@@ -855,7 +856,7 @@ export default function AppIndex() {
                   disabled={busy}
                 >
                   Save rules
-                </s-button>
+                </BrandButton>
                 <s-text>
                   Saved rules are re-applied automatically when an enabled
                   collection receives inventory/product webhooks.
