@@ -76,3 +76,22 @@ test("billing client uses App Bridge token auth and keeps an approval fallback l
   assert.ok(plans.includes('window.open(response.confirmationUrl, "_top")'));
   assert.ok(plans.includes("Continue to Shopify plan approval"));
 });
+
+
+test("workspace owns the complete Stock Down Sort internal navigation", () => {
+  const workspace = read("app/components/Workspace.tsx");
+
+  for (const route of [
+    "/app",
+    "/app/visibility",
+    "/app/contexts",
+    "/app/analytics",
+    "/app/automation",
+    "/app/alerts",
+    "/app/integrations",
+    "/app/plans",
+    "/app/support",
+  ]) {
+    assert.ok(workspace.includes(route), route);
+  }
+});
