@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
   "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. Global Vertex UI alignment merged in PR #151. AI-Native plan audit PR #152 exact head 3a520d1738f0befb7fd6960bec4b968ed42a5c8a passed App Validation #561 / run 37170586736, including the new 26-option AI-Native plan alignment contract.",
-  "next_valid_work_unit": "No additional repository feature development is currently identified by the AI-Native option/plan audit. Remaining finalization gates are external/manual: confirm Partner Dashboard Manual Pricing for item 5, complete Shopify App Store submission item 4, then perform item 6 final merchant smoke test. No new Staging or Production promotion until all six items are complete.",
+  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan: no additional repository feature development is identified by the 26-option audit. Remaining finalization gates are external/manual: confirm Partner Dashboard Manual Pricing for item 5, complete Shopify App Store submission item 4, then perform item 6 final merchant smoke test. No new Staging or Production promotion until all six items are complete.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
