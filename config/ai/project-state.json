@@ -5,8 +5,8 @@
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option AI-Native alignment remain complete. Shopify App Pricing repository architecture is merged and verified. Partner organization ID 4859256 was corrected from the Shopify Partners Dashboard URL in PR #161. Development head 1417c1f48e2666662b48f6496048887ab7483d23 passed post-merge App Validation #584 / run 37198659203. Environment Secrets Audit #12 / run 37198659224 passed against cloudflare-staging, including Partner API authentication, Manage apps access, and staging app identity verification.",
-  "next_valid_work_unit": "Repository development is complete for the current plan. In the final acceptance cycle, GitHub Issue #154 is the tracking surface. Staging Partner API readiness is complete. Remaining external/runtime gates are: configure and verify the four Shopify App Pricing plans and welcome/listing metadata, configure/verify the Partner API token in cloudflare-production, complete App Store submission, recertify and promote the exact accepted source through Staging and Live, then run Staging Runtime Acceptance and Final Production Merchant Smoke.",
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option AI-Native alignment remain complete. PR #165 aligned the actual three-Shopify-app billing topology: Local/Dev and Staging use manual_legacy test billing, while Live/Production alone uses Shopify App Pricing and owns the App Store submission/public plans. PR #165 exact head passed App Validation #593 / run 37203783453; merge d157f7ecdfed1ac917e9b439683b17d2f16708a7 passed post-merge App Validation #594 / run 37203858177 and Environment Secrets Audit #13 / run 37203858171.",
+  "next_valid_work_unit": "Repository development is complete for the current plan. In the final acceptance cycle, GitHub Issue #154 is the tracking surface. Verify Live Shopify App Pricing by installing the Live app on a Partner development store and auditing each public plan; verify the production Partner API environment; complete the Live App Store submission; then recertify and promote the exact accepted source through Dev -> Staging -> Live. Staging acceptance uses Billing API test subscriptions and must not depend on Live App Pricing.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,17 +24,17 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and Shopify App Pricing is CI-green. Post-merge App Validation #584 / run 37198659203 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, Worker build and both Cloudflare dry-runs on development head 1417c1f48e2666662b48f6496048887ab7483d23. Environment Secrets Audit #12 / run 37198659224 passed on protected Staging with Partner API authentication, Manage apps access and app identity verification.",
+  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and the three-app billing topology is CI-green. Post-merge App Validation #594 / run 37203858177 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, environment promotion, Worker build and both Cloudflare dry-runs on development head d157f7ecdfed1ac917e9b439683b17d2f16708a7. Environment Secrets Audit #13 / run 37203858171 passed under the corrected Staging manual-billing model.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "1417c1f48e2666662b48f6496048887ab7483d23",
+  "last_reconciled_repository_ref": "d157f7ecdfed1ac917e9b439683b17d2f16708a7",
   "last_reconciled_at": "2026-10-04",
-  "notes": "Repository implementation is complete for the current finalization architecture. Shopify App Pricing is the public submission target; existing Billing API subscriptions remain compatibility-only until migration. Partner organization ID 4859256, Staging App GID gid://shopify/App/430575026177 and Production App GID gid://shopify/App/405802811393 are committed non-secret runtime identifiers. Staging SHOPIFY_PARTNER_API_ACCESS_TOKEN is present and verified by Environment Secrets Audit #12. Production Partner API token status is not yet verified.",
+  "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
-    "workflow_run": 584,
-    "run_id": 37198659203,
+    "workflow_run": 594,
+    "run_id": 37203858177,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "1417c1f48e2666662b48f6496048887ab7483d23",
+    "validated_head_sha": "d157f7ecdfed1ac917e9b439683b17d2f16708a7",
     "completion_evidence_pr_number": 122,
     "completion_evidence_pr_head_sha": "f0af4d767719e067d45a3841938b9da6290f0b48",
     "completion_evidence_pr_validation_run": 37120141234,
@@ -79,20 +79,18 @@
     "ui_billing_recovery_contract": "passed",
     "shopify_app_pricing_contract": "passed",
     "environment_secrets_audit_staging": {
-      "run_number": 12,
-      "run_id": 37198659224,
+      "run_number": 13,
+      "run_id": 37203858171,
       "conclusion": "success",
-      "result": "partner_api_verified",
-      "missing": [],
-      "partner_org_id": "4859256",
-      "app_gid": "gid://shopify/App/430575026177",
-      "partner_api_authentication": "passed",
-      "partner_api_manage_apps_access": "passed",
-      "partner_api_app_identity": "passed"
+      "result": "staging_manual_billing_environment_verified",
+      "billing_mode": "manual_legacy",
+      "billing_test_mode": true,
+      "partner_api_required": false,
+      "note": "Older Staging Partner API/App Pricing evidence is superseded by PR #165."
     },
     "environment_secrets_audit_production": {
-      "status": "not_yet_verified_for_partner_api_token",
-      "reason": "production-aligned audit has not run after Partner API token requirement was introduced"
+      "status": "pending_live_environment_verification",
+      "reason": "Live/Production is the only Shopify App Pricing environment and must pass the production-aligned Partner API audit."
     }
   },
   "batch_06_09": {
@@ -172,8 +170,8 @@
       {
         "id": 5,
         "title": "Public-app billing verification and Unlimited USD 70 alignment",
-        "status": "staging_partner_api_verified_dashboard_pricing_and_production_pending",
-        "evidence": "PR #161 corrected the Partner organization ID to 4859256 from the Shopify Partners Dashboard URL. App Validation #583 passed before merge and post-merge App Validation #584 / run 37198659203 passed. Environment Secrets Audit #12 / run 37198659224 passed in cloudflare-staging, verifying Partner API token presence, authentication, Manage apps access and exact staging app identity. Remaining billing gates are Partner Dashboard plan/listing configuration, production token/audit and any required Billing API subscription migration."
+        "status": "live_app_pricing_repository_aligned_runtime_verification_pending",
+        "evidence": "PR #165 aligned billing to the actual three-app model: Local/Dev and Staging use manual_legacy test billing; Live/Production alone uses Shopify App Pricing. App Validation #593 passed before merge; post-merge App Validation #594 / run 37203858177 and Environment Secrets Audit #13 / run 37203858171 passed. Remaining billing verification is Live-only: test each public plan on a Partner development store, verify production Partner API environment, and preserve/migrate any existing Live Billing API subscriptions."
       },
       {
         "id": 6,
@@ -184,42 +182,48 @@
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 584,
-      "run_id": 37198659203,
+      "run_number": 594,
+      "run_id": 37203858177,
       "conclusion": "success",
-      "validated_head_sha": "1417c1f48e2666662b48f6496048887ab7483d23",
-      "development_head_sha": "1417c1f48e2666662b48f6496048887ab7483d23"
+      "validated_head_sha": "d157f7ecdfed1ac917e9b439683b17d2f16708a7",
+      "development_head_sha": "d157f7ecdfed1ac917e9b439683b17d2f16708a7"
     },
     "tracking_issue": 154,
     "tracking_issue_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/154",
     "latest_staging_environment_audit": {
       "workflow": "Environment Secrets Audit",
-      "run_number": 12,
-      "run_id": 37198659224,
+      "run_number": 13,
+      "run_id": 37203858171,
       "conclusion": "success",
-      "blocker": null,
-      "partner_api_check": "passed",
-      "organization_id": "4859256",
-      "app_gid": "gid://shopify/App/430575026177"
+      "billing_mode": "manual_legacy",
+      "partner_api_check": "not_required_for_staging",
+      "supersedes_partner_api_staging_audit": true
     }
   },
   "billing_strategy": {
-    "status": "staging_partner_api_verified_dashboard_pricing_and_production_pending",
-    "method": "shopify_app_pricing",
+    "status": "three_app_topology_aligned_live_runtime_verification_pending",
     "policy_file": "config/shopify/billing-strategy.json",
     "submission_record": "config/shopify/app-store-submission.json",
-    "partner_dashboard_configuration_required": true,
-    "legacy_billing_api_compatibility": "preserved_until_migration",
-    "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml",
-    "partner_runtime": {
-      "organization_id": "4859256",
-      "staging_app_gid": "gid://shopify/App/430575026177",
-      "production_app_gid": "gid://shopify/App/405802811393",
-      "secret_required": "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
-      "staging_secret_status": "verified",
-      "production_secret_status": "unverified",
-      "audit_workflow": ".github/workflows/environment-secrets-audit.yml"
-    }
+    "environments": {
+      "local_dev": {
+        "billing_mode": "manual_legacy",
+        "billing_test_mode": true
+      },
+      "staging": {
+        "billing_mode": "manual_legacy",
+        "billing_test_mode": true
+      },
+      "production_live": {
+        "billing_mode": "shopify_app_pricing",
+        "billing_test_mode": false,
+        "partner_org_id": "4859256",
+        "app_gid": "gid://shopify/App/405802811393",
+        "partner_api_secret": "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
+      }
+    },
+    "live_app_pricing_audit": ".github/workflows/shopify-live-app-pricing-audit.yml",
+    "legacy_live_billing_api_compatibility": "preserved_until_migration",
+    "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
   },
   "ai_plan_alignment": {
     "status": "complete_for_repository_development",
