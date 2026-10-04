@@ -82,7 +82,8 @@
       "subscription_read": "passed",
       "active_subscription_count": 1,
       "recognized_plan_id": "starter"
-    }
+    },
+    "accepted_main_ref": "4a6e8fb1e9920ee05194142902d5a68a5efb108d"
   },
   "live": {
     "status": "accepted",
