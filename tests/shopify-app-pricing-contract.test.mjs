@@ -86,7 +86,7 @@ test("hosted Workers and promotion workflows carry Partner API configuration", (
     const source = read(path);
     const config = JSON.parse(source);
     assert.equal(config.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing", path);
-    assert.equal(config.vars.SHOPIFY_PARTNER_ORG_ID, "214077920", path);
+    assert.equal(config.vars.SHOPIFY_PARTNER_ORG_ID, "4859256", path);
     assert.equal(config.vars.SHOPIFY_APP_GID, appGid, path);
     assert.ok(
       config.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),

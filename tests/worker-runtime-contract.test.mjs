@@ -938,7 +938,7 @@ test("environment secrets audit checks required deployment credentials", () => {
   );
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
   assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
-  assert.match(workflow, /SHOPIFY_PARTNER_ORG_ID: "214077920"/);
+  assert.match(workflow, /SHOPIFY_PARTNER_ORG_ID: "4859256"/);
   assert.match(workflow, /gid:\/\/shopify\/App\/430575026177/);
   assert.match(workflow, /gid:\/\/shopify\/App\/405802811393/);
   assert.match(

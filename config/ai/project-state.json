@@ -28,7 +28,7 @@
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
   "last_reconciled_repository_ref": "4ed660335fa19e42aa2138600a052feeedcec033",
   "last_reconciled_at": "2026-10-04",
-  "notes": "Repository implementation is complete for the current finalization architecture. Shopify App Pricing is the public submission target; existing Billing API subscriptions remain compatibility-only until migration. Partner organization ID 214077920, Staging App GID gid://shopify/App/430575026177 and Production App GID gid://shopify/App/405802811393 are committed non-secret runtime identifiers. The only Partner API credential is SHOPIFY_PARTNER_API_ACCESS_TOKEN. Staging Environment Secrets Audit #11 proves that token is currently missing; production token status is not yet verified.",
+  "notes": "Repository implementation is complete for the current finalization architecture. Shopify App Pricing is the public submission target; existing Billing API subscriptions remain compatibility-only until migration. Partner organization ID 4859256, Staging App GID gid://shopify/App/430575026177 and Production App GID gid://shopify/App/405802811393 are committed non-secret runtime identifiers. The only Partner API credential is SHOPIFY_PARTNER_API_ACCESS_TOKEN. Staging Environment Secrets Audit #11 originally failed because the repository used the wrong Partner organization ID. The Partner API client screenshot confirms organization ID 4859256 from the Partners Dashboard URL. The access token is present; re-validation is required against the corrected endpoint. Production token status remains unverified.",
   "ci_evidence": {
     "workflow_run": 579,
     "run_id": 37196866839,
@@ -82,10 +82,8 @@
       "run_number": 11,
       "run_id": 37196866854,
       "conclusion": "failure",
-      "result": "single_external_secret_blocker",
-      "missing": [
-        "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
-      ],
+      "result": "revalidation_required_after_partner_org_id_correction",
+      "missing": [],
       "verified_present": [
         "DATABASE_URL",
         "DIRECT_URL",
@@ -97,9 +95,9 @@
         "CLOUDFLARE_API_TOKEN",
         "CLOUDFLARE_ACCOUNT_ID"
       ],
-      "partner_org_id": "214077920",
+      "partner_org_id": "4859256",
       "app_gid": "gid://shopify/App/430575026177",
-      "partner_api_runtime_check": "skipped_until_token_present"
+      "partner_api_runtime_check": "pending_revalidation_after_org_id_fix"
     },
     "environment_secrets_audit_production": {
       "status": "not_yet_verified_for_partner_api_token",
@@ -221,11 +219,11 @@
     "legacy_billing_api_compatibility": "preserved_until_migration",
     "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml",
     "partner_runtime": {
-      "organization_id": "214077920",
+      "organization_id": "4859256",
       "staging_app_gid": "gid://shopify/App/430575026177",
       "production_app_gid": "gid://shopify/App/405802811393",
       "secret_required": "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
-      "staging_secret_status": "missing",
+      "staging_secret_status": "present_unverified_against_correct_org",
       "production_secret_status": "unverified",
       "audit_workflow": ".github/workflows/environment-secrets-audit.yml"
     }

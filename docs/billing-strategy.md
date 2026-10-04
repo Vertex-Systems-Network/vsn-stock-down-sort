@@ -20,7 +20,7 @@ Every plan has unlimited product and collection counts. Capability entitlements 
 Hosted App Pricing requires:
 
 - `SHOPIFY_BILLING_MODE=shopify_app_pricing`
-- committed Partner organization ID `214077920`
+- committed Partner organization ID `4859256`
 - committed per-environment app GID:
   - Staging: `gid://shopify/App/430575026177`
   - Production: `gid://shopify/App/405802811393`
