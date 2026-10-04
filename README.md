@@ -267,6 +267,9 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `SHOPIFY_PARTNER_ORG_ID`
+- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
+- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
@@ -279,10 +282,13 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `SHOPIFY_PARTNER_ORG_ID`
+- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
+- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
-`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
+`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Hosted Staging and Production set `SHOPIFY_BILLING_MODE=shopify_app_pricing`; the three Partner API values are uploaded as Worker secrets.
 
 ## Sort job queues
 
@@ -329,6 +335,8 @@ Authenticated merchants can submit support requests from `/app/support`. Request
 - `docs/staging-runbook.md` — Staging setup and promotion
 - `docs/production-runbook.md` — Production readiness and release gates
 - `config/shopify/production-release.json` — production release authorization policy
+- `config/shopify/app-store-submission.json` — App Pricing + App Store finalization record
+- `docs/shopify-app-store-submission.md` — Partner Dashboard, review and final smoke runbook
 
 ## Safety rules
 
