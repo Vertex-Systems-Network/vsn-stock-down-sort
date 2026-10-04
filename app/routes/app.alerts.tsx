@@ -14,6 +14,7 @@ import {
   getAlertSetting,
   saveAlertSetting,
 } from "../services/alerts.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -99,7 +100,7 @@ export default function AlertsPage() {
       : setting;
 
   return (
-    <s-page heading="Low-stock alerts">
+    <PageShell heading="Low-stock alerts">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -270,6 +271,6 @@ export default function AlertsPage() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
