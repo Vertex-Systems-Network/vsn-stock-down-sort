@@ -55,7 +55,7 @@ The repository includes Supervisor, Worker, governance, risk, audit, release, op
 
 The Shopify App Store submission target is **Shopify App Pricing**. New subscriptions and plan changes use Shopify's hosted pricing page, and subscription state is read through the Partner API Active Subscription API. Existing Billing API subscriptions remain supported as a compatibility fallback until Shopify migration tooling moves them.
 
-Hosted App Pricing requires `SHOPIFY_BILLING_MODE=shopify_app_pricing`, `SHOPIFY_PARTNER_ORG_ID`, `SHOPIFY_PARTNER_API_ACCESS_TOKEN`, and `SHOPIFY_APP_GID`. The app fails closed if App Pricing mode is enabled without a usable Partner API configuration. The canonical decision is `config/shopify/billing-strategy.json`.
+Hosted App Pricing requires `SHOPIFY_BILLING_MODE=shopify_app_pricing`, the committed Partner organization/app identifiers, and secret `SHOPIFY_PARTNER_API_ACCESS_TOKEN`. The app fails closed if App Pricing mode is enabled without a usable Partner API configuration. The canonical decision is `config/shopify/billing-strategy.json`.
 
 ## Runtime architecture
 
@@ -267,9 +267,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
-- `SHOPIFY_PARTNER_ORG_ID`
 - `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
-- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
@@ -282,13 +280,11 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
-- `SHOPIFY_PARTNER_ORG_ID`
 - `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
-- `SHOPIFY_APP_GID`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
-`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Hosted Staging and Production set `SHOPIFY_BILLING_MODE=shopify_app_pricing`; the three Partner API values are uploaded as Worker secrets.
+`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Hosted Staging and Production set `SHOPIFY_BILLING_MODE=shopify_app_pricing`; Partner organization ID and App GID are committed Worker vars, while only `SHOPIFY_PARTNER_API_ACCESS_TOKEN` is uploaded as a Partner API secret.
 
 ## Sort job queues
 
