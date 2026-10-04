@@ -71,7 +71,7 @@ test("Plans page no longer implies 24/7 support for every plan", () => {
 
   assert.ok(route.includes("resolveSupportEntitlement(plan)"));
   assert.ok(route.includes("Support included"));
-  assert.ok(route.includes("{support.label}"));
+  assert.ok(route.includes("{support.label}"));\n  assert.ok(route.includes("24/7 priority support"));
   assert.equal(
     route.includes('<s-badge tone="info">24/7 support</s-badge>'),
     false,
@@ -84,7 +84,7 @@ test("Plans page no longer implies 24/7 support for every plan", () => {
 
 test("Support page keeps entitlement derived from the authenticated current plan", () => {
   const route = read("app/routes/app.support.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
   const normalizedRoute = route.replace(/\s+/g, " ");
 
   assert.ok(route.includes("authenticate.admin(request)"));
