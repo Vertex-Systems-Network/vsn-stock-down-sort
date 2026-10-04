@@ -55,7 +55,7 @@ The repository includes Supervisor, Worker, governance, risk, audit, release, op
 
 The Shopify App Store submission target is **Shopify App Pricing**. New subscriptions and plan changes use Shopify's hosted pricing page, and subscription state is read through the Partner API Active Subscription API. Existing Billing API subscriptions remain supported as a compatibility fallback until Shopify migration tooling moves them.
 
-Hosted App Pricing requires `SHOPIFY_BILLING_MODE=shopify_app_pricing`, the committed Partner organization/app identifiers, and secret `SHOPIFY_PARTNER_API_ACCESS_TOKEN`. The app fails closed if App Pricing mode is enabled without a usable Partner API configuration. The canonical decision is `config/shopify/billing-strategy.json`.
+Only the Live/Production app uses `SHOPIFY_BILLING_MODE=shopify_app_pricing`, the Live Partner/app identifiers, and `SHOPIFY_PARTNER_API_ACCESS_TOKEN`. Local/Dev and Staging use `manual_legacy` test billing. The canonical decision is `config/shopify/billing-strategy.json`.
 
 ## Runtime architecture
 
@@ -95,9 +95,9 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | test |
-| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | Billing API test (`manual_legacy`) |
+| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | Billing API test (`manual_legacy`) |
+| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | Shopify App Pricing |
 
 Database topology is also isolated:
 - Local: gitignored SQLite file `prisma/dev.sqlite`
@@ -109,6 +109,10 @@ Local must be completed and verified before Staging work begins.
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
 The Staging client ID remains a placeholder in git and is injected from `cloudflare-staging`. The Live/Production client ID is committed in `shopify.app.production.toml`, matching the VSN Metafields model; `cloudflare-production` must provide the same `SHOPIFY_API_KEY`, while the API secret remains environment-scoped.
+
+### Live App Pricing pre-submission test
+
+Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, USD amount, monthly interval and 10-day trial against the Live Partner API subscription state.
 
 ## Local development
 
@@ -267,7 +271,6 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
-- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
@@ -284,7 +287,7 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
-`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Hosted Staging and Production set `SHOPIFY_BILLING_MODE=shopify_app_pricing`; Partner organization ID and App GID are committed Worker vars, while only `SHOPIFY_PARTNER_API_ACCESS_TOKEN` is uploaded as a Partner API secret.
+`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Staging sets `SHOPIFY_BILLING_MODE=manual_legacy` with test billing and does not require Partner API billing credentials. Production sets `SHOPIFY_BILLING_MODE=shopify_app_pricing`; the Live Partner organization/App GID are committed Worker vars and `SHOPIFY_PARTNER_API_ACCESS_TOKEN` remains a production secret.
 
 ## Sort job queues
 
