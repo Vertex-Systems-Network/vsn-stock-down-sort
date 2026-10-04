@@ -516,7 +516,8 @@ export default function AppIndex() {
         </s-banner>
       ) : null}
 
-      <div id="collections-table" />\n      <s-section padding="none">
+      <div id="collections-table" />
+      <s-section padding="none">
         <s-table loading={busy}>
           <s-stack slot="filters" direction="inline" gap="base">
             <s-search-field
