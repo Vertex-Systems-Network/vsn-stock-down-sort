@@ -31,7 +31,7 @@ Shopify App Pricing is tested on the **Live app itself** by installing that Live
 
 `.github/workflows/shopify-live-app-pricing-audit.yml`
 
-It verifies the Live app's plan handle, USD amount, monthly interval and configured 10-day trial against Partner API subscription/event data.
+It verifies two separate pricing truths from Partner API data: the development store's active no-charge subscription must have an effective USD 0.00 price, while the historical plan event must still match the configured Live public catalog amount (USD 10.99 / 19.99 / 34.99 / 70.00). The audit also verifies plan handle, monthly interval and the configured 10-day trial.
 
 ## Live runtime configuration
 
