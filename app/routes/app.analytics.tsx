@@ -10,7 +10,7 @@ import {
   getActivityHistory,
   getAutomationAnalytics,
 } from "../services/analytics.server";
-import { PageShell } from "../components/BrandUi";
+import { BrandBadge, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -114,14 +114,14 @@ export default function AnalyticsPage() {
           </s-text>
 
           {currentPlan ? (
-            <s-badge tone="info">{currentPlan.name} plan</s-badge>
+            <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
           ) : null}
 
           {!canAnalytics && !canHistory ? (
-            <s-banner tone="warning">
+            <BrandNotice tone="warning">
               Analytics and activity history are available on plans that include
               the PHASE-04 observability capabilities.
-            </s-banner>
+            </BrandNotice>
           ) : null}
 
           <s-text color="subdued">
