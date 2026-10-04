@@ -5,8 +5,8 @@
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
-  "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. Global Vertex UI alignment merged in PR #151. AI-Native plan audit PR #152 exact head 3a520d1738f0befb7fd6960bec4b968ed42a5c8a passed App Validation #561 / run 37170586736, including the new 26-option AI-Native plan alignment contract.",
-  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan: no additional repository feature development is identified by the 26-option audit. In the final acceptance cycle, the remaining gates are external/manual: confirm Partner Dashboard Manual Pricing for item 5, complete Shopify App Store submission item 4, then perform item 6 final merchant smoke test. No new Staging or Production promotion until all six items are complete.",
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository development remains complete. AI-Native 26-option alignment remains complete. Shopify App Pricing repository migration PR #153 exact head 96bfa231042726033d7403bf817846427284bddb passed App Validation #566 / run 37195061429, including Partner API entitlement reads, hosted pricing flow, legacy Billing API compatibility, final production merchant smoke automation, Worker build and both Cloudflare dry-runs.",
+  "next_valid_work_unit": "Repository development is complete for the current AI-Native plan and Shopify App Pricing submission architecture. In the final acceptance cycle, configure the four Shopify App Pricing plans and Partner API client/credentials in the Partner Dashboard and hosted environments, complete the App Store listing/submission, promote the accepted source through Local → Staging → Live, then run Final Production Merchant Smoke. No production finalization item may be marked complete without real external/runtime evidence.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,17 +24,17 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Repository development through PHASE-10 plus current UI/billing/AI-plan alignment is CI-green. App Validation #561 / run 37170586736 passed lint, typecheck, PHASE-02 through PHASE-10 contracts, UI/billing recovery, the 26-option AI-Native plan alignment contract, Worker build and both Cloudflare dry-runs. New finalization changes remain development-only until external gates close.",
+  "qa_readiness": "Repository development through PHASE-10 plus UI, 26-option AI alignment and Shopify App Pricing migration is CI-green. App Validation #566 / run 37195061429 passed lint, typecheck, Worker/runtime contracts, PHASE-02 through PHASE-10, UI/billing, AI plan alignment, Shopify App Pricing contract, Worker build and both Cloudflare dry-runs. Partner Dashboard configuration and real runtime acceptance remain external gates.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a",
+  "last_reconciled_repository_ref": "96bfa231042726033d7403bf817846427284bddb",
   "last_reconciled_at": "2026-10-04",
-  "notes": "PHASE-01 through PHASE-10 are complete. The AI-Native audit confirms all 26 selected options are runtime-implemented, plan-assigned, module-owned, documented and source-evidenced. MOD-BILLING now owns the full runtime capability catalog. App Validation SCOPES and README include read_locations for multi-location inventory. Remaining work is external/manual finalization only; promotion lock remains enabled.",
+  "notes": "PHASE-01 through PHASE-10 and all 26 runtime options are repository-complete. Shopify App Pricing is now the public submission target; existing Billing API subscriptions are compatibility-only until migration. Hosted Staging/Production require Partner API credentials and SHOPIFY_BILLING_MODE=shopify_app_pricing. App Store submission and final production merchant smoke remain pending external/runtime gates.",
   "ci_evidence": {
-    "workflow_run": 561,
-    "run_id": 37170586736,
+    "workflow_run": 566,
+    "run_id": 37195061429,
     "status": "completed",
     "conclusion": "success",
-    "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a",
+    "validated_head_sha": "96bfa231042726033d7403bf817846427284bddb",
     "completion_evidence_pr_number": 122,
     "completion_evidence_pr_head_sha": "f0af4d767719e067d45a3841938b9da6290f0b48",
     "completion_evidence_pr_validation_run": 37120141234,
@@ -76,7 +76,8 @@
     "phase_10_validation_conclusion": "success",
     "phase_10_merge_sha": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
     "ai_native_plan_alignment_contract": "passed",
-    "ui_billing_recovery_contract": "passed"
+    "ui_billing_recovery_contract": "passed",
+    "shopify_app_pricing_contract": "passed"
   },
   "batch_06_09": {
     "scope": [
@@ -149,34 +150,38 @@
       {
         "id": 4,
         "title": "Shopify App Store submission completion",
-        "status": "pending"
+        "status": "repository_ready_external_submission_pending",
+        "evidence": "Canonical App Store submission record/runbook and Final Production Merchant Smoke workflow were added in PR #153; Shopify Partner Dashboard listing/submission still requires real external completion."
       },
       {
         "id": 5,
         "title": "Public-app billing verification and Unlimited USD 70 alignment",
-        "status": "repository_decision_complete_dashboard_confirmation_pending",
-        "evidence": "Unlimited USD 70 repository alignment passed App Validation #521/#522/#523. Initial public submission billing method is now explicitly Manual Pricing / Billing API; Partner Dashboard must be confirmed to use Manual Pricing before item 5 can close."
+        "status": "repository_app_pricing_migration_complete_dashboard_configuration_pending",
+        "evidence": "Shopify App Pricing became the public submission target in PR #153. Partner API Active Subscription integration, hosted pricing flow, legacy Billing API compatibility, hosted secret plumbing and regression coverage passed App Validation #566 / run 37195061429. Partner Dashboard plan/client configuration remains external and unverified."
       },
       {
         "id": 6,
         "title": "Final production merchant smoke test",
-        "status": "pending"
+        "status": "automation_ready_runtime_pending",
+        "evidence": "Signed production acceptance endpoint and Final Production Merchant Smoke workflow exist and passed repository validation. A real production run after App Pricing cutover is still required."
       }
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 561,
-      "run_id": 37170586736,
+      "run_number": 566,
+      "run_id": 37195061429,
       "conclusion": "success",
-      "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a"
+      "validated_head_sha": "96bfa231042726033d7403bf817846427284bddb"
     }
   },
   "billing_strategy": {
-    "status": "decided_for_initial_public_submission",
-    "method": "manual_pricing_billing_api",
+    "status": "repository_ready_dashboard_cutover_pending",
+    "method": "shopify_app_pricing",
     "policy_file": "config/shopify/billing-strategy.json",
-    "dashboard_confirmation_required": true,
-    "shopify_app_pricing_migration": "deferred"
+    "submission_record": "config/shopify/app-store-submission.json",
+    "partner_dashboard_configuration_required": true,
+    "legacy_billing_api_compatibility": "preserved_until_migration",
+    "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
   },
   "ai_plan_alignment": {
     "status": "complete_for_repository_development",
