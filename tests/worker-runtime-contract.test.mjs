@@ -909,11 +909,28 @@ test("environment secrets audit checks required deployment credentials", () => {
     "SHOPIFY_API_KEY",
     "SHOPIFY_API_SECRET",
     "SHOPIFY_APP_AUTOMATION_TOKEN",
+    "SHOPIFY_PARTNER_ORG_ID",
+    "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+    "SHOPIFY_APP_GID",
     "CLOUDFLARE_API_TOKEN",
     "CLOUDFLARE_ACCOUNT_ID",
   ]) {
     assert.match(workflow, new RegExp(name));
   }
+
+  assert.match(workflow, /branches:[\s\S]*development[\s\S]*main/);
+  assert.match(
+    workflow,
+    /github\.event_name == 'push' && github\.ref == 'refs\/heads\/development'/,
+  );
+  assert.match(
+    workflow,
+    /github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/,
+  );
+  assert.match(
+    workflow,
+    /paths:[\s\S]*\.github\/workflows\/environment-secrets-audit\.yml/,
+  );
 
   assert.match(
     workflow,
