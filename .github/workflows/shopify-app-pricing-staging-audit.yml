@@ -222,8 +222,169 @@ jobs:
           ).get("activeSubscription")
 
           if not active:
+              migration_endpoint = (
+                  f"https://partners.shopify.com/{ORG_ID}/api/unstable/graphql.json"
+              )
+              migration_query = """
+              query StagingMigrationStatus($appId: ID!, $after: String) {
+                migratableAppSubscriptions(
+                  appId: $appId
+                  first: 100
+                  after: $after
+                ) {
+                  edges {
+                    node {
+                      shopId
+                      status
+                      manualSubscriptionName
+                      manualSubscriptionInterval
+                      manualSubscriptionPrice {
+                        amount
+                        currencyCode
+                      }
+                      targetPlanHandle
+                      priceBehavior
+                      effectiveDate
+                      lastFailureReason
+                    }
+                  }
+                  pageInfo {
+                    hasNextPage
+                    endCursor
+                  }
+                }
+              }
+              """
+
+              def migration_graphql(query, variables):
+                  body = json.dumps(
+                      {"query": query, "variables": variables}
+                  ).encode("utf-8")
+                  request = urllib.request.Request(
+                      migration_endpoint,
+                      data=body,
+                      method="POST",
+                      headers={
+                          "Content-Type": "application/json",
+                          "X-Shopify-Access-Token": TOKEN,
+                          "User-Agent": "vsn-stock-down-sort-app-pricing-audit/1.0",
+                      },
+                  )
+                  try:
+                      with urllib.request.urlopen(request, timeout=25) as response:
+                          payload = json.loads(response.read().decode("utf-8"))
+                  except urllib.error.HTTPError as exc:
+                      body = exc.read().decode("utf-8", errors="replace")
+                      raise SystemExit(
+                          f"Partner API migration-status HTTP {exc.code}: {body[:500]}"
+                      ) from None
+                  except urllib.error.URLError as exc:
+                      raise SystemExit(
+                          f"Partner API migration-status request failed: {exc.reason}"
+                      ) from None
+
+                  errors = payload.get("errors") or []
+                  if errors:
+                      message = errors[0].get("message") or "unknown GraphQL error"
+                      raise SystemExit(
+                          f"Partner API migration-status GraphQL error: {message}"
+                      )
+                  return payload.get("data") or {}
+
+              migration = None
+              after = None
+              for _ in range(5):
+                  data = migration_graphql(
+                      migration_query,
+                      {"appId": APP_ID, "after": after},
+                  )
+                  connection = data.get("migratableAppSubscriptions") or {}
+                  for edge in connection.get("edges") or []:
+                      node = edge.get("node") or {}
+                      if node.get("shopId") == shop_id:
+                          migration = node
+                          break
+                  if migration:
+                      break
+                  page_info = connection.get("pageInfo") or {}
+                  if not page_info.get("hasNextPage"):
+                      break
+                  after = page_info.get("endCursor")
+
+              summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+              if migration:
+                  manual_price = migration.get("manualSubscriptionPrice") or {}
+                  target_handle = migration.get("targetPlanHandle")
+                  status = migration.get("status")
+                  print(f"staging_shop_gid={shop_id}")
+                  print("staging_app_pricing_live_subscription=absent")
+                  print(f"staging_migration_status={status}")
+                  print(
+                      f"staging_manual_subscription_name={migration.get('manualSubscriptionName')}"
+                  )
+                  print(
+                      f"staging_manual_subscription_interval={migration.get('manualSubscriptionInterval')}"
+                  )
+                  print(
+                      f"staging_manual_subscription_amount={manual_price.get('amount')}"
+                  )
+                  print(
+                      f"staging_manual_subscription_currency={manual_price.get('currencyCode')}"
+                  )
+                  print(f"staging_migration_target_plan_handle={target_handle}")
+                  print(
+                      f"staging_migration_price_behavior={migration.get('priceBehavior')}"
+                  )
+                  print(
+                      f"staging_migration_effective_date={migration.get('effectiveDate')}"
+                  )
+                  print(
+                      f"staging_migration_last_failure={migration.get('lastFailureReason')}"
+                  )
+
+                  if summary_path:
+                      with open(summary_path, "a", encoding="utf-8") as summary:
+                          summary.write("## Shopify App Pricing migration status\n\n")
+                          summary.write(
+                              f"- Shop: **{SHOP_DOMAIN}** (`{shop_id}`)\n"
+                          )
+                          summary.write("- Active managed-pricing contract: **no**\n")
+                          summary.write(f"- Migration status: **{status}**\n")
+                          summary.write(
+                              f"- Manual subscription: **{migration.get('manualSubscriptionName')}**\n"
+                          )
+                          summary.write(
+                              f"- Manual price: **{manual_price.get('currencyCode')} {manual_price.get('amount')}**\n"
+                          )
+                          summary.write(
+                              f"- Manual interval: **{migration.get('manualSubscriptionInterval')}**\n"
+                          )
+                          summary.write(
+                              f"- Target plan handle: **{target_handle}**\n"
+                          )
+                          summary.write(
+                              f"- Price behavior: **{migration.get('priceBehavior')}**\n"
+                          )
+
+                  raise SystemExit(
+                      "No active Shopify App Pricing contract exists for the staging shop; "
+                      f"legacy migration status is {status!r} with target plan {target_handle!r}."
+                  )
+
+              print(f"staging_shop_gid={shop_id}")
+              print("staging_app_pricing_live_subscription=absent")
+              print("staging_migration_status=not_listed")
+              if summary_path:
+                  with open(summary_path, "a", encoding="utf-8") as summary:
+                      summary.write("## Shopify App Pricing migration status\n\n")
+                      summary.write(
+                          f"- Shop: **{SHOP_DOMAIN}** (`{shop_id}`)\n"
+                      )
+                      summary.write("- Active managed-pricing contract: **no**\n")
+                      summary.write("- Migratable legacy subscription: **not listed**\n")
               raise SystemExit(
-                  "No active Shopify App Pricing contract exists for the staging shop."
+                  "No active Shopify App Pricing contract exists and no migratable "
+                  "legacy subscription was listed for the staging shop."
               )
 
           active_shop = active.get("shop") or {}
