@@ -387,7 +387,7 @@ export default function AppIndex() {
   }
 
   return (
-    <s-page inline-size="large" heading="VSN Stock Down Sort">
+    <div className="vsn-page-wide">
       <PageIntro
         eyebrow="Your collection workspace"
         title="Keep available products where shoppers see them first."
@@ -517,159 +517,169 @@ export default function AppIndex() {
       ) : null}
 
       <div id="collections-table" />
-      <s-section padding="none">
-        <s-table loading={busy}>
-          <s-stack slot="filters" direction="inline" gap="base">
-            <s-search-field
-              label="Search collections"
-              labelAccessibilityVisibility="exclusive"
+      <section className="vsn-collection-table-card" aria-busy={busy}>
+        <div className="vsn-collection-filters">
+          <label className="vsn-filter-field">
+            <span>Search collections</span>
+            <input
+              type="search"
               placeholder="Search collections"
               value={query}
-              onInput={(event) => setQuery(event.currentTarget.value)}
+              onChange={(event) => setQuery(event.currentTarget.value)}
             />
+          </label>
 
-            <s-select
-              label="Status"
+          <label className="vsn-filter-field">
+            <span>Status</span>
+            <select
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.currentTarget.value as StatusFilter)
               }
             >
-              <s-option value="all">All statuses</s-option>
-              <s-option value="enabled">Enabled</s-option>
-              <s-option value="disabled">Disabled</s-option>
-              <s-option value="attention">Needs attention</s-option>
-            </s-select>
-          </s-stack>
+              <option value="all">All statuses</option>
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+              <option value="attention">Needs attention</option>
+            </select>
+          </label>
+        </div>
 
-          <s-table-header-row>
-            <s-table-header listSlot="primary">Collection</s-table-header>
-            <s-table-header listSlot="inline">Auto-sort</s-table-header>
-            <s-table-header listSlot="labeled">Products</s-table-header>
-            <s-table-header listSlot="labeled">Shopify sort</s-table-header>
-            <s-table-header listSlot="labeled">Last sorted</s-table-header>
-            <s-table-header listSlot="labeled">Actions</s-table-header>
-          </s-table-header-row>
+        <div className="vsn-table-scroll">
+          <table className="vsn-collections-table">
+            <thead>
+              <tr>
+                <th scope="col">Collection</th>
+                <th scope="col">Auto-sort</th>
+                <th scope="col">Products</th>
+                <th scope="col">Shopify sort</th>
+                <th scope="col">Last sorted</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCollections.map((collection) => {
+                const enabled = Boolean(collection.setting?.enabled);
+                const error = collection.setting?.lastError;
+                const rowBusy =
+                  busy && submittedCollectionId === collection.id;
 
-          <s-table-body>
-            {filteredCollections.map((collection) => {
-              const enabled = Boolean(collection.setting?.enabled);
-              const error = collection.setting?.lastError;
-              const rowBusy =
-                busy && submittedCollectionId === collection.id;
-
-              return (
-                <s-table-row key={collection.id}>
-                  <s-table-cell>
-                    <s-stack gap="small-200">
-                      <s-text type="strong">{collection.title}</s-text>
-                      <s-text>/{collection.handle}</s-text>
-                      {error ? <s-text tone="critical">{error}</s-text> : null}
-                    </s-stack>
-                  </s-table-cell>
-
-                  <s-table-cell>
-                    {error ? (
-                      <s-badge tone="critical">Attention</s-badge>
-                    ) : enabled ? (
-                      <s-badge tone="success">Enabled</s-badge>
-                    ) : (
-                      <s-badge>Disabled</s-badge>
-                    )}
-                  </s-table-cell>
-
-                  <s-table-cell>{collection.productsCount.count}</s-table-cell>
-
-                  <s-table-cell>
-                    <s-text>{collection.sortOrder}</s-text>
-                  </s-table-cell>
-
-                  <s-table-cell>
-                    <s-text>
-                      {formatDate(collection.setting?.lastSortedAt)}
-                    </s-text>
-                  </s-table-cell>
-
-                  <s-table-cell>
-                    <s-button-group>
-                      {enabled ? (
-                        <>
-                          <s-button
-                            variant="secondary"
-                            onClick={() => runAction("sort", collection.id)}
-                            loading={rowBusy && submittedIntent === "sort"}
-                            disabled={busy}
-                          >
-                            Sort now
-                          </s-button>
-
-                          <s-button
-                            variant="tertiary"
-                            tone="critical"
+                return (
+                  <tr key={collection.id}>
+                    <td>
+                      <div className="vsn-collection-name">
+                        <strong>{collection.title}</strong>
+                        <span>/{collection.handle}</span>
+                        {error ? (
+                          <small className="vsn-row-error">{error}</small>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        className={[
+                          "vsn-status-badge",
+                          error
+                            ? "attention"
+                            : enabled
+                              ? "enabled"
+                              : "disabled",
+                        ].join(" ")}
+                      >
+                        {error ? "Attention" : enabled ? "Enabled" : "Disabled"}
+                      </span>
+                    </td>
+                    <td>{collection.productsCount.count}</td>
+                    <td>
+                      <span className="vsn-sort-code">{collection.sortOrder}</span>
+                    </td>
+                    <td>{formatDate(collection.setting?.lastSortedAt)}</td>
+                    <td>
+                      <div className="vsn-row-actions">
+                        {enabled ? (
+                          <button
+                            className="vsn-row-action toggle"
+                            type="button"
                             onClick={() =>
                               runAction("disable", collection.id, false)
                             }
-                            loading={rowBusy && submittedIntent === "disable"}
                             disabled={busy}
                           >
-                            Disable
-                          </s-button>
-                        </>
-                      ) : (
-                        <s-button
-                          variant="primary"
-                          onClick={() => runAction("enable", collection.id)}
-                          loading={rowBusy && submittedIntent === "enable"}
-                          disabled={busy}
-                        >
-                          Enable
-                        </s-button>
-                      )}
+                            {rowBusy && submittedIntent === "disable"
+                              ? "Disabling…"
+                              : "Disable"}
+                          </button>
+                        ) : (
+                          <button
+                            className="vsn-row-action primary"
+                            type="button"
+                            onClick={() => runAction("enable", collection.id)}
+                            disabled={busy}
+                          >
+                            {rowBusy && submittedIntent === "enable"
+                              ? "Enabling…"
+                              : "Enable"}
+                          </button>
+                        )}
 
-                      {enabled && collection.setting?.previousSortOrder ? (
-                        <s-button
-                          variant="tertiary"
+                        {enabled ? (
+                          <button
+                            className="vsn-row-action"
+                            type="button"
+                            onClick={() => runAction("sort", collection.id)}
+                            disabled={busy}
+                          >
+                            {rowBusy && submittedIntent === "sort"
+                              ? "Sorting…"
+                              : "Sort now"}
+                          </button>
+                        ) : null}
+
+                        {enabled && collection.setting?.previousSortOrder ? (
+                          <button
+                            className="vsn-row-action ghost"
+                            type="button"
+                            onClick={() =>
+                              runAction("disable", collection.id, true)
+                            }
+                            disabled={busy}
+                          >
+                            Disable & restore
+                          </button>
+                        ) : null}
+
+                        <button
+                          className="vsn-row-action"
+                          type="button"
                           onClick={() =>
-                            runAction("disable", collection.id, true)
+                            setEditingCollectionId(
+                              editingCollectionId === collection.id
+                                ? null
+                                : collection.id,
+                            )
                           }
                           disabled={busy}
                         >
-                          Disable & restore
-                        </s-button>
-                      ) : null}
-
-                      <s-button
-                        variant="secondary"
-                        onClick={() =>
-                          setEditingCollectionId(
-                            editingCollectionId === collection.id
-                              ? null
-                              : collection.id,
-                          )
-                        }
-                        disabled={busy}
-                      >
-                        {editingCollectionId === collection.id
-                          ? "Close rules"
-                          : "Rules"}
-                      </s-button>
-                    </s-button-group>
-                  </s-table-cell>
-                </s-table-row>
-              );
-            })}
-          </s-table-body>
-        </s-table>
+                          {editingCollectionId === collection.id
+                            ? "Close rules"
+                            : "Rules"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         {filteredCollections.length === 0 ? (
-          <s-box padding="large-300">
-            <s-stack gap="base">
-              <s-heading>No collections found</s-heading>
-              <s-text>Try a different search term or status filter.</s-text>
-            </s-stack>
-          </s-box>
+          <div className="vsn-empty-table">
+            <strong>No collections found</strong>
+            <span>Try a different search term or status filter.</span>
+          </div>
         ) : null}
-      </s-section>
+      </section>
 
       {editingCollection ? (
         <s-section heading={`Rules — ${editingCollection.title}`}>
@@ -863,6 +873,6 @@ export default function AppIndex() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </div>
   );
 }
