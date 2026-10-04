@@ -17,7 +17,7 @@ import {
   saveContextVisibilityRule,
   setContextVisibilityRuleEnabled,
 } from "../services/context-visibility.server";
-import { PageShell } from "../components/BrandUi";
+import { BrandBadge, BrandButton, BrandButtonRow, BrandNotice, PageShell } from "../components/BrandUi";
 
 async function safeTargets(
   admin: Parameters<typeof listPublicationTargets>[0],
@@ -216,9 +216,9 @@ export default function CommerceContextsPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge
+            <BrandBadge
               tone={
                 canMarkets && canB2b && canSalesChannels
                   ? "success"
@@ -228,15 +228,15 @@ export default function CommerceContextsPage() {
               {canMarkets && canB2b && canSalesChannels
                 ? "Unlimited context rules available"
                 : "Unlimited plan required"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
-          <s-banner tone="info">
+          <BrandNotice tone="info">
             This feature needs Shopify read_publications and
             write_publications access. Existing installs may require scope
             reauthorization, and the merchant user must have permission to
             manage the relevant catalogs/publications.
-          </s-banner>
+          </BrandNotice>
 
           <s-text color="subdued">
             VSN does not create Markets, B2B catalogs, or sales channels here.
@@ -247,13 +247,13 @@ export default function CommerceContextsPage() {
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Context rule updated" : "Context rule failed"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       {targetGroups.map((group) => (
@@ -263,10 +263,10 @@ export default function CommerceContextsPage() {
               This capability is not included in the current plan.
             </s-text>
           ) : group.data.error ? (
-            <s-banner tone="warning">
+            <BrandNotice tone="warning">
               Shopify publication discovery is not currently available for this
               context: {group.data.error}
-            </s-banner>
+            </BrandNotice>
           ) : group.data.items.length === 0 ? (
             <s-text color="subdued">
               No existing Shopify publications were found for this context.
@@ -305,9 +305,9 @@ export default function CommerceContextsPage() {
                   defaultChecked
                 />
 
-                <s-button type="submit" variant="primary" disabled={busy}>
+                <BrandButton type="submit" variant="primary" disabled={busy}>
                   Add {group.label} rule
-                </s-button>
+                </BrandButton>
               </s-stack>
             </form>
           )}
@@ -334,12 +334,12 @@ export default function CommerceContextsPage() {
                   <s-stack gap="base">
                     <s-stack direction="inline" gap="base">
                       <s-heading>{rule.targetTitle}</s-heading>
-                      <s-badge>
+                      <BrandBadge>
                         {targetTypeLabel(rule.targetType)}
-                      </s-badge>
-                      <s-badge tone={rule.enabled ? "success" : "warning"}>
+                      </BrandBadge>
+                      <BrandBadge tone={rule.enabled ? "success" : "warning"}>
                         {rule.enabled ? "Enabled" : "Paused"}
-                      </s-badge>
+                      </BrandBadge>
                     </s-stack>
 
                     <s-text color="subdued">
@@ -352,7 +352,7 @@ export default function CommerceContextsPage() {
                         : "Keep removed until merchant action"}
                     </s-text>
 
-                    <s-button-group>
+                    <BrandButtonRow>
                       <form method="post">
                         <input type="hidden" name="intent" value="toggle" />
                         <input type="hidden" name="ruleId" value={rule.id} />
@@ -361,20 +361,20 @@ export default function CommerceContextsPage() {
                           name="enabled"
                           value={rule.enabled ? "false" : "true"}
                         />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="secondary"
                           disabled={busy}
                           loading={rowBusy}
                         >
                           {rule.enabled ? "Pause" : "Enable"}
-                        </s-button>
+                        </BrandButton>
                       </form>
 
                       <form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="tertiary"
                           tone="critical"
@@ -382,9 +382,9 @@ export default function CommerceContextsPage() {
                           loading={rowBusy}
                         >
                           Delete
-                        </s-button>
+                        </BrandButton>
                       </form>
-                    </s-button-group>
+                    </BrandButtonRow>
 
                     <s-text color="subdued">
                       Pause/delete is blocked while this rule still owns hidden
