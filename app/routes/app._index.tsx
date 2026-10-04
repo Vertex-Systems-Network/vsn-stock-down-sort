@@ -491,29 +491,40 @@ export default function AppIndex() {
             ordered in each Shopify collection.
           </s-text>
 
-          <s-stack direction="inline" gap="base">
-            <s-badge tone="info">{collections.length} collections</s-badge>
-            <s-badge tone="success">{enabledCount} enabled</s-badge>
+          <div className="vsn-summary-badges">
+            <span className="vsn-summary-badge blue">
+              {collections.length} collections
+            </span>
+            <span className="vsn-summary-badge teal">
+              {enabledCount} enabled
+            </span>
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <span className="vsn-summary-badge purple">
+                {currentPlan.name} plan
+              </span>
             ) : null}
             {attentionCount > 0 ? (
-              <s-badge tone="critical">{attentionCount} need attention</s-badge>
+              <span className="vsn-summary-badge attention">
+                {attentionCount} need attention
+              </span>
             ) : (
-              <s-badge>0 errors</s-badge>
+              <span className="vsn-summary-badge neutral">0 errors</span>
             )}
-          </s-stack>
+          </div>
         </s-stack>
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
-          tone={actionData.ok ? "success" : "critical"}
-          heading={actionData.ok ? "Update complete" : "Action failed"}
-          dismissible
+        <div
+          className={[
+            "vsn-action-banner",
+            actionData.ok ? "success" : "error",
+          ].join(" ")}
+          role={actionData.ok ? "status" : "alert"}
         >
-          {actionData.message}
-        </s-banner>
+          <strong>{actionData.ok ? "Update complete" : "Action failed"}</strong>
+          <span>{actionData.message}</span>
+        </div>
       ) : null}
 
       <div id="collections-table" />
