@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { PageShell } from "../components/BrandUi";
 
 import {
   BILLING_PLANS,
@@ -341,7 +342,7 @@ function FeatureGuide({ guide }: { guide: Guide }) {
 
 export default function DocumentationPage() {
   return (
-    <s-page inline-size="large" heading="Documentation">
+    <PageShell>
       <PageIntro
         eyebrow="Beginner-friendly guide"
         title="Learn VSN Stock Down Sort from zero."
@@ -504,6 +505,6 @@ export default function DocumentationPage() {
           </section>
         </div>
       </div>
-    </s-page>
+    </PageShell>
   );
 }
