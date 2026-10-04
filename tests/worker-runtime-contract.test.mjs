@@ -953,6 +953,22 @@ test("environment secrets audit checks required deployment credentials", () => {
     workflow,
     /SHOPIFY_APP_GID: \$\{\{ secrets\.SHOPIFY_APP_GID \}\}/,
   );
+
+  assert.match(
+    workflow,
+    /https:\/\/partners\.shopify\.com\/\{org_id\}\/api\/2026-07\/graphql\.json/,
+  );
+  assert.match(workflow, /gid:\/\/partners\/App\/\{app_id\}/);
+  assert.match(workflow, /query AuditPartnerApp\(\$id: ID!\)/);
+  assert.match(workflow, /app\(id: \$id\)/);
+  assert.match(workflow, /X-Shopify-Access-Token/);
+  assert.match(workflow, /app\.get\("apiKey"\) != expected_api_key/);
+  assert.match(workflow, /staging_partner_api_manage_apps=pass/);
+  assert.match(workflow, /production_partner_api_manage_apps=pass/);
+  assert.doesNotMatch(
+    workflow,
+    /echo ["']?\$SHOPIFY_PARTNER_API_ACCESS_TOKEN/,
+  );
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
