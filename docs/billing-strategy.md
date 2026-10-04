@@ -20,11 +20,13 @@ Every plan has unlimited product and collection counts. Capability entitlements 
 Hosted App Pricing requires:
 
 - `SHOPIFY_BILLING_MODE=shopify_app_pricing`
-- `SHOPIFY_PARTNER_ORG_ID`
-- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
-- `SHOPIFY_APP_GID`
+- committed Partner organization ID `214077920`
+- committed per-environment app GID:
+  - Staging: `gid://shopify/App/430575026177`
+  - Production: `gid://shopify/App/405802811393`
+- secret credential `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
 
-The Partner API client must have **Manage apps** permission.
+The Partner API client must have **Manage apps** permission. Organization ID and App GIDs are identifiers, not credentials; only the Partner API access token is stored as a hosted secret.
 
 If App Pricing mode is enabled and Partner API configuration is incomplete or the Partner API request fails, the app fails closed instead of treating a paying merchant as unsubscribed.
 
