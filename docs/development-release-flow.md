@@ -94,6 +94,15 @@ Products and collections are unlimited for all four tiers. Capability difference
 
 Missing, stale or failed evidence blocks promotion. A deployment is not itself an acceptance record.
 
-## Finalization rule
+## Finalization gates
 
-All new work remains on `development` until the six pending finalization items in `config/ai/project-state.json` are complete. A previously accepted Live release does not automatically certify a newer development head.
+Finalization follows the release order; it is not a bundle that must be completed before the first promotion:
+
+1. Certify the exact current `development` source in Local/Dev.
+2. Promote that exact accepted source to Staging, release its Shopify version, and pass Staging Runtime Acceptance.
+3. Record the accepted Staging source on protected `main` through the reviewed promotion PR.
+4. Before Production release, pass the Live-only App Pricing audits, production Partner API/secrets checks, legacy-subscription review, and App Store listing/media/review prerequisites.
+5. Prepare Production, create and authorize the exact Shopify candidate, then release it.
+6. Run Final Production Merchant Smoke against that exact released source. Keep finalization open until it passes.
+
+A failed or stale gate blocks only the next dependent step. In particular, the post-release merchant smoke does not block Local certification or Staging promotion.
