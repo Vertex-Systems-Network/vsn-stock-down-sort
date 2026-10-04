@@ -1,10 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "submission_target": "shopify_app_store_public_app",
-  "active_method": "manual_pricing_billing_api",
-  "partner_dashboard_required_pricing_method": "manual_pricing",
-  "mixed_mode_allowed": false,
-  "rationale": "The current application creates recurring subscriptions with the Shopify Billing API (appSubscriptionCreate) and reads current subscriptions from currentAppInstallation. Shopify App Pricing must not be enabled until the app is migrated to hosted plan selection and Partner API subscription reads.",
+  "active_method": "shopify_app_pricing",
+  "partner_dashboard_required_pricing_method": "shopify_app_pricing",
+  "mixed_mode_allowed": true,
+  "rationale": "New public subscriptions use Shopify App Pricing and the Partner API Active Subscription query. Existing Billing API subscriptions remain readable and entitled until they are migrated with Shopify's migration tooling; the app must not create new Billing API subscriptions once SHOPIFY_BILLING_MODE=shopify_app_pricing.",
   "public_plans": [
     {
       "id": "starter",
@@ -42,12 +42,40 @@
     "maps_to_plan_id": "unlimited"
   },
   "shopify_app_pricing_migration": {
-    "status": "deferred",
+    "status": "repository_ready_dashboard_configuration_pending",
     "requires": [
-      "Partner API Active Subscription integration",
-      "Shopify-hosted plan selection redirect",
-      "Removal of appSubscriptionCreate for new subscriptions",
-      "Plan migration/testing in Partner Dashboard"
+      "Configure Starter, Growth, Pro, Unlimited as Shopify App Pricing public monthly plans",
+      "Set a 10-day free trial on every public plan",
+      "Configure plan descriptions for every published listing language",
+      "Configure a welcome link back to the app",
+      "Create a Partner API client with Manage apps permission",
+      "Set SHOPIFY_PARTNER_ORG_ID, SHOPIFY_PARTNER_API_ACCESS_TOKEN, SHOPIFY_APP_GID in hosted environments",
+      "Set SHOPIFY_BILLING_MODE=shopify_app_pricing",
+      "Test hosted plan selection and Active Subscription API on the development/staging store",
+      "Migrate any existing Billing API subscriptions before allowing those merchants to change plans"
     ]
+  },
+  "repository_mode": "dual_compatibility_until_legacy_migration",
+  "runtime": {
+    "billing_mode_env": "SHOPIFY_BILLING_MODE",
+    "target_value": "shopify_app_pricing",
+    "partner_api_version": "2026-07",
+    "required_partner_api_values": [
+      "SHOPIFY_PARTNER_ORG_ID",
+      "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+      "SHOPIFY_APP_GID"
+    ],
+    "subscription_read_order": [
+      "Partner API activeSubscription",
+      "legacy Admin API activeSubscriptions fallback for unmigrated Billing API merchants"
+    ],
+    "new_subscription_flow": "Shopify-hosted pricing_plans page",
+    "direct_appSubscriptionCreate_when_app_pricing_enabled": false
+  },
+  "manual_pricing_legacy_compatibility": {
+    "status": "preserve_existing_subscriptions_only",
+    "new_subscription_creation_allowed": false,
+    "migration_method": "Partner Dashboard subscription migration tool or Shopify CLI subscription-migrations",
+    "access_policy": "Existing valid Billing API subscriptions retain their mapped VSN entitlements until migration completes."
   }
 }
