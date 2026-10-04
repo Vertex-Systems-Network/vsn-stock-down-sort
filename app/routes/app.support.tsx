@@ -14,6 +14,7 @@ import {
   createSupportRequest,
   listSupportRequests,
 } from "../services/support.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -99,7 +100,7 @@ export default function SupportPage() {
   const busy = navigation.state !== "idle";
 
   return (
-    <s-page heading="Support">
+    <PageShell heading="Support">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -245,6 +246,6 @@ export default function SupportPage() {
           deadline unless those terms are separately defined by VSN operations.
         </s-banner>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
