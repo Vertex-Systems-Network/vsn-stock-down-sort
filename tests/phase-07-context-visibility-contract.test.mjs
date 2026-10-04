@@ -163,7 +163,7 @@ test("PHASE-07 uses hosted Queue jobs and deterministic Local fallback", () => {
 
 test("Commerce Contexts UI is authenticated, plan-aware and exposes scope/runtime boundaries", () => {
   const route = read("app/routes/app.contexts.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));
