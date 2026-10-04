@@ -132,3 +132,10 @@ test("workspace UX improvements stay inside the app and expose beginner document
   assert.ok(plans.includes("vsn-feature-check"));
   assert.equal(plans.includes("features.slice(1, 7)"), false);
 });
+
+
+test("collections page does not render escaped newline text", () => {
+  const home = read("app/routes/app._index.tsx");
+
+  assert.equal(home.includes('/>\\n      <s-section padding="none">'), false);
+});
