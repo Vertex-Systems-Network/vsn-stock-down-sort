@@ -109,8 +109,11 @@ test("workspace UX improvements stay inside the app and expose beginner document
   const docs = read("app/routes/app.documentation.tsx");
   const plans = read("app/routes/app.plans.tsx");
 
-  assert.ok(styles.includes("padding: 26px 14px 42px"));
-  assert.ok(home.includes("vsn-collection-toggle"));
+  assert.ok(styles.includes("padding: 22px 8px 40px"));
+  assert.ok(styles.includes("inline-size: calc(100% - min(12vw, 190px))"));
+  assert.equal(home.includes("vsn-collection-toggle"), false);
+  assert.ok(home.includes('onClick={() => runAction("enable", collection.id)}'));
+  assert.ok(home.includes('runAction("disable", collection.id, false)'));
   assert.ok(home.includes("Enable all collections"));
   assert.ok(home.includes("Disable all collections"));
   assert.equal(home.includes('slot="primary-action"'), false);
@@ -119,6 +122,11 @@ test("workspace UX improvements stay inside the app and expose beginner document
   assert.ok(workspace.includes("vsn-nav-tooltip"));
   assert.ok(styles.includes(".vsn-workspace.is-collapsed .vsn-nav-tooltip"));
   assert.ok(workspace.includes("/app/documentation"));
+
+  assert.ok(styles.includes("--vsn-accent: #625ba8"));
+  assert.ok(styles.includes("--vsn-accent-teal: #5ac8d6"));
+  assert.ok(styles.includes("--vsn-accent-blue: #6188c6"));
+  assert.ok(styles.includes("--vsn-ink: #3f4245"));
 
   assert.ok(docs.includes("Learn VSN Stock Down Sort from zero."));
   assert.ok(docs.includes("What it does:"));
