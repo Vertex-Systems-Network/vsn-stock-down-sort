@@ -17,6 +17,7 @@ import {
   saveContextVisibilityRule,
   setContextVisibilityRuleEnabled,
 } from "../services/context-visibility.server";
+import { PageShell } from "../components/BrandUi";
 
 async function safeTargets(
   admin: Parameters<typeof listPublicationTargets>[0],
@@ -205,7 +206,7 @@ export default function CommerceContextsPage() {
   ];
 
   return (
-    <s-page heading="Commerce contexts">
+    <PageShell heading="Commerce contexts">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -396,6 +397,6 @@ export default function CommerceContextsPage() {
           </s-stack>
         )}
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
