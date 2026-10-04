@@ -28,15 +28,14 @@ Plan descriptions must be configured for every language published in the App Sto
 
 ## Partner API runtime setup
 
-Create a Partner API client with **Manage apps** permission. The repository has already resolved and committed the non-secret identifiers:
+Create a Partner API client for the **Live app**. The relevant identifiers are:
 
 - Partner organization: `4859256`
-- Staging app: `gid://shopify/App/430575026177`
-- Production app: `gid://shopify/App/405802811393`
+- Live/Production app: `gid://shopify/App/405802811393`
 
-The only Partner API value that must be configured as a GitHub Environment / Worker secret in both hosted environments is `SHOPIFY_PARTNER_API_ACCESS_TOKEN`.
+Only Live/Production uses `SHOPIFY_BILLING_MODE=shopify_app_pricing` and requires `SHOPIFY_PARTNER_API_ACCESS_TOKEN`.
 
-Hosted Workers use `SHOPIFY_BILLING_MODE=shopify_app_pricing`.
+Local/Dev and Staging remain separate Shopify app identities and use `manual_legacy` test billing. Do not duplicate the Live App Store pricing catalog into the Staging app just to test billing. Test the Live App Pricing plans by installing the Live app on a Partner development store.
 
 The application queries Partner API `activeSubscription` for current entitlement truth. An API error fails closed; it must not be interpreted as an unsubscribed merchant.
 
