@@ -20,6 +20,7 @@ import {
   saveAutomationRule,
   setAutomationRuleEnabled,
 } from "../services/automation.server";
+import { PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -369,7 +370,7 @@ export default function AutomationPage() {
   );
 
   return (
-    <s-page heading="Automation">
+    <PageShell heading="Automation">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -570,6 +571,6 @@ export default function AutomationPage() {
           </s-stack>
         )}
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
