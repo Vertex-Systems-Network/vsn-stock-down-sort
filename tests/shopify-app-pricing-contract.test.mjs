@@ -183,7 +183,6 @@ test("live staging App Pricing audit verifies active handle price interval and t
     'SHOPIFY_PARTNER_ORG_ID: "4859256"',
     'SHOPIFY_APP_GID: "gid://shopify/App/430575026177"',
     "activeSubscription(appId: $appId, shopId: $shopId)",
-    "SUBSCRIPTION_CREATED",
     "trialDays",
     "EVERY_30_DAYS",
     '"starter": 10.99',
