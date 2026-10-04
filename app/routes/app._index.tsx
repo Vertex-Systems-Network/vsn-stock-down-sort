@@ -414,7 +414,19 @@ export default function AppIndex() {
               onClick={() => runAction("enableAll")}
               disabled={busy}
             >
-              Enable all collections
+              {busy && submittedIntent === "enableAll"
+                ? "Enabling collections…"
+                : "Enable all collections"}
+            </button>
+            <button
+              className="vsn-button"
+              type="button"
+              onClick={() => runAction("disableAll")}
+              disabled={busy || enabledCount === 0}
+            >
+              {busy && submittedIntent === "disableAll"
+                ? "Disabling collections…"
+                : "Disable all collections"}
             </button>
             <Link className="vsn-button" to="/app/automation">
               Configure automation ↗
@@ -470,26 +482,6 @@ export default function AppIndex() {
         <Link to="/app/automation">Automation</Link>
         <Link to="/app/analytics">Activity</Link>
       </nav>
-
-      <s-button
-        slot="primary-action"
-        variant="primary"
-        onClick={() => runAction("enableAll")}
-        loading={busy && submittedIntent === "enableAll"}
-        disabled={busy}
-      >
-        Enable all
-      </s-button>
-
-      <s-button
-        slot="secondary-actions"
-        variant="secondary"
-        onClick={() => runAction("disableAll")}
-        loading={busy && submittedIntent === "disableAll"}
-        disabled={busy || enabledCount === 0}
-      >
-        Disable all
-      </s-button>
 
       <s-section heading="Collections">
         <s-stack gap="base">
@@ -569,7 +561,39 @@ export default function AppIndex() {
                 <s-table-row key={collection.id}>
                   <s-table-cell>
                     <s-stack gap="small-200">
-                      <s-text type="strong">{collection.title}</s-text>
+                      <div className="vsn-collection-title-row">
+                        <s-text type="strong">{collection.title}</s-text>
+                        <button
+                          className={[
+                            "vsn-collection-toggle",
+                            enabled ? "is-enabled" : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          type="button"
+                          onClick={() =>
+                            runAction(
+                              enabled ? "disable" : "enable",
+                              collection.id,
+                              enabled ? false : undefined,
+                            )
+                          }
+                          disabled={busy}
+                          aria-label={
+                            (enabled ? "Disable " : "Enable ") +
+                            collection.title +
+                            " auto-sort"
+                          }
+                        >
+                          {rowBusy &&
+                          (submittedIntent === "enable" ||
+                            submittedIntent === "disable")
+                            ? "Updating…"
+                            : enabled
+                              ? "Disable"
+                              : "Enable"}
+                        </button>
+                      </div>
                       <s-text>/{collection.handle}</s-text>
                       {error ? <s-text tone="critical">{error}</s-text> : null}
                     </s-stack>
@@ -600,50 +624,27 @@ export default function AppIndex() {
                   <s-table-cell>
                     <s-button-group>
                       {enabled ? (
-                        <>
-                          <s-button
-                            variant="secondary"
-                            onClick={() => runAction("sort", collection.id)}
-                            loading={rowBusy && submittedIntent === "sort"}
-                            disabled={busy}
-                          >
-                            Sort now
-                          </s-button>
-
-                          <s-button
-                            variant="tertiary"
-                            tone="critical"
-                            onClick={() =>
-                              runAction("disable", collection.id, false)
-                            }
-                            loading={rowBusy && submittedIntent === "disable"}
-                            disabled={busy}
-                          >
-                            Disable
-                          </s-button>
-
-                          {collection.setting?.previousSortOrder ? (
-                            <s-button
-                              variant="tertiary"
-                              onClick={() =>
-                                runAction("disable", collection.id, true)
-                              }
-                              disabled={busy}
-                            >
-                              Disable & restore
-                            </s-button>
-                          ) : null}
-                        </>
-                      ) : (
                         <s-button
-                          variant="primary"
-                          onClick={() => runAction("enable", collection.id)}
-                          loading={rowBusy && submittedIntent === "enable"}
+                          variant="secondary"
+                          onClick={() => runAction("sort", collection.id)}
+                          loading={rowBusy && submittedIntent === "sort"}
                           disabled={busy}
                         >
-                          Enable
+                          Sort now
                         </s-button>
-                      )}
+                      ) : null}
+
+                      {enabled && collection.setting?.previousSortOrder ? (
+                        <s-button
+                          variant="tertiary"
+                          onClick={() =>
+                            runAction("disable", collection.id, true)
+                          }
+                          disabled={busy}
+                        >
+                          Disable & restore
+                        </s-button>
+                      ) : null}
 
                       <s-button
                         variant="secondary"
