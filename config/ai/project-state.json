@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
   "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option alignment remain complete. PR #165–#169 are merged to development; App Validation #602 / run 37206271869 passed on exact development head 22d566d6fef99a265dbfd46f319fd5824e537115. No acceptance is claimed for the newer development source in Local, Staging or Live.",
-  "next_valid_work_unit": "Repository development through PHASE-10 is complete. Recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
+  "next_valid_work_unit": "Repository development through PHASE-10 is complete. The final acceptance cycle is to recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
