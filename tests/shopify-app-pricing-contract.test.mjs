@@ -203,6 +203,11 @@ test("Live App Pricing audit targets the Live app on a Partner development store
   assert.ok(workflow.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"));
   assert.ok(workflow.includes("environment: cloudflare-production"));
   assert.ok(workflow.includes("ref: main"));
+  assert.ok(workflow.includes("effective_amount - 0.0"));
+  assert.ok(workflow.includes("live_app_pricing_no_charge_test=pass"));
+  assert.ok(workflow.includes("live_app_pricing_catalog_price=pass"));
+  assert.ok(workflow.includes("effective_amount="));
+  assert.ok(workflow.includes("catalog_amount="));
 });
 
 test("Staging App Pricing audit is retired because pricing belongs to Live", () => {
