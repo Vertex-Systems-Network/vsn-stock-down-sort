@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "repository_ready_external_dashboard_and_submission_pending",
+  "pricing_method": "shopify_app_pricing",
+  "default_billing_frequency": "monthly",
+  "primary_language": "English",
+  "welcome_link": "/app",
+  "public_plans": [
+    {
+      "id": "starter",
+      "display_name": "Starter",
+      "monthly_charge_usd": 10.99,
+      "free_trial_days": 10,
+      "top_features": [
+        "Unlimited products and collections",
+        "Automatic sold-out product sorting",
+        "Exclusions, manual sorting and low-stock email alerts"
+      ]
+    },
+    {
+      "id": "growth",
+      "display_name": "Growth",
+      "monthly_charge_usd": 19.99,
+      "free_trial_days": 10,
+      "top_features": [
+        "Everything in Starter",
+        "Pinned products and advanced collection sorting",
+        "Visibility automation, schedules and Slack alerts"
+      ]
+    },
+    {
+      "id": "pro",
+      "display_name": "Pro",
+      "monthly_charge_usd": 34.99,
+      "free_trial_days": 10,
+      "top_features": [
+        "Everything in Growth",
+        "Multi-location inventory and advanced rule builder",
+        "Analytics, activity history, CSV export and priority support"
+      ]
+    },
+    {
+      "id": "unlimited",
+      "display_name": "Unlimited",
+      "monthly_charge_usd": 70,
+      "free_trial_days": 10,
+      "top_features": [
+        "Everything in Pro",
+        "Markets, B2B catalog and sales-channel rules",
+        "API integrations, unlimited history and 24/7 priority support"
+      ]
+    }
+  ],
+  "repository_checks": {
+    "embedded_app": true,
+    "public_distribution": true,
+    "mandatory_privacy_webhooks": true,
+    "app_icon_required_size": "1200x1200",
+    "plan_catalog_source": "config/ai/product-plan.json",
+    "billing_strategy_source": "config/shopify/billing-strategy.json",
+    "app_pricing_runtime_contract": "tests/shopify-app-pricing-contract.test.mjs",
+    "final_merchant_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
+  },
+  "external_gates": [
+    {
+      "id": "pricing_dashboard",
+      "status": "pending",
+      "requirement": "Configure the four public Shopify App Pricing plans exactly as recorded here."
+    },
+    {
+      "id": "partner_api_client",
+      "status": "pending",
+      "requirement": "Create a Partner API client with Manage apps permission and configure hosted runtime credentials."
+    },
+    {
+      "id": "listing_content",
+      "status": "pending",
+      "requirement": "Complete at least one English App Store listing and all required listing fields/assets."
+    },
+    {
+      "id": "emergency_contact",
+      "status": "pending",
+      "requirement": "Configure the Partner account emergency developer contact."
+    },
+    {
+      "id": "protected_customer_data",
+      "status": "pending",
+      "requirement": "Complete any protected customer data declarations required by the submission form."
+    },
+    {
+      "id": "review_instructions",
+      "status": "pending",
+      "requirement": "Provide reviewer instructions/test-store access needed to exercise billing and core app flows."
+    },
+    {
+      "id": "automated_submission_checks",
+      "status": "pending",
+      "requirement": "Pass Shopify submission automated checks before submitting for review."
+    },
+    {
+      "id": "submit_for_review",
+      "status": "pending",
+      "requirement": "Submit the completed app for Shopify review."
+    },
+    {
+      "id": "final_merchant_smoke",
+      "status": "pending",
+      "requirement": "After the accepted release, run Final Production Merchant Smoke and record PASS evidence."
+    }
+  ]
+}
