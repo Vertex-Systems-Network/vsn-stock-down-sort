@@ -264,11 +264,12 @@ jobs:
           if price.get("currency") != "USD":
               raise SystemExit(f"Expected USD, got {price.get('currency')!r}.")
 
-          amount = float(price.get("amount"))
-          expected_amount = EXPECTED[EXPECTED_PLAN_ID]
-          if abs(amount - expected_amount) > 0.0001:
+          effective_amount = float(price.get("amount"))
+          expected_catalog_amount = EXPECTED[EXPECTED_PLAN_ID]
+          if abs(effective_amount - 0.0) > 0.0001:
               raise SystemExit(
-                  f"Plan {EXPECTED_PLAN_ID} price mismatch: expected {expected_amount}, got {amount}."
+                  "Expected a no-charge development-store subscription with effective "
+                  f"price 0.00, got {effective_amount}."
               )
 
           if matching_plan_event is None:
@@ -293,21 +294,26 @@ jobs:
               raise SystemExit("Expected one flat-rate historical plan price.")
           if event_prices[0].get("currencyCode") != "USD":
               raise SystemExit("Historical plan currency is not USD.")
-          if abs(float(event_prices[0].get("amount")) - expected_amount) > 0.0001:
+          catalog_amount = float(event_prices[0].get("amount"))
+          if abs(catalog_amount - expected_catalog_amount) > 0.0001:
               raise SystemExit("Historical plan price does not match the canonical catalog.")
 
           print(f"live_pricing_test_shop_gid={shop_id}")
           print(f"live_app_pricing_handle={EXPECTED_PLAN_ID}")
-          print(f"live_app_pricing_amount={amount:.2f}")
+          print(f"live_app_pricing_effective_amount={effective_amount:.2f}")
+          print(f"live_app_pricing_catalog_amount={catalog_amount:.2f}")
           print("live_app_pricing_currency=USD")
           print("live_app_pricing_billing_period=EVERY_30_DAYS")
           print("live_app_pricing_trial_days=10")
+          print("live_app_pricing_no_charge_test=pass")
+          print("live_app_pricing_catalog_price=pass")
           print("live_app_pricing_audit=pass")
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write(f"shop_id={shop_id}\n")
               output.write(f"plan_handle={EXPECTED_PLAN_ID}\n")
-              output.write(f"amount={amount:.2f}\n")
+              output.write(f"effective_amount={effective_amount:.2f}\n")
+              output.write(f"catalog_amount={catalog_amount:.2f}\n")
           PY
 
       - name: Audit summary
@@ -319,8 +325,11 @@ jobs:
             echo "- Live app GID: `$SHOPIFY_APP_GID`"
             echo "- Development store: **$TEST_STORE_DOMAIN**"
             echo "- Plan handle: **${{ steps.pricing.outputs.plan_handle }}**"
-            echo "- Monthly price: **USD ${{ steps.pricing.outputs.amount }}**"
+            echo "- Development-store effective charge: **USD ${{ steps.pricing.outputs.effective_amount }}**"
+            echo "- Configured public plan price: **USD ${{ steps.pricing.outputs.catalog_amount }}**"
             echo "- Billing period: **EVERY_30_DAYS**"
             echo "- Trial: **10 days**"
+            echo "- No-charge development-store behavior: **PASS**"
+            echo "- Public catalog price: **PASS**"
             echo "- Result: **PASS**"
           } >> "$GITHUB_STEP_SUMMARY"
