@@ -14,6 +14,7 @@ import {
   getAlertSetting,
   saveAlertSetting,
 } from "../services/alerts.server";
+import { BrandBadge, BrandButton, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -99,7 +100,7 @@ export default function AlertsPage() {
       : setting;
 
   return (
-    <s-page heading="Low-stock alerts">
+    <PageShell heading="Low-stock alerts">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -110,14 +111,14 @@ export default function AlertsPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge tone={canEmail ? "success" : "warning"}>
+            <BrandBadge tone={canEmail ? "success" : "warning"}>
               {canEmail ? "Email available" : "Email locked"}
-            </s-badge>
-            <s-badge tone={canSlack ? "success" : "info"}>
+            </BrandBadge>
+            <BrandBadge tone={canSlack ? "success" : "info"}>
               {canSlack ? "Slack available" : "Slack locked"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
           <s-text color="subdued">
@@ -130,13 +131,13 @@ export default function AlertsPage() {
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Settings saved" : "Unable to save"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       <s-section heading="Alert rules">
@@ -244,14 +245,14 @@ export default function AlertsPage() {
               </s-stack>
             </s-box>
 
-            <s-button
+            <BrandButton
               type="submit"
               variant="primary"
               loading={busy}
               disabled={busy}
             >
               Save alert settings
-            </s-button>
+            </BrandButton>
           </s-stack>
         </form>
       </s-section>
@@ -270,6 +271,6 @@ export default function AlertsPage() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }

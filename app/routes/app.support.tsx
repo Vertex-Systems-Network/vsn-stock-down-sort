@@ -14,6 +14,7 @@ import {
   createSupportRequest,
   listSupportRequests,
 } from "../services/support.server";
+import { BrandBadge, BrandButton, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -99,7 +100,7 @@ export default function SupportPage() {
   const busy = navigation.state !== "idle";
 
   return (
-    <s-page heading="Support">
+    <PageShell heading="Support">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -111,10 +112,10 @@ export default function SupportPage() {
           {currentPlan && support ? (
             <>
               <s-stack direction="inline" gap="base">
-                <s-badge tone="info">{currentPlan.name} plan</s-badge>
-                <s-badge tone={support.priority ? "success" : "info"}>
+                <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
+                <BrandBadge tone={support.priority ? "success" : "info"}>
                   {support.label}
-                </s-badge>
+                </BrandBadge>
               </s-stack>
 
               <s-box
@@ -142,16 +143,16 @@ export default function SupportPage() {
               </s-box>
             </>
           ) : (
-            <s-banner tone="warning">
+            <BrandNotice tone="warning">
               No recognized active VSN plan is available for support
               entitlement resolution.
-            </s-banner>
+            </BrandNotice>
           )}
         </s-stack>
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Support request recorded" : "Unable to submit"}
           dismissible
@@ -160,7 +161,7 @@ export default function SupportPage() {
           {actionData.ok && actionData.requestId
             ? ` Request ID: ${actionData.requestId}`
             : ""}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       <s-section heading="Open a support request">
@@ -187,14 +188,14 @@ export default function SupportPage() {
               credentials, or other secrets into support requests.
             </s-text>
 
-            <s-button
+            <BrandButton
               type="submit"
               variant="primary"
               loading={busy}
               disabled={busy || !support}
             >
               Submit support request
-            </s-button>
+            </BrandButton>
           </s-stack>
         </form>
       </s-section>
@@ -211,8 +212,8 @@ export default function SupportPage() {
               >
                 <s-stack gap="small-200">
                   <s-stack direction="inline" gap="base">
-                    <s-badge tone="info">{supportRequest.priority}</s-badge>
-                    <s-badge
+                    <BrandBadge tone="info">{supportRequest.priority}</BrandBadge>
+                    <BrandBadge
                       tone={
                         supportRequest.notificationStatus === "FAILED"
                           ? "critical"
@@ -222,7 +223,7 @@ export default function SupportPage() {
                       }
                     >
                       {supportRequest.notificationStatus}
-                    </s-badge>
+                    </BrandBadge>
                     <s-text>{supportRequest.status}</s-text>
                   </s-stack>
                   <s-heading>{supportRequest.subject}</s-heading>
@@ -239,12 +240,12 @@ export default function SupportPage() {
       </s-section>
 
       <s-section>
-        <s-banner tone="info" heading="Support terms">
+        <BrandNotice tone="info" heading="Support terms">
           The app provides the request channel and plan-derived priority. It
           does not publish a response-time SLA, staffing level, or escalation
           deadline unless those terms are separately defined by VSN operations.
-        </s-banner>
+        </BrandNotice>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useLocation } from "react-router";
+import { PageShell } from "../components/BrandUi";
 
 import {
   BILLING_CATALOG,
@@ -161,7 +162,7 @@ export default function PlansPage() {
   }
 
   return (
-    <s-page inline-size="large" heading="Plans">
+    <PageShell>
       <PageIntro
         eyebrow="Room to grow"
         title="Choose the right automation level for your store."
@@ -462,6 +463,6 @@ export default function PlansPage() {
           </button>
         </div>
       ) : null}
-    </s-page>
+    </PageShell>
   );
 }

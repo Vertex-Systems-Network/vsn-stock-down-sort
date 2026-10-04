@@ -16,6 +16,7 @@ import {
   revokeIntegrationCredential,
   rotateIntegrationCredential,
 } from "../services/integrations.server";
+import { BrandBadge, BrandButton, BrandButtonRow, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -138,7 +139,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <s-page heading="API & webhook integrations">
+    <PageShell heading="API & webhook integrations">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -149,39 +150,39 @@ export default function IntegrationsPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge tone={canIntegrate ? "success" : "warning"}>
+            <BrandBadge tone={canIntegrate ? "success" : "warning"}>
               {canIntegrate
                 ? "API integrations available"
                 : "Unlimited plan required"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
-          <s-banner tone="info">
+          <BrandNotice tone="info">
             API tokens and webhook signing secrets are shown only once at
             creation or rotation. The API token is stored only as a SHA-256
             hash; the webhook signing secret is encrypted at rest.
-          </s-banner>
+          </BrandNotice>
         </s-stack>
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Integration updated" : "Integration failed"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       {actionData?.ok && actionData.oneTime ? (
         <s-section heading="Copy these secrets now">
-          <s-banner tone="warning">
+          <BrandNotice tone="warning">
             These plaintext values are not available from the loader and will
             disappear after navigation or refresh.
-          </s-banner>
+          </BrandNotice>
           <s-stack gap="base">
             <s-text-area
               label="API bearer token"
@@ -230,14 +231,14 @@ export default function IntegrationsPage() {
                 </s-stack>
               </s-box>
 
-              <s-button
+              <BrandButton
                 type="submit"
                 variant="primary"
                 disabled={busy}
                 loading={busy && submittedIntent === "create"}
               >
                 Create credential
-              </s-button>
+              </BrandButton>
             </s-stack>
           </form>
         )}
@@ -263,14 +264,14 @@ export default function IntegrationsPage() {
                   <s-stack gap="base">
                     <s-stack direction="inline" gap="base">
                       <s-heading>{credential.name}</s-heading>
-                      <s-badge tone={credential.enabled ? "success" : "critical"}>
+                      <BrandBadge tone={credential.enabled ? "success" : "critical"}>
                         {credential.enabled ? "Active" : "Revoked"}
-                      </s-badge>
-                      <s-badge>
+                      </BrandBadge>
+                      <BrandBadge>
                         {credential.webhookConfigured
                           ? "Webhook configured"
                           : "No webhook secret"}
-                      </s-badge>
+                      </BrandBadge>
                     </s-stack>
 
                     <s-text>
@@ -288,7 +289,7 @@ export default function IntegrationsPage() {
                     </s-text>
 
                     {credential.enabled ? (
-                      <s-button-group>
+                      <BrandButtonRow>
                         <form method="post">
                           <input type="hidden" name="intent" value="rotate" />
                           <input
@@ -296,14 +297,14 @@ export default function IntegrationsPage() {
                             name="credentialId"
                             value={credential.id}
                           />
-                          <s-button
+                          <BrandButton
                             type="submit"
                             variant="secondary"
                             disabled={busy || !canIntegrate}
                             loading={rowBusy && submittedIntent === "rotate"}
                           >
                             Rotate secrets
-                          </s-button>
+                          </BrandButton>
                         </form>
 
                         <form method="post">
@@ -313,7 +314,7 @@ export default function IntegrationsPage() {
                             name="credentialId"
                             value={credential.id}
                           />
-                          <s-button
+                          <BrandButton
                             type="submit"
                             variant="tertiary"
                             tone="critical"
@@ -321,9 +322,9 @@ export default function IntegrationsPage() {
                             loading={rowBusy && submittedIntent === "revoke"}
                           >
                             Revoke
-                          </s-button>
+                          </BrandButton>
                         </form>
-                      </s-button-group>
+                      </BrandButtonRow>
                     ) : null}
                   </s-stack>
                 </s-box>
@@ -404,6 +405,6 @@ export default function IntegrationsPage() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }

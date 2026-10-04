@@ -20,6 +20,7 @@ import {
   saveAutomationRule,
   setAutomationRuleEnabled,
 } from "../services/automation.server";
+import { BrandBadge, BrandButton, BrandButtonRow, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -369,7 +370,7 @@ export default function AutomationPage() {
   );
 
   return (
-    <s-page heading="Automation">
+    <PageShell heading="Automation">
       <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
@@ -379,14 +380,14 @@ export default function AutomationPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge tone={canSchedule ? "success" : "warning"}>
+            <BrandBadge tone={canSchedule ? "success" : "warning"}>
               {canSchedule ? "Scheduling available" : "Scheduling locked"}
-            </s-badge>
-            <s-badge tone={canUseRuleBuilder ? "success" : "info"}>
+            </BrandBadge>
+            <BrandBadge tone={canUseRuleBuilder ? "success" : "info"}>
               {canUseRuleBuilder ? "Rule builder available" : "Basic schedule"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
           <s-text color="subdued">
@@ -398,27 +399,27 @@ export default function AutomationPage() {
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Automation updated" : "Automation failed"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       {!canSchedule ? (
         <s-section>
-          <s-banner tone="warning">
+          <BrandNotice tone="warning">
             Your current plan does not include scheduled automation.
-          </s-banner>
+          </BrandNotice>
         </s-section>
       ) : collections.length === 0 ? (
         <s-section>
-          <s-banner tone="warning">
+          <BrandNotice tone="warning">
             Enable at least one collection on the Collections page before
             creating an automation rule.
-          </s-banner>
+          </BrandNotice>
         </s-section>
       ) : (
         <s-section heading="Create automation rule">
@@ -428,14 +429,14 @@ export default function AutomationPage() {
               collections={collections}
               canUseRuleBuilder={canUseRuleBuilder}
             />
-            <s-button
+            <BrandButton
                 type="submit"
                 variant="primary"
                 loading={busy && submittedIntent === "save" && !submittedRuleId}
                 disabled={busy}
               >
                 Create rule
-              </s-button>
+              </BrandButton>
           </form>
         </s-section>
       )}
@@ -461,10 +462,10 @@ export default function AutomationPage() {
                   <s-stack gap="base">
                     <s-stack direction="inline" gap="base">
                       <s-heading>{rule.name}</s-heading>
-                      <s-badge tone={rule.enabled ? "success" : "warning"}>
+                      <BrandBadge tone={rule.enabled ? "success" : "warning"}>
                         {rule.enabled ? "Enabled" : "Paused"}
-                      </s-badge>
-                      <s-badge>{scheduleLabel(rule.scheduleMinutes)}</s-badge>
+                      </BrandBadge>
+                      <BrandBadge>{scheduleLabel(rule.scheduleMinutes)}</BrandBadge>
                     </s-stack>
 
                     <s-text>
@@ -481,7 +482,7 @@ export default function AutomationPage() {
                     </s-text>
 
                     {rule.lastError ? (
-                      <s-banner tone="critical">{rule.lastError}</s-banner>
+                      <BrandNotice tone="critical">{rule.lastError}</BrandNotice>
                     ) : null}
 
                     {target && canSchedule ? (
@@ -501,34 +502,34 @@ export default function AutomationPage() {
                             minTotalProducts: rule.minTotalProducts,
                           }}
                         />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="secondary"
                           loading={rowBusy && submittedIntent === "save"}
                           disabled={busy}
                         >
                           Save changes
-                        </s-button>
+                        </BrandButton>
                       </form>
                     ) : target ? null : (
-                      <s-banner tone="warning">
+                      <BrandNotice tone="warning">
                         This rule&apos;s collection is no longer enabled. Re-enable
                         the collection or delete the rule.
-                      </s-banner>
+                      </BrandNotice>
                     )}
 
-                    <s-button-group>
+                    <BrandButtonRow>
                       <form method="post">
                         <input type="hidden" name="intent" value="run" />
                         <input type="hidden" name="ruleId" value={rule.id} />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="primary"
                           loading={rowBusy && submittedIntent === "run"}
                           disabled={busy || !target}
                         >
                           Run now
-                        </s-button>
+                        </BrandButton>
                       </form>
 
                       <form method="post">
@@ -539,20 +540,20 @@ export default function AutomationPage() {
                           name="enabled"
                           value={rule.enabled ? "false" : "true"}
                         />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="secondary"
                           loading={rowBusy && submittedIntent === "toggle"}
                           disabled={busy || (!target && !rule.enabled)}
                         >
                           {rule.enabled ? "Pause" : "Enable"}
-                        </s-button>
+                        </BrandButton>
                       </form>
 
                       <form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="tertiary"
                           tone="critical"
@@ -560,9 +561,9 @@ export default function AutomationPage() {
                           disabled={busy}
                         >
                           Delete
-                        </s-button>
+                        </BrandButton>
                       </form>
-                    </s-button-group>
+                    </BrandButtonRow>
                   </s-stack>
                 </s-box>
               );
@@ -570,6 +571,6 @@ export default function AutomationPage() {
           </s-stack>
         )}
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
