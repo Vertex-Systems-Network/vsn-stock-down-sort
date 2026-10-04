@@ -218,3 +218,33 @@ test("all hosted promotion workflows use the corrected Partner organization ID",
     );
   }
 });
+
+
+test("staging pricing audit reports legacy migration eligibility without mutating billing", () => {
+  const workflow = read(".github/workflows/shopify-app-pricing-staging-audit.yml");
+
+  for (const marker of [
+    "migratableAppSubscriptions",
+    "manualSubscriptionName",
+    "manualSubscriptionInterval",
+    "manualSubscriptionPrice",
+    "targetPlanHandle",
+    "priceBehavior",
+    "effectiveDate",
+    "lastFailureReason",
+    "staging_migration_status=",
+    "staging_migration_target_plan_handle=",
+  ]) {
+    assert.ok(workflow.includes(marker), marker);
+  }
+
+  assert.ok(workflow.includes("/api/unstable/graphql.json"));
+  assert.equal(
+    workflow.includes("appSubscriptionMigrationOperationCreate"),
+    false,
+  );
+  assert.equal(
+    workflow.includes("subscription-migrations schedule"),
+    false,
+  );
+});
