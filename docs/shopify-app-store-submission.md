@@ -10,6 +10,8 @@ Canonical records:
 - `config/shopify/billing-strategy.json`
 - `config/ai/product-plan.json`
 - `.github/workflows/final-production-merchant-smoke.yml`
+- `config/shopify/app-store-listing-pack.json`
+- `docs/shopify-app-store-listing-pack.md`
 
 ## Pricing content
 
@@ -47,6 +49,12 @@ Existing subscriptions retain access through the compatibility fallback until th
 
 The legacy USD 55 / 5-day subscription remains Unlimited-compatible until migration.
 
+## Repository-prepared listing content
+
+The English listing copy, reviewer walkthrough, screenshot capture plan, and demo screencast outline are prepared in `config/shopify/app-store-listing-pack.json` and `docs/shopify-app-store-listing-pack.md`.
+
+Repository readiness does **not** mean the Shopify dashboard gate is complete. Actual Live-app screenshots, feature media, demo-store URL, screencast upload, contacts, protected-data declaration, automated checks, and final submission still require real external evidence.
+
 ## Listing and review checklist
 
 The following are external Shopify/Partner Dashboard gates and must have real evidence before the finalization track is closed:
@@ -56,7 +64,7 @@ The following are external Shopify/Partner Dashboard gates and must have real ev
 - Pricing content matches the canonical four-plan catalog.
 - API contact email and emergency developer contact are configured.
 - Protected customer data declarations are completed as required by the submission form.
-- Reviewer instructions explain installation, plan selection, collection enable/disable, sorting, and any test data needed.
+- Reviewer instructions explain installation, no-charge development-store plan selection, collection enable/disable, sorting, restore behavior, plan changes, and required test data. The canonical prepared instructions are in `docs/shopify-app-store-listing-pack.md`.
 - Shopify automated submission checks pass.
 - The app is submitted for review only after the listing and runtime are complete.
 - After the accepted production release, run **Final Production Merchant Smoke** and preserve the successful workflow run as final evidence.

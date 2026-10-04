@@ -219,3 +219,66 @@ test("Staging App Pricing audit is retired because pricing belongs to Live", () 
   assert.equal(staging.includes("shopify_app_pricing"), false);
   assert.equal(staging.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"), false);
 });
+
+
+test("App Store listing pack stays within Shopify submission limits", () => {
+  const pack = json("config/shopify/app-store-listing-pack.json");
+  const submission = json("config/shopify/app-store-submission.json");
+
+  assert.equal(
+    pack.status,
+    "repository_prepared_external_capture_and_dashboard_entry_pending",
+  );
+
+  const copy = pack.listing_copy;
+  assert.ok(copy.app_card_subtitle.length > 0);
+  assert.ok(copy.app_introduction.length <= 100);
+  assert.ok(copy.app_details.length <= 500);
+  assert.ok(copy.feature_list.length >= 3);
+  for (const feature of copy.feature_list) {
+    assert.ok(feature.length <= 80, feature);
+  }
+
+  assert.equal(copy.pricing_text_outside_pricing_fields_allowed, false);
+  assert.equal(copy.testimonials_or_review_quotes_allowed, false);
+  assert.equal(copy.guarantees_or_statistics_allowed, false);
+
+  const media = pack.screenshot_capture_plan;
+  assert.equal(media.required_dimensions, "1600x900");
+  assert.ok(media.planned_count >= 3 && media.planned_count <= 6);
+  assert.equal(media.screenshots.length, media.planned_count);
+  assert.equal(new Set(media.screenshots.map((item) => item.id)).size, media.planned_count);
+  assert.equal(new Set(media.screenshots.map((item) => item.title)).size, media.planned_count);
+
+  for (const screenshot of media.screenshots) {
+    assert.ok(screenshot.route.startsWith("/app"));
+    assert.ok(screenshot.purpose.length > 0);
+    assert.ok(screenshot.alt_text.length > 0);
+  }
+
+  assert.ok(pack.reviewer_instructions.steps.length >= 8);
+  assert.equal(
+    pack.reviewer_instructions.billing_truth.development_store_effective_charge_usd,
+    0,
+  );
+  assert.equal(pack.reviewer_instructions.billing_truth.billing_period, "EVERY_30_DAYS");
+  assert.equal(pack.reviewer_instructions.billing_truth.trial_days, 10);
+
+  const canonicalPrices = Object.fromEntries(
+    submission.public_plans.map((plan) => [plan.id, plan.monthly_charge_usd]),
+  );
+  assert.deepEqual(
+    pack.reviewer_instructions.billing_truth.canonical_monthly_prices_usd,
+    canonicalPrices,
+  );
+
+  assert.equal(pack.demo_screencast.status, "external_recording_pending");
+  assert.equal(pack.demo_screencast.target_duration, "2-3 minutes");
+
+  assert.equal(
+    submission.repository_checks.app_store_listing_pack,
+    "config/shopify/app-store-listing-pack.json",
+  );
+  assert.equal(submission.repository_preparation.english_listing_copy, "ready");
+  assert.equal(submission.repository_preparation.reviewer_instructions, "ready");
+});
