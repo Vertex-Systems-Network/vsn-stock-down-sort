@@ -173,3 +173,48 @@ test("App Store submission record matches the canonical four-plan catalog", () =
     ),
   );
 });
+
+
+test("live staging App Pricing audit verifies active handle price interval and trial contract", () => {
+  const workflow = read(".github/workflows/shopify-app-pricing-staging-audit.yml");
+
+  for (const marker of [
+    "staging-oath3rth.myshopify.com",
+    'SHOPIFY_PARTNER_ORG_ID: "4859256"',
+    'SHOPIFY_APP_GID: "gid://shopify/App/430575026177"',
+    "activeSubscription(appId: $appId, shopId: $shopId)",
+    "trialDays",
+    "EVERY_30_DAYS",
+    '"starter": 10.99',
+    '"growth": 19.99',
+    '"pro": 34.99',
+    '"unlimited": 70.00',
+    "staging_app_pricing_live_subscription=pass",
+  ]) {
+    assert.ok(workflow.includes(marker), marker);
+  }
+
+  assert.ok(workflow.includes("events("));
+  assert.ok(workflow.includes("FlatRatePlanPrice"));
+  assert.ok(workflow.includes("FlatRatePrice"));
+  assert.ok(workflow.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"));
+  assert.equal(workflow.includes("214077920"), false);
+});
+
+test("all hosted promotion workflows use the corrected Partner organization ID", () => {
+  for (const path of [
+    ".github/workflows/cloudflare-staging-deploy.yml",
+    ".github/workflows/staging-readiness.yml",
+    ".github/workflows/cloudflare-production-prepare.yml",
+    ".github/workflows/production-readiness.yml",
+    ".github/workflows/environment-secrets-audit.yml",
+  ]) {
+    const source = read(path);
+    assert.ok(source.includes("4859256"), path + " missing corrected Partner org ID");
+    assert.equal(
+      source.includes("214077920"),
+      false,
+      path + " still contains stale Partner org ID",
+    );
+  }
+});
