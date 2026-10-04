@@ -94,8 +94,41 @@ test("workspace owns the complete Stock Down Sort internal navigation", () => {
     "/app/alerts",
     "/app/integrations",
     "/app/plans",
+    "/app/documentation",
     "/app/support",
   ]) {
     assert.ok(workspace.includes(route), route);
   }
+});
+
+
+test("workspace UX improvements stay inside the app and expose beginner documentation", () => {
+  const home = read("app/routes/app._index.tsx");
+  const workspace = read("app/components/Workspace.tsx");
+  const styles = read("app/styles/workspace.css");
+  const docs = read("app/routes/app.documentation.tsx");
+  const plans = read("app/routes/app.plans.tsx");
+
+  assert.ok(styles.includes("padding: 26px 14px 42px"));
+  assert.ok(home.includes("vsn-collection-toggle"));
+  assert.ok(home.includes("Enable all collections"));
+  assert.ok(home.includes("Disable all collections"));
+  assert.equal(home.includes('slot="primary-action"'), false);
+  assert.equal(home.includes('slot="secondary-actions"'), false);
+
+  assert.ok(workspace.includes("vsn-nav-tooltip"));
+  assert.ok(styles.includes(".vsn-workspace.is-collapsed .vsn-nav-tooltip"));
+  assert.ok(workspace.includes("/app/documentation"));
+
+  assert.ok(docs.includes("Learn VSN Stock Down Sort from zero."));
+  assert.ok(docs.includes("What it does:"));
+  assert.ok(docs.includes("When to use it:"));
+  assert.ok(docs.includes("Where to find it:"));
+  assert.ok(docs.includes("UiSnapshot"));
+  assert.ok(docs.includes("GUIDES"));
+
+  assert.ok(plans.includes("ALL_IMPLEMENTED_FEATURES"));
+  assert.ok(plans.includes("Everything in "));
+  assert.ok(plans.includes("vsn-feature-check"));
+  assert.equal(plans.includes("features.slice(1, 7)"), false);
 });
