@@ -44,7 +44,7 @@ The canonical catalog is `config/ai/product-plan.json`:
 | Starter | USD 10.99 | 10 days |
 | Growth | USD 19.99 | 10 days |
 | Pro | USD 34.99 | 10 days |
-| Unlimited | USD 54.99 | 10 days |
+| Unlimited | USD 70.00 | 10 days |
 
 All four plans have unlimited products and collections. Capability differences are represented by option IDs in the catalog.
 

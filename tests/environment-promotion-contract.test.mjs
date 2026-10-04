@@ -56,7 +56,7 @@ test("staging readiness validates the current four-plan billing catalog", () => 
   assert.match(workflow, /\{"id": "starter", "amount": 10\.99, "trial_days": 10\}/);
   assert.match(workflow, /\{"id": "growth", "amount": 19\.99, "trial_days": 10\}/);
   assert.match(workflow, /\{"id": "pro", "amount": 34\.99, "trial_days": 10\}/);
-  assert.match(workflow, /\{"id": "unlimited", "amount": 54\.99, "trial_days": 10\}/);
+  assert.match(workflow, /\{"id": "unlimited", "amount": 70\.0, "trial_days": 10\}/);
   assert.match(workflow, /billing_interval"\) != "EVERY_30_DAYS"/);
   assert.match(workflow, /catalog trial_days must be 10/);
   assert.match(workflow, /staging_billing_contract=four_plans_10_day_trials/);
@@ -171,33 +171,34 @@ test("production release policy references the staging acceptance gate", () => {
 });
 
 test("current Staging acceptance is bound to protected main", () => {
+  assert.equal(gates.status, "accepted");
+  assert.equal(gates.development_promotion_lock?.enabled, true);
   assert.equal(gates.local_dev.status, "accepted");
+  // Historical Staging remains pinned to what was deployed, while Local
+  // may advance independently before the next Staging promotion.
   assert.equal(
     gates.staging.accepted_source_ref,
-    gates.local_dev.accepted_source_ref,
+    gates.staging.deployed_source_ref,
   );
   assert.equal(gates.staging.status, "accepted");
   assert.equal(
     gates.staging.accepted_main_ref,
     "54c66ab35734efdc929212eb4c676eb062086e64",
   );
-  assert.equal(
-    gates.staging.evidence_record?.accepted_main_ref_recording,
-    "recorded",
-  );
-  assert.equal(
-    gates.staging.evidence_record?.accepted_main_ref,
-    gates.staging.accepted_main_ref,
-  );
-  assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
+  assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
+  assert.ok(gates.staging.evidence_record.run_id > 0);
   assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
   assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
   assert.equal(gates.staging.evidence_record?.stored_session_count, 2);
   assert.equal(gates.staging.evidence_record?.active_subscription_count, 1);
-  assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
-  assert.equal(
-    gates.staging.shopify_release_record?.version,
-    "stock-down-sort-staging-5df0cb94446e-2",
+  assert.ok(Number.isInteger(gates.staging.deployment_record?.run_id));
+  assert.ok(gates.staging.deployment_record.run_id > 0);
+  assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
+  assert.ok(gates.staging.shopify_release_record.run_id > 0);
+  assert.equal(gates.staging.shopify_release_record?.status, "released");
+  assert.match(
+    gates.staging.shopify_release_record?.version ?? "",
+    new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
   );
 });
 

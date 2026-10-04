@@ -11,6 +11,11 @@ import {
   getShopifyBillingErrorDiagnostic,
 } from "../services/billing.server";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
+import {
+  getShopifyAppPricingPlanSelectionUrl,
+  getShopifyBillingMode,
+  isShopifyAppPricingMode,
+} from "../services/shopify-app-pricing.server";
 
 function isPlanId(value: string): value is PlanId {
   return value === "starter" || value === "growth" || value === "pro" || value === "unlimited";
@@ -30,6 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       planSource: current?.source ?? null,
       environment: getAppEnvironment(),
       billingTestMode: isBillingTestMode(),
+      billingMethod: getShopifyBillingMode(),
     });
   } catch (error) {
     return Response.json(
@@ -94,6 +100,31 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
+      if (isShopifyAppPricingMode()) {
+        if (current && current.source !== "shopify_app_pricing") {
+          return Response.json(
+            {
+              ok: false,
+              error:
+                "This store still has a Billing API subscription. Migrate that subscription to Shopify App Pricing before changing plans.",
+            },
+            { status: 409 },
+          );
+        }
+
+        const confirmationUrl = await getShopifyAppPricingPlanSelectionUrl(
+          admin,
+          session.shop,
+        );
+
+        return Response.json({
+          ok: true,
+          confirmationUrl,
+          planId: requestedPlanId,
+          billingMethod: "shopify_app_pricing",
+        });
+      }
+
       const returnUrl = await getEmbeddedAdminBillingReturnUrl(
         admin,
         session.shop,
@@ -122,6 +153,21 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (actionType === "cancel") {
+      if (isShopifyAppPricingMode() && current?.source === "shopify_app_pricing") {
+        return Response.json(
+          {
+            ok: false,
+            error:
+              "Shopify App Pricing subscriptions are managed from Shopify's hosted pricing experience.",
+            confirmationUrl: await getShopifyAppPricingPlanSelectionUrl(
+              admin,
+              session.shop,
+            ),
+          },
+          { status: 409 },
+        );
+      }
+
       const subscriptionId = String(formData.get("id") || "");
 
       if (!subscriptionId) {
@@ -131,26 +177,13 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      if (activeSubscription && !current) {
-        return Response.json(
-          {
-            ok: false,
-            error:
-              "An active subscription exists but does not match an approved VSN plan. Cancellation is blocked until it is reviewed.",
-          },
-          { status: 409 },
-        );
-      }
-
       if (
         !activeSubscription ||
-        !current ||
         activeSubscription.id !== subscriptionId ||
-        activeSubscription.status !== "ACTIVE" ||
-        current.subscription.id !== subscriptionId
+        activeSubscription.status !== "ACTIVE"
       ) {
         return Response.json(
-          { ok: false, error: "Active VSN subscription not found." },
+          { ok: false, error: "Active Shopify subscription not found." },
           { status: 404 },
         );
       }

@@ -1,310 +1,501 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
+import { useLoaderData, useLocation } from "react-router";
+import { PageShell } from "../components/BrandUi";
+
 import {
   BILLING_CATALOG,
   BILLING_PLANS,
   getImplementedPlanFeatureNames,
   type PlanId,
 } from "../billing-config";
+import { openBillingConfirmation, submitBilling, type BillingSubmitResult } from "../billing-client";
+import { PageIntro } from "../components/Workspace";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
 import {
   getAnyActiveSubscription,
   getCurrentSubscriptionPlan,
+  getSubscriptionMismatchDiagnostic,
 } from "../services/billing.server";
 import { resolveSupportEntitlement } from "../services/support";
+import { getShopifyBillingMode } from "../services/shopify-app-pricing.server";
 
-type SubscriptionActionResult = {
-  ok?: boolean;
-  cancelled?: boolean;
-  planId?: PlanId;
-  confirmationUrl?: string;
-  error?: string;
+const ALL_IMPLEMENTED_FEATURES = Array.from(
+  new Set(
+    BILLING_PLANS.flatMap((plan) => getImplementedPlanFeatureNames(plan.id)),
+  ),
+);
+
+const PLAN_DESCRIPTIONS: Record<PlanId, string> = {
+  starter:
+    "Core stock-aware sorting, exclusions and low-stock email alerts for everyday collection maintenance.",
+  growth:
+    "Add pinning, advanced sort rules, product visibility automation, schedules and Slack alerts.",
+  pro:
+    "Add multi-location inventory, conditional automation, analytics, history exports and priority support.",
+  unlimited:
+    "Unlock commerce contexts, external API integrations, unlimited history and 24/7 priority support.",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  const [current, activeSubscription] = await Promise.all([
-    getCurrentSubscriptionPlan(admin),
-    getAnyActiveSubscription(admin),
-  ]);
+  const current = await getCurrentSubscriptionPlan(admin);
+  const activeSubscription =
+    current?.subscription ?? (await getAnyActiveSubscription(admin));
 
   return {
     current,
     activeSubscription,
+    subscriptionMismatch:
+      activeSubscription && !current
+        ? getSubscriptionMismatchDiagnostic(activeSubscription)
+        : null,
     environment: getAppEnvironment(),
     billingTestMode: isBillingTestMode(),
+    billingMethod: getShopifyBillingMode(),
   };
 }
 
 export default function PlansPage() {
-  const { current, activeSubscription, environment, billingTestMode } =
-    useLoaderData<typeof loader>();
-  const fetcher = useFetcher<SubscriptionActionResult>();
-  const errorRef = useRef<HTMLDivElement | null>(null);
-  const isLoading = fetcher.state !== "idle";
+  const {
+    current,
+    activeSubscription,
+    subscriptionMismatch,
+    environment,
+    billingTestMode,
+    billingMethod,
+  } = useLoaderData<typeof loader>();
+  const location = useLocation();
+
+  const [result, setResult] = useState<BillingSubmitResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [pendingAction, setPendingAction] = useState("");
+
   const activeKnownPlan = current?.plan ?? null;
   const activeIsUnknown =
     Boolean(activeSubscription) && activeKnownPlan === null;
+  const manualMigrationRequired =
+    billingMethod === "shopify_app_pricing" &&
+    Boolean(current) &&
+    current?.source !== "shopify_app_pricing";
 
-  useEffect(() => {
-    if (fetcher.data?.cancelled) window.location.reload();
-  }, [fetcher.data?.cancelled]);
+  async function runBilling(formData: FormData, pending: string) {
+    if (submitting) return;
 
-  useEffect(() => {
-    if (!fetcher.data?.confirmationUrl) return;
+    setSubmitting(true);
+    setPendingAction(pending);
+    setResult(null);
 
-    open(fetcher.data.confirmationUrl, "_top");
-  }, [fetcher.data?.confirmationUrl]);
+    try {
+      const response = await submitBilling(formData, location.search);
+      setResult(response);
 
-  useEffect(() => {
-    if (!fetcher.data?.error || !errorRef.current) return;
+      if (response.confirmationUrl) {
+        try {
+          openBillingConfirmation(response.confirmationUrl);
+        } catch (navigationError) {
+          setResult({
+            ...response,
+            error:
+              navigationError instanceof Error
+                ? navigationError.message
+                : "Shopify plan approval could not open automatically.",
+          });
+        }
+      }
 
-    window.requestAnimationFrame(() => {
-      errorRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+      if (response.cancelled) {
+        window.location.reload();
+      }
+    } catch (error) {
+      setResult({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Billing could not complete. Try again.",
       });
-      errorRef.current?.focus({ preventScroll: true });
-    });
-  }, [fetcher.data?.error]);
+    } finally {
+      setSubmitting(false);
+      setPendingAction("");
+    }
+  }
 
-  function submitPlan(planId: PlanId) {
+  function choosePlan(planId: PlanId) {
+    if (activeIsUnknown) return;
+
+    const plan = BILLING_PLANS.find((candidate) => candidate.id === planId);
+    if (!plan) return;
+
+    if (
+      activeKnownPlan &&
+      !window.confirm(
+        "Change from " +
+          activeKnownPlan.name +
+          " to " +
+          plan.name +
+          " at $" +
+          plan.amount.toFixed(2) +
+          " USD every 30 days? Shopify will show the billing details before approval.",
+      )
+    ) {
+      return;
+    }
+
     const formData = new FormData();
     formData.set("actionType", "subscribe");
     formData.set("planId", planId);
-
-    const params = new URLSearchParams(window.location.search);
-    const host = params.get("host");
-    if (host) formData.set("host", host);
-
-    fetcher.submit(formData, {
-      method: "post",
-      action: `/app/api/subscription${window.location.search}`,
-      defaultShouldRevalidate: false,
-    });
+    void runBilling(formData, planId);
   }
 
   function cancelActiveSubscription() {
     if (!activeSubscription?.id) return;
 
+    if (
+      !window.confirm(
+        activeIsUnknown
+          ? "Cancel this incompatible Shopify subscription so you can choose a current VSN plan?"
+          : "Cancel this Shopify subscription? Your saved app data will remain.",
+      )
+    ) {
+      return;
+    }
+
     const formData = new FormData();
     formData.set("actionType", "cancel");
     formData.set("id", activeSubscription.id);
-
-    const params = new URLSearchParams(window.location.search);
-    const host = params.get("host");
-    if (host) formData.set("host", host);
-
-    fetcher.submit(formData, {
-      method: "post",
-      action: `/app/api/subscription${window.location.search}`,
-    });
+    void runBilling(formData, "cancel");
   }
 
   return (
-    <s-page heading="Plans & pricing" inlineSize="large">
-      <s-stack gap="large-300">
-        {billingTestMode ? (
-          <s-banner tone="info" heading="Test billing is enabled">
-            This {environment} environment uses Shopify test subscriptions. No
-            real merchant charge is created in Local or Staging.
-          </s-banner>
-        ) : null}
+    <PageShell>
+      <PageIntro
+        eyebrow="Room to grow"
+        title="Choose the right automation level for your store."
+        description="Every plan keeps product and collection counts unlimited. Upgrade capabilities as your merchandising workflow grows."
+      />
 
-        {activeKnownPlan?.id === "unlimited" && current?.source === "legacy" ? (
-          <s-banner tone="warning" heading="Legacy subscription detected">
-            Your existing legacy subscription is being treated as
-            Unlimited-compatible access. You can switch to a current plan below;
-            Shopify will ask you to approve the replacement.
-          </s-banner>
-        ) : null}
+      {billingMethod === "shopify_app_pricing" ? (
+        <div className="vsn-notice">
+          <strong>Shopify-hosted pricing is enabled.</strong> Plan selection,
+          approval and plan changes are handled by Shopify. In eligible
+          development stores, App Pricing can be tested without a real charge.
+        </div>
+      ) : billingTestMode ? (
+        <div className="vsn-notice">
+          <strong>Legacy test billing is enabled.</strong> This {environment} environment
+          uses Shopify test subscriptions. No real merchant charge is created.
+        </div>
+      ) : null}
 
-        {activeIsUnknown ? (
-          <s-banner tone="critical" heading="Subscription needs review">
-            An active Shopify subscription is attached to this app, but it does
-            not match an approved VSN plan. Plan changes are blocked until that
-            subscription is reviewed.
-          </s-banner>
-        ) : null}
+      {manualMigrationRequired ? (
+        <div className="vsn-notice warning">
+          <strong>Billing migration required.</strong> This store still uses a
+          Billing API subscription. Keep its existing access, but migrate the
+          subscription to Shopify App Pricing before changing plans.
+        </div>
+      ) : null}
 
-        {fetcher.data?.error ? (
-          <div ref={errorRef} tabIndex={-1}>
-            <s-banner tone="critical" heading="Subscription update failed">
-              {fetcher.data.error}
-            </s-banner>
-          </div>
-        ) : null}
+      {activeKnownPlan?.id === "unlimited" && current?.source === "legacy" ? (
+        <div className="vsn-notice warning">
+          <strong>Legacy subscription detected.</strong> Your existing legacy
+          subscription is treated as Unlimited-compatible access until you
+          choose a current plan.
+        </div>
+      ) : null}
 
-        <s-box
-          background="subdued"
-          border="base base solid"
-          borderRadius="large"
-          padding="large-400"
-        >
-          <s-stack gap="base">
-            <s-heading>Unlimited catalog. Simple plans.</s-heading>
-            <s-text>
-              Every plan includes unlimited products and collections, automatic
-              sold-out sorting, and a {BILLING_CATALOG.trialDays}-day free trial.
-              Choose the capability level that fits your store today.
-            </s-text>
-            <s-stack direction="inline" gap="small-200">
-              <s-badge tone="success">
-                {BILLING_CATALOG.trialDays}-day free trial
-              </s-badge>
-              <s-badge tone="info">Unlimited products</s-badge>
-              <s-badge tone="info">Unlimited collections</s-badge>
-              <s-badge tone="info">Support included</s-badge>
-            </s-stack>
-          </s-stack>
-        </s-box>
-
-        <s-grid
-          gridTemplateColumns="repeat(auto-fit, minmax(250px, 1fr))"
-          gap="base"
-        >
-          {BILLING_PLANS.map((plan) => {
-            const support = resolveSupportEntitlement(plan);
-            const isCurrent = activeKnownPlan?.id === plan.id;
-            const isFeatured = plan.id === "growth";
-            const implementedFeatures = getImplementedPlanFeatureNames(plan.id);
-            const roadmapFeatures = plan.featureNames.filter(
-              (feature) => !implementedFeatures.includes(feature),
-            );
-
-            return (
-              <s-box
-                key={plan.id}
-                background={isFeatured ? "subdued" : "base"}
-                border="base base solid"
-                borderRadius="large"
-                padding="large-300"
-              >
-                <s-stack gap="base">
-                  <s-stack direction="inline" gap="small-200">
-                    <s-heading>{plan.name}</s-heading>
-                    {isFeatured && !isCurrent ? (
-                      <s-badge tone="success">Most popular</s-badge>
-                    ) : null}
-                    {isCurrent ? (
-                      <s-badge tone="success">Current plan</s-badge>
-                    ) : null}
-                  </s-stack>
-
-                  <s-stack gap="small-100">
-                    <s-heading>{`$${plan.amount.toFixed(2)}`}</s-heading>
-                    <s-text>USD every 30 days</s-text>
-                  </s-stack>
-
-                  <s-badge tone="info">
-                    {plan.trial_days}-day free trial
-                  </s-badge>
-
-                  <s-text>
-                    Unlimited products · unlimited collections · {support.label}
-                  </s-text>
-
-                  <s-divider />
-
-                  <s-stack gap="small-300">
-                    <s-text type="strong">Included now</s-text>
-                    {implementedFeatures.map((feature) => (
-                      <s-stack key={feature} direction="inline" gap="small-200">
-                        <s-icon
-                          type="check-circle"
-                          tone="success"
-                          size="small"
-                        />
-                        <s-text>{feature}</s-text>
-                      </s-stack>
-                    ))}
-                  </s-stack>
-
-                  {roadmapFeatures.length > 0 ? (
-                    <s-box
-                      background="subdued"
-                      borderRadius="base"
-                      padding="base"
-                    >
-                      <s-stack gap="small-200">
-                        <s-text type="strong">Coming with this tier</s-text>
-                        {roadmapFeatures.map((feature) => (
-                          <s-text key={feature}>• {feature}</s-text>
-                        ))}
-                      </s-stack>
-                    </s-box>
-                  ) : null}
-
-                  <s-button
-                    variant={isCurrent ? "secondary" : "primary"}
-                    loading={isLoading}
-                    disabled={isLoading || activeIsUnknown || isCurrent}
-                    onClick={() => submitPlan(plan.id)}
-                  >
-                    {isCurrent
-                      ? "Current plan"
-                      : activeKnownPlan
-                        ? `Switch to ${plan.name}`
-                        : `Start ${plan.trial_days}-day free trial`}
-                  </s-button>
-                </s-stack>
-              </s-box>
-            );
-          })}
-        </s-grid>
-
-        <s-box
-          background="subdued"
-          borderRadius="large"
-          padding="large-300"
-        >
-          <s-stack gap="small-300">
-            <s-heading>What every plan includes</s-heading>
-            <s-grid
-              gridTemplateColumns="repeat(auto-fit, minmax(180px, 1fr))"
-              gap="small"
-            >
-              <s-text>✓ Unlimited products</s-text>
-              <s-text>✓ Unlimited collections</s-text>
-              <s-text>✓ Automatic sold-out sorting</s-text>
-              <s-text>✓ Manual Sort Now</s-text>
-              <s-text>✓ Bulk collection controls</s-text>
-              <s-text>✓ Restore previous sort order</s-text>
-            </s-grid>
-          </s-stack>
-        </s-box>
-
-        {activeSubscription ? (
-          <s-box
-            border="base base solid"
-            borderRadius="large"
-            padding="large-300"
+      {activeIsUnknown ? (
+        <div className="vsn-notice warning">
+          <strong>A previous subscription no longer matches the current catalog.</strong>
+          {subscriptionMismatch ? (
+            <>
+              {" "}
+              {subscriptionMismatch.name} ·{" "}
+              {subscriptionMismatch.test ? "Test" : "Live"} ·{" "}
+              {subscriptionMismatch.amount == null
+                ? "price unavailable"
+                : "$" +
+                  subscriptionMismatch.amount.toFixed(2) +
+                  " " +
+                  (subscriptionMismatch.currencyCode ?? "")}{" "}
+              · {subscriptionMismatch.trialDays ?? 0}-day trial.
+              <ul>
+                {subscriptionMismatch.reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          <button
+            className="vsn-button danger"
+            type="button"
+            disabled={submitting || !activeSubscription}
+            onClick={cancelActiveSubscription}
           >
-            <s-stack gap="small-300">
-              <s-heading>Subscription controls</s-heading>
-              <s-text>Active subscription: {activeSubscription.name}</s-text>
-              {activeSubscription.currentPeriodEnd ? (
-                <s-text>
-                  Current period ends:{" "}
-                  {new Date(
-                    activeSubscription.currentPeriodEnd,
-                  ).toLocaleDateString()}
-                </s-text>
-              ) : null}
-              <s-button
-                tone="critical"
-                loading={isLoading}
-                disabled={isLoading || activeIsUnknown}
-                onClick={cancelActiveSubscription}
+            {submitting && pendingAction === "cancel"
+              ? "Cancelling…"
+              : "Cancel incompatible subscription"}
+          </button>
+        </div>
+      ) : null}
+
+      {activeKnownPlan ? (
+        <div className="vsn-notice success">
+          <strong>{activeKnownPlan.name} is active.</strong>{" "}
+          {current?.subscription.test ? "Test subscription · " : ""}
+          {current?.subscription.currentPeriodEnd
+            ? "Current period ends " +
+              new Date(
+                current.subscription.currentPeriodEnd,
+              ).toLocaleDateString() +
+              "."
+            : "Your plan entitlements are ready."}
+        </div>
+      ) : null}
+
+      {result?.confirmationUrl ? (
+        <div className="vsn-notice" role="status">
+          {billingMethod === "shopify_app_pricing"
+            ? "Shopify plan selection is ready. "
+            : "Shopify approval is ready. "}
+          <a
+            className="vsn-approval-link"
+            href={result.confirmationUrl}
+            target="_top"
+            rel="noreferrer"
+          >
+            {billingMethod === "shopify_app_pricing"
+              ? "Continue to Shopify pricing"
+              : "Continue to Shopify plan approval"}
+          </a>
+          . If Shopify did not open automatically, use this link.
+        </div>
+      ) : null}
+
+      {result?.error ? (
+        <div className="vsn-notice error" role="alert">
+          {result.error}
+        </div>
+      ) : null}
+
+      <div className="vsn-plan-grid">
+        {BILLING_PLANS.map((plan) => {
+          const currentPlan = activeKnownPlan?.id === plan.id;
+          const featured = plan.id === "growth";
+          const support = resolveSupportEntitlement(plan);
+          const features = getImplementedPlanFeatureNames(plan.id);
+          const planIndex = BILLING_PLANS.findIndex(
+            (candidate) => candidate.id === plan.id,
+          );
+          const previousPlan =
+            planIndex > 0 ? BILLING_PLANS[planIndex - 1] : null;
+          const previousFeatures = new Set(
+            previousPlan
+              ? getImplementedPlanFeatureNames(previousPlan.id)
+              : [],
+          );
+          const addedFeatures = features.filter(
+            (feature) =>
+              !previousFeatures.has(feature) &&
+              feature !== "Priority support entitlement",
+          );
+
+          return (
+            <article
+              key={plan.id}
+              className={["vsn-plan", featured ? "featured" : ""]
+                .filter(Boolean)
+                .join(" ")}
+              aria-label={plan.name + " plan"}
+            >
+              <div className="vsn-plan-label">
+                {currentPlan
+                  ? "Your current plan"
+                  : featured
+                    ? "Most popular · Advanced merchandising"
+                    : plan.id === "unlimited"
+                      ? "Complete automation suite"
+                      : plan.id === "pro"
+                        ? "Operations & analytics"
+                        : "Start with the essentials"}
+              </div>
+
+              <h2>{plan.name}</h2>
+              <p>{PLAN_DESCRIPTIONS[plan.id]}</p>
+
+              <div className="vsn-price">
+                {"$" + plan.amount.toFixed(2)}
+                <span> USD / 30 days</span>
+              </div>
+
+              <div className="vsn-trial">
+                {activeKnownPlan
+                  ? "Plan changes require Shopify approval"
+                  : plan.trial_days +
+                    "-day trial, then $" +
+                    plan.amount.toFixed(2) +
+                    " every 30 days"}
+              </div>
+
+              <div className="vsn-plan-summary">
+                {previousPlan
+                  ? "Everything in " +
+                    previousPlan.name +
+                    ", plus " +
+                    addedFeatures.length +
+                    " capability" +
+                    (addedFeatures.length === 1 ? "" : "ies")
+                  : features.length +
+                    " core capabilities included from day one"}
+              </div>
+
+              <ul>
+                <li>{support.label}</li>
+                {addedFeatures.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+
+              <button
+                className={[
+                  "vsn-button",
+                  !currentPlan && featured ? "primary" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                type="button"
+                disabled={
+                  submitting ||
+                  activeIsUnknown ||
+                  manualMigrationRequired ||
+                  currentPlan ||
+                  Boolean(result?.confirmationUrl)
+                }
+                onClick={() => choosePlan(plan.id)}
               >
-                Cancel subscription
-              </s-button>
-            </s-stack>
-          </s-box>
-        ) : null}
-      </s-stack>
-    </s-page>
+                {submitting && pendingAction === plan.id
+                  ? "Opening Shopify…"
+                  : currentPlan
+                    ? "Current plan"
+                    : manualMigrationRequired
+                      ? "Migration required"
+                      : billingMethod === "shopify_app_pricing"
+                        ? activeKnownPlan
+                          ? "Change plan in Shopify"
+                          : "Choose in Shopify"
+                        : activeKnownPlan
+                          ? "Switch to " + plan.name
+                          : "Start " + plan.trial_days + "-day trial"}
+              </button>
+
+              <div className="vsn-plan-status">
+                {plan.history_retention_days == null
+                  ? "Unlimited activity history retention"
+                  : plan.history_retention_days +
+                    "-day activity history retention"}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="vsn-table-wrap">
+        <table className="vsn-comparison">
+          <caption>Compare plans</caption>
+          <thead>
+            <tr>
+              <th scope="col">Capability</th>
+              {BILLING_PLANS.map((plan) => (
+                <th scope="col" key={plan.id}>
+                  {plan.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Price / 30 days</th>
+              {BILLING_PLANS.map((plan) => (
+                <td key={plan.id}>{"$" + plan.amount.toFixed(2)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">Free trial</th>
+              {BILLING_PLANS.map((plan) => (
+                <td key={plan.id}>{plan.trial_days} days</td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">Products & collections</th>
+              {BILLING_PLANS.map((plan) => (
+                <td key={plan.id}>Unlimited</td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">History retention</th>
+              {BILLING_PLANS.map((plan) => (
+                <td key={plan.id}>
+                  {plan.history_retention_days == null
+                    ? "Unlimited"
+                    : plan.history_retention_days + " days"}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">Support</th>
+              {BILLING_PLANS.map((plan) => (
+                <td key={plan.id}>{resolveSupportEntitlement(plan).label}</td>
+              ))}
+            </tr>
+            {ALL_IMPLEMENTED_FEATURES.map((feature) => (
+              <tr key={feature}>
+                <th scope="row">{feature}</th>
+                {BILLING_PLANS.map((plan) => {
+                  const included =
+                    getImplementedPlanFeatureNames(plan.id).includes(feature);
+
+                  return (
+                    <td key={plan.id}>
+                      <span
+                        className={
+                          included ? "vsn-feature-check" : "vsn-feature-empty"
+                        }
+                        aria-label={included ? "Included" : "Not included"}
+                      >
+                        {included ? "✓ Included" : "—"}
+                      </span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="vsn-notice">
+        Every plan includes unlimited products and collections, automatic
+        sold-out sorting, manual Sort Now and a {BILLING_CATALOG.trialDays}-day
+        trial. Shopify displays the exact billing terms before you approve a
+        new subscription or plan change.
+      </div>
+
+      {activeSubscription &&
+      !activeIsUnknown &&
+      current?.source !== "shopify_app_pricing" ? (
+        <div className="vsn-hero-actions">
+          <button
+            className="vsn-button danger"
+            type="button"
+            disabled={submitting || Boolean(result?.confirmationUrl)}
+            onClick={cancelActiveSubscription}
+          >
+            {submitting && pendingAction === "cancel"
+              ? "Cancelling subscription…"
+              : "Cancel active subscription"}
+          </button>
+        </div>
+      ) : null}
+    </PageShell>
   );
 }

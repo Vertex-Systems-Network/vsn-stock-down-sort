@@ -14,6 +14,7 @@ import {
   getAlertSetting,
   saveAlertSetting,
 } from "../services/alerts.server";
+import { BrandBadge, BrandButton, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -78,18 +79,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 function cooldownLabel(minutes: number) {
   if (minutes === 60) return "1 hour";
   if (minutes === 360) return "6 hours";
@@ -111,8 +100,8 @@ export default function AlertsPage() {
       : setting;
 
   return (
-    <s-page heading="Low-stock alerts" inlineSize="large">
-      <s-section>
+    <PageShell heading="Low-stock alerts">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Notify your team when a tracked Shopify product reaches or falls
@@ -122,14 +111,14 @@ export default function AlertsPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge tone={canEmail ? "success" : "warning"}>
+            <BrandBadge tone={canEmail ? "success" : "warning"}>
               {canEmail ? "Email available" : "Email locked"}
-            </s-badge>
-            <s-badge tone={canSlack ? "success" : "info"}>
+            </BrandBadge>
+            <BrandBadge tone={canSlack ? "success" : "info"}>
               {canSlack ? "Slack available" : "Slack locked"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
           <s-text color="subdued">
@@ -142,13 +131,13 @@ export default function AlertsPage() {
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Settings saved" : "Unable to save"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       <s-section heading="Alert rules">
@@ -158,65 +147,51 @@ export default function AlertsPage() {
               gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
               gap="base"
             >
-              <label>
-                <strong>Low-stock threshold</strong>
-                <input
-                  type="number"
-                  name="threshold"
-                  min={0}
-                  max={1000000}
-                  defaultValue={visibleSetting.threshold}
-                  style={fieldStyle()}
-                />
-                <small>
-                  An alert is eligible when tracked total inventory is at or
-                  below this value.
-                </small>
-              </label>
+              <s-number-field
+                label="Low-stock threshold"
+                name="threshold"
+                min={0}
+                max={1000000}
+                defaultValue={String(visibleSetting.threshold)}
+                details="An alert is eligible when tracked total inventory is at or below this value."
+              />
 
-              <label>
-                <strong>Repeat cooldown</strong>
-                <select
-                  name="cooldownMinutes"
-                  defaultValue={String(visibleSetting.cooldownMinutes)}
-                  style={fieldStyle()}
-                >
-                  {ALERT_COOLDOWN_MINUTES.map((minutes) => (
-                    <option key={minutes} value={minutes}>
-                      {cooldownLabel(minutes)}
-                    </option>
-                  ))}
-                </select>
-                <small>
-                  Each channel has its own last-attempt timestamp.
-                </small>
-              </label>
+              <s-select
+                label="Repeat cooldown"
+                name="cooldownMinutes"
+                details="Each channel has its own last-attempt timestamp."
+              >
+                {ALERT_COOLDOWN_MINUTES.map((minutes) => (
+                  <s-option
+                    key={minutes}
+                    value={String(minutes)}
+                    defaultSelected={minutes === visibleSetting.cooldownMinutes}
+                  >
+                    {cooldownLabel(minutes)}
+                  </s-option>
+                ))}
+              </s-select>
             </s-grid>
 
             <s-box border="base base solid" borderRadius="large" padding="base">
               <s-stack gap="base">
                 <s-heading>Email alerts</s-heading>
 
-                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <input
-                    type="checkbox"
-                    name="emailEnabled"
-                    defaultChecked={visibleSetting.emailEnabled}
-                    disabled={!canEmail}
-                  />
-                  Enable low-stock email alerts
-                </label>
+                <s-checkbox
+                  name="emailEnabled"
+                  label="Enable low-stock email alerts"
+                  defaultChecked={visibleSetting.emailEnabled}
+                  disabled={!canEmail}
+                />
 
-                <label>
-                  <strong>Recipients</strong>
-                  <textarea
-                    name="emailRecipients"
-                    defaultValue={visibleSetting.emailRecipients}
-                    disabled={!canEmail}
-                    placeholder="ops@example.com&#10;inventory@example.com"
-                    style={{ ...fieldStyle(), minHeight: 100 }}
-                  />
-                </label>
+                <s-text-area
+                  label="Recipients"
+                  name="emailRecipients"
+                  defaultValue={visibleSetting.emailRecipients}
+                  disabled={!canEmail}
+                  placeholder="ops@example.com&#10;inventory@example.com"
+                  details="Enter one recipient per line."
+                />
 
                 {!canEmail ? (
                   <s-text color="subdued">
@@ -230,40 +205,30 @@ export default function AlertsPage() {
               <s-stack gap="base">
                 <s-heading>Slack alerts</s-heading>
 
-                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <input
-                    type="checkbox"
-                    name="slackEnabled"
-                    defaultChecked={visibleSetting.slackEnabled}
-                    disabled={!canSlack}
-                  />
-                  Enable Slack incoming-webhook alerts
-                </label>
+                <s-checkbox
+                  name="slackEnabled"
+                  label="Enable Slack incoming-webhook alerts"
+                  defaultChecked={visibleSetting.slackEnabled}
+                  disabled={!canSlack}
+                />
 
-                <label>
-                  <strong>Slack incoming webhook</strong>
-                  <input
-                    type="password"
-                    name="slackWebhookUrl"
-                    autoComplete="off"
-                    disabled={!canSlack}
-                    placeholder={
-                      visibleSetting.slackWebhookConfigured
-                        ? "Configured — enter a new URL only to replace it"
-                        : "https://hooks.slack.com/services/..."
-                    }
-                    style={fieldStyle()}
-                  />
-                </label>
+                <s-password-field
+                  label="Slack incoming webhook"
+                  name="slackWebhookUrl"
+                  autocomplete="off"
+                  disabled={!canSlack}
+                  placeholder={
+                    visibleSetting.slackWebhookConfigured
+                      ? "Configured — enter a new URL only to replace it"
+                      : "https://hooks.slack.com/services/..."
+                  }
+                />
 
-                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <input
-                    type="checkbox"
-                    name="clearSlackWebhook"
-                    disabled={!canSlack || !visibleSetting.slackWebhookConfigured}
-                  />
-                  Remove the stored Slack webhook
-                </label>
+                <s-checkbox
+                  name="clearSlackWebhook"
+                  label="Remove the stored Slack webhook"
+                  disabled={!canSlack || !visibleSetting.slackWebhookConfigured}
+                />
 
                 <s-text color="subdued">
                   Stored Slack webhook:{" "}
@@ -280,14 +245,14 @@ export default function AlertsPage() {
               </s-stack>
             </s-box>
 
-            <s-button
+            <BrandButton
               type="submit"
               variant="primary"
               loading={busy}
               disabled={busy}
             >
               Save alert settings
-            </s-button>
+            </BrandButton>
           </s-stack>
         </form>
       </s-section>
@@ -306,6 +271,6 @@ export default function AlertsPage() {
           </s-text>
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }

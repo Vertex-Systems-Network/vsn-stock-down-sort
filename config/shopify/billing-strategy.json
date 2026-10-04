@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "submission_target": "shopify_app_store_public_app",
+  "active_method": "shopify_app_pricing",
+  "partner_dashboard_required_pricing_method": "shopify_app_pricing",
+  "mixed_mode_allowed": true,
+  "rationale": "New public subscriptions use Shopify App Pricing and the Partner API Active Subscription query. Existing Billing API subscriptions remain readable and entitled until they are migrated with Shopify's migration tooling; the app must not create new Billing API subscriptions once SHOPIFY_BILLING_MODE=shopify_app_pricing.",
+  "public_plans": [
+    {
+      "id": "starter",
+      "amount": 10.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "growth",
+      "amount": 19.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "pro",
+      "amount": 34.99,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    },
+    {
+      "id": "unlimited",
+      "amount": 70,
+      "currency": "USD",
+      "interval": "EVERY_30_DAYS",
+      "trial_days": 10
+    }
+  ],
+  "legacy_compatibility": {
+    "name": "VSN Stock Down Sort Pro",
+    "amount": 55,
+    "trial_days": 5,
+    "maps_to_plan_id": "unlimited"
+  },
+  "shopify_app_pricing_migration": {
+    "status": "repository_ready_dashboard_configuration_pending",
+    "requires": [
+      "Configure Starter, Growth, Pro, Unlimited on the Live Shopify app only.",
+      "Set a 10-day free trial on every Live public plan.",
+      "Configure plan descriptions and welcome link on the Live App Store listing.",
+      "Use the Partner API client to read Live-app subscription state.",
+      "Keep Local/Dev and Staging on manual_legacy test billing.",
+      "Test Shopify App Pricing by installing the Live app on a development store in the same Partner organization.",
+      "Migrate existing Live Billing API subscriptions before those merchants change plans."
+    ]
+  },
+  "repository_mode": "dual_compatibility_until_legacy_migration",
+  "runtime": {
+    "billing_mode_env": "SHOPIFY_BILLING_MODE",
+    "target_value": "shopify_app_pricing",
+    "partner_api_version": "2026-07",
+    "required_partner_api_values": [
+      "SHOPIFY_PARTNER_ORG_ID",
+      "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+      "SHOPIFY_APP_GID"
+    ],
+    "subscription_read_order": [
+      "Partner API activeSubscription",
+      "legacy Admin API activeSubscriptions fallback for unmigrated Billing API merchants"
+    ],
+    "new_subscription_flow": "Shopify-hosted pricing_plans page",
+    "direct_appSubscriptionCreate_when_app_pricing_enabled": false,
+    "public_partner_identifiers": {
+      "organization_id": "4859256",
+      "production_app_gid": "gid://shopify/App/405802811393"
+    },
+    "secret_partner_api_values": [
+      "SHOPIFY_PARTNER_API_ACCESS_TOKEN"
+    ]
+  },
+  "manual_pricing_legacy_compatibility": {
+    "status": "local_and_staging_test_flow_plus_existing_live_subscription_compatibility",
+    "new_subscription_creation_allowed": "local_and_staging_only",
+    "migration_method": "Partner Dashboard subscription migration tool or Shopify CLI subscription-migrations",
+    "access_policy": "Local/Dev and Staging may create Billing API test subscriptions. Live must not create new Billing API subscriptions once Shopify App Pricing is enabled; existing Live Billing API subscriptions remain entitled until migration."
+  },
+  "environment_billing": {
+    "local_dev": {
+      "shopify_app_identity": "VSN | Stock Down Sort Dev",
+      "mode": "manual_legacy",
+      "billing_test_mode": true,
+      "purpose": "Local development and Billing API test subscriptions only. No App Store listing or Shopify App Pricing catalog."
+    },
+    "staging": {
+      "shopify_app_identity": "VSN | Stock Down Sort Staging",
+      "mode": "manual_legacy",
+      "billing_test_mode": true,
+      "purpose": "Hosted pre-production functional/runtime testing with Billing API test subscriptions. This app does not own the App Store listing or public pricing catalog."
+    },
+    "production_live": {
+      "shopify_app_identity": "VSN | Stock Down Sort",
+      "mode": "shopify_app_pricing",
+      "billing_test_mode": false,
+      "partner_org_id": "4859256",
+      "app_gid": "gid://shopify/App/405802811393",
+      "purpose": "Only App Store submission identity. Owns public Shopify App Pricing plans and merchant production billing."
+    }
+  }
+}

@@ -1,6 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { BILLING_CATALOG, BILLING_PLANS } from "../billing-config";
 import { sessionStorage, unauthenticated } from "../shopify.server";
+import { getCurrentSubscriptionPlan } from "../services/billing.server";
+import { getShopifyBillingMode } from "../services/shopify-app-pricing.server";
 
 const EXPECTED_STAGING_APP_URL =
   "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev";
@@ -9,32 +11,6 @@ const SIGNED_PATH = "/internal/staging-acceptance";
 const SHOP_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/;
 
 const encoder = new TextEncoder();
-
-type SubscriptionRead = {
-  id: string;
-  name: string;
-  status: string;
-  test: boolean;
-  trialDays: number | null;
-  lineItems?: Array<{
-    plan: {
-      pricingDetails: {
-        __typename: string;
-        interval?: string;
-        price?: { amount: string; currencyCode: string };
-      };
-    };
-  }>;
-};
-
-type SubscriptionPayload = {
-  data?: {
-    currentAppInstallation?: {
-      activeSubscriptions?: SubscriptionRead[];
-    };
-  };
-  errors?: Array<{ message?: string }>;
-};
 
 function hexToBytes(value: string) {
   if (!/^[a-f0-9]{64}$/i.test(value)) {
@@ -135,60 +111,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const storedSessions = await sessionStorage.findSessionsByShop(shop);
     const { admin, session } = await unauthenticated.admin(shop);
 
-    const response = await admin.graphql(`
-      #graphql
-      query StockDownSortStagingAcceptance {
-        currentAppInstallation {
-          activeSubscriptions {
-            id
-            name
-            status
-            test
-            trialDays
-            lineItems {
-              plan {
-                pricingDetails {
-                  __typename
-                  ... on AppRecurringPricing {
-                    interval
-                    price { amount currencyCode }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `);
-
-    const payload = (await response.json()) as SubscriptionPayload;
-    const graphQlError = payload.errors?.find((error) => error.message)?.message;
-
-    if (graphQlError) {
-      throw new Error(graphQlError);
-    }
-
-    const subscriptions =
-      payload.data?.currentAppInstallation?.activeSubscriptions ?? [];
-
-    const activeSubscriptions = subscriptions.filter(
-      (subscription) => subscription.status === "ACTIVE",
-    );
-
-    const recognizedPlanIds = activeSubscriptions.map((subscription) => {
-      const pricing = subscription.lineItems?.[0]?.plan.pricingDetails;
-      const plan = BILLING_PLANS.find(
-        (candidate) =>
-          subscription.name === candidate.shopify_name &&
-          subscription.test === true &&
-          subscription.trialDays === candidate.trial_days &&
-          pricing?.__typename === "AppRecurringPricing" &&
-          pricing.interval === BILLING_CATALOG.interval &&
-          pricing.price?.currencyCode === BILLING_CATALOG.currencyCode &&
-          Number(pricing.price?.amount) === candidate.amount,
-      );
-      return plan?.id ?? null;
-    });
+    const current = await getCurrentSubscriptionPlan(admin);
+    const recognizedPlanIds = current ? [current.plan.id] : [];
 
     return noStoreJson({
       ok: true,
@@ -204,10 +128,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         ok: true,
       },
       subscriptions: {
-        readOk: Array.isArray(subscriptions),
-        activeCount: activeSubscriptions.length,
+        readOk: true,
+        activeCount: current ? 1 : 0,
         recognizedPlanIds,
-        recognizedActiveCount: recognizedPlanIds.filter(Boolean).length,
+        recognizedActiveCount: recognizedPlanIds.length,
+        billingMethod: getShopifyBillingMode(),
+        source: current?.source ?? null,
         catalog: BILLING_PLANS.map((plan) => ({
           id: plan.id,
           amount: plan.amount,
@@ -215,12 +141,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
           interval: BILLING_CATALOG.interval,
           trialDays: plan.trial_days,
         })),
-        statuses: subscriptions.map((subscription) => ({
-          name: subscription.name,
-          status: subscription.status,
-          test: subscription.test,
-          trialDays: subscription.trialDays,
-        })),
+        statuses: current
+          ? [
+              {
+                name: current.subscription.name,
+                status: current.subscription.status,
+                test: current.subscription.test,
+                trialDays: current.subscription.trialDays ?? null,
+              },
+            ]
+          : [],
       },
     });
   } catch (error) {

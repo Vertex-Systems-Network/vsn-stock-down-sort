@@ -1,0 +1,335 @@
+name: Shopify Live App Pricing Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_store:
+        description: "Partner development store domain (*.myshopify.com) with the Live app installed"
+        required: true
+        type: string
+      expected_plan_id:
+        description: "Expected Shopify App Pricing plan"
+        required: true
+        type: choice
+        options:
+          - starter
+          - growth
+          - pro
+          - unlimited
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-down-sort-shopify-live-app-pricing-audit
+  cancel-in-progress: true
+
+jobs:
+  verify-live-app-pricing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: cloudflare-production
+    env:
+      SHOPIFY_PARTNER_ORG_ID: "4859256"
+      SHOPIFY_PARTNER_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_PARTNER_API_ACCESS_TOKEN }}
+      SHOPIFY_APP_GID: "gid://shopify/App/405802811393"
+      TEST_STORE_DOMAIN: ${{ github.event.inputs.test_store }}
+      EXPECTED_PLAN_ID: ${{ github.event.inputs.expected_plan_id }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Validate audit inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SHOPIFY_PARTNER_API_ACCESS_TOKEN:-}" ]; then
+            echo "::error title=Missing Partner API token::SHOPIFY_PARTNER_API_ACCESS_TOKEN is required in cloudflare-production."
+            exit 1
+          fi
+          if ! [[ "$TEST_STORE_DOMAIN" =~ ^[a-z0-9][a-z0-9-]*\.myshopify\.com$ ]]; then
+            echo "test_store must be a valid *.myshopify.com domain." >&2
+            exit 1
+          fi
+
+      - name: Verify Live Shopify App Pricing contract
+        id: pricing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          ORG_ID = os.environ["SHOPIFY_PARTNER_ORG_ID"]
+          TOKEN = os.environ["SHOPIFY_PARTNER_API_ACCESS_TOKEN"]
+          APP_ID = os.environ["SHOPIFY_APP_GID"]
+          SHOP_DOMAIN = os.environ["TEST_STORE_DOMAIN"].lower()
+          EXPECTED_PLAN_ID = os.environ["EXPECTED_PLAN_ID"]
+          ENDPOINT = f"https://partners.shopify.com/{ORG_ID}/api/2026-07/graphql.json"
+
+          EXPECTED = {
+              "starter": 10.99,
+              "growth": 19.99,
+              "pro": 34.99,
+              "unlimited": 70.00,
+          }
+
+          def normalize_domain(value):
+              if not value:
+                  return ""
+              value = str(value).strip().lower()
+              for prefix in ("https://", "http://"):
+                  if value.startswith(prefix):
+                      value = value[len(prefix):]
+              return value.rstrip("/")
+
+          def graphql(query, variables):
+              request = urllib.request.Request(
+                  ENDPOINT,
+                  data=json.dumps(
+                      {"query": query, "variables": variables}
+                  ).encode("utf-8"),
+                  method="POST",
+                  headers={
+                      "Content-Type": "application/json",
+                      "X-Shopify-Access-Token": TOKEN,
+                      "User-Agent": "vsn-stock-down-sort-live-app-pricing-audit/1.0",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=25) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", errors="replace")
+                  raise SystemExit(
+                      f"Partner API HTTP {exc.code}: {body[:500]}"
+                  ) from None
+              except urllib.error.URLError as exc:
+                  raise SystemExit(
+                      f"Partner API request failed: {exc.reason}"
+                  ) from None
+
+              errors = payload.get("errors") or []
+              if errors:
+                  message = errors[0].get("message") or "unknown GraphQL error"
+                  raise SystemExit(f"Partner API GraphQL error: {message}")
+              return payload.get("data") or {}
+
+          discover_query = """
+          query DiscoverLivePricingTestShop($appId: ID!, $after: String) {
+            events(
+              first: 100
+              after: $after
+              filter: {subjectId: $appId, subjectType: APP}
+              orderBy: OCCURRED_AT_DESC
+            ) {
+              edges {
+                node {
+                  eventType
+                  occurredAt
+                  shop {
+                    id
+                    myshopifyDomain
+                  }
+                  ... on SubscriptionStatus {
+                    state
+                    plan {
+                      handle
+                      billingPeriod
+                      trialDays
+                      prices {
+                        __typename
+                        currencyCode
+                        ... on FlatRatePlanPrice {
+                          amount
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+          """
+
+          shop_id = None
+          matching_plan_event = None
+          after = None
+
+          for _ in range(5):
+              data = graphql(discover_query, {"appId": APP_ID, "after": after})
+              connection = data.get("events") or {}
+              for edge in connection.get("edges") or []:
+                  node = edge.get("node") or {}
+                  shop = node.get("shop") or {}
+                  if normalize_domain(shop.get("myshopifyDomain")) != SHOP_DOMAIN:
+                      continue
+
+                  shop_id = shop.get("id") or shop_id
+                  plan = node.get("plan")
+                  if plan and plan.get("handle") == EXPECTED_PLAN_ID:
+                      matching_plan_event = {
+                          "eventType": node.get("eventType"),
+                          "occurredAt": node.get("occurredAt"),
+                          "state": node.get("state"),
+                          "plan": plan,
+                      }
+                      break
+
+              if shop_id and matching_plan_event:
+                  break
+
+              page_info = connection.get("pageInfo") or {}
+              if not page_info.get("hasNextPage"):
+                  break
+              after = page_info.get("endCursor")
+
+          if not shop_id:
+              raise SystemExit(
+                  f"Could not discover Shopify Shop GID for {SHOP_DOMAIN} from Live app events."
+              )
+
+          active_query = """
+          query VerifyLiveManagedPricing($appId: ID!, $shopId: ID!) {
+            activeSubscription(appId: $appId, shopId: $shopId) {
+              shop {
+                id
+                myshopifyDomain
+              }
+              billingPeriod
+              trialEndsAt
+              currentBillingCycle {
+                startTime
+                endTime
+              }
+              items {
+                handle
+                price {
+                  __typename
+                  active
+                  currency
+                  ... on FlatRatePrice {
+                    amount
+                  }
+                }
+              }
+            }
+          }
+          """
+
+          active = graphql(
+              active_query,
+              {"appId": APP_ID, "shopId": shop_id},
+          ).get("activeSubscription")
+
+          if not active:
+              raise SystemExit(
+                  "No active Shopify App Pricing contract exists for this Live-app development-store test."
+              )
+
+          if normalize_domain((active.get("shop") or {}).get("myshopifyDomain")) != SHOP_DOMAIN:
+              raise SystemExit("Active subscription returned the wrong test store.")
+
+          if active.get("billingPeriod") != "EVERY_30_DAYS":
+              raise SystemExit(
+                  f"Expected EVERY_30_DAYS, got {active.get('billingPeriod')!r}."
+              )
+
+          items = active.get("items") or []
+          if len(items) != 1:
+              raise SystemExit(
+                  f"Expected exactly one subscription item, got {len(items)}."
+              )
+
+          item = items[0]
+          if item.get("handle") != EXPECTED_PLAN_ID:
+              raise SystemExit(
+                  f"Expected plan handle {EXPECTED_PLAN_ID!r}, got {item.get('handle')!r}."
+              )
+
+          price = item.get("price") or {}
+          if price.get("__typename") != "FlatRatePrice" or price.get("active") is not True:
+              raise SystemExit("Expected one active flat-rate App Pricing item.")
+          if price.get("currency") != "USD":
+              raise SystemExit(f"Expected USD, got {price.get('currency')!r}.")
+
+          effective_amount = float(price.get("amount"))
+          expected_catalog_amount = EXPECTED[EXPECTED_PLAN_ID]
+          if abs(effective_amount - 0.0) > 0.0001:
+              raise SystemExit(
+                  "Expected a no-charge development-store subscription with effective "
+                  f"price 0.00, got {effective_amount}."
+              )
+
+          if matching_plan_event is None:
+              raise SystemExit(
+                  "No historical subscription event was found for the expected Live plan."
+              )
+
+          event_plan = matching_plan_event["plan"]
+          if event_plan.get("billingPeriod") != "EVERY_30_DAYS":
+              raise SystemExit("Historical plan billing period is not EVERY_30_DAYS.")
+          if event_plan.get("trialDays") != 10:
+              raise SystemExit(
+                  f"Plan {EXPECTED_PLAN_ID} trial mismatch: expected 10 days, got {event_plan.get('trialDays')!r}."
+              )
+
+          event_prices = [
+              value
+              for value in (event_plan.get("prices") or [])
+              if value.get("__typename") == "FlatRatePlanPrice"
+          ]
+          if len(event_prices) != 1:
+              raise SystemExit("Expected one flat-rate historical plan price.")
+          if event_prices[0].get("currencyCode") != "USD":
+              raise SystemExit("Historical plan currency is not USD.")
+          catalog_amount = float(event_prices[0].get("amount"))
+          if abs(catalog_amount - expected_catalog_amount) > 0.0001:
+              raise SystemExit("Historical plan price does not match the canonical catalog.")
+
+          print(f"live_pricing_test_shop_gid={shop_id}")
+          print(f"live_app_pricing_handle={EXPECTED_PLAN_ID}")
+          print(f"live_app_pricing_effective_amount={effective_amount:.2f}")
+          print(f"live_app_pricing_catalog_amount={catalog_amount:.2f}")
+          print("live_app_pricing_currency=USD")
+          print("live_app_pricing_billing_period=EVERY_30_DAYS")
+          print("live_app_pricing_trial_days=10")
+          print("live_app_pricing_no_charge_test=pass")
+          print("live_app_pricing_catalog_price=pass")
+          print("live_app_pricing_audit=pass")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"shop_id={shop_id}\n")
+              output.write(f"plan_handle={EXPECTED_PLAN_ID}\n")
+              output.write(f"effective_amount={effective_amount:.2f}\n")
+              output.write(f"catalog_amount={catalog_amount:.2f}\n")
+          PY
+
+      - name: Audit summary
+        shell: bash
+        run: |
+          {
+            echo "## Live Shopify App Pricing Audit"
+            echo ""
+            echo "- Live app GID: `$SHOPIFY_APP_GID`"
+            echo "- Development store: **$TEST_STORE_DOMAIN**"
+            echo "- Plan handle: **${{ steps.pricing.outputs.plan_handle }}**"
+            echo "- Development-store effective charge: **USD ${{ steps.pricing.outputs.effective_amount }}**"
+            echo "- Configured public plan price: **USD ${{ steps.pricing.outputs.catalog_amount }}**"
+            echo "- Billing period: **EVERY_30_DAYS**"
+            echo "- Trial: **10 days**"
+            echo "- No-charge development-store behavior: **PASS**"
+            echo "- Public catalog price: **PASS**"
+            echo "- Result: **PASS**"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -65,7 +65,7 @@ The current catalog contains four stable plan IDs:
 - `starter` — USD 10.99 every 30 days / 10-day trial;
 - `growth` — USD 19.99 every 30 days / 10-day trial;
 - `pro` — USD 34.99 every 30 days / 10-day trial;
-- `unlimited` — USD 54.99 every 30 days / 10-day trial.
+- `unlimited` — USD 70.00 every 30 days / 10-day trial.
 
 All four current plans include unlimited products and collections. Capability
 differences are capability-based, and unimplemented capabilities must fail
@@ -140,17 +140,19 @@ Environment secret and must not be committed.
 
 Live is also Action-driven; there is no normal manual config switch.
 
-1. **Production Readiness** validates the Live environment and separate Live
-   Shopify identity.
-2. **Cloudflare Production Prepare** deploys and certifies the isolated
-   production Worker without Shopify cutover.
-3. **Shopify Production Candidate** verifies that the
+1. **Environment Secrets Audit** verifies required `cloudflare-production`
+   values and identity isolation.
+2. **Cloudflare Production Prepare** applies pending migrations, deploys and
+   certifies the isolated production Worker without Shopify cutover.
+3. **Production Readiness** verifies the prepared Live environment, clean
+   migration state and separate Live Shopify identity.
+4. **Shopify Production Candidate** verifies that the
    `cloudflare-production` `SHOPIFY_API_KEY` matches the committed Live client
    ID in `shopify.app.production.toml`, then creates an unreleased candidate
    from protected `main`.
-4. `config/shopify/production-release.json` must explicitly authorize that
+5. `config/shopify/production-release.json` must explicitly authorize that
    exact candidate and source SHA.
-5. **Shopify Production Release** releases only that exact authorized version.
+6. **Shopify Production Release** releases only that exact authorized version.
 
 The committed `shopify.app.production.toml` contains the Live Shopify client
 ID by design. The `cloudflare-production` `SHOPIFY_API_KEY` must match it;
@@ -197,3 +199,7 @@ Local/Dev must be certified before Staging:
 8. record Local acceptance, then proceed to `cloudflare-staging`.
 
 Staging is the first required real Neon/PostgreSQL runtime acceptance gate.
+
+## Current development lock
+
+The accepted Live release remains the current production truth. New development changes, including the USD 70 Unlimited catalog, must not be promoted until the six-item finalization track is complete and a fresh exact-head certification cycle is started.

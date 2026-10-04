@@ -7,7 +7,7 @@ VSN Stock Down Sort is an embedded Shopify app by Vertex Systems Network that ke
 The Shopify plan is:
 
 - Four plan IDs: `starter`, `growth`, `pro`, `unlimited`
-- Prices: USD 10.99 / 19.99 / 34.99 / 54.99 every 30 days
+- Prices: USD 10.99 / 19.99 / 34.99 / 70.00 every 30 days
 - Free trial: 10 days on every paid plan
 - Products and collections: unlimited on every plan
 - Unlimited products
@@ -47,9 +47,15 @@ verification
 project-state update / next work unit
 ```
 
-Capability implementation is complete through PHASE-09. Current-head runtime recertification/promotion is tracked separately by GitHub Issue #125. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work is a six-item development-only finalization track; no new Staging or Production promotion is allowed until all six items are complete. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
+
+## Public submission billing method
+
+The Shopify App Store submission target is **Shopify App Pricing**. New subscriptions and plan changes use Shopify's hosted pricing page, and subscription state is read through the Partner API Active Subscription API. Existing Billing API subscriptions remain supported as a compatibility fallback until Shopify migration tooling moves them.
+
+Only the Live/Production app uses `SHOPIFY_BILLING_MODE=shopify_app_pricing`, the Live Partner/app identifiers, and `SHOPIFY_PARTNER_API_ACCESS_TOKEN`. Local/Dev and Staging use `manual_legacy` test billing. The canonical decision is `config/shopify/billing-strategy.json`.
 
 ## Runtime architecture
 
@@ -89,9 +95,9 @@ The same codebase uses three separate Shopify app registrations.
 
 | Environment | Shopify app | Config | Billing |
 | --- | --- | --- | --- |
-| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | test |
-| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | test |
-| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | real |
+| Local / Development | VSN \| Stock Down Sort Dev | `shopify.app.local.toml` | Billing API test (`manual_legacy`) |
+| Staging | VSN \| Stock Down Sort Staging | `shopify.app.staging.toml` | Billing API test (`manual_legacy`) |
+| Live / Production | VSN \| Stock Down Sort | `shopify.app.production.toml` | Shopify App Pricing |
 
 Database topology is also isolated:
 - Local: gitignored SQLite file `prisma/dev.sqlite`
@@ -103,6 +109,10 @@ Local must be completed and verified before Staging work begins.
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
 The Staging client ID remains a placeholder in git and is injected from `cloudflare-staging`. The Live/Production client ID is committed in `shopify.app.production.toml`, matching the VSN Metafields model; `cloudflare-production` must provide the same `SHOPIFY_API_KEY`, while the API secret remains environment-scoped.
+
+### Live App Pricing pre-submission test
+
+Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, monthly interval and 10-day trial. On a same-Partner development store, the active subscription must show an effective USD 0.00 no-charge price while the historical plan event must still match the configured Live public catalog amount.
 
 ## Local development
 
@@ -125,7 +135,7 @@ Normal Local development requires **no** Neon API key, Neon project ID,
 `DATABASE_URL`, or `DIRECT_URL`. The Local SQLite database is gitignored and
 must never be committed.
 
-Local `SCOPES` must include `read_products,write_products,read_inventory,read_publications,write_publications`.
+Local `SCOPES` must include `read_products,write_products,read_inventory,read_locations,read_publications,write_publications`. `read_locations` is required by the Pro/Unlimited multi-location inventory capability.
 
 `npm run dev` explicitly uses `shopify.app.local.toml`. The repository Local
 runner regenerates/migrates the SQLite schema before React Router starts.
@@ -150,6 +160,19 @@ Staging begin.
 
 Do not manually switch the Local app to Staging or Production with
 `shopify app config use`.
+
+## AI-Native capability alignment
+
+The AI-Native product contract currently contains **26 selected runtime capabilities** across Starter, Growth, Pro, and Unlimited. The canonical sources are:
+
+- `config/ai/product-plan.json` — plan pricing, trials, hierarchy, support and option assignment
+- `config/ai/options-bank.json` — option requirement/evidence metadata
+- `config/ai/modules-bank.json` — module ownership
+- `tests/ai-plan-alignment-contract.test.mjs` — machine-checkable cross-layer alignment
+
+Every runtime option must be selected + implemented in the option bank, assigned to at least one plan, owned by a module, represented in merchant documentation, and backed by repository implementation evidence. `MOD-BILLING` owns the complete runtime option catalog because Shopify subscription resolution is the source of all plan entitlements.
+
+The App Validation workflow also verifies the full Shopify scope contract required by the implemented feature set, including `read_locations` for multi-location inventory and `read_publications`/`write_publications` for commerce-context visibility.
 
 ## Validation
 
@@ -212,17 +235,20 @@ Production is a separate, controlled flow from protected `main`.
 
 Run in this order:
 
-1. **Production Readiness**
-   - confirmation: `VALIDATE_PRODUCTION`
+1. **Environment Secrets Audit**
+   - environment: `cloudflare-production`
+   - confirmation: `AUDIT_ENVIRONMENT_SECRETS`
 2. **Cloudflare Production Prepare**
    - confirmation: `PREPARE_PRODUCTION_WORKER_ONLY`
-   - prepares and verifies the Worker without Shopify cutover
-3. **Shopify Production Candidate**
+   - applies pending production migrations and prepares/verifies the Worker without Shopify cutover
+3. **Production Readiness**
+   - confirmation: `VALIDATE_PRODUCTION`
+4. **Shopify Production Candidate**
    - confirmation: `CREATE_PRODUCTION_SHOPIFY_VERSION`
    - creates an unreleased production Shopify version
-4. Explicitly authorize the exact candidate in:
+5. Explicitly authorize the exact candidate in:
    - `config/shopify/production-release.json`
-5. **Shopify Production Release**
+6. **Shopify Production Release**
    - confirmation: `RELEASE_PRODUCTION_SHOPIFY_VERSION`
    - requires the exact authorized version
 
@@ -230,7 +256,7 @@ Production Worker:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-Production release is blocked unless the repository authorization record, version name, and source SHA match.
+Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes remain on `development` until the six-item finalization track is complete.
 
 ## Environment secrets
 
@@ -257,10 +283,11 @@ The real credentials belong in GitHub Environments, not in committed files.
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
 - `SHOPIFY_APP_AUTOMATION_TOKEN`
+- `SHOPIFY_PARTNER_API_ACCESS_TOKEN`
 - `ALERT_FROM_EMAIL`
 - `SUPPORT_INBOX_EMAIL`
 
-`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime.
+`DIRECT_URL` is used for Prisma migration/readiness operations and is not uploaded to the Worker runtime. Staging sets `SHOPIFY_BILLING_MODE=manual_legacy` with test billing and does not require Partner API billing credentials. Production sets `SHOPIFY_BILLING_MODE=shopify_app_pricing`; the Live Partner organization/App GID are committed Worker vars and `SHOPIFY_PARTNER_API_ACCESS_TOKEN` remains a production secret.
 
 ## Sort job queues
 
@@ -307,6 +334,9 @@ Authenticated merchants can submit support requests from `/app/support`. Request
 - `docs/staging-runbook.md` — Staging setup and promotion
 - `docs/production-runbook.md` — Production readiness and release gates
 - `config/shopify/production-release.json` — production release authorization policy
+- `config/shopify/app-store-submission.json` — App Pricing + App Store finalization record
+- `docs/shopify-app-store-submission.md` — Partner Dashboard, review and final smoke runbook
+- `docs/shopify-app-store-listing-pack.md` — prepared English listing copy, reviewer steps, screenshot plan and demo screencast outline
 
 ## Safety rules
 

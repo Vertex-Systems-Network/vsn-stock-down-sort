@@ -32,6 +32,7 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_BILLING_MODE: manual_legacy
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
@@ -166,7 +167,7 @@ jobs:
               {"id": "starter", "amount": 10.99, "trial_days": 10},
               {"id": "growth", "amount": 19.99, "trial_days": 10},
               {"id": "pro", "amount": 34.99, "trial_days": 10},
-              {"id": "unlimited", "amount": 54.99, "trial_days": 10},
+              {"id": "unlimited", "amount": 70.0, "trial_days": 10},
           ]
 
           if billing.get("currency_code") != "USD":

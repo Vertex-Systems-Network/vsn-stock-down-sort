@@ -1,11 +1,14 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { Link, Outlet, useLoaderData, useLocation, useRouteError } from "react-router";
+import { Link, Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { NavMenu } from "@shopify/app-bridge-react";
 
 import { authenticate } from "../shopify.server";
 import { getCurrentSubscription } from "../services/billing.server";
+import { getAppEnvironment } from "../environment.server";
+import { Workspace } from "../components/Workspace";
+import "../styles/workspace.css";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, redirect: shopifyRedirect } = await authenticate.admin(request);
@@ -23,29 +26,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   // eslint-disable-next-line no-undef
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  return {
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    environment: getAppEnvironment(),
+  };
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData<typeof loader>();
-  const location = useLocation();
+  const { apiKey, environment } = useLoaderData<typeof loader>();
 
   return (
     <AppProvider embedded apiKey={apiKey}>
       <NavMenu>
-        <Link to={`/app${location.search}`} rel="home">
+        <Link to="/app" rel="home">
           Collections
         </Link>
-        <Link to={`/app/visibility${location.search}`}>Visibility</Link>
-        <Link to={`/app/contexts${location.search}`}>Commerce Contexts</Link>
-        <Link to={`/app/analytics${location.search}`}>Analytics</Link>
-        <Link to={`/app/automation${location.search}`}>Automation</Link>
-        <Link to={`/app/alerts${location.search}`}>Alerts</Link>
-        <Link to={`/app/integrations${location.search}`}>Integrations</Link>
-        <Link to={`/app/support${location.search}`}>Support</Link>
-        <Link to={`/app/plans${location.search}`}>Plans</Link>
       </NavMenu>
-      <Outlet />
+      <Workspace
+        appName="VSN | Stock Down Sort"
+        environment={environment}
+      >
+        <Outlet />
+      </Workspace>
     </AppProvider>
   );
 }

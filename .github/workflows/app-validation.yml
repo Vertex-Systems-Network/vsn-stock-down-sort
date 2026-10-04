@@ -24,7 +24,7 @@ jobs:
       SHOPIFY_API_KEY: ci-test-key
       SHOPIFY_API_SECRET: ci-test-secret
       SHOPIFY_APP_URL: https://staging.example.invalid
-      SCOPES: read_products,write_products,read_inventory,read_publications,write_publications
+      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
       DATABASE_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
       DIRECT_URL: postgresql://ci:ci@localhost:5432/vsn_stock_down_sort?schema=public
       ALERT_FROM_EMAIL: ci-sender@example.invalid
@@ -101,6 +101,15 @@ jobs:
 
       - name: PHASE-10 support fulfillment contract
         run: node --test tests/phase-10-support-fulfillment-contract.test.mjs
+
+      - name: UI and billing recovery contract
+        run: node --test tests/ui-billing-recovery-contract.test.mjs
+
+      - name: AI-Native plan alignment contract
+        run: node --test tests/ai-plan-alignment-contract.test.mjs
+
+      - name: Shopify App Pricing contract
+        run: node --test tests/shopify-app-pricing-contract.test.mjs
 
       - name: Environment promotion contract
         run: node --test tests/environment-promotion-contract.test.mjs

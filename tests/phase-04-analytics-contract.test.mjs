@@ -70,7 +70,7 @@ test("sorting and visibility engines persist real runtime activity", () => {
 test("analytics UI and CSV export authenticate Shopify and use persisted shop data", () => {
   const route = read("app/routes/app.analytics.tsx");
   const csv = read("app/routes/app.analytics.export.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));

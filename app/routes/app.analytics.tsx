@@ -10,6 +10,7 @@ import {
   getActivityHistory,
   getAutomationAnalytics,
 } from "../services/analytics.server";
+import { BrandBadge, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -71,24 +72,17 @@ function MetricCard({
   detail?: string;
 }) {
   return (
-    <div
-      style={{
-        border: "1px solid #d7d7d7",
-        borderRadius: 12,
-        padding: 16,
-        minHeight: 104,
-      }}
+    <s-box
+      border="base base solid"
+      borderRadius="large"
+      padding="base"
     >
-      <div style={{ fontSize: 13, color: "#616161", marginBottom: 8 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 700 }}>{value}</div>
-      {detail ? (
-        <div style={{ fontSize: 12, color: "#616161", marginTop: 6 }}>
-          {detail}
-        </div>
-      ) : null}
-    </div>
+      <s-stack gap="small-200">
+        <s-text color="subdued">{label}</s-text>
+        <s-heading>{String(value)}</s-heading>
+        {detail ? <s-text color="subdued">{detail}</s-text> : null}
+      </s-stack>
+    </s-box>
   );
 }
 
@@ -110,8 +104,8 @@ export default function AnalyticsPage() {
   } = useLoaderData<typeof loader>();
 
   return (
-    <s-page heading="Analytics & activity">
-      <s-section>
+    <PageShell heading="Analytics & activity">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Review real automation activity recorded by VSN Stock Down Sort.
@@ -120,14 +114,14 @@ export default function AnalyticsPage() {
           </s-text>
 
           {currentPlan ? (
-            <s-badge tone="info">{currentPlan.name} plan</s-badge>
+            <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
           ) : null}
 
           {!canAnalytics && !canHistory ? (
-            <s-banner tone="warning">
+            <BrandNotice tone="warning">
               Analytics and activity history are available on plans that include
               the PHASE-04 observability capabilities.
-            </s-banner>
+            </BrandNotice>
           ) : null}
 
           <s-text color="subdued">
@@ -152,12 +146,9 @@ export default function AnalyticsPage() {
       {canAnalytics && analytics ? (
         <>
           <s-section heading="Last 30 days">
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-                gap: 12,
-              }}
+            <s-grid
+              gridTemplateColumns="repeat(auto-fit, minmax(160px, 1fr))"
+              gap="base"
             >
               <MetricCard
                 label="Recorded events"
@@ -189,58 +180,35 @@ export default function AnalyticsPage() {
                   analytics.lastActivityAt,
                 )}`}
               />
-            </div>
+            </s-grid>
           </s-section>
 
           <s-section heading="Daily automation activity">
             {analytics.daily.length ? (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr>
-                      {[
-                        "Date",
-                        "Events",
-                        "Sort runs",
-                        "Visibility",
-                        "Errors",
-                        "Moved",
-                        "Sold-out observed",
-                      ].map((heading) => (
-                        <th
-                          key={heading}
-                          style={{
-                            textAlign: "left",
-                            padding: "10px 8px",
-                            borderBottom: "1px solid #d7d7d7",
-                          }}
-                        >
-                          {heading}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {analytics.daily.map((day) => (
-                      <tr key={day.date}>
-                        <td style={{ padding: "10px 8px" }}>{day.date}</td>
-                        <td style={{ padding: "10px 8px" }}>{day.events}</td>
-                        <td style={{ padding: "10px 8px" }}>{day.sortRuns}</td>
-                        <td style={{ padding: "10px 8px" }}>
-                          {day.visibilityChanges}
-                        </td>
-                        <td style={{ padding: "10px 8px" }}>{day.errors}</td>
-                        <td style={{ padding: "10px 8px" }}>
-                          {day.movedProducts}
-                        </td>
-                        <td style={{ padding: "10px 8px" }}>
-                          {day.soldOutObserved}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <s-table>
+                <s-table-header-row>
+                  <s-table-header listSlot="primary">Date</s-table-header>
+                  <s-table-header listSlot="labeled">Events</s-table-header>
+                  <s-table-header listSlot="labeled">Sort runs</s-table-header>
+                  <s-table-header listSlot="labeled">Visibility</s-table-header>
+                  <s-table-header listSlot="labeled">Errors</s-table-header>
+                  <s-table-header listSlot="labeled">Moved</s-table-header>
+                  <s-table-header listSlot="labeled">Sold-out observed</s-table-header>
+                </s-table-header-row>
+                <s-table-body>
+                  {analytics.daily.map((day) => (
+                    <s-table-row key={day.date}>
+                      <s-table-cell>{day.date}</s-table-cell>
+                      <s-table-cell>{day.events}</s-table-cell>
+                      <s-table-cell>{day.sortRuns}</s-table-cell>
+                      <s-table-cell>{day.visibilityChanges}</s-table-cell>
+                      <s-table-cell>{day.errors}</s-table-cell>
+                      <s-table-cell>{day.movedProducts}</s-table-cell>
+                      <s-table-cell>{day.soldOutObserved}</s-table-cell>
+                    </s-table-row>
+                  ))}
+                </s-table-body>
+              </s-table>
             ) : (
               <s-text color="subdued">
                 No runtime activity has been recorded in this period yet.
@@ -253,59 +221,34 @@ export default function AnalyticsPage() {
       {canHistory ? (
         <s-section heading="Recent activity">
           {history.length ? (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    {[
-                      "Time",
-                      "Action",
-                      "Outcome",
-                      "Entity",
-                      "Summary",
-                      "Moved",
-                      "Sold-out",
-                    ].map((heading) => (
-                      <th
-                        key={heading}
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "1px solid #d7d7d7",
-                        }}
-                      >
-                        {heading}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((event) => (
-                    <tr key={event.id}>
-                      <td style={{ padding: "10px 8px", whiteSpace: "nowrap" }}>
-                        {formatTimestamp(event.occurredAt)}
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>{event.action}</td>
-                      <td style={{ padding: "10px 8px" }}>{event.outcome}</td>
-                      <td style={{ padding: "10px 8px" }}>
-                        {event.entityType && event.entityId
-                          ? `${event.entityType}: ${event.entityId}`
-                          : "—"}
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        {event.summary ?? "—"}
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        {event.movedProducts ?? "—"}
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        {event.soldOutProducts ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <s-table>
+              <s-table-header-row>
+                <s-table-header listSlot="primary">Time</s-table-header>
+                <s-table-header listSlot="labeled">Action</s-table-header>
+                <s-table-header listSlot="labeled">Outcome</s-table-header>
+                <s-table-header listSlot="labeled">Entity</s-table-header>
+                <s-table-header listSlot="labeled">Summary</s-table-header>
+                <s-table-header listSlot="labeled">Moved</s-table-header>
+                <s-table-header listSlot="labeled">Sold-out</s-table-header>
+              </s-table-header-row>
+              <s-table-body>
+                {history.map((event) => (
+                  <s-table-row key={event.id}>
+                    <s-table-cell>{formatTimestamp(event.occurredAt)}</s-table-cell>
+                    <s-table-cell>{event.action}</s-table-cell>
+                    <s-table-cell>{event.outcome}</s-table-cell>
+                    <s-table-cell>
+                      {event.entityType && event.entityId
+                        ? `${event.entityType}: ${event.entityId}`
+                        : "—"}
+                    </s-table-cell>
+                    <s-table-cell>{event.summary ?? "—"}</s-table-cell>
+                    <s-table-cell>{event.movedProducts ?? "—"}</s-table-cell>
+                    <s-table-cell>{event.soldOutProducts ?? "—"}</s-table-cell>
+                  </s-table-row>
+                ))}
+              </s-table-body>
+            </s-table>
           ) : (
             <s-text color="subdued">
               No activity events have been recorded for this shop yet.
@@ -313,6 +256,6 @@ export default function AnalyticsPage() {
           )}
         </s-section>
       ) : null}
-    </s-page>
+    </PageShell>
   );
 }

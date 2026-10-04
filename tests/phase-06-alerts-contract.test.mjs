@@ -98,7 +98,7 @@ test("Slack webhook secrets are validated and encrypted at rest", () => {
     false,
   );
 
-  assert.ok(route.includes('type="password"'));
+  assert.ok(route.includes("<s-password-field"));
   assert.ok(route.includes("slackWebhookConfigured"));
   assert.ok(route.includes("The secret is never returned to this page."));
 });
@@ -193,7 +193,7 @@ test("hosted deployment workflows require and upload ALERT_FROM_EMAIL", () => {
 
 test("Alerts UI is authenticated, plan-aware and never renders stored Slack plaintext", () => {
   const route = read("app/routes/app.alerts.tsx");
-  const nav = read("app/routes/app.tsx");
+  const nav = read("app/components/Workspace.tsx");
 
   assert.ok(route.includes("authenticate.admin(request)"));
   assert.ok(route.includes("getCurrentSubscriptionPlan"));

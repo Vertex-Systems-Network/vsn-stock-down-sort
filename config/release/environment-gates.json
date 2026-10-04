@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "status": "verification_required",
+  "status": "accepted",
   "local_dev": {
     "status": "accepted",
-    "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-    "accepted_at": "2026-10-03T14:50:13.938Z",
+    "accepted_source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
+    "accepted_at": "2026-10-04T18:16:27.000Z",
     "evidence_record": {
       "branch": "development",
       "database_provider": "sqlite",
@@ -20,7 +20,7 @@
         "billingTestMode": true,
         "database": "sqlite"
       },
-      "health_url": "http://localhost:51331/healthz",
+      "health_url": "http://localhost:63828/healthz",
       "note": "Local SQLite acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
     }
   },
@@ -33,45 +33,44 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+    "deployed_source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 2,
-      "run_id": 37138271737,
+      "run_number": 8,
+      "run_id": 37224929794,
       "branch": "development",
-      "control_head_sha": "b3c4e49b740b8f38f510f056dd274a663570a49d",
-      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "control_head_sha": "5f8c79477ad3a4a6ce46fe6623b5b71ff1c23306",
+      "source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
       "database_provider": "postgresql",
-      "prisma_migrations": "passed_no_pending",
+      "prisma_migrations": "passed",
       "queue": "vsn-stock-down-sort-staging-sort-jobs",
       "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "deferred_to_staging_runtime_acceptance"
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 2,
-      "run_id": 37139565893,
+      "run_number": 3,
+      "run_id": 37225725089,
       "branch": "development",
-      "control_head_sha": "b3c4e49b740b8f38f510f056dd274a663570a49d",
-      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-      "version": "stock-down-sort-staging-5df0cb94446e-2",
+      "control_head_sha": "5f8c79477ad3a4a6ce46fe6623b5b71ff1c23306",
+      "source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
+      "version": "stock-down-sort-staging-8121c3a66da3-3",
       "status": "released",
       "local_and_live_configs_untouched": true
     },
-    "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-    "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64",
+    "accepted_source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
     "evidence_record": {
       "workflow": "Staging Runtime Acceptance",
-      "run_number": 2,
-      "run_id": 37140631538,
+      "run_number": 3,
+      "run_id": 37225869369,
       "branch": "development",
-      "source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
+      "source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
       "shop": "staging-oath3rth.myshopify.com",
-      "released_version": "stock-down-sort-staging-5df0cb94446e-2",
+      "released_version": "stock-down-sort-staging-8121c3a66da3-3",
       "billing_plan_id": "starter",
       "runtime_health": "passed",
       "database_provider": "postgresql",
@@ -82,10 +81,9 @@
       "admin_graphql": "passed",
       "subscription_read": "passed",
       "active_subscription_count": 1,
-      "recognized_plan_id": "starter",
-      "accepted_main_ref_recording": "recorded",
-      "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64"
-    }
+      "recognized_plan_id": "starter"
+    },
+    "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64"
   },
   "live": {
     "status": "accepted",
@@ -161,5 +159,15 @@
     "staging_acceptance_must_be_recorded_on_main_before_live": true,
     "live_source_must_be_main": true,
     "missing_or_failed_evidence_blocks_promotion": true
+  },
+  "accepted_release": {
+    "production_version": "stock-down-sort-production-930bb2039244-2",
+    "production_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+    "production_release_run_id": 37151020224
+  },
+  "development_promotion_lock": {
+    "enabled": true,
+    "reason": "six_item_finalization_incomplete",
+    "requires_fresh_recertification_after_unlock": true
   }
 }

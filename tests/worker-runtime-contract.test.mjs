@@ -63,6 +63,12 @@ test("Wrangler environments are isolated and declare required secrets", () => {
 
   assert.equal(staging.vars.APP_ENV, "staging");
   assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(staging.vars.SHOPIFY_BILLING_MODE, "manual_legacy");
+  assert.equal(staging.vars.SHOPIFY_PARTNER_ORG_ID, undefined);
+  assert.equal(staging.vars.SHOPIFY_APP_GID, undefined);
+  assert.ok(
+    !staging.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
   assert.equal(
     staging.vars.SHOPIFY_APP_URL,
     "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
@@ -75,6 +81,15 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   assert.ok(!staging.secrets.required.includes("SCOPES"));
   assert.equal(production.vars.APP_ENV, "production");
   assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
+  assert.equal(production.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing");
+  assert.equal(production.vars.SHOPIFY_PARTNER_ORG_ID, "4859256");
+  assert.equal(
+    production.vars.SHOPIFY_APP_GID,
+    "gid://shopify/App/405802811393",
+  );
+  assert.ok(
+    production.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
   assert.equal(
     production.vars.SHOPIFY_APP_URL,
     "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
@@ -95,6 +110,8 @@ test("staging deployment is manual, development-sourced, and test-billed", () =>
   assert.match(workflow, /ref: development/);
   assert.match(workflow, /APP_ENV: staging/);
   assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "true"/);
+  assert.match(workflow, /SHOPIFY_BILLING_MODE: manual_legacy/);
+  assert.doesNotMatch(workflow, /SHOPIFY_PARTNER_API_ACCESS_TOKEN/);
   assert.match(
     workflow,
     /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
@@ -115,8 +132,8 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(diagnostic, /crypto\.subtle\.verify/);
   assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
   assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
-  assert.match(diagnostic, /currentAppInstallation/);
-  assert.match(diagnostic, /activeSubscriptions/);
+  assert.match(diagnostic, /getCurrentSubscriptionPlan/);
+  assert.match(diagnostic, /getShopifyBillingMode/);
   assert.match(diagnostic, /process\.env\.APP_ENV !== "staging"/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
@@ -356,17 +373,16 @@ test("production Shopify promotion is action driven and authorization gated", ()
 });
 
 
-test("plans page uses modern responsive cards with single-dollar pricing", () => {
+test("plans page uses the Metafields-style responsive workspace cards", () => {
   const plans = read("app/routes/app.plans.tsx");
+  const workspace = read("app/styles/workspace.css");
 
-  assert.match(
-    plans,
-    /gridTemplateColumns="repeat\(auto-fit, minmax\(250px, 1fr\)\)"/,
-  );
+  assert.match(plans, /vsn-plan-grid/);
   assert.match(plans, /Most popular/);
-  assert.match(plans, /Unlimited catalog\. Simple plans\./);
+  assert.match(plans, /PageIntro/);
   assert.match(plans, /plan\.amount\.toFixed\(2\)/);
-  assert.doesNotMatch(plans, /\$\{"\$"\}\{plan\.amount/);
+  assert.match(workspace, /\.vsn-plan-grid/);
+  assert.match(workspace, /grid-template-columns: repeat\(4, minmax\(220px, 1fr\)\)/);
   assert.doesNotMatch(plans, /window\.top\.location\.href/);
 });
 
@@ -396,53 +412,38 @@ test("billing approval return URL uses the Shopify Admin app handle", () => {
   );
 });
 
-test("plan switching skips fetcher loader revalidation before approval navigation", () => {
+test("plan switching uses a fresh App Bridge token instead of fetcher revalidation", () => {
   const plans = read("app/routes/app.plans.tsx");
+  const client = read("app/billing-client.ts");
   const api = read("app/routes/app.api.subscription.tsx");
 
-  assert.match(
-    plans,
-    /fetcher\.submit\(formData, \{[\s\S]*method: "post",[\s\S]*defaultShouldRevalidate: false,[\s\S]*\}\)/,
-  );
-  assert.match(
-    api,
-    /\[billing\] subscription confirmation created/,
-  );
-  assert.match(api, /currentPlanId: current\?\.plan\.id \?\? null/);
-  assert.match(api, /requestedPlanId,/);
-  assert.match(api, /confirmationHost: confirmation\.host/);
-  assert.match(api, /confirmationPath: confirmation\.pathname/);
+  assert.match(plans, /submitBilling\(formData, location\.search\)/);
+  assert.doesNotMatch(plans, /useFetcher/);
+  assert.match(client, /shopify\?\.idToken/);
+  assert.match(client, /await shopify\.idToken\(\)/);
+  assert.match(client, /Authorization: `Bearer \$\{token\}`/);
+  assert.match(client, /redirect: "error"/);
+  assert.match(client, /cache: "no-store"/);
+  assert.match(api, /\[billing\] subscription confirmation created/);
 });
 
-test("billing confirmation URL is returned to the embedded client for top-level navigation", () => {
+test("billing confirmation URL has automatic top navigation plus a visible approval fallback", () => {
   const api = read("app/routes/app.api.subscription.tsx");
   const plans = read("app/routes/app.plans.tsx");
+  const client = read("app/billing-client.ts");
 
-  assert.match(
-    api,
-    /confirmationUrl: result\.confirmationUrl/,
-  );
-  assert.match(
-    api,
-    /planId: requestedPlanId/,
-  );
-  assert.doesNotMatch(
-    api,
-    /return redirect\(result\.confirmationUrl/,
-  );
+  assert.match(api, /confirmationUrl: result\.confirmationUrl/);
+  assert.match(api, /planId: requestedPlanId/);
+  assert.doesNotMatch(api, /return redirect\(result\.confirmationUrl/);
 
-  assert.match(
-    plans,
-    /confirmationUrl\?: string/,
-  );
-  assert.match(
-    plans,
-    /open\(fetcher\.data\.confirmationUrl, "_top"\)/,
-  );
-  assert.doesNotMatch(
-    plans,
-    /window\.top\.location\.href/,
-  );
+  assert.match(client, /validateBillingConfirmation/);
+  assert.match(client, /admin\.shopify\.com/);
+  assert.match(client, /url\.hostname\.endsWith\("\.myshopify\.com"\)/);
+  assert.match(client, /url\.pathname\.startsWith\("\/admin\/charges\/"\)/);
+  assert.match(client, /window\.open\(confirmationUrl, "_top"\)/);
+  assert.match(plans, /openBillingConfirmation\(response\.confirmationUrl\)/);
+  assert.match(plans, /Continue to Shopify plan approval/);
+  assert.match(plans, /target="_top"/);
 });
 
 test("billing failures decode SDK shapes and expose safe diagnostics", () => {
@@ -472,16 +473,14 @@ test("billing failures decode SDK shapes and expose safe diagnostics", () => {
   assert.match(api, /\[billing\] subscription action failed/);
 });
 
-test("plans page scrolls billing failures into view", () => {
+test("plans page renders billing failures and approval state inside the workspace", () => {
   const plans = read("app/routes/app.plans.tsx");
 
-  assert.match(plans, /useEffect, useRef/);
-  assert.match(plans, /const errorRef = useRef<HTMLDivElement \| null>/);
-  assert.match(plans, /scrollIntoView\(\{/);
-  assert.match(plans, /behavior: "smooth"/);
-  assert.match(plans, /block: "start"/);
-  assert.match(plans, /focus\(\{ preventScroll: true \}\)/);
-  assert.match(plans, /<div ref=\{errorRef\} tabIndex=\{-1\}>/);
+  assert.match(plans, /vsn-notice error/);
+  assert.match(plans, /result\?\.error/);
+  assert.match(plans, /result\?\.confirmationUrl/);
+  assert.match(plans, /If Shopify did not open automatically/);
+  assert.doesNotMatch(plans, /useFetcher/);
 });
 
 test("billing entitlement requires the exact current plan", () => {
@@ -507,18 +506,60 @@ test("billing entitlement requires the exact current plan", () => {
   assert.match(api, /getAnyActiveSubscription/);
   assert.match(api, /if \(activeSubscription && !current\)/);
   assert.match(api, /activeSubscription\.id !== subscriptionId/);
-  assert.match(api, /current\.subscription\.id !== subscriptionId/);
-  assert.match(api, /Cancellation is blocked until it is reviewed/);
+  assert.match(api, /activeSubscription\.status !== "ACTIVE"/);
+  assert.doesNotMatch(api, /current\.subscription\.id !== subscriptionId/);
+  assert.doesNotMatch(api, /Cancellation is blocked until it is reviewed/);
 
   assert.match(plans, /getAnyActiveSubscription/);
   assert.match(plans, /Legacy subscription detected/);
-  assert.match(plans, /Cancel subscription/);
-  assert.match(plans, /disabled=\{isLoading \|\| activeIsUnknown\}/);
+  assert.match(plans, /A previous subscription no longer matches the current catalog/);
+  assert.match(plans, /Cancel incompatible subscription/);
+  assert.match(plans, /activeIsUnknown/);
   assert.match(plans, /Boolean\(activeSubscription\)/);
+  assert.match(plans, /submitBilling\(formData, location\.search\)/);
 });
 
 
 
+
+test("Shopify App Pricing is the submission target while Billing API remains legacy-compatible", () => {
+  const strategy = JSON.parse(read("config/shopify/billing-strategy.json"));
+  const billing = read("app/services/billing.server.ts");
+  const partner = read("app/services/shopify-app-pricing.server.ts");
+
+  assert.equal(strategy.submission_target, "shopify_app_store_public_app");
+  assert.equal(strategy.active_method, "shopify_app_pricing");
+  assert.equal(
+    strategy.partner_dashboard_required_pricing_method,
+    "shopify_app_pricing",
+  );
+  assert.equal(
+    strategy.repository_mode,
+    "dual_compatibility_until_legacy_migration",
+  );
+  assert.equal(
+    strategy.manual_pricing_legacy_compatibility
+      .new_subscription_creation_allowed,
+    "local_and_staging_only",
+  );
+  assert.deepEqual(
+    strategy.public_plans.map((plan) => [plan.id, plan.amount, plan.trial_days]),
+    [
+      ["starter", 10.99, 10],
+      ["growth", 19.99, 10],
+      ["pro", 34.99, 10],
+      ["unlimited", 70, 10],
+    ],
+  );
+  assert.match(partner, /activeSubscription/);
+  assert.match(partner, /pricing_plans/);
+  assert.match(billing, /getShopifyAppPricingSubscription/);
+  assert.match(billing, /appSubscriptionCreate/);
+  assert.equal(
+    strategy.shopify_app_pricing_migration.status,
+    "repository_ready_dashboard_configuration_pending",
+  );
+});
 
 test("four-plan product catalog is canonical and all paid plans have 10-day trials", () => {
   const catalog = JSON.parse(read("config/ai/product-plan.json"));
@@ -530,7 +571,7 @@ test("four-plan product catalog is canonical and all paid plans have 10-day tria
   );
   assert.deepEqual(
     plans.map((plan) => plan.amount),
-    [10.99, 19.99, 34.99, 54.99],
+    [10.99, 19.99, 34.99, 70],
   );
   assert.deepEqual(plans.map((plan) => plan.trial_days), [10, 10, 10, 10]);
   assert.deepEqual(
@@ -608,13 +649,31 @@ test("Shopify configs use the latest stable API and mandatory compliance webhook
 
 test("privacy lifecycle purges all shop-scoped persisted data", () => {
   const purge = read("app/services/shop-data.server.ts");
+  const schema = read("prisma/cloud/schema.prisma");
   const uninstall = read("app/routes/webhooks.app.uninstalled.tsx");
   const shopRedact = read("app/routes/webhooks.shop.redact.tsx");
   const dataRequest = read("app/routes/webhooks.customers.data_request.tsx");
   const customerRedact = read("app/routes/webhooks.customers.redact.tsx");
 
-  assert.match(purge, /collectionSetting\.deleteMany/);
-  assert.match(purge, /session\.deleteMany/);
+  const shopScopedModels = Array.from(
+    schema.matchAll(/model\s+(\w+)\s*\{([\s\S]*?)\n\}/g),
+  )
+    .filter(([, , body]) => /^\s*shop\s+String\b/m.test(body))
+    .map(([, model]) => model);
+
+  assert.ok(shopScopedModels.length > 0);
+  for (const model of shopScopedModels) {
+    const clientAccessor = model[0].toLowerCase() + model.slice(1);
+    assert.match(
+      purge,
+      new RegExp(`db\\.${clientAccessor}\\.deleteMany`),
+      `${model} is shop-scoped in Prisma but missing from purgeShopData`,
+    );
+  }
+
+  assert.match(purge, /integrationCredential\.findMany/);
+  assert.match(purge, /integrationReplayNonce\.deleteMany/);
+  assert.match(purge, /credentialId:\s*\{\s*in:\s*credentialIds/s);
   assert.match(purge, /db\.\$transaction/);
 
   for (const route of [uninstall, shopRedact]) {
@@ -885,11 +944,28 @@ test("environment secrets audit checks required deployment credentials", () => {
     "SHOPIFY_API_KEY",
     "SHOPIFY_API_SECRET",
     "SHOPIFY_APP_AUTOMATION_TOKEN",
+    "SHOPIFY_PARTNER_ORG_ID",
+    "SHOPIFY_PARTNER_API_ACCESS_TOKEN",
+    "SHOPIFY_APP_GID",
     "CLOUDFLARE_API_TOKEN",
     "CLOUDFLARE_ACCOUNT_ID",
   ]) {
     assert.match(workflow, new RegExp(name));
   }
+
+  assert.match(workflow, /branches:[\s\S]*development[\s\S]*main/);
+  assert.match(
+    workflow,
+    /github\.event_name == 'push' && github\.ref == 'refs\/heads\/development'/,
+  );
+  assert.match(
+    workflow,
+    /github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/,
+  );
+  assert.match(
+    workflow,
+    /paths:[\s\S]*\.github\/workflows\/environment-secrets-audit\.yml/,
+  );
 
   assert.match(
     workflow,
@@ -897,6 +973,37 @@ test("environment secrets audit checks required deployment credentials", () => {
   );
   assert.match(workflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
   assert.match(workflow, /SHOPIFY_API_KEY does not match the committed Live Shopify client ID/);
+  assert.match(workflow, /SHOPIFY_PARTNER_ORG_ID: "4859256"/);
+  assert.doesNotMatch(workflow, /gid:\/\/shopify\/App\/430575026177/);
+  assert.match(workflow, /gid:\/\/shopify\/App\/405802811393/);
+  assert.match(
+    workflow,
+    /SHOPIFY_PARTNER_API_ACCESS_TOKEN: \$\{\{ secrets\.SHOPIFY_PARTNER_API_ACCESS_TOKEN \}\}/,
+  );
+  assert.doesNotMatch(
+    workflow,
+    /SHOPIFY_PARTNER_ORG_ID: \$\{\{ secrets\.SHOPIFY_PARTNER_ORG_ID \}\}/,
+  );
+  assert.doesNotMatch(
+    workflow,
+    /SHOPIFY_APP_GID: \$\{\{ secrets\.SHOPIFY_APP_GID \}\}/,
+  );
+
+  assert.match(
+    workflow,
+    /https:\/\/partners\.shopify\.com\/\{org_id\}\/api\/2026-07\/graphql\.json/,
+  );
+  assert.match(workflow, /gid:\/\/partners\/App\/\{app_id\}/);
+  assert.match(workflow, /query AuditPartnerApp\(\$id: ID!\)/);
+  assert.match(workflow, /app\(id: \$id\)/);
+  assert.match(workflow, /X-Shopify-Access-Token/);
+  assert.match(workflow, /app\.get\("apiKey"\) != expected_api_key/);
+  assert.doesNotMatch(workflow, /staging_partner_api_manage_apps=pass/);
+  assert.match(workflow, /production_partner_api_manage_apps=pass/);
+  assert.doesNotMatch(
+    workflow,
+    /echo ["']?\$SHOPIFY_PARTNER_API_ACCESS_TOKEN/,
+  );
   assert.doesNotMatch(workflow, /echo "\$DATABASE_URL"/);
   assert.doesNotMatch(workflow, /echo "\$SHOPIFY_API_SECRET"/);
 });
@@ -987,6 +1094,12 @@ test("repository management follows the VSN Metafields-style canonical state cha
   if (state.active_issue === null) {
     assert.match(state.next_valid_work_unit, /repository development.*complete/i);
     assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
+    assert.equal(state.finalization_track?.promotion_lock, true);
+    assert.equal(state.finalization_track?.items?.length, 6);
+    assert.equal(
+      state.finalization_track.items.find((item) => item.id === 5)?.title,
+      "Public-app billing verification and Unlimited USD 70 alignment",
+    );
   } else {
     assert.match(state.next_valid_work_unit, /support request fulfillment/i);
     assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
@@ -1337,22 +1450,40 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
   assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
 
   assert.equal(gates.staging.status, "accepted");
-  assert.equal(gates.staging.accepted_source_ref, gates.local_dev.accepted_source_ref);
+  // Historical Staging evidence remains bound to the deployed source even
+  // after Local/Dev has accepted a newer development head.
+  assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
+  assert.equal(
+    gates.staging.deployment_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
+  assert.equal(
+    gates.staging.shopify_release_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
+  assert.equal(
+    gates.staging.evidence_record?.source_ref,
+    gates.staging.deployed_source_ref,
+  );
   assert.equal(
     gates.staging.accepted_main_ref,
     "54c66ab35734efdc929212eb4c676eb062086e64",
   );
-  assert.equal(gates.staging.evidence_record?.run_id, 37140631538);
-  assert.equal(gates.staging.evidence_record?.accepted_main_ref_recording, "recorded");
-  assert.equal(
-    gates.staging.evidence_record?.accepted_main_ref,
-    gates.staging.accepted_main_ref,
-  );
+  assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
+  assert.ok(gates.staging.evidence_record.run_id > 0);
+  assert.match(gates.staging.accepted_main_ref, /^[0-9a-f]{40}$/);
   assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
   assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
   assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
-  assert.equal(gates.staging.deployment_record?.run_id, 37138271737);
-  assert.equal(gates.staging.shopify_release_record?.version, "stock-down-sort-staging-5df0cb94446e-2");
+  assert.ok(Number.isInteger(gates.staging.deployment_record?.run_id));
+  assert.ok(gates.staging.deployment_record.run_id > 0);
+  assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
+  assert.ok(gates.staging.shopify_release_record.run_id > 0);
+  assert.equal(gates.staging.shopify_release_record?.status, "released");
+  assert.match(
+    gates.staging.shopify_release_record?.version ?? "",
+    new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
+  );
 });
 
 

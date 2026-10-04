@@ -20,6 +20,7 @@ import {
   saveAutomationRule,
   setAutomationRuleEnabled,
 } from "../services/automation.server";
+import { BrandBadge, BrandButton, BrandButtonRow, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -185,18 +186,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-function fieldStyle() {
-  return {
-    width: "100%",
-    boxSizing: "border-box" as const,
-    padding: "10px 12px",
-    border: "1px solid #8c9196",
-    borderRadius: "8px",
-    font: "inherit",
-    background: "white",
-  };
-}
-
 function formatDate(value: string | Date | null | undefined) {
   if (!value) return "Never";
   return new Date(value).toLocaleString();
@@ -236,79 +225,66 @@ function RuleFields({
 }) {
   return (
     <s-stack gap="base">
-      <div>
-        <label>
-          <strong>Rule name</strong>
-          <input
-            name="name"
-            required
-            maxLength={120}
-            defaultValue={defaults?.name ?? ""}
-            placeholder="Daily stock cleanup"
-            style={fieldStyle()}
-          />
-        </label>
-      </div>
+      <s-text-field
+        label="Rule name"
+        name="name"
+        required
+        maxLength={120}
+        defaultValue={defaults?.name ?? ""}
+        placeholder="Daily stock cleanup"
+      />
 
-      <div>
-        <label>
-          <strong>Enabled collection</strong>
-          <select
-            name="collectionId"
-            required
-            defaultValue={defaults?.collectionId ?? ""}
-            style={fieldStyle()}
+      <s-select
+        label="Enabled collection"
+        name="collectionId"
+        required
+        details="Only collections currently enabled in VSN Stock Down Sort can be targeted."
+      >
+        <s-option
+          value=""
+          disabled
+          defaultSelected={!defaults?.collectionId}
+        >
+          Select a collection
+        </s-option>
+        {collections.map((collection) => (
+          <s-option
+            key={collection.id}
+            value={collection.id}
+            defaultSelected={defaults?.collectionId === collection.id}
           >
-            <option value="" disabled>
-              Select a collection
-            </option>
-            {collections.map((collection) => (
-              <option key={collection.id} value={collection.id}>
-                {collection.title} /{collection.handle}
-              </option>
-            ))}
-          </select>
-        </label>
-        <small>
-          Only collections currently enabled in VSN Stock Down Sort can be
-          targeted.
-        </small>
-      </div>
+            {collection.title} /{collection.handle}
+          </s-option>
+        ))}
+      </s-select>
 
-      <div>
-        <label>
-          <strong>Schedule</strong>
-          <select
-            name="scheduleMinutes"
-            defaultValue={
-              defaults?.scheduleMinutes == null
-                ? ""
-                : String(defaults.scheduleMinutes)
-            }
-            style={fieldStyle()}
+      <s-select
+        label="Schedule"
+        name="scheduleMinutes"
+        details="Hosted schedules are checked hourly by the Cloudflare Worker. Local development supports manual Run now only."
+      >
+        <s-option
+          value=""
+          defaultSelected={defaults?.scheduleMinutes == null}
+        >
+          Manual only
+        </s-option>
+        {AUTOMATION_SCHEDULE_MINUTES.map((minutes) => (
+          <s-option
+            key={minutes}
+            value={String(minutes)}
+            defaultSelected={defaults?.scheduleMinutes === minutes}
           >
-            <option value="">Manual only</option>
-            {AUTOMATION_SCHEDULE_MINUTES.map((minutes) => (
-              <option key={minutes} value={minutes}>
-                {scheduleLabel(minutes)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <small>
-          Hosted schedules are checked hourly by the Cloudflare Worker. Local
-          development does not claim a background scheduler.
-        </small>
-      </div>
+            {scheduleLabel(minutes)}
+          </s-option>
+        ))}
+      </s-select>
 
-      <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <input
-          type="checkbox"
-          name="enabled"
-          defaultChecked={defaults?.enabled ?? true}
-        />
-        Enable this rule
-      </label>
+      <s-checkbox
+        name="enabled"
+        label="Enable this rule"
+        defaultChecked={defaults?.enabled ?? true}
+      />
 
       <s-box background="subdued" borderRadius="large" padding="base">
         <s-stack gap="small-200">
@@ -322,44 +298,45 @@ function RuleFields({
             gridTemplateColumns="repeat(auto-fit, minmax(190px, 1fr))"
             gap="base"
           >
-            <label>
-              Sold-out products ≥
-              <input
-                type="number"
-                min={0}
-                max={1000000}
-                name="minSoldOutProducts"
-                defaultValue={defaults?.minSoldOutProducts ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Sold-out products ≥"
+              min={0}
+              max={1000000}
+              name="minSoldOutProducts"
+              defaultValue={
+                defaults?.minSoldOutProducts == null
+                  ? ""
+                  : String(defaults.minSoldOutProducts)
+              }
+              disabled={!canUseRuleBuilder}
+            />
 
-            <label>
-              Sold-out percentage ≥
-              <input
-                type="number"
-                min={0}
-                max={100}
-                name="minSoldOutPercent"
-                defaultValue={defaults?.minSoldOutPercent ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Sold-out percentage ≥"
+              min={0}
+              max={100}
+              name="minSoldOutPercent"
+              defaultValue={
+                defaults?.minSoldOutPercent == null
+                  ? ""
+                  : String(defaults.minSoldOutPercent)
+              }
+              disabled={!canUseRuleBuilder}
+              suffix="%"
+            />
 
-            <label>
-              Total products ≥
-              <input
-                type="number"
-                min={0}
-                max={1000000}
-                name="minTotalProducts"
-                defaultValue={defaults?.minTotalProducts ?? ""}
-                disabled={!canUseRuleBuilder}
-                style={fieldStyle()}
-              />
-            </label>
+            <s-number-field
+              label="Total products ≥"
+              min={0}
+              max={1000000}
+              name="minTotalProducts"
+              defaultValue={
+                defaults?.minTotalProducts == null
+                  ? ""
+                  : String(defaults.minTotalProducts)
+              }
+              disabled={!canUseRuleBuilder}
+            />
           </s-grid>
 
           {!canUseRuleBuilder ? (
@@ -393,8 +370,8 @@ export default function AutomationPage() {
   );
 
   return (
-    <s-page heading="Automation" inlineSize="large">
-      <s-section>
+    <PageShell heading="Automation">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Schedule the existing VSN collection sorting engine and optionally
@@ -403,14 +380,14 @@ export default function AutomationPage() {
 
           <s-stack direction="inline" gap="base">
             {currentPlan ? (
-              <s-badge tone="info">{currentPlan.name} plan</s-badge>
+              <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
             ) : null}
-            <s-badge tone={canSchedule ? "success" : "warning"}>
+            <BrandBadge tone={canSchedule ? "success" : "warning"}>
               {canSchedule ? "Scheduling available" : "Scheduling locked"}
-            </s-badge>
-            <s-badge tone={canUseRuleBuilder ? "success" : "info"}>
+            </BrandBadge>
+            <BrandBadge tone={canUseRuleBuilder ? "success" : "info"}>
               {canUseRuleBuilder ? "Rule builder available" : "Basic schedule"}
-            </s-badge>
+            </BrandBadge>
           </s-stack>
 
           <s-text color="subdued">
@@ -422,27 +399,27 @@ export default function AutomationPage() {
       </s-section>
 
       {actionData?.message ? (
-        <s-banner
+        <BrandNotice
           tone={actionData.ok ? "success" : "critical"}
           heading={actionData.ok ? "Automation updated" : "Automation failed"}
           dismissible
         >
           {actionData.message}
-        </s-banner>
+        </BrandNotice>
       ) : null}
 
       {!canSchedule ? (
         <s-section>
-          <s-banner tone="warning">
+          <BrandNotice tone="warning">
             Your current plan does not include scheduled automation.
-          </s-banner>
+          </BrandNotice>
         </s-section>
       ) : collections.length === 0 ? (
         <s-section>
-          <s-banner tone="warning">
+          <BrandNotice tone="warning">
             Enable at least one collection on the Collections page before
             creating an automation rule.
-          </s-banner>
+          </BrandNotice>
         </s-section>
       ) : (
         <s-section heading="Create automation rule">
@@ -452,16 +429,14 @@ export default function AutomationPage() {
               collections={collections}
               canUseRuleBuilder={canUseRuleBuilder}
             />
-            <div style={{ marginTop: 16 }}>
-              <s-button
+            <BrandButton
                 type="submit"
                 variant="primary"
                 loading={busy && submittedIntent === "save" && !submittedRuleId}
                 disabled={busy}
               >
                 Create rule
-              </s-button>
-            </div>
+              </BrandButton>
           </form>
         </s-section>
       )}
@@ -487,10 +462,10 @@ export default function AutomationPage() {
                   <s-stack gap="base">
                     <s-stack direction="inline" gap="base">
                       <s-heading>{rule.name}</s-heading>
-                      <s-badge tone={rule.enabled ? "success" : "warning"}>
+                      <BrandBadge tone={rule.enabled ? "success" : "warning"}>
                         {rule.enabled ? "Enabled" : "Paused"}
-                      </s-badge>
-                      <s-badge>{scheduleLabel(rule.scheduleMinutes)}</s-badge>
+                      </BrandBadge>
+                      <BrandBadge>{scheduleLabel(rule.scheduleMinutes)}</BrandBadge>
                     </s-stack>
 
                     <s-text>
@@ -507,7 +482,7 @@ export default function AutomationPage() {
                     </s-text>
 
                     {rule.lastError ? (
-                      <s-banner tone="critical">{rule.lastError}</s-banner>
+                      <BrandNotice tone="critical">{rule.lastError}</BrandNotice>
                     ) : null}
 
                     {target && canSchedule ? (
@@ -527,36 +502,34 @@ export default function AutomationPage() {
                             minTotalProducts: rule.minTotalProducts,
                           }}
                         />
-                        <div style={{ marginTop: 16 }}>
-                          <s-button
-                            type="submit"
-                            variant="secondary"
-                            loading={rowBusy && submittedIntent === "save"}
-                            disabled={busy}
-                          >
-                            Save changes
-                          </s-button>
-                        </div>
+                        <BrandButton
+                          type="submit"
+                          variant="secondary"
+                          loading={rowBusy && submittedIntent === "save"}
+                          disabled={busy}
+                        >
+                          Save changes
+                        </BrandButton>
                       </form>
                     ) : target ? null : (
-                      <s-banner tone="warning">
+                      <BrandNotice tone="warning">
                         This rule&apos;s collection is no longer enabled. Re-enable
                         the collection or delete the rule.
-                      </s-banner>
+                      </BrandNotice>
                     )}
 
-                    <s-button-group>
+                    <BrandButtonRow>
                       <form method="post">
                         <input type="hidden" name="intent" value="run" />
                         <input type="hidden" name="ruleId" value={rule.id} />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="primary"
                           loading={rowBusy && submittedIntent === "run"}
                           disabled={busy || !target}
                         >
                           Run now
-                        </s-button>
+                        </BrandButton>
                       </form>
 
                       <form method="post">
@@ -567,20 +540,20 @@ export default function AutomationPage() {
                           name="enabled"
                           value={rule.enabled ? "false" : "true"}
                         />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="secondary"
                           loading={rowBusy && submittedIntent === "toggle"}
                           disabled={busy || (!target && !rule.enabled)}
                         >
                           {rule.enabled ? "Pause" : "Enable"}
-                        </s-button>
+                        </BrandButton>
                       </form>
 
                       <form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
-                        <s-button
+                        <BrandButton
                           type="submit"
                           variant="tertiary"
                           tone="critical"
@@ -588,9 +561,9 @@ export default function AutomationPage() {
                           disabled={busy}
                         >
                           Delete
-                        </s-button>
+                        </BrandButton>
                       </form>
-                    </s-button-group>
+                    </BrandButtonRow>
                   </s-stack>
                 </s-box>
               );
@@ -598,6 +571,6 @@ export default function AutomationPage() {
           </s-stack>
         )}
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }

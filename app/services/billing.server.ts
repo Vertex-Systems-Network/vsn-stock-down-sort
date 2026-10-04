@@ -8,6 +8,10 @@ import {
 } from "../billing-config";
 import { getAppEnvironment, isBillingTestMode } from "../environment.server";
 import { authenticate } from "../shopify.server";
+import {
+  getShopifyAppPricingSubscription,
+  resolveShopifyAppPricingPlan,
+} from "./shopify-app-pricing.server";
 
 type AdminClient = Awaited<ReturnType<typeof authenticate.admin>>["admin"];
 
@@ -344,6 +348,121 @@ export function resolveSubscriptionPlan(
   return null;
 }
 
+export type SubscriptionMismatchDiagnostic = {
+  name: string;
+  status: string;
+  test: boolean;
+  trialDays: number | null;
+  amount: number | null;
+  currencyCode: string | null;
+  interval: string | null;
+  candidatePlanId: PlanId | null;
+  reasons: string[];
+};
+
+export function getSubscriptionMismatchDiagnostic(
+  subscription: AppSubscription,
+): SubscriptionMismatchDiagnostic | null {
+  if (resolveSubscriptionPlan(subscription)) return null;
+
+  const pricing = subscription.lineItems?.[0]?.plan.pricingDetails;
+  const amount =
+    pricing?.price?.amount == null ? null : Number(pricing.price.amount);
+  const currencyCode = pricing?.price?.currencyCode ?? null;
+  const interval = pricing?.interval ?? null;
+  const currentPlan = BILLING_PLANS.find(
+    (plan) => plan.shopify_name === subscription.name,
+  );
+  const legacyNameMatches = subscription.name === LEGACY_PLAN.legacy_name;
+  const reasons: string[] = [];
+
+  if (subscription.status !== "ACTIVE") {
+    reasons.push(`Status is ${subscription.status}, not ACTIVE.`);
+  }
+
+  if (subscription.test !== isBillingTestMode()) {
+    reasons.push(
+      `Subscription is ${subscription.test ? "test" : "live"} billing, but this environment expects ${isBillingTestMode() ? "test" : "live"} billing.`,
+    );
+  }
+
+  if (subscription.lineItems?.length !== 1) {
+    reasons.push("Subscription must contain exactly one recurring line item.");
+  }
+
+  if (pricing?.__typename !== "AppRecurringPricing") {
+    reasons.push("Subscription does not use the expected recurring pricing type.");
+  }
+
+  if (currentPlan) {
+    if (subscription.trialDays !== currentPlan.trial_days) {
+      reasons.push(
+        `Trial is ${subscription.trialDays ?? 0} days; ${currentPlan.name} now requires ${currentPlan.trial_days} days.`,
+      );
+    }
+    if (amount !== currentPlan.amount) {
+      reasons.push(
+        `Price is ${amount == null ? "unavailable" : `${amount.toFixed(2)}`}; ${currentPlan.name} now requires ${currentPlan.amount.toFixed(2)}.`,
+      );
+    }
+    if (currencyCode !== BILLING_CATALOG.currencyCode) {
+      reasons.push(
+        `Currency is ${currencyCode ?? "unavailable"}; expected ${BILLING_CATALOG.currencyCode}.`,
+      );
+    }
+    if (interval !== BILLING_CATALOG.interval) {
+      reasons.push(
+        `Billing interval is ${interval ?? "unavailable"}; expected ${BILLING_CATALOG.interval}.`,
+      );
+    }
+  } else if (legacyNameMatches) {
+    if (subscription.trialDays !== LEGACY_PLAN.legacy_trial_days) {
+      reasons.push(
+        `Legacy trial is ${subscription.trialDays ?? 0} days; expected ${LEGACY_PLAN.legacy_trial_days}.`,
+      );
+    }
+    if (amount !== LEGACY_PLAN.legacy_amount) {
+      reasons.push(
+        `Legacy price is ${amount == null ? "unavailable" : `${amount.toFixed(2)}`}; expected ${LEGACY_PLAN.legacy_amount.toFixed(2)}.`,
+      );
+    }
+    if (currencyCode !== "USD") {
+      reasons.push(
+        `Legacy currency is ${currencyCode ?? "unavailable"}; expected USD.`,
+      );
+    }
+    if (interval !== "EVERY_30_DAYS") {
+      reasons.push(
+        `Legacy billing interval is ${interval ?? "unavailable"}; expected EVERY_30_DAYS.`,
+      );
+    }
+  } else {
+    reasons.push(
+      `Subscription name "${subscription.name}" does not match the current VSN plan catalog.`,
+    );
+  }
+
+  if (reasons.length === 0) {
+    reasons.push(
+      "Subscription metadata does not match the current approved billing catalog.",
+    );
+  }
+
+  return {
+    name: subscription.name,
+    status: subscription.status,
+    test: subscription.test,
+    trialDays: subscription.trialDays ?? null,
+    amount,
+    currencyCode,
+    interval,
+    candidatePlanId: currentPlan?.id ?? (legacyNameMatches
+      ? (LEGACY_PLAN.maps_to_plan_id as PlanId)
+      : null),
+    reasons,
+  };
+}
+
 export function getPlanForSubscription(
   subscription: AppSubscription | null | undefined,
 ) {
@@ -409,7 +528,7 @@ export function isCurrentPlanSubscription(subscription: AppSubscription) {
   return resolveSubscriptionPlan(subscription) !== null;
 }
 
-export async function getCurrentSubscription(admin: AdminClient) {
+async function getCurrentManualSubscription(admin: AdminClient) {
   const subscriptions = await getActiveSubscriptions(admin);
 
   return (
@@ -418,8 +537,68 @@ export async function getCurrentSubscription(admin: AdminClient) {
   );
 }
 
+function normalizeShopifyAppPricingSubscription(
+  managed: Awaited<ReturnType<typeof getShopifyAppPricingSubscription>>,
+  planId: PlanId,
+): AppSubscription {
+  if (!managed) {
+    throw new Error("Shopify App Pricing subscription is required.");
+  }
+
+  const plan = BILLING_PLAN_BY_ID[planId];
+  const resolved = resolveShopifyAppPricingPlan(managed);
+  if (!resolved) {
+    throw new Error("Shopify App Pricing subscription does not match the approved VSN catalog.");
+  }
+
+  return {
+    id:
+      managed.legacySubscriptionId ??
+      `shopify-app-pricing:${managed.shop.id}`,
+    name: plan.shopify_name,
+    status: "ACTIVE",
+    test: isBillingTestMode(),
+    currentPeriodEnd: managed.currentBillingCycle?.endTime ?? null,
+    trialDays: managed.trialEndsAt ? plan.trial_days : null,
+    lineItems: [
+      {
+        plan: {
+          pricingDetails: {
+            __typename: "AppRecurringPricing",
+            interval: managed.billingPeriod,
+            price: {
+              amount: String(resolved.amount),
+              currencyCode: resolved.currencyCode,
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
 export async function getCurrentSubscriptionPlan(admin: AdminClient) {
-  const subscription = await getCurrentSubscription(admin);
+  const managed = await getShopifyAppPricingSubscription(admin);
+  if (managed) {
+    const resolved = resolveShopifyAppPricingPlan(managed);
+    if (!resolved) {
+      throw new Error(
+        "An active Shopify App Pricing subscription exists but does not match the approved VSN plan catalog.",
+      );
+    }
+
+    return {
+      subscription: normalizeShopifyAppPricingSubscription(
+        managed,
+        resolved.planId,
+      ),
+      managedSubscription: managed,
+      plan: resolved.plan,
+      source: "shopify_app_pricing" as const,
+    };
+  }
+
+  const subscription = await getCurrentManualSubscription(admin);
   if (!subscription) return null;
 
   const resolved = resolveSubscriptionPlan(subscription);
@@ -427,9 +606,15 @@ export async function getCurrentSubscriptionPlan(admin: AdminClient) {
 
   return {
     subscription,
+    managedSubscription: null,
     plan: BILLING_PLAN_BY_ID[resolved.planId],
     source: resolved.source,
   };
+}
+
+export async function getCurrentSubscription(admin: AdminClient) {
+  const current = await getCurrentSubscriptionPlan(admin);
+  return current?.subscription ?? null;
 }
 
 type CurrentAppHandlePayload = {

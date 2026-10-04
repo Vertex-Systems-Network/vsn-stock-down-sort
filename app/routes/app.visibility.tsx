@@ -15,6 +15,7 @@ import {
   saveVisibilitySetting,
   syncVariantVisibilityEntitlement,
 } from "../services/product-visibility.server";
+import { BrandBadge, BrandButton, BrandNotice, PageShell } from "../components/BrandUi";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -104,8 +105,8 @@ export default function VisibilityPage() {
   const canAutoRepublish = optionIds.includes(PHASE3_OPTION_IDS.autoRepublish);
 
   return (
-    <s-page heading="Product visibility">
-      <s-section>
+    <PageShell heading="Product visibility">
+      <s-section heading="Overview">
         <s-stack gap="base">
           <s-text>
             Automatically hide tracked sold-out products and restore only products
@@ -114,49 +115,50 @@ export default function VisibilityPage() {
           </s-text>
 
           {currentPlan ? (
-            <s-badge tone="info">{currentPlan.name} plan</s-badge>
+            <BrandBadge tone="info">{currentPlan.name} plan</BrandBadge>
           ) : null}
 
           {actionData ? (
-            <s-banner tone={actionData.ok ? "success" : "critical"}>
+            <BrandNotice tone={actionData.ok ? "success" : "critical"}>
               {actionData.message}
-            </s-banner>
+            </BrandNotice>
           ) : null}
 
           <form method="post">
             <s-stack gap="large-200">
-              <label>
-                <strong>Sold-out product behavior</strong>
-                <select
-                  name="productMode"
-                  defaultValue={setting.productMode}
-                  disabled={busy}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    marginTop: 8,
-                    padding: "10px 12px",
-                  }}
+              <s-select
+                label="Sold-out product behavior"
+                name="productMode"
+                disabled={busy}
+              >
+                <s-option
+                  value="OFF"
+                  defaultSelected={setting.productMode === "OFF"}
                 >
-                  <option value="OFF">Off</option>
-                  <option value="DRAFT" disabled={!canAutoHide}>
-                    Unpublish as Draft
-                  </option>
-                  <option value="UNLISTED" disabled={!canSeoSafe}>
-                    SEO-safe soft hide (Unlisted)
-                  </option>
-                </select>
-              </label>
+                  Off
+                </s-option>
+                <s-option
+                  value="DRAFT"
+                  defaultSelected={setting.productMode === "DRAFT"}
+                  disabled={!canAutoHide}
+                >
+                  Unpublish as Draft
+                </s-option>
+                <s-option
+                  value="UNLISTED"
+                  defaultSelected={setting.productMode === "UNLISTED"}
+                  disabled={!canSeoSafe}
+                >
+                  SEO-safe soft hide (Unlisted)
+                </s-option>
+              </s-select>
 
-              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  name="autoRepublish"
-                  defaultChecked={setting.autoRepublish}
-                  disabled={busy || !canAutoRepublish}
-                />
-                Automatically restore products when inventory returns
-              </label>
+              <s-checkbox
+                name="autoRepublish"
+                label="Automatically restore products when inventory returns"
+                defaultChecked={setting.autoRepublish}
+                disabled={busy || !canAutoRepublish}
+              />
 
               <s-text color="subdued">
                 SEO-safe mode uses Shopify Unlisted product status, keeping the
@@ -166,14 +168,14 @@ export default function VisibilityPage() {
               </s-text>
 
               {!canAutoHide ? (
-                <s-banner tone="warning">
+                <BrandNotice tone="warning">
                   Your current plan does not include automatic product hiding.
-                </s-banner>
+                </BrandNotice>
               ) : null}
 
-              <s-button type="submit" variant="primary" loading={busy}>
+              <BrandButton type="submit" variant="primary" loading={busy}>
                 Save visibility settings
-              </s-button>
+              </BrandButton>
             </s-stack>
           </form>
         </s-stack>
@@ -183,7 +185,7 @@ export default function VisibilityPage() {
         <s-stack gap="small-200">
           {variantVisibilityEntitled ? (
             <>
-              <s-badge tone="success">Storefront app embed available</s-badge>
+              <BrandBadge tone="success">Storefront app embed available</BrandBadge>
               <s-text>
                 Activate the VSN variant visibility app embed on the product
                 template. It uses Shopify storefront variant availability and
@@ -197,7 +199,7 @@ export default function VisibilityPage() {
             </>
           ) : (
             <>
-              <s-badge tone="warning">Not included in current plan</s-badge>
+              <BrandBadge tone="warning">Not included in current plan</BrandBadge>
               <s-text>
                 Sold-out variant hiding and automatic variant restore require a
                 plan that includes both variant visibility capabilities.
@@ -206,6 +208,6 @@ export default function VisibilityPage() {
           )}
         </s-stack>
       </s-section>
-    </s-page>
+    </PageShell>
   );
 }
