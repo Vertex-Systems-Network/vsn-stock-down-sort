@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-128-WU-01",
   "active_issue": null,
   "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option alignment remain complete. PR #165–#169 are merged to development; App Validation #602 / run 37206271869 passed on exact development head 22d566d6fef99a265dbfd46f319fd5824e537115. No acceptance is claimed for the newer development source in Local, Staging or Live.",
-  "next_valid_work_unit": "Recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
+  "next_valid_work_unit": "Repository development through PHASE-10 is complete. Recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -57,18 +57,6 @@
     "phase_07_commerce_context_visibility_contract": "passed",
     "phase_08_secure_api_integrations_contract": "passed",
     "phase_09_priority_support_entitlement_contract": "passed",
-    "environment_promotion_contract": "passed",
-    "local_environment_contract": "passed",
-    "database_architecture_contracts": "passed",
-    "worker_build": "passed",
-    "cloudflare_staging_dry_run": "passed",
-    "cloudflare_production_dry_run": "passed",
-    "runtime_prep_pr_number": 126,
-    "runtime_prep_pr_head_sha": "2937a0385633466e36473648af95bdbfcc2849c8",
-    "runtime_prep_validation_run": 37123976766,
-    "runtime_prep_validation_number": 488,
-    "runtime_prep_validation_conclusion": "success",
-    "runtime_prep_merge_sha": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "phase_10_implementation_pr_number": 129,
     "phase_10_implementation_head_sha": "60fe3bbd1f62fad6b7ff97792f2721acf2a70936",
     "phase_10_validation_run": 37126630330,
@@ -150,7 +138,7 @@
   },
   "finalization_track": {
     "promotion_lock": true,
-    "rule": "Promotion gates are sequential, not a six-item pre-promotion bundle. Current source requires fresh Local/Dev acceptance before Staging. After Staging acceptance is recorded on protected main, complete Live-only pricing, production Partner API/secrets, legacy-subscription review, and App Store listing/media/review prerequisites before Production release. Final Production Merchant Smoke is a post-release check and must not block Local or Staging promotion; keep the finalization track open until it passes.",
+    "rule": "Promotion gates are sequential, not a six-item pre-promotion bundle. Current source requires fresh Local/Dev acceptance before Staging. After Staging acceptance is recorded on protected main, complete Live-only pricing, production Partner API/secrets, legacy-subscription review, and App Store listing/media/review prerequisites before Production release. Final Production Merchant Smoke is a post-release check and must not block Dev -> Staging or Staging -> Live preparation; keep the finalization track open until it passes.",
     "items": [
       {
         "id": 1,
@@ -233,26 +221,5 @@
     "live_app_pricing_audit": ".github/workflows/shopify-live-app-pricing-audit.yml",
     "legacy_live_billing_api_compatibility": "preserved_until_migration",
     "final_smoke_workflow": ".github/workflows/final-production-merchant-smoke.yml"
-  },
-  "ai_plan_alignment": {
-    "status": "complete_for_repository_development",
-    "runtime_option_count": 26,
-    "option_bank_alignment": "26_of_26_selected_and_implemented",
-    "plan_assignment_alignment": "26_of_26_assigned",
-    "module_ownership_alignment": "26_of_26_owned",
-    "documentation_alignment": "26_of_26_documented",
-    "source_evidence_alignment": "26_of_26_verified",
-    "shopify_scope_alignment": [
-      "read_products",
-      "write_products",
-      "read_inventory",
-      "read_locations",
-      "read_publications",
-      "write_publications"
-    ],
-    "contract": "tests/ai-plan-alignment-contract.test.mjs",
-    "validation_run": 37170586736,
-    "validation_number": 561,
-    "validated_head_sha": "3a520d1738f0befb7fd6960bec4b968ed42a5c8a"
   }
 }
