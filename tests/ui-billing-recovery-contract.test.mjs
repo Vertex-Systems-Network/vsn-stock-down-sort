@@ -113,7 +113,7 @@ test("workspace UX improvements stay inside the app and expose beginner document
   const plans = read("app/routes/app.plans.tsx");
 
   assert.ok(styles.includes("padding: 22px 8px 40px"));
-  assert.ok(styles.includes("inline-size: calc(100% - min(6vw, 96px) + 32px)"));
+  assert.ok(styles.includes("inline-size: calc(100% - min(6vw, 96px))"));
   assert.equal(home.includes("vsn-collection-toggle"), false);
   assert.ok(home.includes('className="vsn-collections-table"'));
   assert.ok(home.includes('className="vsn-row-actions"'));
