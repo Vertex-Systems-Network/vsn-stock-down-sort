@@ -353,23 +353,27 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, false);
-  assert.equal(
-    policy.authorized_version,
-    "stock-down-sort-production-930bb2039244-2",
-  );
-  assert.equal(
-    policy.authorized_source_ref,
-    "930bb2039244ecafd0ae9d3bb538898094e86638",
-  );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
   assert.equal(policy.billing.trial_days, 10);
-  assert.equal(policy.status, "released");
-  assert.equal(policy.release_record?.run_id, 37151020224);
-  assert.equal(policy.release_record?.version_released_to_users, true);
-  assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.match(policy.authorized_source_ref, /^[0-9a-f]{40}$/);
+  assert.match(
+    policy.authorized_version,
+    new RegExp("^stock-down-sort-production-" + policy.authorized_source_ref.slice(0, 12) + "-[0-9]+$"),
+  );
+
+  if (policy.release_authorized) {
+    assert.equal(policy.status, "candidate_authorized");
+    assert.equal(policy.release_record, undefined);
+  } else {
+    assert.equal(policy.status, "released");
+    assert.equal(policy.release_record?.source_ref, policy.authorized_source_ref);
+    assert.equal(policy.release_record?.version, policy.authorized_version);
+    assert.equal(policy.release_record?.version_released_to_users, true);
+    assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+    assert.ok(Number.isInteger(policy.release_record?.run_id));
+  }
 });
 
 
