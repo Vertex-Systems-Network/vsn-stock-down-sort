@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "verification_required",
+    "status": "accepted",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -49,7 +49,7 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "pending_staging_runtime_acceptance"
+      "shopify_acceptance": "passed"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
@@ -219,6 +219,28 @@
       },
       "status": "superseded_by_new_staging_deployment",
       "note": "Previously accepted Staging deployment; superseded by the docs source deployment pending fresh runtime acceptance."
+    },
+    "accepted_source_ref": "23a6c61cb5d54c201e1cc1fa85f0d3b9f1faa910",
+    "accepted_main_ref": "dc1fbabf99e046d2d7a9eabc5befda32f89aacd5",
+    "evidence_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 7,
+      "run_id": 37376623204,
+      "branch": "development",
+      "source_ref": "23a6c61cb5d54c201e1cc1fa85f0d3b9f1faa910",
+      "shop": "staging-oath3rth.myshopify.com",
+      "released_version": "stock-down-sort-staging-23a6c61cb5d5-6",
+      "billing_plan_id": "starter",
+      "runtime_health": "passed",
+      "database_provider": "postgresql",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "offline_shopify_session": "passed",
+      "stored_session_count": 2,
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "active_subscription_count": 1,
+      "recognized_plan_id": "starter"
     }
   },
   "live": {
