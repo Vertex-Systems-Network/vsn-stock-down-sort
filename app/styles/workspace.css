@@ -1194,10 +1194,18 @@ body {
   box-shadow: 0 8px 24px #3e414414;
 }
 
-.vsn-doc-shot svg {
+.vsn-doc-shot img {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.vsn-doc-shot figcaption {
+  padding: 7px 10px;
+  color: var(--vsn-muted);
+  background: #fff;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .vsn-doc-feature-grid {
