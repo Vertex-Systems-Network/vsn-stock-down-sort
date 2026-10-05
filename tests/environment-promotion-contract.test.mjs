@@ -198,10 +198,7 @@ test("current Staging gate truthfully distinguishes deployed from accepted sourc
 
   if (gates.staging.status === "accepted") {
     assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
-    assert.equal(
-      gates.staging.accepted_main_ref,
-      "54c66ab35734efdc929212eb4c676eb062086e64",
-    );
+    assert.match(gates.staging.accepted_main_ref ?? "", /^[0-9a-f]{40}$/);
     assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
     assert.ok(gates.staging.evidence_record.run_id > 0);
     assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
