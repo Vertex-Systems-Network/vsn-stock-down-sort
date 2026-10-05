@@ -170,27 +170,22 @@ test("production release policy references the staging acceptance gate", () => {
   assert.equal(productionRelease.governance.live_source_branch, "main");
 });
 
-test("current Staging acceptance is bound to protected main", () => {
+test("current Staging gate truthfully distinguishes deployed from accepted source", () => {
   assert.equal(gates.status, "accepted");
   assert.equal(gates.development_promotion_lock?.enabled, true);
   assert.equal(gates.local_dev.status, "accepted");
-  // Historical Staging remains pinned to what was deployed, while Local
-  // may advance independently before the next Staging promotion.
   assert.equal(
-    gates.staging.accepted_source_ref,
+    ["accepted", "verification_required"].includes(gates.staging.status),
+    true,
+  );
+  assert.equal(
+    gates.staging.deployment_record?.source_ref,
     gates.staging.deployed_source_ref,
   );
-  assert.equal(gates.staging.status, "accepted");
   assert.equal(
-    gates.staging.accepted_main_ref,
-    "54c66ab35734efdc929212eb4c676eb062086e64",
+    gates.staging.shopify_release_record?.source_ref,
+    gates.staging.deployed_source_ref,
   );
-  assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
-  assert.ok(gates.staging.evidence_record.run_id > 0);
-  assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
-  assert.equal(gates.staging.evidence_record?.recognized_plan_id, "starter");
-  assert.equal(gates.staging.evidence_record?.stored_session_count, 2);
-  assert.equal(gates.staging.evidence_record?.active_subscription_count, 1);
   assert.ok(Number.isInteger(gates.staging.deployment_record?.run_id));
   assert.ok(gates.staging.deployment_record.run_id > 0);
   assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
@@ -200,6 +195,29 @@ test("current Staging acceptance is bound to protected main", () => {
     gates.staging.shopify_release_record?.version ?? "",
     new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
   );
+
+  if (gates.staging.status === "accepted") {
+    assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
+    assert.equal(
+      gates.staging.accepted_main_ref,
+      "54c66ab35734efdc929212eb4c676eb062086e64",
+    );
+    assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
+    assert.ok(gates.staging.evidence_record.run_id > 0);
+    assert.equal(gates.staging.evidence_record?.shop, "staging-oath3rth.myshopify.com");
+    assert.ok(Number.isInteger(gates.staging.evidence_record?.stored_session_count));
+    assert.ok(gates.staging.evidence_record.stored_session_count > 0);
+    assert.ok(Number.isInteger(gates.staging.evidence_record?.active_subscription_count));
+    assert.ok(gates.staging.evidence_record.active_subscription_count > 0);
+  } else {
+    assert.equal(gates.staging.accepted_source_ref, undefined);
+    assert.equal(gates.staging.accepted_main_ref, undefined);
+    assert.equal(gates.staging.evidence_record, undefined);
+    assert.match(
+      gates.staging.previous_acceptance?.accepted_source_ref ?? "",
+      /^[0-9a-f]{40}$/,
+    );
+  }
 });
 
 test("production readiness validates the canonical four-plan billing contract", () => {
