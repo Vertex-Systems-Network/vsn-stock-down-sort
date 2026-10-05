@@ -259,6 +259,19 @@ function screenRoute(screen: ScreenName) {
   }
 }
 
+const SCREENSHOT_FILE_BY_SCREEN: Record<ScreenName, string> = {
+  Collections: "collections.jpg",
+  Rules: "rules.jpg",
+  Visibility: "visibility.jpg",
+  Automation: "automation.jpg",
+  Alerts: "alerts.jpg",
+  Analytics: "analytics.jpg",
+  Contexts: "contexts.jpg",
+  Integrations: "integrations.jpg",
+  Plans: "plans.jpg",
+  Support: "support.jpg",
+};
+
 function UiSnapshot({
   screen,
   option,
@@ -266,61 +279,21 @@ function UiSnapshot({
   screen: ScreenName;
   option: string;
 }) {
-  const action =
-    screen === "Collections"
-      ? "Enable"
-      : screen === "Rules"
-        ? "Save rules"
-        : screen === "Automation"
-          ? "Save automation"
-          : screen === "Alerts"
-            ? "Save settings"
-            : screen === "Analytics"
-              ? "Export CSV"
-              : screen === "Integrations"
-                ? "Create credential"
-                : screen === "Support"
-                  ? "Submit request"
-                  : "Configure";
-
+  const imagePath = "/docs/screenshots/" + SCREENSHOT_FILE_BY_SCREEN[screen];
   return (
-    <div className="vsn-doc-shot" aria-label={screen + " UI visual"}>
-      <svg
-        viewBox="0 0 720 210"
-        role="img"
-        aria-label={screen + " screen showing " + option}
-      >
-        <rect width="720" height="210" fill="#f4f6fa" />
-        <rect width="720" height="38" fill="#ffffff" />
-        <rect x="14" y="9" width="22" height="22" rx="6" fill="#3e4144" />
-        <text x="21" y="25" fill="#ffffff" fontSize="12" fontWeight="700">V</text>
-        <text x="46" y="24" fill="#3e4144" fontSize="12" fontWeight="700">
-          VSN | Stock Down Sort
-        </text>
-        <rect x="0" y="38" width="118" height="172" fill="#ffffff" />
-        <rect x="9" y="54" width="100" height="26" rx="6" fill="#f1f0fa" />
-        <text x="20" y="71" fill="#625ba8" fontSize="10" fontWeight="700">
-          {screen}
-        </text>
-        <text x="138" y="67" fill="#625ba8" fontSize="8" fontWeight="700">
-          {screen.toUpperCase()}
-        </text>
-        <text x="138" y="91" fill="#3e4144" fontSize="16" fontWeight="700">
-          {option.length > 48 ? option.slice(0, 45) + "…" : option}
-        </text>
-        <rect x="138" y="108" width="548" height="70" rx="10" fill="#ffffff" stroke="#dde1ea" />
-        <rect x="154" y="123" width="190" height="10" rx="5" fill="#e2e4eb" />
-        <rect x="154" y="143" width="310" height="8" rx="4" fill="#f0f1f5" />
-        <rect x="154" y="159" width="245" height="8" rx="4" fill="#f0f1f5" />
-        <rect x="548" y="128" width="116" height="32" rx="7" fill="#5cc9d7" />
-        <text x="576" y="148" fill="#3e4144" fontSize="10" fontWeight="700">
-          {action}
-        </text>
-        <text x="138" y="197" fill="#72767b" fontSize="9">
-          UI visual guide • open {screen} in the app for the live control
-        </text>
-      </svg>
-    </div>
+    <figure className="vsn-doc-shot">
+      <a href={imagePath} target="_blank" rel="noreferrer">
+        <img
+          src={imagePath}
+          alt={screen + " screen showing " + option + " in the Staging app"}
+          loading="lazy"
+        />
+      </a>
+      <figcaption>
+        Actual Staging app screen. The shop is on the Starter test plan, so
+        higher-plan controls are shown locked where they are not included.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -504,7 +477,7 @@ export default function DocumentationPage() {
         explains what the option does, where it is, what to click, and what
         result to expect. The screen previews are visual guides; use the live
         app screen as the final reference.
-        <p><strong>Staging review:</strong> the current Staging shop has the Starter test plan. Higher-plan controls are locked there, so their walkthroughs explain the intended setup but have not been exercised in that shop yet.</p>
+        <p><strong>Staging screenshots:</strong> these images show the real app screens from the Staging shop on the Starter test plan. Higher-plan controls are visibly locked where the Starter plan does not include them.</p>
       </div>
 
       <section className="vsn-doc-section" id="start-here">
