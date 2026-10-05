@@ -324,7 +324,142 @@ function UiSnapshot({
   );
 }
 
+const BEGINNER_HOW_TO: Record<
+  string,
+  { steps: string[]; result: string; care?: string }
+> = {
+  "Unlimited product and collection counts": {
+    steps: ["Open Plans.", "Find your active plan.", "Confirm product and collection counts are listed as unlimited."],
+    result: "You do not need to upgrade just because your catalog grows.",
+  },
+  "Sold-out push down": {
+    steps: ["Open Collections.", "Choose one collection and click Enable.", "Click Sort now to run the saved stock rule.", "Check Shopify's collection order: available products should come before sold-out products."],
+    result: "Sold-out products stay in the collection but move below available products.",
+    care: "Start with one collection and review it before using Enable all.",
+  },
+  "Realtime inventory re-sort": {
+    steps: ["Enable the collection you want VSN to manage.", "When Shopify inventory changes, let the inventory update reach the app.", "Check the collection again and review Analytics or activity history if your plan includes it."],
+    result: "The same saved sorting rules are applied after supported inventory or product updates.",
+  },
+  "Restore original position": {
+    steps: ["Open Collections.", "Find the collection VSN manages.", "Choose Disable & restore.", "Open the Shopify collection and check that its previous manual order returned."],
+    result: "Automation stops and VSN asks Shopify to restore the saved order.",
+    care: "Use this only for a collection VSN previously enabled; verify the result before changing more collections.",
+  },
+  "Manual and bulk sort controls": {
+    steps: ["For one collection, click Sort now in its row.", "To manage the whole list, use Enable all collections or Disable all collections.", "Wait for the action result, then check the collection status and product order."],
+    result: "Sort now runs one collection; bulk controls apply to the collection list.",
+    care: "Bulk actions affect multiple collections. Beginners should test one collection first.",
+  },
+  "Tag/vendor/product exclusions": {
+    steps: ["Open Collections, then Rules beside a collection.", "Enter excluded tags, vendors, or product handles/GIDs in the matching box.", "Use one value per line or separate values with commas.", "Save the rules, then sort the collection and confirm excluded items did not move."],
+    result: "Matching products stay in their existing collection positions.",
+    care: "A product handle is the short URL name, for example blue-shirt. A Shopify product GID is the product's Shopify ID.",
+  },
+  "Low-stock email alerts": {
+    steps: ["Open Alerts.", "Choose a low-stock threshold that makes sense for your products.", "Confirm the alert email address and save.", "Test with a safe product or wait for inventory to cross the threshold, then check the alert."],
+    result: "The configured email can be notified when tracked inventory reaches the threshold.",
+    care: "A threshold of 5 means stock at or below 5 is low; choose a value that gives your team time to restock.",
+  },
+  "Pinned products": {
+    steps: ["Open Collections and click Rules for a collection.", "Find Pinned products and select the products to protect.", "Arrange the pinned products in the priority order you want.", "Save, sort the collection, and check that pinned items appear ahead of normal sorting."],
+    result: "Pinned products get priority over the regular available/sold-out order.",
+    care: "Growth or higher is required. Check your plan before looking for this control.",
+  },
+  "Advanced collection sorting": {
+    steps: ["Open Collections and click Rules.", "Choose an in-stock order such as title, inventory quantity, or product age.", "Choose the direction when the control offers one, then save.", "Click Sort now and review the available products and sold-out products."],
+    result: "Available products follow the selected secondary order; sold-out items remain at the end.",
+    care: "Growth or higher is required. Test on one collection because the order will change.",
+  },
+  "Automatic product hide/unpublish": {
+    steps: ["Open Visibility.", "Choose the sold-out behavior only after confirming the desired storefront result.", "Turn on automatic restore if you want VSN to restore products after restock.", "Save, then inspect a test product in Shopify."],
+    result: "VSN can change storefront visibility for sold-out products and restore changes it owns after restock.",
+    care: "Growth or higher is required. Draft hides the product from storefront discovery; test with a non-critical product first.",
+  },
+  "Automatic republish on restock": {
+    steps: ["Open Visibility.", "Choose a sold-out behavior that hides the product.", "Enable automatic restore when inventory returns.", "After a test restock, confirm only VSN-managed visibility changes were restored."],
+    result: "Products VSN hid can return when they become available again.",
+    care: "Growth or higher is required. Merchant-created Draft or Archived states must remain under merchant control.",
+  },
+  "SEO-safe soft hide": {
+    steps: ["Open Visibility.", "Choose SEO-safe soft hide (Unlisted) as the sold-out behavior.", "Save and check the product in Shopify.", "Confirm it is removed from normal discovery surfaces while its direct URL remains usable."],
+    result: "The product is unlisted rather than changed to Draft.",
+    care: "Growth or higher is required. Confirm this behavior fits your storefront and search needs before enabling it.",
+  },
+  "Hide sold-out variants": {
+    steps: ["Open Visibility and find Variant visibility.", "Enable the VSN theme app extension in Shopify's theme editor.", "Preview a product with both available and sold-out variants.", "Confirm sold-out choices are hidden and available choices still work."],
+    result: "The storefront can hide unavailable variant choices.",
+    care: "Growth or higher is required, and the theme app extension must be enabled for the storefront effect.",
+  },
+  "Restore variants on restock": {
+    steps: ["Open Visibility and enable sold-out variant hiding.", "Enable automatic variant restore if shown.", "Restock a test variant.", "Reload the product page and confirm the available variant returns."],
+    result: "A variant hidden by VSN can show again after Shopify reports stock.",
+    care: "Growth or higher is required. Test the storefront after inventory has updated.",
+  },
+  "Scheduled automation": {
+    steps: ["Open Automation.", "Choose Create schedule.", "Select the collections and schedule time/frequency.", "Save, then check the next-run information or activity record."],
+    result: "Hosted Staging/Production can run due schedules without the admin page staying open.",
+    care: "Growth or higher is required. Local development supports manual Run now only.",
+  },
+  "Slack alerts": {
+    steps: ["Open Alerts and find Slack configuration.", "Create an incoming webhook in the correct Slack workspace/channel.", "Paste the webhook URL into VSN and save.", "Send a safe test alert if the screen offers one; otherwise verify using a controlled low-stock test."],
+    result: "Low-stock notifications can be sent to the configured Slack destination.",
+    care: "Growth or higher is required. Treat the webhook URL like a password; VSN does not show the saved secret again.",
+  },
+  "Multi-location inventory rules": {
+    steps: ["Open Collections and click Rules.", "Choose the inventory mode: all locations, any selected location, or every selected location.", "Select the Shopify locations that should count.", "Save, sort a test collection, and compare the result with stock at those locations."],
+    result: "VSN decides availability using the locations and rule you selected.",
+    care: "Pro or higher is required. Check location stock in Shopify before relying on the rule.",
+  },
+  "Advanced IF/AND/THEN rule builder": {
+    steps: ["Open Automation and choose the advanced rule builder.", "Add an IF condition using live inventory.", "Add AND only when all listed conditions must be true.", "Choose the THEN action, save, and review the rule before enabling it."],
+    result: "Automation runs only when the conditions you configured are met.",
+    care: "Pro or higher is required. Start with a simple test rule and check its result before adding more conditions.",
+  },
+  "Inventory and automation analytics": {
+    steps: ["Open Analytics.", "Choose the date range or summary you need.", "Read the activity totals and charts shown.", "Use the activity history to inspect individual events when something needs explaining."],
+    result: "The page summarizes persisted app activity for your shop.",
+    care: "Pro or higher is required. A new or quiet store may have little activity to show.",
+  },
+  "Activity and audit history": {
+    steps: ["Open Analytics and scroll to Activity history.", "Filter or review the events for the period you need.", "Open an event to see its type and time if details are available.", "Use the history to understand changes before adjusting rules."],
+    result: "You can review recorded sorting, visibility, settings, alert, and related events.",
+    care: "Pro or higher is required; the number of days retained depends on your plan.",
+  },
+  "CSV export": {
+    steps: ["Open Analytics.", "Choose the date range for the records you need.", "Click Export CSV.", "Open the downloaded file in a spreadsheet and check the date range and columns."],
+    result: "A CSV copy of retained activity is downloaded for reporting or review.",
+    care: "Pro or higher is required. CSV includes only records still inside your plan's retention period.",
+  },
+  "Shopify Markets rules": {
+    steps: ["Open Commerce contexts and choose Markets.", "Select an existing Market context.", "Set the stock visibility rule for that context and save.", "Review the affected publication after a controlled test."],
+    result: "Stock-aware visibility can be managed for an existing Shopify Market context.",
+    care: "Unlimited is required. This changes product publication for that context; verify the target carefully.",
+  },
+  "B2B catalog rules": {
+    steps: ["Open Commerce contexts and choose B2B catalogs.", "Select an existing B2B/company-location catalog context.", "Configure the stock visibility rule and save.", "Check the catalog as a test buyer or in Shopify Admin."],
+    result: "Stock-aware visibility can be applied to an existing B2B catalog context.",
+    care: "Unlimited is required. VSN works with existing catalogs; it does not create a new catalog for you.",
+  },
+  "Sales-channel visibility rules": {
+    steps: ["Open Commerce contexts and choose Sales channels.", "Select the existing channel context to manage.", "Choose the stock visibility behavior and save.", "Check publication status in Shopify after a controlled test."],
+    result: "Product visibility can respond to stock for the selected sales channel.",
+    care: "Unlimited is required. Confirm the channel before saving so you do not affect another storefront.",
+  },
+  "API and webhook integrations": {
+    steps: ["Open Integrations.", "Create an API credential with only the permissions the other system needs.", "Copy and store the token securely when it is shown; it may not be shown again.", "For webhooks, enter the destination URL, save, then verify a test delivery and signature."],
+    result: "External systems can use scoped API credentials or receive signed events.",
+    care: "Unlimited is required. Never paste a token or webhook secret into public chat, documentation, or a screenshot.",
+  },
+  "Priority support entitlement": {
+    steps: ["Open Help center.", "Describe the problem and include the affected screen or collection.", "Submit the request and keep its reference.", "Check the support page later for replies or status."],
+    result: "The active plan determines the support level attached to the request.",
+    care: "Pro includes Priority support; Unlimited includes 24/7 Priority support. Do not include passwords or API secrets.",
+  },
+};
+
 function FeatureGuide({ guide }: { guide: Guide }) {
+  const beginner = BEGINNER_HOW_TO[guide.name];
   return (
     <article className="vsn-doc-feature">
       <h3>{guide.name}</h3>
@@ -336,6 +471,16 @@ function FeatureGuide({ guide }: { guide: Guide }) {
         Available from {minimumPlan(guide.name)}
       </span>{" "}
       <Link to={screenRoute(guide.screen)}>Open {guide.screen} →</Link>
+      {beginner ? (
+        <details className="vsn-doc-howto">
+          <summary>Show the beginner steps</summary>
+          <ol>
+            {beginner.steps.map((step) => <li key={step}>{step}</li>)}
+          </ol>
+          <p><strong>What to expect:</strong> {beginner.result}</p>
+          {beginner.care ? <p><strong>Before you use it:</strong> {beginner.care}</p> : null}
+        </details>
+      ) : null}
     </article>
   );
 }
@@ -355,9 +500,11 @@ export default function DocumentationPage() {
 
       <div className="vsn-notice success">
         <strong>New to the app?</strong> Start with the five setup steps below,
-        then use the feature guide when you want to understand a specific
-        option. Every feature card includes a UI visual and a direct link to the
-        live screen.
+        then open “Show the beginner steps” on any feature card. Each card
+        explains what the option does, where it is, what to click, and what
+        result to expect. The screen previews are visual guides; use the live
+        app screen as the final reference.
+        <p><strong>Staging review:</strong> the current Staging shop has the Starter test plan. Higher-plan controls are locked there, so their walkthroughs explain the intended setup but have not been exercised in that shop yet.</p>
       </div>
 
       <section className="vsn-doc-section" id="start-here">
