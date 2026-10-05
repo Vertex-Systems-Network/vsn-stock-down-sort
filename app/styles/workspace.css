@@ -226,7 +226,7 @@ body {
 .vsn-content main > s-page,
 .vsn-page-wide {
   display: block;
-  inline-size: calc(100% - min(6vw, 96px)) !important;
+  inline-size: calc(100% - min(6vw, 96px) + 32px) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
@@ -1270,7 +1270,7 @@ body {
 
 /* Global Vertex UI system: shared by every app screen */
 .vsn-page-wide {
-  inline-size: calc(100% - min(6vw, 96px)) !important;
+  inline-size: calc(100% - min(6vw, 96px) + 32px) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
