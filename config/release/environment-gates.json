@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "verification_required",
+    "status": "accepted",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -166,9 +166,28 @@
         }
       }
     },
-    "accepted_source_ref": null,
-    "accepted_main_ref": null,
-    "evidence_record": null
+    "accepted_source_ref": "29d1dc8ccc33797b2b1a5ba04c2d9be16fd34e4f",
+    "accepted_main_ref": "dc1fbabf99e046d2d7a9eabc5befda32f89aacd5",
+    "evidence_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 5,
+      "run_id": 37332319167,
+      "branch": "development",
+      "source_ref": "29d1dc8ccc33797b2b1a5ba04c2d9be16fd34e4f",
+      "shop": "staging-oath3rth.myshopify.com",
+      "released_version": "stock-down-sort-staging-9e6c401b10ac-4",
+      "billing_plan_id": "starter",
+      "runtime_health": "passed",
+      "database_provider": "postgresql",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "offline_shopify_session": "passed",
+      "stored_session_count": 2,
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "active_subscription_count": 1,
+      "recognized_plan_id": "starter"
+    }
   },
   "live": {
     "status": "accepted",
