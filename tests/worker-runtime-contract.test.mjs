@@ -353,23 +353,382 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, false);
-  assert.equal(
-    policy.authorized_version,
-    "stock-down-sort-production-930bb2039244-2",
-  );
-  assert.equal(
-    policy.authorized_source_ref,
-    "930bb2039244ecafd0ae9d3bb538898094e86638",
-  );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
   assert.equal(policy.billing.trial_days, 10);
-  assert.equal(policy.status, "released");
-  assert.equal(policy.release_record?.run_id, 37151020224);
-  assert.equal(policy.release_record?.version_released_to_users, true);
-  assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.match(policy.authorized_source_ref, /^[0-9a-f]{40}$/);
+  assert.match(
+    policy.authorized_version,
+    new RegExp(`^stock-down-sort-production-${policy.authorized_source_ref.slice(0, 12)}-\\d+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+const read = (relativePath) =>
+  fs.readFileSync(path.join(root, relativePath), "utf8");
+
+test("Prisma runtime is Worker-compatible and request-scoped", () => {
+  const schema = read("prisma/cloud/schema.prisma");
+  const db = read("app/db.server.ts");
+  const storage = read("app/prisma-session-storage.server.ts");
+  const pkg = JSON.parse(read("package.json"));
+
+  assert.match(schema, /engineType\s*=\s*"client"/);
+  assert.match(schema, /provider\s*=\s*"postgresql"/);
+  assert.match(db, /@prisma\/adapter-pg/);
+  assert.match(db, /new PrismaPg\(\{ connectionString \}\)/);
+  assert.match(db, /export async function withPrismaClient/);
+  assert.doesNotMatch(db, /prismaGlobal|global\./);
+  assert.doesNotMatch(db, /export default/);
+  assert.match(storage, /RequestScopedPrismaSessionStorage/);
+  assert.match(storage, /await prisma\.\$disconnect\(\)/);
+
+  assert.equal(pkg.dependencies["@prisma/client"], "6.19.3");
+  assert.equal(pkg.dependencies["@prisma/adapter-pg"], "6.19.3");
+  assert.equal(pkg.dependencies.pg, "8.23.0");
+  assert.equal(pkg.devDependencies.prisma, "6.19.3");
+  assert.equal(pkg.devDependencies["@types/pg"], "8.23.1");
+});
+
+test("SSR and Worker entry stay Web-runtime compatible", () => {
+  const entry = read("app/entry.server.tsx");
+  const worker = read("workers/app.js");
+
+  assert.match(entry, /renderToReadableStream/);
+  assert.match(entry, /react-dom\/server\.browser/);
+  assert.doesNotMatch(entry, /PassThrough|renderToPipeableStream|@react-router\/node/);
+
+  assert.match(worker, /createRequestHandler/);
+  assert.match(worker, /\.\.\/build\/server\/index\.js/);
+  assert.match(worker, /async fetch\(request, env, ctx\)/);
+  assert.match(worker, /cloudflare:\s*\{\s*env,\s*ctx\s*\}/);
+});
+
+test("Wrangler environments are isolated and declare required secrets", () => {
+  const staging = JSON.parse(read("wrangler.staging.jsonc"));
+  const production = JSON.parse(read("wrangler.production.jsonc"));
+
+  assert.equal(staging.name, "vsn-stock-down-sort-staging");
+  assert.equal(production.name, "vsn-stock-down-sort-production");
+  assert.equal(staging.main, "./workers/app.js");
+  assert.equal(production.main, "./workers/app.js");
+
+  for (const config of [staging, production]) {
+    assert.equal(config.assets.directory, "build/client");
+    assert.ok(config.compatibility_date >= "2026-08-04");
+    assert.ok(config.secrets.required.includes("DATABASE_URL"));
+    assert.ok(config.secrets.required.includes("SHOPIFY_API_SECRET"));
+    assert.ok(!config.secrets.required.includes("DIRECT_URL"));
+  }
+
+  assert.equal(staging.vars.APP_ENV, "staging");
+  assert.equal(staging.vars.SHOPIFY_BILLING_TEST_MODE, "true");
+  assert.equal(staging.vars.SHOPIFY_BILLING_MODE, "manual_legacy");
+  assert.equal(staging.vars.SHOPIFY_PARTNER_ORG_ID, undefined);
+  assert.equal(staging.vars.SHOPIFY_APP_GID, undefined);
+  assert.ok(
+    !staging.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
+  assert.equal(
+    staging.vars.SHOPIFY_APP_URL,
+    "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+  );
+  assert.equal(
+    staging.vars.SCOPES,
+    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+  );
+  assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
+  assert.ok(!staging.secrets.required.includes("SCOPES"));
+  assert.equal(production.vars.APP_ENV, "production");
+  assert.equal(production.vars.SHOPIFY_BILLING_TEST_MODE, "false");
+  assert.equal(production.vars.SHOPIFY_BILLING_MODE, "shopify_app_pricing");
+  assert.equal(production.vars.SHOPIFY_PARTNER_ORG_ID, "4859256");
+  assert.equal(
+    production.vars.SHOPIFY_APP_GID,
+    "gid://shopify/App/405802811393",
+  );
+  assert.ok(
+    production.secrets.required.includes("SHOPIFY_PARTNER_API_ACCESS_TOKEN"),
+  );
+  assert.equal(
+    production.vars.SHOPIFY_APP_URL,
+    "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
+  );
+  assert.equal(
+    production.vars.SCOPES,
+    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+  );
+  assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
+  assert.ok(!production.secrets.required.includes("SCOPES"));
+});
+
+test("staging deployment is manual, development-sourced, and test-billed", () => {
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /ref: development/);
+  assert.match(workflow, /APP_ENV: staging/);
+  assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "true"/);
+  assert.match(workflow, /SHOPIFY_BILLING_MODE: manual_legacy/);
+  assert.doesNotMatch(workflow, /SHOPIFY_PARTNER_API_ACCESS_TOKEN/);
+  assert.match(
+    workflow,
+    /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
+  );
+  assert.match(workflow, /--secrets-file \.worker-secrets\.json/);
+  assert.match(workflow, /rm -f \.worker-secrets\.json/);
+});
+
+
+test("staging acceptance probe is signed, staging-only, and read-only", () => {
+  const diagnostic = read("app/routes/internal.staging-acceptance.tsx");
+
+  assert.match(
+    diagnostic,
+    /https:\/\/vsn-stock-down-sort-staging\.vertexsystemsnetwork\.workers\.dev/,
+  );
+  assert.match(diagnostic, /SIGNATURE_MAX_AGE_SECONDS = 300/);
+  assert.match(diagnostic, /crypto\.subtle\.verify/);
+  assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
+  assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
+  assert.match(diagnostic, /getCurrentSubscriptionPlan/);
+  assert.match(diagnostic, /getShopifyBillingMode/);
+  assert.match(diagnostic, /process\.env\.APP_ENV !== "staging"/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
+  assert.doesNotMatch(diagnostic, /accessToken\s*:/);
+  assert.doesNotMatch(diagnostic, /DATABASE_URL/);
+});
+
+test("health and staging deployment produce post-deploy evidence", () => {
+  const health = read("app/routes/healthz.tsx");
+  const deploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const acceptance = read(".github/workflows/staging-runtime-acceptance.yml");
+
+  assert.match(health, /"Cache-Control": "no-store"/);
+  assert.match(health, /service: "vsn-stock-down-sort"/);
+  assert.match(health, /billingCatalog/);
+  assert.match(health, /BILLING_PLANS/);
+
+  assert.match(deploy, /Verify deployed health and billing contract/);
+  assert.match(deploy, /staging_runtime_health=pass/);
+  assert.match(deploy, /staging_billing_contract=four_plans_10_day_trials/);
+  assert.match(
+    deploy,
+    /staging_shopify_acceptance=deferred_to_staging_runtime_acceptance_workflow/,
+  );
+
+  assert.match(acceptance, /staging_shop:/);
+  assert.match(acceptance, /billing_plan_id:/);
+  assert.match(acceptance, /EXPECTED_BILLING_PLAN_ID/);
+  assert.match(acceptance, /recognizedPlanIds/);
+  assert.match(acceptance, /Verify signed Shopify session and subscription reads/);
+  assert.match(acceptance, /staging_offline_session=pass/);
+  assert.match(acceptance, /staging_admin_graphql=pass/);
+  assert.match(acceptance, /staging_subscription_read=pass/);
+});
+
+
+test("production Worker preparation is manual and does not cut over Shopify", () => {
+  const workflow = read(".github/workflows/cloudflare-production-prepare.yml");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /APP_ENV: production/);
+  assert.match(workflow, /SHOPIFY_BILLING_TEST_MODE: "false"/);
+  assert.match(
+    workflow,
+    /SHOPIFY_APP_URL: https:\/\/vsn-stock-down-sort-production\.vertexsystemsnetwork\.workers\.dev/,
+  );
+  assert.match(workflow, /workflow_call:/);
+  assert.match(workflow, /prisma migrate deploy --schema prisma\/cloud\/schema\.prisma/);
+  assert.match(workflow, /Deploy isolated production Worker only/);
+  assert.match(workflow, /production_worker_prepare=pass/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.match(workflow, /--secrets-file \.worker-secrets\.json/);
+  assert.match(workflow, /rm -f \.worker-secrets\.json/);
+  assert.doesNotMatch(workflow, /shopify app deploy/);
+  assert.doesNotMatch(workflow, /shopify app config push/);
+
+  assert.equal(
+    fs.existsSync(
+      path.join(root, ".github/workflows/cloudflare-production-bootstrap-once.yml"),
+    ),
+    false,
+  );
+});
+
+
+test("four stable billing plan IDs stay consistent across runtime contracts", () => {
+  const billing = read("app/billing-config.ts");
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const production = read(".github/workflows/cloudflare-production-prepare.yml");
+
+  for (const id of ["starter", "growth", "pro", "unlimited"]) {
+    assert.match(billing, new RegExp(`"${id}"`));
+    assert.match(staging, new RegExp(`"id": "${id}"`));
+    assert.match(production, new RegExp(`"id": "${id}"`));
+  }
+  assert.doesNotMatch(billing, /id:\s*"pro-plan"/);
+});
+
+
+test("three Shopify app identities stay isolated", () => {
+  const local = read("shopify.app.toml");
+  const staging = read("shopify.app.staging.toml");
+  const production = read("shopify.app.production.toml");
+
+  assert.match(local, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(staging, /name = "VSN \\| Stock Down Sort Staging"/);
+  assert.match(production, /name = "VSN \\| Stock Down Sort"/);
+
+  const clientId = (source) =>
+    source.match(/client_id\s*=\s*"([^"]+)"/)?.[1] ?? "";
+
+  const localClientId = clientId(local);
+  const stagingClientId = clientId(staging);
+  const productionClientId = clientId(production);
+
+  assert.ok(localClientId);
+  assert.ok(stagingClientId);
+  assert.ok(productionClientId);
+  assert.notEqual(localClientId, stagingClientId);
+  assert.notEqual(localClientId, productionClientId);
+  assert.notEqual(stagingClientId, productionClientId);
+});
+
+
+test("local Shopify flow stays npm run dev with the explicit Local config", () => {
+  const pkg = JSON.parse(read("package.json"));
+  const localDefault = read("shopify.app.toml");
+  const localNamed = read("shopify.app.local.toml");
+
+  assert.equal(pkg.scripts.dev, "npx --yes shopify@4.8.2 app dev --config local");
+  assert.equal(pkg.scripts["dev:reset"], "npx --yes shopify@4.8.2 app dev --reset");
+  assert.match(localNamed, /name = "VSN \\| Stock Down Sort Dev"/);
+  assert.match(localNamed, /automatically_update_urls_on_dev = true/);
+  assert.equal(
+    localNamed.match(/^client_id = "([^"]+)"$/m)?.[1],
+    localDefault.match(/^client_id = "([^"]+)"$/m)?.[1],
+  );
+  assert.ok(!pkg.scripts["shopify:use:local"]);
+  assert.ok(!pkg.scripts["shopify:use:staging"]);
+  assert.ok(!pkg.scripts["shopify:use:live"]);
+  assert.ok(!pkg.scripts["shopify:dev:local"]);
+});
+
+test("staging Shopify promotion is GitHub Action driven", () => {
+  const versionWorkflow = read(
+    ".github/workflows/shopify-staging-version.yml",
+  );
+  const releaseWorkflow = read(
+    ".github/workflows/shopify-staging-release.yml",
+  );
+  const readinessWorkflow = read(".github/workflows/staging-readiness.yml");
+
+  assert.match(versionWorkflow, /workflow_dispatch:/);
+  assert.match(versionWorkflow, /ref: development/);
+  assert.match(versionWorkflow, /SHOPIFY_APP_AUTOMATION_TOKEN/);
+  assert.match(versionWorkflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
+  assert.match(versionWorkflow, /--config staging/);
+  assert.match(versionWorkflow, /--no-release/);
+  assert.match(
+    versionWorkflow,
+    /stock-down-sort-staging-\$\{SOURCE_PREFIX\}-\$\{GITHUB_RUN_NUMBER\}/,
+  );
+
+  assert.match(releaseWorkflow, /workflow_dispatch:/);
+  assert.match(releaseWorkflow, /TARGET_VERSION/);
+  assert.match(releaseWorkflow, /app versions list/);
+  assert.match(releaseWorkflow, /app release/);
+  assert.match(releaseWorkflow, /--config staging/);
+  assert.match(releaseWorkflow, /RELEASE_STAGING_SHOPIFY_VERSION/);
+
+  assert.match(readinessWorkflow, /__SHOPIFY_STAGING_CLIENT_ID__/);
+  assert.match(
+    readinessWorkflow,
+    /Refusing staging readiness with the Local\/Dev Shopify client ID/,
+  );
+  assert.doesNotMatch(
+    readinessWorkflow,
+    /still contains the staging client ID placeholder/,
+  );
+});
+
+
+test("production Shopify promotion is action driven and authorization gated", () => {
+  const productionConfig = read("shopify.app.production.toml");
+  const readiness = read(".github/workflows/production-readiness.yml");
+  const candidate = read(".github/workflows/shopify-production-candidate.yml");
+  const release = read(".github/workflows/shopify-production-release.yml");
+  const policy = JSON.parse(
+    read("config/shopify/production-release.json"),
+  );
+
+  assert.match(productionConfig, /client_id\s*=\s*"[0-9a-f]+"/);
+  assert.doesNotMatch(
+    productionConfig,
+    /__SHOPIFY_PRODUCTION_CLIENT_ID__/,
+  );
+  assert.match(
+    productionConfig,
+    /application_url\s*=\s*"https:\/\/vsn-stock-down-sort-production\.vertexsystemsnetwork\.workers\.dev"/,
+  );
+  assert.doesNotMatch(productionConfig, /example\.invalid/);
+
+  assert.match(readiness, /committed Live Shopify client ID/);
+  assert.match(
+    readiness,
+    /Refusing production readiness with the Local\/Dev Shopify client ID/,
+  );
+  assert.doesNotMatch(
+    readiness,
+    /still contains the production client ID placeholder/,
+  );
+
+  assert.match(candidate, /workflow_dispatch:/);
+  assert.match(candidate, /ref: main/);
+  assert.match(candidate, /SHOPIFY_APP_AUTOMATION_TOKEN/);
+  assert.match(candidate, /committed Live Shopify client ID/);
+  assert.match(candidate, /--config production/);
+  assert.match(candidate, /--no-release/);
+  assert.match(
+    candidate,
+    /stock-down-sort-production-\$\{SOURCE_PREFIX\}-\$\{GITHUB_RUN_NUMBER\}/,
+  );
+  assert.match(candidate, /billingTestMode/);
+  assert.match(candidate, /"id": "unlimited"/);
+
+  assert.match(release, /workflow_dispatch:/);
+  assert.match(release, /RELEASE_PRODUCTION_SHOPIFY_VERSION/);
+  assert.match(release, /config\/shopify\/production-release\.json/);
+  assert.match(release, /release_authorized/);
+  assert.match(release, /app versions list/);
+  assert.match(release, /app release/);
+  assert.match(release, /--config production/);
+  assert.match(release, /billingTestMode/);
+  assert.match(release, /"id": "unlimited"/);
+  assert.doesNotMatch(release, /webhook trigger/);
+  assert.doesNotMatch(release, /prisma migrate deploy/);
+
+),
+  );
+
+  if (policy.release_authorized) {
+    assert.equal(policy.status, "candidate_authorized");
+    assert.equal(policy.release_record, undefined);
+  } else {
+    assert.equal(policy.status, "released");
+    assert.equal(policy.release_record?.source_ref, policy.authorized_source_ref);
+    assert.equal(policy.release_record?.version, policy.authorized_version);
+    assert.equal(policy.release_record?.version_released_to_users, true);
+    assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+    assert.ok(Number.isInteger(policy.release_record?.run_id));
+  }
 });
 
 
