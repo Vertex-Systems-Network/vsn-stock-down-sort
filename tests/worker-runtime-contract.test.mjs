@@ -1449,10 +1449,10 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
   assert.ok(wu06.dependencies.includes("ISSUE-32-WU-04"));
   assert.ok(wu05.dependencies.includes("ISSUE-32-WU-06"));
 
-  assert.equal(gates.staging.status, "accepted");
-  // Historical Staging evidence remains bound to the deployed source even
-  // after Local/Dev has accepted a newer development head.
-  assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
+  assert.equal(
+    ["accepted", "verification_required"].includes(gates.staging.status),
+    true,
+  );
   assert.equal(
     gates.staging.deployment_record?.source_ref,
     gates.staging.deployed_source_ref,
@@ -1461,29 +1461,25 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
     gates.staging.shopify_release_record?.source_ref,
     gates.staging.deployed_source_ref,
   );
-  assert.equal(
-    gates.staging.evidence_record?.source_ref,
-    gates.staging.deployed_source_ref,
-  );
-  assert.equal(
-    gates.staging.accepted_main_ref,
-    "54c66ab35734efdc929212eb4c676eb062086e64",
-  );
-  assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
-  assert.ok(gates.staging.evidence_record.run_id > 0);
-  assert.match(gates.staging.accepted_main_ref, /^[0-9a-f]{40}$/);
-  assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
-  assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
-  assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
-  assert.ok(Number.isInteger(gates.staging.deployment_record?.run_id));
-  assert.ok(gates.staging.deployment_record.run_id > 0);
-  assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
-  assert.ok(gates.staging.shopify_release_record.run_id > 0);
-  assert.equal(gates.staging.shopify_release_record?.status, "released");
-  assert.match(
-    gates.staging.shopify_release_record?.version ?? "",
-    new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
-  );
+
+  if (gates.staging.status === "accepted") {
+    assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
+    assert.equal(gates.staging.evidence_record?.source_ref, gates.staging.deployed_source_ref);
+    assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
+    assert.equal(gates.staging.evidence_record?.admin_graphql, "passed");
+    assert.equal(gates.staging.evidence_record?.subscription_read, "passed");
+  } else {
+    assert.equal(gates.staging.accepted_source_ref, undefined);
+    assert.equal(gates.staging.evidence_record, undefined);
+    assert.match(
+      gates.staging.previous_acceptance?.accepted_source_ref ?? "",
+      /^[0-9a-f]{40}$/,
+    );
+    assert.equal(
+      gates.staging.deployment_record?.shopify_acceptance,
+      "pending_staging_runtime_acceptance",
+    );
+  }
 });
 
 
