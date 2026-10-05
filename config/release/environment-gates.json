@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "accepted",
+    "status": "verification_required",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -49,16 +49,16 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "deferred_to_staging_runtime_acceptance"
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 4,
-      "run_id": 37307350485,
+      "run_number": 5,
+      "run_id": 37348143498,
       "branch": "development",
-      "control_head_sha": "881915bc5adffc00c2e964aa6d5352582ad53457",
-      "source_ref": "9e6c401b10ac4273de5aafb5079b5cc07b4b0220",
-      "version": "stock-down-sort-staging-9e6c401b10ac-4",
+      "control_head_sha": "1454813ec2e1d99819414e348f986a26cf0d164c",
+      "source_ref": "29d1dc8ccc33797b2b1a5ba04c2d9be16fd34e4f",
+      "version": "stock-down-sort-staging-29d1dc8ccc33-5",
       "status": "released",
       "local_and_live_configs_untouched": true
     },
@@ -166,9 +166,7 @@
         }
       }
     },
-    "accepted_source_ref": "29d1dc8ccc33797b2b1a5ba04c2d9be16fd34e4f",
-    "accepted_main_ref": "dc1fbabf99e046d2d7a9eabc5befda32f89aacd5",
-    "evidence_record": {
+    "superseded_acceptance_record": {
       "workflow": "Staging Runtime Acceptance",
       "run_number": 5,
       "run_id": 37332319167,
@@ -176,17 +174,8 @@
       "source_ref": "29d1dc8ccc33797b2b1a5ba04c2d9be16fd34e4f",
       "shop": "staging-oath3rth.myshopify.com",
       "released_version": "stock-down-sort-staging-9e6c401b10ac-4",
-      "billing_plan_id": "starter",
-      "runtime_health": "passed",
-      "database_provider": "postgresql",
-      "queue_readiness": "passed",
-      "billing_contract": "four_plans_10_day_trials",
-      "offline_shopify_session": "passed",
-      "stored_session_count": 2,
-      "admin_graphql": "passed",
-      "subscription_read": "passed",
-      "active_subscription_count": 1,
-      "recognized_plan_id": "starter"
+      "status": "not_authoritative_release_mismatch",
+      "note": "Runtime checks passed, but the accepted source did not match the active Shopify Staging release; rerun after release 5."
     }
   },
   "live": {
