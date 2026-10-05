@@ -231,14 +231,11 @@ test("Live production candidate and release records remain source-bound", () => 
   assert.equal(productionRelease.governance.explicit_release_authorization_required, true);
   assert.match(productionRelease.authorized_version ?? "", /^stock-down-sort-production-[0-9a-f]{12}-[0-9]+$/);
   assert.match(productionRelease.authorized_source_ref ?? "", /^[0-9a-f]{40}$/);
-  assert.equal(
-    productionRelease.authorized_version.slice("stock-down-sort-production-".length, -"".length),
-    productionRelease.authorized_version.slice("stock-down-sort-production-".length),
+  const versionMatch = /^stock-down-sort-production-([0-9a-f]{12})-[0-9]+$/.exec(
+    productionRelease.authorized_version,
   );
-  assert.equal(
-    productionRelease.authorized_version.split("-")[3],
-    productionRelease.authorized_source_ref.slice(0, 12),
-  );
+  assert.ok(versionMatch);
+  assert.equal(versionMatch[1], productionRelease.authorized_source_ref.slice(0, 12));
   assert.match(workflow, /Requested version is not the repository-authorized version/);
   assert.match(workflow, /Verify released Production app name/);
   assert.match(workflow, /shopify-production-info.txt 2>&1/);
