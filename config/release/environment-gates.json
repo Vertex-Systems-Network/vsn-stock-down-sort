@@ -303,7 +303,7 @@
         "workflow": "Production Readiness",
         "run_number": 10,
         "run_id": 37380361794,
-        "conclusion": "pending"
+        "conclusion": "success"
       }
     },
     "previous_acceptance": {
