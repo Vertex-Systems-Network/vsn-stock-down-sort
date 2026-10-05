@@ -487,6 +487,12 @@ export default function DocumentationPage() {
           check the result, tune its rules, then expand automation to more
           collections.
         </p>
+        <div className="vsn-notice warning">
+          <strong>Before you click Enable:</strong> this changes the selected
+          Shopify collection’s product order. Start with one collection you
+          control. To stop, use that collection’s Actions menu and choose
+          “Disable &amp; restore” to return its saved previous order.
+        </div>
         <div className="vsn-doc-steps">
           {[
             ["Open Collections", "Pick one Shopify collection you can safely test before enabling the whole catalog."],
