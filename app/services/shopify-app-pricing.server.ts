@@ -1,4 +1,4 @@
-import { BILLING_CATALOG, BILLING_PLAN_BY_ID, BILLING_PLANS, type PlanId } from "../billing-config";
+import { BILLING_CATALOG, BILLING_PLANS } from "../billing-config";
 import { authenticate } from "../shopify.server";
 
 type AdminClient = Awaited<ReturnType<typeof authenticate.admin>>["admin"];
@@ -163,20 +163,27 @@ export function resolveShopifyAppPricingPlan(
   if (flatRateItems.length !== 1) return null;
 
   const item = flatRateItems[0];
-  const amount = Number(item.price.amount);
-  const plan = BILLING_PLANS.find(
-    (candidate) =>
-      candidate.amount === amount &&
-      item.price.currency === BILLING_CATALOG.currencyCode,
-  );
+  const plan = BILLING_PLANS.find((candidate) => candidate.id === item.handle);
+  const effectiveAmount = Number(item.price.amount);
 
-  if (!plan) return null;
+  // Shopify lets development stores test App Pricing plans at no charge.
+  // The active subscription therefore reports an effective amount of 0 even
+  // though its plan handle and configured catalog price remain unchanged.
+  if (
+    !plan ||
+    item.price.currency !== BILLING_CATALOG.currencyCode ||
+    !Number.isFinite(effectiveAmount) ||
+    (effectiveAmount !== 0 && effectiveAmount !== plan.amount)
+  ) {
+    return null;
+  }
 
   return {
-    planId: plan.id as PlanId,
-    plan: BILLING_PLAN_BY_ID[plan.id as PlanId],
+    planId: plan.id,
+    plan,
     itemHandle: item.handle,
-    amount,
+    amount: plan.amount,
+    effectiveAmount,
     currencyCode: item.price.currency,
   };
 }
