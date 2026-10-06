@@ -130,13 +130,13 @@ jobs:
           VERSION="stock-down-sort-staging-${SOURCE_PREFIX}-${GITHUB_RUN_NUMBER}"
 
           echo "staging_candidate_version=$VERSION"
-          echo "staging_candidate_source_ref=$GITHUB_SHA"
+          echo "staging_candidate_source_ref=$SOURCE_REF"
 
           {
             echo "## Shopify staging candidate"
             echo ""
-            echo "- Version: `$VERSION`"
-            echo "- Source ref: `$GITHUB_SHA`"
+            echo "- Version: ${VERSION}"
+            echo "- Source ref: ${SOURCE_REF}"
             echo "- Released: **no**"
           } >> "$GITHUB_STEP_SUMMARY"
 
