@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "verification_required",
+    "status": "accepted",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -107,7 +107,7 @@
         }
       ]
     },
-    "note": "Staging Worker deployment and Shopify version are released for the exact Local-accepted source. Signed staging runtime acceptance passed (run 37481456571); live promotion remains blocked until this acceptance is recorded on main.",
+    "note": "Exact Local-accepted source bfd4a194 was deployed and released to Staging. Signed runtime acceptance passed on run 37481456571. Code is present on main at dcca033; this evidence is being promoted through the required main-branch PR.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 15,
@@ -157,6 +157,26 @@
       "stored_session_count": 2,
       "active_subscription_count": 1,
       "verified_plan": "growth"
+    },
+    "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+    "accepted_at": "2026-10-06T14:44:32Z",
+    "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
+    "evidence_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 12,
+      "run_id": 37481456571,
+      "branch": "development",
+      "source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+      "shop": "staging-oath3rth.myshopify.com",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "signed_shopify_session": "passed",
+      "admin_graphql_read": "passed",
+      "subscription_read": "passed",
+      "verified_plan": "growth",
+      "stored_session_count": 2,
+      "active_subscription_count": 1
     }
   },
   "live": {
