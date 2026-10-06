@@ -3,8 +3,8 @@
   "status": "accepted",
   "local_dev": {
     "status": "accepted",
-    "accepted_source_ref": "23a6c61cb5d54c201e1cc1fa85f0d3b9f1faa910",
-    "accepted_at": "2026-10-05T21:06:31.136Z",
+    "accepted_source_ref": "bcdcd01428e37974a255d480bf48980aff345608",
+    "accepted_at": "2026-10-06T08:41:48.928Z",
     "evidence_record": {
       "branch": "development",
       "database_provider": "sqlite",
@@ -20,7 +20,7 @@
         "billingTestMode": true,
         "database": "sqlite"
       },
-      "health_url": "http://localhost:56676/healthz",
+      "health_url": "http://localhost:53850/healthz",
       "note": "Local SQLite acceptance is not PostgreSQL acceptance; Staging remains the first required Neon/PostgreSQL runtime gate."
     }
   },
