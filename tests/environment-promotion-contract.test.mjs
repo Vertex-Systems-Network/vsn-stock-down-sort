@@ -111,6 +111,24 @@ test("all production operations require staging acceptance recorded on main", ()
   }
 });
 
+test("production gates accept reviewed Staging backports mapped onto main", () => {
+  const paths = [
+    ".github/workflows/cloudflare-production-prepare.yml",
+    ".github/workflows/shopify-production-candidate.yml",
+    ".github/workflows/shopify-production-release.yml",
+    ".github/workflows/production-readiness.yml",
+  ];
+  for (const path of paths) {
+    const workflow = read(path);
+    assert.match(workflow, /source_ref != staging\.get\("deployed_source_ref"\)/);
+    assert.match(workflow, /merge-base.*main_ref.*origin\/main/);
+    assert.doesNotMatch(
+      workflow,
+      /merge-base[^\n]*source_ref[^\n]*origin\/main/,
+    );
+  }
+});
+
 test("production readiness is explicitly pinned to main", () => {
   const workflow = read(".github/workflows/production-readiness.yml");
   assert.match(workflow, /ref: main/);
