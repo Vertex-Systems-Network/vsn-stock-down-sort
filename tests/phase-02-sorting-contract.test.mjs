@@ -208,19 +208,20 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
   assert.notEqual(end, -1, "sorting entry point follows the implementation");
   const sortImplementation = sorter.slice(start, end);
 
-  assert.match(
-    sortImplementation,
-    /Collection sorting settings were not found\\. Refresh the page and enable this collection before sorting\\./,
+  assert.ok(
+    sortImplementation.includes(
+      "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
+    ),
   );
-  assert.match(sortImplementation, /settingUpdate\\.count !== 1/);
+  assert.ok(sortImplementation.includes("settingUpdate.count !== 1"));
   assert.equal(
-    (sortImplementation.match(/collectionSetting\\.updateMany\\(/g) || []).length,
+    sortImplementation.split("collectionSetting.updateMany(").length - 1,
     2,
     "success and failure metadata writes tolerate a missing row",
   );
-  assert.doesNotMatch(
-    sortImplementation,
-    /collectionSetting\\.update\\(/,
+  assert.equal(
+    sortImplementation.includes("collectionSetting.update("),
+    false,
     "a missing row must not trigger Prisma P2025 from update()",
   );
 });
