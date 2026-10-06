@@ -1,4 +1,4 @@
-import { BILLING_CATALOG, BILLING_PLAN_BY_ID, BILLING_PLANS, type PlanId } from "../billing-config";
+import { BILLING_CATALOG, BILLING_PLANS } from "../billing-config";
 import { authenticate } from "../shopify.server";
 
 type AdminClient = Awaited<ReturnType<typeof authenticate.admin>>["admin"];
