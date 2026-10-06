@@ -1245,15 +1245,16 @@ test("environment gate records accepted SQLite Local evidence before Staging", (
   assert.ok(Number.isFinite(Date.parse(gates.local_dev.accepted_at)));
   assert.equal(gates.local_dev.evidence_record.branch, "development");
   assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
-  assert.equal(gates.local_dev.evidence_record.database_file, "prisma/dev.sqlite");
-  assert.equal(gates.local_dev.evidence_record.sqlite_gitignored, true);
-  assert.equal(gates.local_dev.evidence_record.prisma_validate, "passed");
-  assert.equal(gates.local_dev.evidence_record.prisma_generate, "passed");
-  assert.equal(gates.local_dev.evidence_record.prisma_migrate_deploy, "passed");
-  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
-  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.environment, "development");
-  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
-  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.database, "sqlite");
+  assert.equal(
+    gates.local_dev.evidence_record.certification_script,
+    "scripts/certify-local-dev.mjs",
+  );
+  assert.equal(gates.local_dev.evidence_record.result, "accepted");
+  assert.equal(
+    gates.local_dev.evidence_record.evidence_source,
+    "Developer-provided local certification output",
+  );
+  assert.match(gates.local_dev.evidence_record.note, /exact source/i);
   assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
