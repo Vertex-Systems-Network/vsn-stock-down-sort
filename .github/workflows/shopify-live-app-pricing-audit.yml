@@ -259,8 +259,15 @@ jobs:
               )
 
           price = item.get("price") or {}
-          if price.get("__typename") != "FlatRatePrice" or price.get("active") is not True:
-              raise SystemExit("Expected one active flat-rate App Pricing item.")
+          if price.get("__typename") != "FlatRatePrice":
+              raise SystemExit(
+                  "Expected a FlatRatePrice App Pricing item, "
+                  f"got {price.get('__typename')!r}."
+              )
+          print(
+              "live_app_pricing_price_currently_offered="
+              + str(price.get("active")).lower()
+          )
           if price.get("currency") != "USD":
               raise SystemExit(f"Expected USD, got {price.get('currency')!r}.")
 

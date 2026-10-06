@@ -155,7 +155,6 @@ export function resolveShopifyAppPricingPlan(
   const flatRateItems = subscription.items.filter(
     (item): item is PartnerSubscriptionItem & { price: PartnerFlatRatePrice } =>
       item.price.__typename === "FlatRatePrice" &&
-      item.price.active === true &&
       typeof (item.price as PartnerFlatRatePrice).amount === "string" &&
       typeof item.price.currency === "string",
   );
@@ -166,9 +165,11 @@ export function resolveShopifyAppPricingPlan(
   const plan = BILLING_PLANS.find((candidate) => candidate.id === item.handle);
   const effectiveAmount = Number(item.price.amount);
 
-  // Shopify lets development stores test App Pricing plans at no charge.
-  // The active subscription therefore reports an effective amount of 0 even
-  // though its plan handle and configured catalog price remain unchanged.
+  // activeSubscription already identifies the current contract. FlatRatePrice.active
+  // only says whether this price is still currently offered; an existing contract
+  // can remain active after the plan price is updated.
+  // Development stores also report an effective amount of 0 while preserving the
+  // plan handle and configured catalog price.
   if (
     !plan ||
     item.price.currency !== BILLING_CATALOG.currencyCode ||
