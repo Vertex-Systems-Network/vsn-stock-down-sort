@@ -932,7 +932,7 @@ async function sortCollectionWithEntitlements(
     );
 
     if (!setting) {
-      throw new Error("Collection sorting settings were not found.");
+      throw new Error("Collection sorting settings were not found. Refresh the page and enable this collection before sorting.");
     }
 
     const rules = effectiveCollectionRules(setting, entitledOptionIds);
@@ -961,20 +961,20 @@ async function sortCollectionWithEntitlements(
       (product) => !product.inStock && product.pinnedRank === null,
     ).length;
 
-    await withPrismaClient((db) =>
-      db.collectionSetting.update({
-        where: {
-          shop_collectionId: {
-            shop,
-            collectionId,
-          },
-        },
+    const settingUpdate = await withPrismaClient((db) =>
+      db.collectionSetting.updateMany({
+        where: { shop, collectionId },
         data: {
           lastSortedAt: new Date(),
           lastError: null,
         },
       }),
     );
+    if (settingUpdate.count !== 1) {
+      throw new Error(
+        "Collection sorting settings disappeared during sorting. Refresh the page and enable the collection before trying again.",
+      );
+    }
 
     const result = {
       collectionId,
@@ -1024,13 +1024,8 @@ async function sortCollectionWithEntitlements(
       error instanceof Error ? error.message : "Unknown sorting error";
 
     await withPrismaClient((db) =>
-      db.collectionSetting.update({
-        where: {
-          shop_collectionId: {
-            shop,
-            collectionId,
-          },
-        },
+      db.collectionSetting.updateMany({
+        where: { shop, collectionId },
         data: { lastError: message },
       }),
     ).catch(() => undefined);
