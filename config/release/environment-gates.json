@@ -124,7 +124,7 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "passed_runtime_acceptance_pending_main_record"
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
