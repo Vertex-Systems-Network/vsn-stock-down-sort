@@ -351,7 +351,25 @@
         "recognized_plan_id": "growth"
       }
     },
-    "note": "Previous acceptance applies to bcdcd014; superseded pending deployment and acceptance of e9be805."
+    "note": "Previous acceptance applies to bcdcd014; superseded pending deployment and acceptance of e9be805.",
+    "deployment_record": {
+      "workflow": "Cloudflare Staging Deploy",
+      "run_number": 13,
+      "run_id": 37444145122,
+      "branch": "development",
+      "control_head_sha": "43c57445b40887237e3f46507bee65fd134f6aa1",
+      "source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
+      "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+      "worker_version_id": "214af26c-43b7-4b7b-aa48-03cad62ebce7",
+      "database_provider": "postgresql",
+      "prisma_migrations": "passed",
+      "queue": "vsn-stock-down-sort-staging-sort-jobs",
+      "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_contract": "four_plans_10_day_trials",
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
+    }
   },
   "live": {
     "status": "accepted",
