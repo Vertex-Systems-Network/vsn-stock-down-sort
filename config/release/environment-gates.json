@@ -176,7 +176,9 @@
       "subscription_read": "passed",
       "verified_plan": "growth",
       "stored_session_count": 2,
-      "active_subscription_count": 1
+      "active_subscription_count": 1,
+      "offline_shopify_session": "passed",
+      "admin_graphql": "passed"
     }
   },
   "live": {
