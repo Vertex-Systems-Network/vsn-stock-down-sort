@@ -198,3 +198,30 @@ test("PHASE-02 completion remains repository-tracked after later phases advance"
     assert.match(workUnit.phase_id, /^PHASE-02$/);
   }
 });
+
+
+test("Sort now handles a missing collection-setting row without Prisma update failures", () => {
+  const sorter = read("app/services/collection-sorter.server.ts");
+  const start = sorter.indexOf('throw new Error("Collection sorting settings were not found.');
+  const end = sorter.indexOf("export async function sortCollection(", start);
+  assert.notEqual(start, -1, "missing-settings guard is present");
+  assert.notEqual(end, -1, "sorting entry point follows the implementation");
+  const sortImplementation = sorter.slice(start, end);
+
+  assert.ok(
+    sortImplementation.includes(
+      "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
+    ),
+  );
+  assert.ok(sortImplementation.includes("settingUpdate.count !== 1"));
+  assert.equal(
+    sortImplementation.split("collectionSetting.updateMany(").length - 1,
+    2,
+    "success and failure metadata writes tolerate a missing row",
+  );
+  assert.equal(
+    sortImplementation.includes("collectionSetting.update("),
+    false,
+    "a missing row must not trigger Prisma P2025 from update()",
+  );
+});
