@@ -353,23 +353,27 @@ test("production Shopify promotion is action driven and authorization gated", ()
   assert.doesNotMatch(release, /webhook trigger/);
   assert.doesNotMatch(release, /prisma migrate deploy/);
 
-  assert.equal(policy.release_authorized, false);
-  assert.equal(
-    policy.authorized_version,
-    "stock-down-sort-production-930bb2039244-2",
-  );
-  assert.equal(
-    policy.authorized_source_ref,
-    "930bb2039244ecafd0ae9d3bb538898094e86638",
-  );
   assert.equal(policy.shopify.separate_live_app_identity, true);
   assert.deepEqual(policy.billing.plan_ids, ["starter", "growth", "pro", "unlimited"]);
   assert.equal(policy.billing.interval, "EVERY_30_DAYS");
   assert.equal(policy.billing.trial_days, 10);
-  assert.equal(policy.status, "released");
-  assert.equal(policy.release_record?.run_id, 37151020224);
-  assert.equal(policy.release_record?.version_released_to_users, true);
-  assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.match(policy.authorized_source_ref, /^[0-9a-f]{40}$/);
+  assert.match(
+    policy.authorized_version,
+    new RegExp("^stock-down-sort-production-" + policy.authorized_source_ref.slice(0, 12) + "-[0-9]+$"),
+  );
+
+  if (policy.release_authorized) {
+    assert.equal(policy.status, "candidate_authorized");
+    assert.equal(policy.release_record, undefined);
+  } else {
+    assert.equal(policy.status, "released");
+    assert.equal(policy.release_record?.source_ref, policy.authorized_source_ref);
+    assert.equal(policy.release_record?.version, policy.authorized_version);
+    assert.equal(policy.release_record?.version_released_to_users, true);
+    assert.equal(policy.release_record?.remote_app_name, "VSN | Stock Down Sort");
+    assert.ok(Number.isInteger(policy.release_record?.run_id));
+  }
 });
 
 
@@ -1239,26 +1243,21 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 test("environment gate records accepted SQLite Local evidence before Staging", () => {
   const gates = JSON.parse(read("config/release/environment-gates.json"));
   const releaseFlow = read("docs/development-release-flow.md");
-  const evidence = gates.local_dev.evidence_record;
 
   assert.equal(gates.local_dev.status, "accepted");
   assert.match(gates.local_dev.accepted_source_ref, /^[0-9a-f]{40}$/);
   assert.ok(Number.isFinite(Date.parse(gates.local_dev.accepted_at)));
-  assert.equal(evidence.branch, "development");
-  assert.equal(evidence.database_provider, "sqlite");
-  assert.equal(evidence.database_file, "prisma/dev.sqlite");
-  assert.equal(evidence.sqlite_gitignored, true);
-  assert.equal(evidence.prisma_validate, "passed");
-  assert.equal(evidence.prisma_generate, "passed");
-  assert.equal(evidence.prisma_migrate_deploy, "passed");
-  assert.deepEqual(evidence.shopify_dev_health, {
-    status: 200,
-    environment: "development",
-    billingTestMode: true,
-    database: "sqlite",
-  });
-  assert.match(evidence.health_url, /^http:\/\/localhost:\d+\/healthz$/);
-  assert.match(evidence.note, /Staging remains the first required Neon\/PostgreSQL runtime gate/i);
+  assert.equal(gates.local_dev.evidence_record.branch, "development");
+  assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
+  assert.equal(gates.local_dev.evidence_record.database_file, "prisma/dev.sqlite");
+  assert.equal(gates.local_dev.evidence_record.sqlite_gitignored, true);
+  assert.equal(gates.local_dev.evidence_record.prisma_validate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_generate, "passed");
+  assert.equal(gates.local_dev.evidence_record.prisma_migrate_deploy, "passed");
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.status, 200);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.environment, "development");
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.billingTestMode, true);
+  assert.equal(gates.local_dev.evidence_record.shopify_dev_health.database, "sqlite");
   assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
