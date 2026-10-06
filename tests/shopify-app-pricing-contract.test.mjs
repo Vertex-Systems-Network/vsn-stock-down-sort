@@ -55,6 +55,9 @@ test("Partner API Active Subscription integration fails closed and resolves cata
   }
   assert.ok(source.includes('if (!response.ok)'));
   assert.ok(source.includes('throw new Error'));
+  assert.match(source, /candidate\.id === item\.handle/);
+  assert.match(source, /effectiveAmount !== 0 && effectiveAmount !== plan\.amount/);
+  assert.match(source, /amount: plan\.amount/);
 });
 
 test("unified subscription truth prefers App Pricing and preserves Billing API fallback", () => {
