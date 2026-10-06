@@ -1239,22 +1239,26 @@ test("management registries are valid JSON and do not inherit VSN Metafields pro
 test("environment gate records accepted SQLite Local evidence before Staging", () => {
   const gates = JSON.parse(read("config/release/environment-gates.json"));
   const releaseFlow = read("docs/development-release-flow.md");
+  const evidence = gates.local_dev.evidence_record;
 
   assert.equal(gates.local_dev.status, "accepted");
   assert.match(gates.local_dev.accepted_source_ref, /^[0-9a-f]{40}$/);
   assert.ok(Number.isFinite(Date.parse(gates.local_dev.accepted_at)));
-  assert.equal(gates.local_dev.evidence_record.branch, "development");
-  assert.equal(gates.local_dev.evidence_record.database_provider, "sqlite");
-  assert.equal(
-    gates.local_dev.evidence_record.certification_script,
-    "scripts/certify-local-dev.mjs",
-  );
-  assert.equal(gates.local_dev.evidence_record.result, "accepted");
-  assert.equal(
-    gates.local_dev.evidence_record.evidence_source,
-    "Developer-provided local certification output",
-  );
-  assert.match(gates.local_dev.evidence_record.note, /exact source/i);
+  assert.equal(evidence.branch, "development");
+  assert.equal(evidence.database_provider, "sqlite");
+  assert.equal(evidence.database_file, "prisma/dev.sqlite");
+  assert.equal(evidence.sqlite_gitignored, true);
+  assert.equal(evidence.prisma_validate, "passed");
+  assert.equal(evidence.prisma_generate, "passed");
+  assert.equal(evidence.prisma_migrate_deploy, "passed");
+  assert.deepEqual(evidence.shopify_dev_health, {
+    status: 200,
+    environment: "development",
+    billingTestMode: true,
+    database: "sqlite",
+  });
+  assert.match(evidence.health_url, /^http:\/\/localhost:\d+\/healthz$/);
+  assert.match(evidence.note, /Staging remains the first required Neon\/PostgreSQL runtime gate/i);
   assert.match(releaseFlow, /Prisma \+ SQLite/i);
   assert.match(releaseFlow, /Staging.*Neon PostgreSQL/is);
 });
