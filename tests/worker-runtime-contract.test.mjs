@@ -674,7 +674,7 @@ test("privacy lifecycle purges all shop-scoped persisted data", () => {
   assert.match(purge, /integrationCredential\.findMany/);
   assert.match(purge, /integrationReplayNonce\.deleteMany/);
   assert.match(purge, /credentialId:\s*\{\s*in:\s*credentialIds/s);
-  assert.match(purge, /db\.\$transaction/);
+  assert.doesNotMatch(purge, /db\.\$transaction/);
 
   for (const route of [uninstall, shopRedact]) {
     assert.match(route, /authenticate\.webhook\(request\)/);
