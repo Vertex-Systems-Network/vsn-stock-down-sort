@@ -47,47 +47,35 @@ export async function purgeShopData(shop: string): Promise<PurgeCounts> {
   if (!shop) return { ...EMPTY_PURGE_COUNTS };
 
   return withPrismaClient(async (db) => {
+    // Shopify may retry this webhook after a non-2xx response. Purge with
+    // separate idempotent deleteMany calls instead of one long Prisma batch
+    // transaction: Cloudflare's PostgreSQL adapter expires batch transactions
+    // at 5 seconds, which caused large shops to fail the entire purge.
+    const sessions = await db.session.deleteMany({ where: { shop } });
     const integrationCredentials = await db.integrationCredential.findMany({
       where: { shop },
       select: { id: true },
     });
     const credentialIds = integrationCredentials.map((credential) => credential.id);
 
-    const [
-      integrationReplayNonces,
-      contextPublicationStates,
-      contextVisibilityRules,
-      lowStockAlertStates,
-      alertSettings,
-      automationRules,
-      activityEvents,
-      productVisibilityStates,
-      visibilitySettings,
-      collectionSettings,
-      supportRequests,
-      integrationCredentialDeletes,
-      sessions,
-    ] = await db.$transaction([
-      db.integrationReplayNonce.deleteMany({
-        where: {
-          credentialId: {
-            in: credentialIds,
-          },
+    const integrationReplayNonces = await db.integrationReplayNonce.deleteMany({
+      where: {
+        credentialId: {
+          in: credentialIds,
         },
-      }),
-      db.contextPublicationState.deleteMany({ where: { shop } }),
-      db.contextVisibilityRule.deleteMany({ where: { shop } }),
-      db.lowStockAlertState.deleteMany({ where: { shop } }),
-      db.alertSetting.deleteMany({ where: { shop } }),
-      db.automationRule.deleteMany({ where: { shop } }),
-      db.activityEvent.deleteMany({ where: { shop } }),
-      db.productVisibilityState.deleteMany({ where: { shop } }),
-      db.visibilitySetting.deleteMany({ where: { shop } }),
-      db.collectionSetting.deleteMany({ where: { shop } }),
-      db.supportRequest.deleteMany({ where: { shop } }),
-      db.integrationCredential.deleteMany({ where: { shop } }),
-      db.session.deleteMany({ where: { shop } }),
-    ]);
+      },
+    });
+    const contextPublicationStates = await db.contextPublicationState.deleteMany({ where: { shop } });
+    const contextVisibilityRules = await db.contextVisibilityRule.deleteMany({ where: { shop } });
+    const lowStockAlertStates = await db.lowStockAlertState.deleteMany({ where: { shop } });
+    const alertSettings = await db.alertSetting.deleteMany({ where: { shop } });
+    const automationRules = await db.automationRule.deleteMany({ where: { shop } });
+    const activityEvents = await db.activityEvent.deleteMany({ where: { shop } });
+    const productVisibilityStates = await db.productVisibilityState.deleteMany({ where: { shop } });
+    const visibilitySettings = await db.visibilitySetting.deleteMany({ where: { shop } });
+    const collectionSettings = await db.collectionSetting.deleteMany({ where: { shop } });
+    const supportRequests = await db.supportRequest.deleteMany({ where: { shop } });
+    const integrationCredentialDeletes = await db.integrationCredential.deleteMany({ where: { shop } });
 
     return {
       sessions: sessions.count,
