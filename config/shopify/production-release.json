@@ -32,9 +32,9 @@
     "migrate_during_shopify_release": false,
     "require_migration_status_clean": true
   },
-  "authorized_version": "stock-down-sort-production-930bb2039244-2",
-  "authorized_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
-  "authorization_record": "Shopify Production Candidate #2 / run 37150173141 succeeded on protected main. Exact candidate stock-down-sort-production-930bb2039244-2 was created with --no-release from source 930bb2039244ecafd0ae9d3bb538898094e86638 after Production Worker health, PostgreSQL, real billing mode, four-plan/10-day catalog and isolated Live Shopify identity checks passed. Cloudflare Production Prepare #1 / run 37146826906 and Production Readiness #4 / run 37149923735 also passed for this production cycle.",
+  "authorized_version": "stock-down-sort-production-14227a5f2603-3",
+  "authorized_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
+  "authorization_record": "User explicitly requested Live deployment and App Store submission. Shopify Production Candidate #3 / run 37379908862 created exact unreleased version stock-down-sort-production-14227a5f2603-3 from source 14227a5f2603205aee3789b71494ee9380abb264 after Production Worker health, PostgreSQL migrations, production billing mode, four-plan catalog, and isolated Live Shopify identity checks passed. Cloudflare Production Prepare #6 / run 37379455736 deployed and verified the isolated production Worker. Shopify Production Release #3 / run 37381556444 released the exact version to users and verified that it remains visible under VSN | Stock Down Sort.",
   "governance": {
     "promotion_order": [
       "local_dev",
@@ -47,7 +47,7 @@
     "live_source_branch": "main",
     "explicit_release_authorization_required": true
   },
-  "release_record": {
+  "previous_release_record": {
     "workflow": "Shopify Production Release",
     "run_number": 2,
     "run_id": 37151020224,
@@ -55,6 +55,21 @@
     "control_head_sha": "f0f46b15998dfc3ce957422bbee07df4b5b037bb",
     "version": "stock-down-sort-production-930bb2039244-2",
     "source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+    "version_released_to_users": true,
+    "version_visible_after_release": true,
+    "remote_app_name": "VSN | Stock Down Sort",
+    "remote_name_verified_from_cli_output": true,
+    "workflow_conclusion": "success"
+  },
+  "release_record": {
+    "workflow": "Shopify Production Release",
+    "run_number": 3,
+    "run_id": 37381556444,
+    "branch": "main",
+    "control_head_sha": "d9a0203043ecc95d0bab2977f6efd227ca8d0c9f",
+    "version": "stock-down-sort-production-14227a5f2603-3",
+    "source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
+    "release_step": "passed",
     "version_released_to_users": true,
     "version_visible_after_release": true,
     "remote_app_name": "VSN | Stock Down Sort",

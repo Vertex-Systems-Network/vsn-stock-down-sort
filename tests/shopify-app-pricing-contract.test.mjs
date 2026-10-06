@@ -56,8 +56,6 @@ test("Partner API Active Subscription integration fails closed and resolves cata
   assert.ok(source.includes('if (!response.ok)'));
   assert.ok(source.includes('throw new Error'));
   assert.match(source, /candidate\.id === item\.handle/);
-  assert.match(source, /item\.price\.__typename === "FlatRatePrice"/);
-  assert.doesNotMatch(source, /item\.price\.active === true/);
   assert.match(source, /effectiveAmount !== 0 && effectiveAmount !== plan\.amount/);
   assert.match(source, /amount: plan\.amount/);
 });

@@ -111,6 +111,24 @@ test("all production operations require staging acceptance recorded on main", ()
   }
 });
 
+test("production gates accept reviewed Staging backports mapped onto main", () => {
+  const paths = [
+    ".github/workflows/cloudflare-production-prepare.yml",
+    ".github/workflows/shopify-production-candidate.yml",
+    ".github/workflows/shopify-production-release.yml",
+    ".github/workflows/production-readiness.yml",
+  ];
+  for (const path of paths) {
+    const workflow = read(path);
+    assert.match(workflow, /source_ref != staging\.get\("deployed_source_ref"\)/);
+    assert.match(workflow, /merge-base.*main_ref.*origin\/main/);
+    assert.doesNotMatch(
+      workflow,
+      /merge-base[^\n]*source_ref[^\n]*origin\/main/,
+    );
+  }
+});
+
 test("production readiness is explicitly pinned to main", () => {
   const workflow = read(".github/workflows/production-readiness.yml");
   assert.match(workflow, /ref: main/);
@@ -225,29 +243,44 @@ test("production readiness validates the canonical four-plan billing contract", 
   assert.doesNotMatch(workflow, /trialDays:\[\[:space:\]\]\*5/);
 });
 
-test("successful Production release is recorded and Live is accepted", () => {
+test("Live production candidate and release records remain source-bound", () => {
   const workflow = read(".github/workflows/shopify-production-release.yml");
-  assert.equal(productionRelease.status, "released");
-  assert.equal(productionRelease.release_authorized, false);
-  assert.equal(
+  assert.deepEqual(productionRelease.governance.promotion_order, ["local_dev", "staging", "live"]);
+  assert.equal(productionRelease.governance.explicit_release_authorization_required, true);
+  assert.match(productionRelease.authorized_version ?? "", /^stock-down-sort-production-[0-9a-f]{12}-[0-9]+$/);
+  assert.match(productionRelease.authorized_source_ref ?? "", /^[0-9a-f]{40}$/);
+  const versionMatch = /^stock-down-sort-production-([0-9a-f]{12})-[0-9]+$/.exec(
     productionRelease.authorized_version,
-    "stock-down-sort-production-930bb2039244-2",
   );
-  assert.equal(
-    productionRelease.authorized_source_ref,
-    "930bb2039244ecafd0ae9d3bb538898094e86638",
-  );
-  assert.equal(productionRelease.release_record?.run_id, 37151020224);
-  assert.equal(productionRelease.release_record?.version_released_to_users, true);
-  assert.equal(productionRelease.release_record?.remote_app_name, "VSN | Stock Down Sort");
-  assert.equal(gates.live.status, "accepted");
-  assert.equal(gates.live.release_record?.run_id, 37151020224);
-  assert.equal(gates.live.release_record?.version, "stock-down-sort-production-930bb2039244-2");
-  assert.equal(gates.live.release_record?.source_ref, productionRelease.authorized_source_ref);
-  assert.equal(gates.live.release_record?.remote_app_name, "VSN | Stock Down Sort");
+  assert.ok(versionMatch);
+  assert.equal(versionMatch[1], productionRelease.authorized_source_ref.slice(0, 12));
   assert.match(workflow, /Requested version is not the repository-authorized version/);
   assert.match(workflow, /Verify released Production app name/);
-  assert.match(workflow, /shopify-production-info\.txt 2>&1/);
+  assert.match(workflow, /shopify-production-info.txt 2>&1/);
+
+  if (productionRelease.release_authorized) {
+    assert.equal(productionRelease.status, "candidate_authorized");
+    assert.equal(gates.live.status, "verification_required");
+    assert.equal(gates.live.candidate_authorization?.version, productionRelease.authorized_version);
+    assert.equal(gates.live.candidate_authorization?.source_ref, productionRelease.authorized_source_ref);
+    assert.equal(gates.live.candidate_authorization?.candidate_status, "unreleased");
+    assert.ok(Number.isInteger(gates.live.candidate_authorization?.run_id));
+    assert.ok(Number.isInteger(gates.live.preparation_record?.run_id));
+    assert.equal(gates.live.previous_acceptance?.status, "accepted");
+    assert.equal(
+      gates.live.previous_acceptance?.release_record?.version,
+      productionRelease.previous_release_record?.version,
+    );
+  } else {
+    assert.equal(productionRelease.status, "released");
+    assert.equal(gates.live.status, "accepted");
+    assert.equal(gates.live.release_record?.run_id, productionRelease.release_record?.run_id);
+    assert.equal(gates.live.release_record?.version, productionRelease.authorized_version);
+    assert.equal(gates.live.release_record?.source_ref, productionRelease.authorized_source_ref);
+    assert.equal(gates.live.release_record?.remote_app_name, "VSN | Stock Down Sort");
+    assert.equal(gates.live.release_record?.version_released_to_users, true);
+    assert.ok(Number.isInteger(productionRelease.release_record?.run_id));
+  }
 });
 
 
