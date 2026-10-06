@@ -402,7 +402,8 @@
       "subscription_read": "passed",
       "active_subscription_count": 1,
       "recognized_plan_id": "growth"
-    }
+    },
+    "accepted_main_ref": "7413f00904f5afa314465c79cc8c558d06bfbca6"
   },
   "live": {
     "status": "accepted",
