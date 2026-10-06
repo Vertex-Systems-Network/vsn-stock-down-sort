@@ -260,6 +260,18 @@ jobs:
 
           price = item.get("price") or {}
           if price.get("__typename") != "FlatRatePrice" or price.get("active") is not True:
+              print(
+                  "active_price_diagnostic="
+                  + json.dumps(
+                      {
+                          "typename": price.get("__typename"),
+                          "active": price.get("active"),
+                          "amount": price.get("amount"),
+                          "currency": price.get("currency"),
+                      },
+                      sort_keys=True,
+                  )
+              )
               raise SystemExit("Expected one active flat-rate App Pricing item.")
           if price.get("currency") != "USD":
               raise SystemExit(f"Expected USD, got {price.get('currency')!r}.")
