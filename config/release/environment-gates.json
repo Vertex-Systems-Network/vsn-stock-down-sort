@@ -369,6 +369,17 @@
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
       "shopify_acceptance": "pending_staging_runtime_acceptance"
+    },
+    "shopify_release_record": {
+      "workflow": "Shopify Staging Release",
+      "run_number": 9,
+      "run_id": 37444961912,
+      "branch": "development",
+      "control_head_sha": "adb9f4aefbc78a5a466333a1ca4075779a7b189f",
+      "source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
+      "version": "stock-down-sort-staging-e9be80573bfd-8",
+      "status": "released",
+      "local_and_live_configs_untouched": true
     }
   },
   "live": {
