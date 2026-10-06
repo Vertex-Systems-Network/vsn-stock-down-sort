@@ -259,20 +259,15 @@ jobs:
               )
 
           price = item.get("price") or {}
-          if price.get("__typename") != "FlatRatePrice" or price.get("active") is not True:
-              print(
-                  "active_price_diagnostic="
-                  + json.dumps(
-                      {
-                          "typename": price.get("__typename"),
-                          "active": price.get("active"),
-                          "amount": price.get("amount"),
-                          "currency": price.get("currency"),
-                      },
-                      sort_keys=True,
-                  )
+          if price.get("__typename") != "FlatRatePrice":
+              raise SystemExit(
+                  "Expected a FlatRatePrice App Pricing item, "
+                  f"got {price.get('__typename')!r}."
               )
-              raise SystemExit("Expected one active flat-rate App Pricing item.")
+          print(
+              "live_app_pricing_price_currently_offered="
+              + str(price.get("active")).lower()
+          )
           if price.get("currency") != "USD":
               raise SystemExit(f"Expected USD, got {price.get('currency')!r}.")
 
