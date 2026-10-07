@@ -36,7 +36,7 @@ jobs:
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
+      SCOPES: read_products,write_products,read_inventory,read_locations
 
     steps:
       - name: Checkout protected main
@@ -95,8 +95,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$SCOPES" != "read_products,write_products,read_inventory,read_locations,read_publications,write_publications" ]; then
-            echo "Unexpected production scopes." >&2
+          if [ "$SCOPES" != "read_products,write_products,read_inventory,read_locations" ]; then
+            echo "Unexpected production required scopes." >&2
             exit 1
           fi
 
