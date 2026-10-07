@@ -177,8 +177,9 @@ export default function AlertsPage() {
               <s-stack gap="base">
                 <s-heading>Email alerts</s-heading>
 
-                <s-checkbox
+                <s-switch
                   name="emailEnabled"
+                  value="on"
                   label="Enable low-stock email alerts"
                   defaultChecked={visibleSetting.emailEnabled}
                   disabled={!canEmail}
@@ -205,8 +206,9 @@ export default function AlertsPage() {
               <s-stack gap="base">
                 <s-heading>Slack alerts</s-heading>
 
-                <s-checkbox
+                <s-switch
                   name="slackEnabled"
+                  value="on"
                   label="Enable Slack incoming-webhook alerts"
                   defaultChecked={visibleSetting.slackEnabled}
                   disabled={!canSlack}
