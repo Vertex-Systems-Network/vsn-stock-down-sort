@@ -280,8 +280,9 @@ function RuleFields({
         ))}
       </s-select>
 
-      <s-checkbox
+      <s-switch
         name="enabled"
+        value="on"
         label="Enable this rule"
         defaultChecked={defaults?.enabled ?? true}
       />
