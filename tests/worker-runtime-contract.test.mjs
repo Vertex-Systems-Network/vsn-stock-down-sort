@@ -1076,8 +1076,9 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(state.last_reconciled_repository_ref.length, 40);
 
   const blockedRuntime = state.active_issue_status === "blocked";
-  const expectedWorkStatus =
+  const expectedActiveStatus =
     state.active_issue === null || blockedRuntime ? "complete" : "in_progress";
+  const expectedWorkStatus = expectedActiveStatus;
   assert.equal(
     plan.phases.find((phase) => phase.id === state.current_phase)?.status,
     expectedWorkStatus,
