@@ -71,7 +71,7 @@ test("publication permissions are optional for Local/Dev", () => {
   setValidLocalEnv();
   assert.doesNotThrow(() => validateLocalSqliteEnv());
   const localConfig = fs.readFileSync("shopify.app.local.toml", "utf8");
-  assert.match(localConfig, /optional_scopes = \\["read_publications", "write_publications"\\]/);
+  assert.match(localConfig, /optional_scopes = \["read_publications", "write_publications"\]/);
 });
 
 test("rejects Neon account or project credentials in normal Local SQLite development", () => {
