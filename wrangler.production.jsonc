@@ -29,7 +29,7 @@
     "SHOPIFY_PARTNER_ORG_ID": "4859256",
     "SHOPIFY_APP_GID": "gid://shopify/App/405802811393",
     "SHOPIFY_APP_URL": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev",
-    "SCOPES": "read_products,write_products,read_inventory,read_locations,read_publications,write_publications"
+    "SCOPES": "read_products,write_products,read_inventory,read_locations"
   },
   "queues": {
     "producers": [
