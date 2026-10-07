@@ -2,18 +2,17 @@ schema_version: 1
 compatibility_mirror: true
 canonical_state: config/ai/project-state.json
 canonical_plan: config/ai/execution-plan.json
-active_issue: null
+active_issue: 197
 project: VSN Stock Down Sort
 repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-10
-current_module: support-fulfillment
+current_module: runtime-acceptance
 current_work_unit: ISSUE-128-WU-01
 note: >
-  PHASE-10 support fulfillment is repository-complete. PR #129 exact
-  implementation head 60fe3bbd1f62fad6b7ff97792f2721acf2a70936 passed App
-  Validation #496 and merged to development as
-  cc3a6879b7d685f6730dbe3e447caebd4e05c988. Runtime Issue #125 remains
-  the separate final Local -> Staging -> Live acceptance track; current-head
-  runtime testing remains intentionally deferred.
+  Latest development source is 12141d5284b52400298c52e081f973b024c94fc3;
+  App Validation #718 / run 37541533454 passed. Local acceptance still points
+  to bfd4a19411fe6c133df65f054a9dae609b3639e8. Current Dev app and /healthz
+  returned 502 [Errno 111] Connection refused; Issue #197 runtime retest is blocked.
+  Do not promote to Staging until exact-source Local certification passes.
