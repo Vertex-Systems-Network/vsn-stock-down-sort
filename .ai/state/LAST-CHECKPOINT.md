@@ -23,3 +23,13 @@ Passed:
 `ISSUE-32-WU-04` — Manual Cloudflare Staging Deploy.
 
 Production remains blocked.
+
+
+## Current development runtime attempt
+
+- Development head: `12141d5284b52400298c52e081f973b024c94fc3`
+- App Validation #718 / run `37541533454`: passed.
+- Local acceptance on this SHA: pending; prior accepted Local/Staging source is `bfd4a19411fe6c133df65f054a9dae609b3639e8`.
+- Dev Admin app and `/healthz`: HTTP 502, `[Errno 111] Connection refused` on 2026-10-07.
+- Sort now runtime retest: pending under Issue #197.
+- Staging promotion remains blocked by exact-source Local acceptance policy.

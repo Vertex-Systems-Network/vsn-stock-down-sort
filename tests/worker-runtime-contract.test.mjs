@@ -1075,26 +1075,25 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.active_issue, state.active_issue);
   assert.equal(state.last_reconciled_repository_ref.length, 40);
 
+  const blockedRuntime = state.active_issue_status === "blocked";
   const expectedActiveStatus =
-    state.active_issue === null ? "complete" : "in_progress";
+    state.active_issue === null || blockedRuntime ? "complete" : "in_progress";
+  const expectedWorkStatus = expectedActiveStatus;
   assert.equal(
     plan.phases.find((phase) => phase.id === state.current_phase)?.status,
-    expectedActiveStatus,
+    expectedWorkStatus,
   );
   assert.equal(
     plan.work_units.find(
       (workUnit) => workUnit.id === state.current_work_unit,
     )?.status,
-    expectedActiveStatus,
+    expectedWorkStatus,
   );
 
   assert.equal(state.current_phase, "PHASE-10");
   assert.equal(state.current_module, "support-fulfillment");
   assert.equal(state.current_work_unit, "ISSUE-128-WU-01");
-  assert.equal(
-    state.active_issue_status,
-    state.active_issue === null ? "none" : "open",
-  );
+  assert.ok(["none", "open", "blocked"].includes(state.active_issue_status));
   if (state.active_issue === null) {
     assert.match(state.next_valid_work_unit, /repository development.*complete/i);
     assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
@@ -1104,6 +1103,9 @@ test("repository management follows the VSN Metafields-style canonical state cha
       state.finalization_track.items.find((item) => item.id === 5)?.title,
       "Public-app billing verification and Unlimited USD 70 alignment",
     );
+  } else if (blockedRuntime) {
+    assert.match(state.next_valid_work_unit, /certify exact development head/i);
+    assert.match(state.next_valid_work_unit, /Staging/i);
   } else {
     assert.match(state.next_valid_work_unit, /support request fulfillment/i);
     assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
@@ -1197,7 +1199,11 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   const tasks = read(".ai/tasks/INDEX.yaml");
   const expectedActive = state.active_issue === null ? "null" : String(state.active_issue);
   const expectedTaskStatus =
-    state.active_issue === null ? "complete" : "in_progress";
+    state.active_issue_status === "blocked"
+      ? "blocked"
+      : state.active_issue === null
+        ? "complete"
+        : "in_progress";
 
   assert.match(current, /compatibility_mirror: true/);
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);

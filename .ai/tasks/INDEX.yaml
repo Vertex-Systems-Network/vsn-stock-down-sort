@@ -1,12 +1,13 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: null
+active_issue: 197
 project: VSN Stock Down Sort
 active_work_unit: ISSUE-128-WU-01
-status: complete
+status: blocked
 note: >
-  ISSUE-128-WU-01 is the latest completed development checkpoint. PHASE-10
-  support fulfillment is merged and repository-certified. Runtime Issue #125
-  remains the separate final acceptance/promotion track; Local, Staging and Live
-  current-head runtime testing is intentionally deferred until the final cycle.
+  Latest completed repository implementation remains ISSUE-128-WU-01. Current
+  runtime acceptance is tracked in Issue #197 for exact development head
+  12141d5284b52400298c52e081f973b024c94fc3. App Validation #718 passed, but
+  Local/Dev app and /healthz returned 502 [Errno 111] Connection refused.
+  Staging remains gated on current-source Local acceptance.

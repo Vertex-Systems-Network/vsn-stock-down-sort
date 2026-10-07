@@ -4,9 +4,9 @@
   "current_phase": "PHASE-10",
   "current_module": "support-fulfillment",
   "current_work_unit": "ISSUE-128-WU-01",
-  "active_issue": null,
-  "last_verified_completion": "PHASE-01 through PHASE-10 repository development and 26-option alignment remain complete. PR #165–#169 are merged to development; App Validation #602 / run 37206271869 passed on exact development head 22d566d6fef99a265dbfd46f319fd5824e537115. No acceptance is claimed for the newer development source in Local, Staging or Live.",
-  "next_valid_work_unit": "Repository development through PHASE-10 is complete. The final acceptance cycle is to recertify exact development head 22d566d6fef99a265dbfd46f319fd5824e537115 in Local/Dev. Only after that gate passes, deploy and accept the same source in Staging, record accepted Staging evidence on protected main, then perform Live-only pricing/secrets/submission prerequisites before Production release. Run final production merchant smoke after the exact release.",
+  "active_issue": 197,
+  "last_verified_completion": "PHASE-01 through PHASE-10 repository implementation remains complete. PR #198 merged to development as 12141d5284b52400298c52e081f973b024c94fc3; App Validation #718 / run 37541533454 passed on that exact head. Local/Dev acceptance and Sort now runtime retest for 12141d5 are blocked by Dev server connection refusal.",
+  "next_valid_work_unit": "Issue #197: certify exact development head 12141d5284b52400298c52e081f973b024c94fc3 in Local/Dev, then retest Sort now and the deleted-settings race. Dev was unreachable with HTTP 502 [Errno 111] Connection refused on 2026-10-07. Only after exact-source Local acceptance may Staging deploy/acceptance proceed; preserve Live gates.",
   "progress": {
     "total_work_units": 44,
     "complete": 43,
@@ -24,10 +24,10 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "App Validation #602 / run 37206271869 passed on development head 22d566d6fef99a265dbfd46f319fd5824e537115. Local acceptance is still recorded for older source 5df0cb94446e008e67ba636ae09ab55d4c416980, and Staging/Live records are from prior releases. Fresh Local -> Staging -> Live acceptance is pending.",
+  "qa_readiness": "App Validation #718 / run 37541533454 passed on exact development head 12141d5284b52400298c52e081f973b024c94fc3. Current Local acceptance remains only for bfd4a19411fe6c133df65f054a9dae609b3639e8. Current-head Dev Admin and /healthz returned 502 [Errno 111] Connection refused; Local acceptance and Sort now runtime retest are pending.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "22d566d6fef99a265dbfd46f319fd5824e537115",
-  "last_reconciled_at": "2026-10-04",
+  "last_reconciled_repository_ref": "12141d5284b52400298c52e081f973b024c94fc3",
+  "last_reconciled_at": "2026-10-07",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
     "workflow_run": 594,
@@ -82,12 +82,12 @@
     },
     "latest_development_validation": {
       "workflow": "App Validation",
-      "run_number": 602,
-      "run_id": 37206271869,
+      "run_number": 718,
+      "run_id": 37541533454,
       "status": "completed",
       "conclusion": "success",
-      "validated_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115",
-      "evidence_source": "GitHub Issue #154 final acceptance record"
+      "validated_head_sha": "12141d5284b52400298c52e081f973b024c94fc3",
+      "evidence_source": "GitHub Actions run 37541533454"
     }
   },
   "batch_06_09": {
@@ -110,31 +110,40 @@
     ],
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
-  "active_issue_status": "none",
-  "active_issue_note": "No open repository implementation issue. Runtime Issue #125 is closed. External/runtime finalization is tracked by Issue #154; it is not treated as an active repository implementation issue because its remaining gates require Partner Dashboard, Shopify review, environment configuration, promotion, and real merchant runtime evidence.",
+  "active_issue_status": "blocked",
+  "active_issue_note": "Issue #197 tracks exact-current-source Local/Dev acceptance and Sort now retest. The current Dev server/tunnel returned 502 [Errno 111] Connection refused; do not claim Local acceptance or promote to Staging.",
   "runtime_track": {
-    "issue": 125,
-    "issue_status": "closed",
-    "status": "new_development_head_requires_fresh_acceptance",
+    "issue": 197,
+    "issue_status": "open",
+    "status": "current_development_head_local_acceptance_blocked",
     "repository_preparation": "complete",
     "previous_release_runtime_testing": "complete",
     "local_dev": {
-      "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-      "status": "accepted_previous_release"
+      "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+      "status": "accepted_previous_source"
     },
     "staging": {
-      "accepted_source_ref": "5df0cb94446e008e67ba636ae09ab55d4c416980",
-      "status": "accepted_previous_release",
-      "acceptance_run_id": 37140631538
+      "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+      "status": "accepted_previous_source",
+      "acceptance_run_id": 37481456571
     },
     "live": {
-      "accepted_source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
+      "accepted_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
       "status": "accepted_previous_release",
-      "production_version": "stock-down-sort-production-930bb2039244-2",
-      "release_run_id": 37151020224
+      "production_version": "stock-down-sort-production-14227a5f2603-3",
+      "release_run_id": 37379908862
     },
-    "next_gate": "Run Local/Dev certification on exact current development HEAD 22d566d6fef99a265dbfd46f319fd5824e537115; previous Local/Staging evidence is for older source and cannot authorize this promotion.",
-    "development_head_resolution": "Current development HEAD is 22d566d6fef99a265dbfd46f319fd5824e537115 (PR #169 merge); exact current source has App Validation #602 pass, but no current-head runtime acceptance."
+    "next_gate": "Current Dev server/tunnel returned HTTP 502 [Errno 111] Connection refused. Restart Dev runtime; then run Local certification for exact development head 12141d5284b52400298c52e081f973b024c94fc3. The Staging workflow requires accepted_source_ref to equal this exact SHA; it must not be bypassed.",
+    "development_head_resolution": "Current development HEAD is 12141d5284b52400298c52e081f973b024c94fc3 (PR #198). App Validation #718 / run 37541533454 passed. No Local acceptance exists for this SHA; runtime check was blocked by 502 connection refusal.",
+    "latest_local_attempt": {
+      "source_ref": "12141d5284b52400298c52e081f973b024c94fc3",
+      "status": "blocked",
+      "observed_at": "2026-10-07",
+      "http_status": 502,
+      "error": "[Errno 111] Connection refused",
+      "scope": "Shopify Dev embedded app and /healthz",
+      "data_changed": false
+    }
   },
   "finalization_track": {
     "promotion_lock": true,
@@ -144,7 +153,7 @@
         "id": 1,
         "title": "Repository state reconciliation",
         "status": "complete",
-        "evidence": "Reconciled against current development head 22d566d6fef99a265dbfd46f319fd5824e537115, PRs #165–#169 and App Validation #602 / run 37206271869. Current-head runtime acceptance remains pending."
+        "evidence": "Reconciled against current development head 12141d5284b52400298c52e081f973b024c94fc3 and App Validation #718 / run 37541533454. Local runtime acceptance remains pending; Dev Admin and /healthz returned 502 [Errno 111] Connection refused, tracked in Issue #197."
       },
       {
         "id": 2,
@@ -179,11 +188,11 @@
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 602,
-      "run_id": 37206271869,
+      "run_number": 718,
+      "run_id": 37541533454,
       "conclusion": "success",
-      "validated_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115",
-      "development_head_sha": "22d566d6fef99a265dbfd46f319fd5824e537115"
+      "validated_head_sha": "12141d5284b52400298c52e081f973b024c94fc3",
+      "development_head_sha": "12141d5284b52400298c52e081f973b024c94fc3"
     },
     "tracking_issue": 154,
     "tracking_issue_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/154",

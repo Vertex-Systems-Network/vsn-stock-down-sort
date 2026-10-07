@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_issue": null,
+  "active_issue": 197,
   "phases": [
     {
       "id": "PHASE-01",
@@ -1739,16 +1739,23 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "cc3a6879b7d685f6730dbe3e447caebd4e05c988",
-  "active_issue_status": "none",
-  "active_issue_note": "PHASE-10 repository implementation is complete. Runtime Issue #125 remains separate and intentionally deferred until the final acceptance cycle.",
+  "last_reconciled_repository_ref": "12141d5284b52400298c52e081f973b024c94fc3",
+  "active_issue_status": "blocked",
+  "active_issue_note": "Issue #197: current development source 12141d5284b52400298c52e081f973b024c94fc3 passes App Validation #718 but Local/Dev acceptance and Sort now retest are blocked by HTTP 502 [Errno 111] Connection refused. Preserve exact Local→Staging gate.",
   "runtime_track": {
-    "issue": 125,
-    "status": "repository_extension_complete_runtime_testing_deferred",
+    "issue": 197,
+    "status": "local_dev_verification_blocked",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "After completion-evidence reconciliation, resolve exact development HEAD and perform final Local -> Staging -> Live acceptance."
+    "next_gate": "Current Dev server/tunnel returned HTTP 502 [Errno 111] Connection refused. Restart Dev runtime; then run Local certification for exact development head 12141d5284b52400298c52e081f973b024c94fc3. The Staging workflow requires accepted_source_ref to equal this exact SHA; it must not be bypassed.",
+    "development_head": "12141d5284b52400298c52e081f973b024c94fc3",
+    "local_dev_attempt": {
+      "status": "blocked",
+      "http_status": 502,
+      "error": "[Errno 111] Connection refused",
+      "observed_at": "2026-10-07"
+    }
   }
 }
