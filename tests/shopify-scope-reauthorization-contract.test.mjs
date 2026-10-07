@@ -50,3 +50,27 @@ test("runtime required scopes exclude dynamically requested publication scopes",
     assert.doesNotMatch(workflow, /SCOPES: [^\n]*read_publications/);
   }
 });
+
+test("binary settings use Shopify switches and reinstall billing is explained", () => {
+  const visibility = read("app/routes/app.visibility.tsx");
+  const contexts = read("app/routes/app.contexts.tsx");
+  const alerts = read("app/routes/app.alerts.tsx");
+  const automation = read("app/routes/app.automation.tsx");
+  const plans = read("app/routes/app.plans.tsx");
+
+  for (const [source, name] of [
+    [visibility, "autoRepublish"],
+    [contexts, "enabled"],
+    [contexts, "autoRestore"],
+    [alerts, "emailEnabled"],
+    [alerts, "slackEnabled"],
+    [automation, "enabled"],
+  ]) {
+    assert.match(source, new RegExp('<s-switch[\\s\\S]*?name="' + name + '"[\\s\\S]*?value="on"'));
+  }
+
+  assert.match(alerts, /<s-checkbox[\\s\\S]*?name="clearSlackWebhook"/);
+  assert.match(read("app/routes/app._index.tsx"), /<s-checkbox[\\s\\S]*?name="inventoryLocationIds"/);
+  assert.match(read("app/routes/app.integrations.tsx"), /<s-checkbox[\\s\\S]*?name="scopes"/);
+  assert.match(plans, /Shopify automatically cancels an app subscription when the app is/);
+});
