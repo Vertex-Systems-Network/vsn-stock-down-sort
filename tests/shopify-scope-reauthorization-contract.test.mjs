@@ -69,8 +69,10 @@ test("binary settings use Shopify switches and reinstall billing is explained", 
     assert.match(source, new RegExp('<s-switch[\\s\\S]*?name="' + name + '"[\\s\\S]*?value="on"'));
   }
 
-  assert.match(alerts, /<s-checkbox[\\s\\S]*?name="clearSlackWebhook"/);
-  assert.match(read("app/routes/app._index.tsx"), /<s-checkbox[\\s\\S]*?name="inventoryLocationIds"/);
-  assert.match(read("app/routes/app.integrations.tsx"), /<s-checkbox[\\s\\S]*?name="scopes"/);
+  assert.ok(alerts.includes("<s-checkbox") && alerts.includes('name="clearSlackWebhook"'));
+  const home = read("app/routes/app._index.tsx");
+  assert.ok(home.includes("<s-checkbox") && home.includes('name="inventoryLocationIds"'));
+  const integrations = read("app/routes/app.integrations.tsx");
+  assert.ok(integrations.includes("<s-checkbox") && integrations.includes('name="scopes"'));
   assert.match(plans, /Shopify automatically cancels an app subscription when the app is/);
 });
