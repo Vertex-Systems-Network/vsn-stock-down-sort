@@ -41,7 +41,7 @@ test("PHASE-07 publication scopes are explicit in all Shopify app configs", () =
   }
 });
 
-test("PHASE-07 publication scopes are propagated to Worker and CI runtime environments", () => {
+test("PHASE-07 publication scopes stay optional instead of entering runtime required scopes", () => {
   for (const path of [
     "wrangler.staging.jsonc",
     "wrangler.production.jsonc",
@@ -52,8 +52,7 @@ test("PHASE-07 publication scopes are propagated to Worker and CI runtime enviro
     ".github/workflows/cloudflare-production-prepare.yml",
   ]) {
     const source = read(path);
-    assert.ok(source.includes("read_publications"), path);
-    assert.ok(source.includes("write_publications"), path);
+    assert.doesNotMatch(source, /SCOPES[^\\n]*(?:read_publications|write_publications)/, path);
   }
 });
 
