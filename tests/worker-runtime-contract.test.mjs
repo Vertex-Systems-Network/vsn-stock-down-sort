@@ -1420,11 +1420,12 @@ test("billing gate preserves embedded Shopify auth context", () => {
 
   assert.match(
     app,
-    /const \{ admin, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
+    /const \{ admin, scopes, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
   );
+  assert.match(app, /await scopes\.query\(\)/);
   assert.match(app, /return shopifyRedirect\("\/app\/plans"\)/);
   assert.doesNotMatch(app, /throw redirect\(/);
-  assert.doesNotMatch(app, /new URLSearchParams\(\)/);
+  assert.match(app, /for \(const key of \["shop", "host", "embedded"\]\)/);
 });
 
 
