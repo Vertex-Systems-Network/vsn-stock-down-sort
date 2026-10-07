@@ -1090,10 +1090,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
   );
 
   assert.equal(state.current_phase, "PHASE-10");
-  assert.equal(
-    state.current_module,
-    blockedRuntime ? "runtime-acceptance" : "support-fulfillment",
-  );
+  assert.equal(state.current_module, "support-fulfillment");
   assert.equal(state.current_work_unit, "ISSUE-128-WU-01");
   assert.ok(["none", "open", "blocked"].includes(state.active_issue_status));
   if (state.active_issue === null) {
