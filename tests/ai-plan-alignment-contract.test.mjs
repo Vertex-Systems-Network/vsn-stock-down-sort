@@ -15,7 +15,6 @@ const REQUIRED_SCOPES = [
   "read_inventory",
   "read_locations",
 ];
-const OPTIONAL_SCOPES = ["read_publications", "write_publications"];
 
 const OPTION_EVIDENCE = {
   "OPT-UNLIMITED-CATALOGS": [
@@ -212,7 +211,7 @@ test("Shopify app identities declare required and optional scopes consistently",
     }
     assert.match(
       config,
-      /optional_scopes = ["read_publications", "write_publications"]/,
+      /optional_scopes = \["read_publications", "write_publications"\]/,
       `${path} missing optional publication scopes`,
     );
   }
@@ -223,7 +222,7 @@ test("Shopify app identities declare required and optional scopes consistently",
   }
   assert.doesNotMatch(
     workflow,
-    /SCOPES:[^\\n]*(?:read_publications|write_publications)/,
+    /SCOPES:[^\n]*(?:read_publications|write_publications)/,
   );
 });
 
