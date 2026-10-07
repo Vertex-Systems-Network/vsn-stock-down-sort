@@ -293,14 +293,16 @@ export default function CommerceContextsPage() {
                   ))}
                 </s-select>
 
-                <s-checkbox
+                <s-switch
                   name="enabled"
+                  value="on"
                   label="Enable sold-out visibility automation"
                   defaultChecked
                 />
 
-                <s-checkbox
+                <s-switch
                   name="autoRestore"
+                  value="on"
                   label="Restore VSN-managed removals after restock"
                   defaultChecked
                 />
