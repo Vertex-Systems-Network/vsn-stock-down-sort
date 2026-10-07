@@ -44,7 +44,7 @@ The product already has:
 - manual + explicitly authorized Production promotion;
 - Cloudflare Workers + Queues;
 - Prisma with Local SQLite and isolated Neon PostgreSQL for Staging/Production;
-- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 54.99 every 30 days, each with a 10-day trial;
+- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 70.00 every 30 days, each with a 10-day trial;
 - legacy USD 55 / 5-day subscriptions are compatibility-only and must not be treated as the current new-subscription catalog.
 
 Do not restart this project as greenfield.
