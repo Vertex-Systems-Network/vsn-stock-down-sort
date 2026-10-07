@@ -75,7 +75,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     staging.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!staging.secrets.required.includes("SCOPES"));
@@ -96,7 +96,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     production.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!production.secrets.required.includes("SCOPES"));

@@ -21,7 +21,7 @@ function setValidLocalEnv() {
   delete process.env.DIRECT_URL;
   process.env.SHOPIFY_API_KEY = "675de0e3834ce61a75473de19df457c4";
   process.env.SHOPIFY_API_SECRET = "local-secret";
-  process.env.SCOPES = "read_products,write_products,read_inventory,read_locations,read_publications,write_publications";
+  process.env.SCOPES = "read_products,write_products,read_inventory,read_locations";
   process.env.APP_ENV = "development";
   process.env.SHOPIFY_BILLING_TEST_MODE = "true";
 }
@@ -67,10 +67,11 @@ test("rejects Local scope drift that drops location access", () => {
   expectFailure("SCOPES must include read_locations");
 });
 
-test("rejects Local scope drift that drops publication access", () => {
+test("publication permissions are optional for Local/Dev", () => {
   setValidLocalEnv();
-  process.env.SCOPES = "read_products,write_products,read_inventory,read_locations";
-  expectFailure("SCOPES must include read_publications");
+  assert.doesNotThrow(() => validateLocalSqliteEnv());
+  const localConfig = fs.readFileSync("shopify.app.local.toml", "utf8");
+  assert.match(localConfig, /optional_scopes = \\["read_publications", "write_publications"\\]/);
 });
 
 test("rejects Neon account or project credentials in normal Local SQLite development", () => {
