@@ -52,7 +52,7 @@ test("PHASE-07 publication scopes stay optional instead of entering runtime requ
     ".github/workflows/cloudflare-production-prepare.yml",
   ]) {
     const source = read(path);
-    assert.doesNotMatch(source, /SCOPES[^\\n]*(?:read_publications|write_publications)/, path);
+    assert.doesNotMatch(source, /SCOPES[^\n]*(?:read_publications|write_publications)/, path);
   }
 });
 
