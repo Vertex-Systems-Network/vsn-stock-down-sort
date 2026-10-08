@@ -314,5 +314,79 @@
     "enabled": true,
     "reason": "six_item_finalization_incomplete",
     "requires_fresh_recertification_after_unlock": true
+  },
+  "cloud_dev": {
+    "status": "accepted",
+    "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+    "accepted_at": "2026-10-08T19:28:28.392Z",
+    "evidence_record": {
+      "verification_mode": "github_actions_cloud_sqlite_runtime",
+      "credential_mode": "synthetic_ci_only",
+      "merchant_runtime_acceptance": "pending_staging",
+      "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+      "workflow_run_id": "37832010614",
+      "workflow_run_attempt": "1",
+      "database_provider": "sqlite",
+      "prisma_validate": "passed",
+      "prisma_generate": "passed",
+      "prisma_migrate_deploy": "passed",
+      "sqlite_roundtrip": "passed",
+      "deletion_safe_write": "passed",
+      "runtime_health": "passed",
+      "billing_catalog": "passed",
+      "contract_tests": "passed",
+      "build": "passed",
+      "health_url": "http://127.0.0.1:45733/healthz",
+      "shopify_dev_health": {
+        "ok": true,
+        "service": "vsn-stock-down-sort",
+        "environment": "development",
+        "billingTestMode": true,
+        "billingMethod": "manual_legacy",
+        "database": "sqlite",
+        "sortQueue": {
+          "required": false,
+          "configured": false,
+          "ready": true,
+          "mode": "local-fallback"
+        },
+        "billingCatalog": {
+          "currencyCode": "USD",
+          "interval": "EVERY_30_DAYS",
+          "trialDays": 10,
+          "plans": [
+            {
+              "id": "starter",
+              "amount": 10.99,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 10
+            },
+            {
+              "id": "growth",
+              "amount": 19.99,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 10
+            },
+            {
+              "id": "pro",
+              "amount": 34.99,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 10
+            },
+            {
+              "id": "unlimited",
+              "amount": 70,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 10
+            }
+          ]
+        }
+      },
+      "note": "Cloud Dev verifies actual application code and fresh SQLite runtime; it does not authenticate a Shopify store or authorize billing. Signed Shopify acceptance is required on Staging."
+    }
   }
 }

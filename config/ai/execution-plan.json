@@ -308,7 +308,7 @@
       "dependencies": [
         "PHASE-09"
       ],
-      "status": "in_progress",
+      "status": "complete",
       "exit_criteria": [
         "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
         "Authenticated merchants can create and view only their own shop-scoped support requests.",
@@ -1765,7 +1765,7 @@
         "ISSUE-197-WU-02"
       ],
       "priority": 110,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Automatic exact-source cloud Dev job",
@@ -1782,7 +1782,12 @@
         "App Validation",
         "Cloud Dev SQLite Runtime"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "PR #204 merged as b598ada3041891e2d38c1baa512cb23fee6c3470",
+        "App Validation and Cloud Dev SQLite Runtime passed on exact source in run 37832010614",
+        "187 contracts plus actual SQLite database and built-server runtime verified",
+        "Cloud Dev artifact/report explicitly records synthetic credentials and pending real Staging merchant acceptance"
+      ]
     }
   ],
   "status_values": [
@@ -1797,18 +1802,18 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "2179078ebcc955d627be2a02cbcc01682d16f241",
-  "active_issue_status": "in_progress",
-  "active_issue_note": "Owner-authorized cloud Dev runtime verification is being implemented; no new runtime acceptance is claimed yet.",
+  "last_reconciled_repository_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+  "active_issue_status": "blocked",
+  "active_issue_note": "Cloud Dev setup is implemented and accepted. Remaining runtime closure is signed Staging acceptance and Shopify merchant retests, not owner laptop setup.",
   "runtime_track": {
     "issue": 197,
-    "status": "cloud_dev_automation_in_progress",
+    "status": "cloud_dev_accepted_staging_merchant_acceptance_pending",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "Validate and merge cloud Dev automation, verify its exact development run, record cloud_dev evidence, then continue signed Staging acceptance and real merchant retests.",
-    "development_head": "e432b567e1da0b6199f0db143bb229e2890e2822",
+    "next_gate": "Proceed with signed Staging acceptance and real Shopify merchant retests after exact-source Staging promotion. Preferred Dev verification is cloud-based; do not request owner workstation commands. Current Staging deployment 90a64ac remains separately verification_required.",
+    "development_head": "b598ada3041891e2d38c1baa512cb23fee6c3470",
     "local_dev_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
       "status": "blocked",
@@ -1817,6 +1822,80 @@
       "scope": "local:certify:auto startup",
       "evidence_source": "Latest project chat runtime report; runner source independently confirmed at e432b56",
       "data_changed": false
+    },
+    "cloud_dev": {
+      "status": "accepted",
+      "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+      "accepted_at": "2026-10-08T19:28:28.392Z",
+      "evidence_record": {
+        "verification_mode": "github_actions_cloud_sqlite_runtime",
+        "credential_mode": "synthetic_ci_only",
+        "merchant_runtime_acceptance": "pending_staging",
+        "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+        "workflow_run_id": "37832010614",
+        "workflow_run_attempt": "1",
+        "database_provider": "sqlite",
+        "prisma_validate": "passed",
+        "prisma_generate": "passed",
+        "prisma_migrate_deploy": "passed",
+        "sqlite_roundtrip": "passed",
+        "deletion_safe_write": "passed",
+        "runtime_health": "passed",
+        "billing_catalog": "passed",
+        "contract_tests": "passed",
+        "build": "passed",
+        "health_url": "http://127.0.0.1:45733/healthz",
+        "shopify_dev_health": {
+          "ok": true,
+          "service": "vsn-stock-down-sort",
+          "environment": "development",
+          "billingTestMode": true,
+          "billingMethod": "manual_legacy",
+          "database": "sqlite",
+          "sortQueue": {
+            "required": false,
+            "configured": false,
+            "ready": true,
+            "mode": "local-fallback"
+          },
+          "billingCatalog": {
+            "currencyCode": "USD",
+            "interval": "EVERY_30_DAYS",
+            "trialDays": 10,
+            "plans": [
+              {
+                "id": "starter",
+                "amount": 10.99,
+                "currencyCode": "USD",
+                "interval": "EVERY_30_DAYS",
+                "trialDays": 10
+              },
+              {
+                "id": "growth",
+                "amount": 19.99,
+                "currencyCode": "USD",
+                "interval": "EVERY_30_DAYS",
+                "trialDays": 10
+              },
+              {
+                "id": "pro",
+                "amount": 34.99,
+                "currencyCode": "USD",
+                "interval": "EVERY_30_DAYS",
+                "trialDays": 10
+              },
+              {
+                "id": "unlimited",
+                "amount": 70,
+                "currencyCode": "USD",
+                "interval": "EVERY_30_DAYS",
+                "trialDays": 10
+              }
+            ]
+          }
+        },
+        "note": "Cloud Dev verifies actual application code and fresh SQLite runtime; it does not authenticate a Shopify store or authorize billing. Signed Shopify acceptance is required on Staging."
+      }
     }
   }
 }
