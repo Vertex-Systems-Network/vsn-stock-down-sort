@@ -36,6 +36,8 @@ npm run dev
 
 `npm run dev` explicitly uses `shopify.app.local.toml`. The Shopify web process runs `scripts/local-dev-runner.mjs`, which regenerates/migrates the Local SQLite schema before React Router starts.
 
+The checked-in Local config intentionally contains Shopify's `default-app-home` placeholder and sets `automatically_update_urls_on_dev = true`; Shopify CLI supplies the temporary public tunnel URL while `npm run dev` is running. Do not run `shopify app deploy --config local` or `npm run deploy` for Local: its tunnel URL is temporary, and a deploy can validate the placeholder instead. Use the running Local Dev preview to exercise scope consent. Staging and Production Shopify app versions are created only by their guarded release workflows.
+
 If the Shopify dev preview is still showing an old placeholder/default page, stop the current dev process and run once:
 
 ```bash

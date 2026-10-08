@@ -976,6 +976,10 @@ body {
     inline-size: calc(100% - 20px) !important;
   }
 
+  .vsn-publication-permission-notice {
+    inline-size: calc(100% - 20px);
+  }
+
   .vsn-collection-filters {
     grid-template-columns: 1fr;
   }
@@ -1373,6 +1377,11 @@ body {
   background: #fff;
   color: var(--vsn-ink);
   font-size: 12.5px;
+}
+
+.vsn-publication-permission-notice {
+  inline-size: calc(100% - min(6vw, 96px));
+  margin: 0 auto 24px;
 }
 
 .vsn-brand-notice strong {

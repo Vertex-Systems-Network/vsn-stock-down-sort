@@ -63,7 +63,11 @@ export default function App() {
         environment={environment}
       >
         {missingPublicationScopes.length > 0 ? (
-          <BrandNotice tone="warning" heading="Catalog access needs approval">
+          <BrandNotice
+            tone="warning"
+            heading="Catalog access needs approval"
+            className="vsn-publication-permission-notice"
+          >
             <p>
               Enable collection publishing by granting the requested Shopify
               permissions. Shopify will ask you to approve them. Your staff
@@ -75,7 +79,7 @@ export default function App() {
                 <li key={scope}><code>{scope}</code></li>
               ))}
             </ul>
-            <Form method="post" action={reauthorizationAction}>
+            <Form method="post" action={reauthorizationAction} reloadDocument>
               <BrandButton type="submit" variant="primary">
                 Authorize Shopify access
               </BrandButton>
