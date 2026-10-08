@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "accepted",
+    "status": "verification_required",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -103,7 +103,7 @@
         }
       ]
     },
-    "note": "Staging Worker run 18, Shopify release run 13, and signed runtime acceptance run 16 passed for cloud Dev-accepted b598ada3041891e2d38c1baa512cb23fee6c3470. Offline Shopify session, Admin GraphQL, Unlimited test subscription, health, queue and four-plan billing were verified. Merchant Sort now on Automated Collection updated last-sorted timestamp with zero UI errors. Publication consent retest remains tracked separately; no Live promotion authorized.",
+    "note": "Staging Worker run 18, Shopify release run 13, and signed runtime acceptance run 16 passed for cloud Dev-accepted b598ada3041891e2d38c1baa512cb23fee6c3470. Offline Shopify session, Admin GraphQL, Unlimited test subscription, health, queue and four-plan billing were verified. Merchant Sort now on Automated Collection updated last-sorted timestamp with zero UI errors. Repository gate remains verification_required pending publication consent persistence retest and accepted evidence on main; no Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 18,
@@ -153,23 +153,6 @@
       "stored_session_count": 2,
       "active_subscription_count": 1,
       "verified_plan": "unlimited"
-    },
-    "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-    "accepted_at": "2026-10-08T20:01:05Z",
-    "evidence_record": {
-      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-      "workflow": "Staging Runtime Acceptance",
-      "run_id": 37836224248,
-      "run_number": 16,
-      "shop": "staging-oath3rth.myshopify.com",
-      "offline_shopify_session": "passed",
-      "admin_graphql": "passed",
-      "subscription_read": "passed",
-      "active_subscription_count": 1,
-      "verified_plan": "unlimited",
-      "runtime_health": "passed",
-      "queue_readiness": "passed",
-      "four_plan_billing_contract": "passed"
     }
   },
   "live": {
