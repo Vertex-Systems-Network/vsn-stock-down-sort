@@ -232,10 +232,11 @@ export default function CommerceContextsPage() {
           </s-stack>
 
           <BrandNotice tone="info">
-            This feature needs Shopify read_publications and
-            write_publications access. Existing installs may require scope
-            reauthorization, and the merchant user must have permission to
-            manage the relevant catalogs/publications.
+            Publication management uses Shopify&apos;s optional
+            read_publications and write_publications permissions. If this
+            install is missing them, use the authorization action shown above.
+            Your staff account must also be allowed to manage the relevant
+            catalogs and publications.
           </BrandNotice>
 
           <s-text color="subdued">
