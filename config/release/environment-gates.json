@@ -33,7 +33,7 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "90a64ac7359eadbc89de58b60d1d40c7a5cde9b9",
+    "deployed_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
     "previous_acceptance": {
       "status": "accepted",
       "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
@@ -103,16 +103,16 @@
         }
       ]
     },
-    "note": "Cloudflare Staging Deploy run 17 deployed Local-accepted source 90a64ac7359eadbc89de58b60d1d40c7a5cde9b9; Worker health, sort queue readiness, PostgreSQL migrations, and billing catalog checks passed. Shopify Staging Release run 12 released version stock-down-sort-staging-90a64ac7359e-11. Signed Staging runtime acceptance is pending.",
+    "note": "Cloudflare Staging Deploy run 18 deployed cloud Dev-accepted source b598ada3041891e2d38c1baa512cb23fee6c3470. Worker health, queue readiness, PostgreSQL migrations and billing checks passed. Shopify Staging Release run 13 released stock-down-sort-staging-b598ada30418-12. Signed Staging runtime acceptance remains pending.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 17,
-      "run_id": 37795028669,
+      "run_number": 18,
+      "run_id": 37834106631,
       "branch": "development",
-      "control_head_sha": "ee2dd706a5d1884e1db4526c3497db01b158fd70",
-      "source_ref": "90a64ac7359eadbc89de58b60d1d40c7a5cde9b9",
+      "control_head_sha": "6046c9e4910c88b1175679193f992938fc3d8356",
+      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
-      "worker_version_id": "9b18f8c2-a4cc-44b2-ace1-b57ee3e654cd",
+      "worker_version_id": "e3420f51-5979-44d9-8fd2-8abd14c16de7",
       "database_provider": "postgresql",
       "prisma_migrations": "passed",
       "queue": "vsn-stock-down-sort-staging-sort-jobs",
@@ -124,12 +124,12 @@
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 12,
-      "run_id": 37806267585,
+      "run_number": 13,
+      "run_id": 37834854304,
       "branch": "development",
-      "control_head_sha": "ee2dd706a5d1884e1db4526c3497db01b158fd70",
-      "source_ref": "90a64ac7359eadbc89de58b60d1d40c7a5cde9b9",
-      "version": "stock-down-sort-staging-90a64ac7359e-11",
+      "control_head_sha": "6046c9e4910c88b1175679193f992938fc3d8356",
+      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+      "version": "stock-down-sort-staging-b598ada30418-12",
       "status": "released",
       "local_and_live_configs_untouched": true
     },
