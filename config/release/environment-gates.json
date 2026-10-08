@@ -33,7 +33,7 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+    "deployed_source_ref": "1f760e7365ac6fa7af69a1fb9d8f99dff0574d27",
     "previous_acceptance": {
       "status": "accepted",
       "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
@@ -103,16 +103,16 @@
         }
       ]
     },
-    "note": "Staging Worker run 18, Shopify release run 13, and signed runtime acceptance run 16 passed for cloud Dev-accepted b598ada3041891e2d38c1baa512cb23fee6c3470. Offline Shopify session, Admin GraphQL, Unlimited test subscription, health, queue and four-plan billing were verified. Merchant Sort now on Automated Collection updated last-sorted timestamp with zero UI errors. Repository gate remains verification_required pending publication consent persistence retest and accepted evidence on main; no Live promotion authorized.",
+    "note": "Staging Worker run 19 and Shopify version 13/release 14 passed for Cloud Dev-accepted context form fix 1f760e7365ac6fa7af69a1fb9d8f99dff0574d27. Signed merchant UI created a disabled Online Store publication rule, showed success and persisted a Paused rule without changing product publication membership. Signed runtime acceptance is pending for the new source. No Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 18,
-      "run_id": 37834106631,
+      "run_number": 19,
+      "run_id": 37838234732,
       "branch": "development",
-      "control_head_sha": "6046c9e4910c88b1175679193f992938fc3d8356",
-      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+      "control_head_sha": "ba006eafe0e37c700d6514feafb7810b4513a29e",
+      "source_ref": "1f760e7365ac6fa7af69a1fb9d8f99dff0574d27",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
-      "worker_version_id": "e3420f51-5979-44d9-8fd2-8abd14c16de7",
+      "worker_version_id": "539866d9-8000-4f6a-a376-7c14a4e27549",
       "database_provider": "postgresql",
       "prisma_migrations": "passed",
       "queue": "vsn-stock-down-sort-staging-sort-jobs",
@@ -124,35 +124,14 @@
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 13,
-      "run_id": 37834854304,
+      "run_number": 14,
+      "run_id": 37838944424,
       "branch": "development",
-      "control_head_sha": "6046c9e4910c88b1175679193f992938fc3d8356",
-      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-      "version": "stock-down-sort-staging-b598ada30418-12",
+      "control_head_sha": "ba006eafe0e37c700d6514feafb7810b4513a29e",
+      "source_ref": "1f760e7365ac6fa7af69a1fb9d8f99dff0574d27",
+      "version": "stock-down-sort-staging-1f760e7365ac-13",
       "status": "released",
       "local_and_live_configs_untouched": true
-    },
-    "runtime_acceptance_record": {
-      "workflow": "Staging Runtime Acceptance",
-      "run_number": 16,
-      "run_id": 37836224248,
-      "branch": "development",
-      "control_head_sha": "6c6e0cfab5b53970ce1493920bba90e6b88d3842",
-      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-      "shop": "staging-oath3rth.myshopify.com",
-      "status": "passed",
-      "checks": {
-        "runtime_health": "passed",
-        "queue_readiness": "passed",
-        "four_plan_billing_contract": "passed",
-        "signed_shopify_session": "passed",
-        "admin_graphql_read": "passed",
-        "subscription_read": "passed"
-      },
-      "stored_session_count": 2,
-      "active_subscription_count": 1,
-      "verified_plan": "unlimited"
     }
   },
   "live": {
