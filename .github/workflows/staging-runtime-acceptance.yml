@@ -70,7 +70,10 @@ jobs:
           gates = json.loads(
               Path("config/release/environment-gates.json").read_text(encoding="utf-8")
           )
-          local = gates.get("local_dev") or {}
+          import sys
+          sys.path.insert(0, "scripts")
+          from dev_acceptance import select_dev_gate
+          local = select_dev_gate(gates, source_ref)
           staging = gates.get("staging") or {}
 
           if local.get("status") != "accepted":

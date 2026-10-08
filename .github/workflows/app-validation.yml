@@ -135,3 +135,51 @@ jobs:
           SHOPIFY_BILLING_TEST_MODE: "false"
           SHOPIFY_APP_URL: https://production.example.invalid
         run: npx wrangler@4.141.0 deploy --dry-run --config wrangler.production.jsonc
+
+  cloud-dev:
+    name: Cloud Dev SQLite Runtime
+    needs: validate
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: development
+      SHOPIFY_BILLING_TEST_MODE: "true"
+      SHOPIFY_BILLING_MODE: manual_legacy
+      SHOPIFY_API_KEY: 675de0e3834ce61a75473de19df457c4
+      SHOPIFY_API_SECRET: cloud-dev-ci-only-not-a-shopify-credential
+      SHOPIFY_APP_URL: http://127.0.0.1:3000
+      SCOPES: read_products,write_products,read_inventory,read_locations
+    steps:
+      - name: Checkout exact development source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Prepare fresh SQLite Dev database
+        run: |
+          npm run prisma:validate:local
+          npm run prisma:generate:local
+          node -e 'require("node:fs").closeSync(require("node:fs").openSync("prisma/dev.sqlite", "wx"))'
+          npm run prisma:migrate:local
+          npm run prisma:parity
+      - name: Verify all development contracts
+        run: node --test tests/*.test.mjs
+      - name: Build actual Dev application
+        run: npm run build
+      - name: Start and certify cloud Dev runtime
+        run: node scripts/certify-cloud-dev.mjs
+      - name: Preserve exact-source cloud Dev evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-dev-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/stock-down-sort-cloud-dev/evidence.json
+          if-no-files-found: error
+          retention-days: 30

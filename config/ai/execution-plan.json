@@ -1734,7 +1734,7 @@
       "objective": "Use normal Shopify Dev tunnel and discover the actual loopback health endpoint without guessed ports or invalid localhost webhooks.",
       "dependencies": [],
       "priority": 110,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Keep normal public webhook tunnel and Dev identity",
@@ -1748,6 +1748,39 @@
         "All repository contract tests",
         "Lint",
         "App Validation"
+      ],
+      "completion_evidence": [
+        "PR #203 merged as 2179078ebcc955d627be2a02cbcc01682d16f241",
+        "App Validation #753 / run 37830154355 passed",
+        "184 local tests, lint and typecheck passed; fresh merchant runtime acceptance remains separate"
+      ]
+    },
+    {
+      "id": "ISSUE-197-WU-03",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-LOCAL",
+      "title": "Move owner Dev verification to isolated cloud runners",
+      "objective": "Run real application and SQLite verification automatically without owner laptop commands; preserve separate signed Shopify Staging acceptance.",
+      "dependencies": [
+        "ISSUE-197-WU-02"
+      ],
+      "priority": 110,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Automatic exact-source cloud Dev job",
+        "Fresh migrated SQLite database and actual built server health",
+        "No real Shopify credentials or store mutations",
+        "Evidence explicitly distinguishes synthetic runtime checks from merchant acceptance",
+        "Staging selector rejects stale or incomplete cloud evidence",
+        "Merged development cloud verification passes and evidence is recorded"
+      ],
+      "required_checks": [
+        "All contract tests",
+        "Lint",
+        "Typecheck",
+        "App Validation",
+        "Cloud Dev SQLite Runtime"
       ],
       "completion_evidence": []
     }
@@ -1764,17 +1797,17 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
+  "last_reconciled_repository_ref": "2179078ebcc955d627be2a02cbcc01682d16f241",
   "active_issue_status": "in_progress",
-  "active_issue_note": "Merge the tunnel-safe Local auto-certification runner after App Validation, certify the resulting exact development source, and retest Sort now plus publication consent in the Dev app. Staging currently deploys 90a64ac and still requires signed acceptance for that source; newer runtime changes require a fresh exact-source Local -> Staging cycle.",
+  "active_issue_note": "Owner-authorized cloud Dev runtime verification is being implemented; no new runtime acceptance is claimed yet.",
   "runtime_track": {
     "issue": 197,
-    "status": "local_runner_repair_and_staging_acceptance_pending",
+    "status": "cloud_dev_automation_in_progress",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "Merge the tunnel-safe Local auto-certification runner after App Validation, certify the resulting exact development source, and retest Sort now plus publication consent in the Dev app. Staging currently deploys 90a64ac and still requires signed acceptance for that source; newer runtime changes require a fresh exact-source Local -> Staging cycle.",
+    "next_gate": "Validate and merge cloud Dev automation, verify its exact development run, record cloud_dev evidence, then continue signed Staging acceptance and real merchant retests.",
     "development_head": "e432b567e1da0b6199f0db143bb229e2890e2822",
     "local_dev_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",

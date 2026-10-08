@@ -9,8 +9,8 @@ protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-10
 current_module: local-development
-current_work_unit: ISSUE-197-WU-02
+current_work_unit: ISSUE-197-WU-03
 note: >
-  Baseline e432b56 passed App Validation 749. Local 90a64ac is accepted and
-  released to Staging; signed Staging acceptance remains pending. Repair the
-  auto-certification runner, then certify the exact merged development source.
+  PR 203 is merged and validated. The owner requested cloud Dev verification
+  without laptop commands. Implement and verify the automatic SQLite runtime
+  job; retain separate signed Shopify merchant acceptance on Staging.

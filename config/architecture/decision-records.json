@@ -51,6 +51,24 @@
       "decided_at": "2026-10-01T14:18:00+05:00",
       "supersedes": [],
       "superseded_by": null
+    },
+    {
+      "id": "ADR-0002",
+      "title": "Run owner-requested Dev runtime verification in GitHub Actions",
+      "status": "accepted",
+      "context": "Owner requested cloud execution because they cannot run workstation development commands.",
+      "decision": "Use isolated GitHub-hosted SQLite runtime verification as an alternative first Dev gate. Synthetic CI credentials permit server initialization only; signed real Shopify merchant acceptance remains mandatory on Staging.",
+      "evidence_refs": [
+        "Explicit owner instruction on 2026-10-09 Asia/Karachi",
+        "Existing SQLite/cloud PostgreSQL split",
+        "App Validation cloud-dev job"
+      ],
+      "consequences": [
+        "No owner laptop setup is required for automated Dev checks",
+        "Preserve exact-source immutable run evidence",
+        "No persistent merchant Dev preview or actual Shopify session is claimed",
+        "Staging/Live isolation and release authorization are preserved"
+      ]
     }
   ],
   "decision_template": {

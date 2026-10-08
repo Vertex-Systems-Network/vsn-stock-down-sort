@@ -3,8 +3,9 @@ compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
 active_issue: 197
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-197-WU-02
+active_work_unit: ISSUE-197-WU-03
 status: in_progress
 note: >
-  Repair Local auto-certification with the normal webhook tunnel and dynamic
-  health discovery. Preserve exact-source Local -> Staging -> Live gates.
+  PR 203 is merged and validated. The owner requested cloud Dev verification
+  without laptop commands. Implement and verify the automatic SQLite runtime
+  job; retain separate signed Shopify merchant acceptance on Staging.
