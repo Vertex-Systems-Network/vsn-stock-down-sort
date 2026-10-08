@@ -155,7 +155,22 @@
       "verified_plan": "unlimited"
     },
     "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-    "accepted_at": "2026-10-08T20:01:05Z"
+    "accepted_at": "2026-10-08T20:01:05Z",
+    "evidence_record": {
+      "source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+      "workflow": "Staging Runtime Acceptance",
+      "run_id": 37836224248,
+      "run_number": 16,
+      "shop": "staging-oath3rth.myshopify.com",
+      "offline_shopify_session": "passed",
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "four_plan_billing_contract": "passed"
+    }
   },
   "live": {
     "status": "accepted",
