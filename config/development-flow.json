@@ -86,7 +86,8 @@
     ],
     "local_dev": {
       "branch": "development",
-      "role": "canonical_local_dev_integration"
+      "role": "canonical_local_dev_integration",
+      "alternative_runtime": "github_actions_cloud_sqlite_runtime"
     },
     "staging": {
       "source_branch": "development",
@@ -148,5 +149,20 @@
     "bypass": "never",
     "note": "Repository CI audits this contract; if the live ruleset lacks the required status check, App Validation fails.",
     "required_status_check_display": "App Validation / validate"
+  },
+  "cloud_dev": {
+    "runtime": "github_actions_ephemeral_sqlite",
+    "preferred": true,
+    "workflow": ".github/workflows/app-validation.yml",
+    "job": "cloud-dev",
+    "automatic_on": [
+      "pull_request",
+      "development_push"
+    ],
+    "requires_workstation": false,
+    "credentials": "synthetic_ci_only",
+    "merchant_acceptance": "required_on_staging",
+    "gate_record": "config/release/environment-gates.json.cloud_dev",
+    "exact_source_required": true
   }
 }

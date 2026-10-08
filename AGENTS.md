@@ -126,3 +126,8 @@ The older `.ai/state/**`, `.ai/tasks/**`, and `.ai/ROADMAP.md` files are compati
 - active GitHub Issue(s)
 
 Requirements and assurance policies are not pass evidence by themselves.
+
+
+## Owner-authorized cloud Dev verification
+
+The owner requested that the AI run Dev verification in the cloud instead of requiring workstation commands. App Validation's `cloud-dev` job is the preferred first-stage execution route. It runs actual application/SQLite checks with synthetic CI credentials; it does not claim a Shopify Dev-store session or merchant acceptance. `cloud_dev` evidence is accepted only for its exact source after full validation, runtime startup, migrations, database roundtrip and billing-health checks pass. The shared `scripts/dev_acceptance.py` selector validates recorded cloud evidence; legacy `local_dev` remains available. Staging retains real credentials and signed Shopify acceptance. Live retains Staging acceptance on main and separate release authorization. This approved route changes the location of Dev verification, not the environment order or Shopify merchant acceptance requirements.

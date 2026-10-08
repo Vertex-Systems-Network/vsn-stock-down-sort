@@ -21,7 +21,14 @@
       "reuse_staging_or_production": false
     },
     "command": "npm run dev",
-    "billing_test_mode": true
+    "billing_test_mode": true,
+    "cloud_verification": {
+      "runtime": "github_actions_ephemeral_sqlite",
+      "schema": "prisma/schema.prisma",
+      "fresh_database_per_run": true,
+      "persistent_merchant_preview": false,
+      "requires_hosted_credentials": false
+    }
   },
   "staging": {
     "github_environment": "cloudflare-staging",

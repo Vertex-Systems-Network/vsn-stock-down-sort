@@ -114,6 +114,14 @@ The Staging client ID remains a placeholder in git and is injected from `cloudfl
 
 Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, monthly interval and 10-day trial. On a same-Partner development store, the active subscription must show an effective USD 0.00 no-charge price while the historical plan event must still match the configured Live public catalog amount.
 
+## Cloud Dev verification
+
+The AI now runs the Dev verification stage on GitHub-hosted runners. **App Validation → Cloud Dev SQLite Runtime** runs automatically for PRs and every `development` push after validation passes. It creates a fresh SQLite database, validates/generates/applies Prisma migrations, runs all contracts, builds the actual React Router app, starts its HTTP server, verifies health and the four-plan catalog, and exercises SQLite read/write/delete behavior. Exact-source evidence is preserved as a workflow artifact and in the run log.
+
+The cloud job uses fixed synthetic CI credentials and never contacts a Shopify store, accepts a subscription, or deploys Staging/Live. Real Shopify session, consent, webhook and merchant-flow acceptance remains required on the isolated Staging app. A reviewed successful cloud record in `config/release/environment-gates.json.cloud_dev` can satisfy the first Dev runtime gate for its exact source; historical `local_dev` acceptance remains supported. Promotion still follows Dev → Staging → Live.
+
+The owner does not need to run Local commands for this cloud verification route. The following Local workflow remains optional for workstation development.
+
 ## Local development
 
 Normal Local development runs from the `development` branch and uses the
