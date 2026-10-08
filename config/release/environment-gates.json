@@ -103,7 +103,7 @@
         }
       ]
     },
-    "note": "Staging Worker run 19 and Shopify version 13/release 14 passed for Cloud Dev-accepted context form fix 1f760e7365ac6fa7af69a1fb9d8f99dff0574d27. Signed merchant UI created a disabled Online Store publication rule, showed success and persisted a Paused rule without changing product publication membership. Signed runtime acceptance is pending for the new source. No Live promotion authorized.",
+    "note": "Staging Worker run 19, Shopify version 13/release 14, signed runtime acceptance run 17, and merchant UI disabled Online Store rule persistence passed for Cloud Dev-accepted 1f760e7365ac6fa7af69a1fb9d8f99dff0574d27. Repository gate remains verification_required until accepted evidence is recorded on main under the release process. No Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 19,
@@ -132,6 +132,32 @@
       "version": "stock-down-sort-staging-1f760e7365ac-13",
       "status": "released",
       "local_and_live_configs_untouched": true
+    },
+    "runtime_acceptance_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 17,
+      "run_id": 37839545082,
+      "branch": "development",
+      "control_head_sha": "26d520d2c127dc9baffb72285e703c0bcf9503ee",
+      "source_ref": "1f760e7365ac6fa7af69a1fb9d8f99dff0574d27",
+      "shop": "staging-oath3rth.myshopify.com",
+      "status": "passed",
+      "checks": {
+        "runtime_health": "passed",
+        "queue_readiness": "passed",
+        "four_plan_billing_contract": "passed",
+        "signed_shopify_session": "passed",
+        "admin_graphql_read": "passed",
+        "subscription_read": "passed"
+      },
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "merchant_ui": {
+        "disabled_online_store_rule": "persisted_paused",
+        "subscription": "unlimited",
+        "note": "Rule saved in embedded app after React Router Form fix; no publication membership automation enabled."
+      }
     }
   },
   "live": {
