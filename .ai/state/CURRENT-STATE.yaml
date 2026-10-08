@@ -11,6 +11,6 @@ current_phase: PHASE-10
 current_module: local-development
 current_work_unit: ISSUE-197-WU-03
 note: >
-  PR 203 is merged and validated. The owner requested cloud Dev verification
-  without laptop commands. Implement and verify the automatic SQLite runtime
-  job; retain separate signed Shopify merchant acceptance on Staging.
+  Cloud Dev automation is merged and accepted on b598ada in run 37832010614.
+  Owner workstation commands are no longer needed for Dev verification.
+  Next: signed Staging acceptance and real Shopify merchant retests.

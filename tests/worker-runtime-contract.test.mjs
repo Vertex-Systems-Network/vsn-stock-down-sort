@@ -1108,7 +1108,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
       "Public-app billing verification and Unlimited USD 70 alignment",
     );
   } else if (blockedRuntime) {
-    assert.match(state.next_valid_work_unit, /certify exact development head/i);
+    assert.match(state.next_valid_work_unit, /certify exact development head|signed Staging acceptance/i);
     assert.match(state.next_valid_work_unit, /Staging/i);
   } else {
     assert.ok(state.next_valid_work_unit.length > 0);

@@ -104,7 +104,7 @@ Database topology is also isolated:
 - Staging: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-staging`
 - Production: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-production`
 
-Local must be completed and verified before Staging work begins.
+Dev verification (the preferred cloud route or optional Local route) must be completed before Staging promotion.
 
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
@@ -119,6 +119,8 @@ Do not copy the Live public pricing catalog into the Staging Shopify app. To tes
 The AI now runs the Dev verification stage on GitHub-hosted runners. **App Validation → Cloud Dev SQLite Runtime** runs automatically for PRs and every `development` push after validation passes. It creates a fresh SQLite database, validates/generates/applies Prisma migrations, runs all contracts, builds the actual React Router app, starts its HTTP server, verifies health and the four-plan catalog, and exercises SQLite read/write/delete behavior. Exact-source evidence is preserved as a workflow artifact and in the run log.
 
 The cloud job uses fixed synthetic CI credentials and never contacts a Shopify store, accepts a subscription, or deploys Staging/Live. Real Shopify session, consent, webhook and merchant-flow acceptance remains required on the isolated Staging app. A reviewed successful cloud record in `config/release/environment-gates.json.cloud_dev` can satisfy the first Dev runtime gate for its exact source; historical `local_dev` acceptance remains supported. Promotion still follows Dev → Staging → Live.
+
+Accepted cloud Dev source: `b598ada3041891e2d38c1baa512cb23fee6c3470`, [successful run 37832010614](https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/actions/runs/37832010614). The actual SQLite/app runtime passed; signed real Shopify merchant acceptance remains pending on Staging.
 
 The owner does not need to run Local commands for this cloud verification route. The following Local workflow remains optional for workstation development.
 
