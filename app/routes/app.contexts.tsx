@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -273,7 +274,7 @@ export default function CommerceContextsPage() {
               No existing Shopify publications were found for this context.
             </s-text>
           ) : (
-            <form method="post">
+            <Form method="post">
               <input type="hidden" name="intent" value="save" />
               <input type="hidden" name="targetType" value={group.type} />
 
@@ -312,7 +313,7 @@ export default function CommerceContextsPage() {
                   Add {group.label} rule
                 </BrandButton>
               </s-stack>
-            </form>
+            </Form>
           )}
         </s-section>
       ))}
@@ -356,7 +357,7 @@ export default function CommerceContextsPage() {
                     </s-text>
 
                     <BrandButtonRow>
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="toggle" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <input
@@ -372,9 +373,9 @@ export default function CommerceContextsPage() {
                         >
                           {rule.enabled ? "Pause" : "Enable"}
                         </BrandButton>
-                      </form>
+                      </Form>
 
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <BrandButton
@@ -386,7 +387,7 @@ export default function CommerceContextsPage() {
                         >
                           Delete
                         </BrandButton>
-                      </form>
+                      </Form>
                     </BrandButtonRow>
 
                     <s-text color="subdued">
