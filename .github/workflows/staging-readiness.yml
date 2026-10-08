@@ -36,7 +36,7 @@ jobs:
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
+      SCOPES: read_products,write_products,read_inventory,read_locations
       SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:

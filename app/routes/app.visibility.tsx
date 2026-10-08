@@ -153,8 +153,9 @@ export default function VisibilityPage() {
                 </s-option>
               </s-select>
 
-              <s-checkbox
+              <s-switch
                 name="autoRepublish"
+                value="on"
                 label="Automatically restore products when inventory returns"
                 defaultChecked={setting.autoRepublish}
                 disabled={busy || !canAutoRepublish}

@@ -75,7 +75,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     staging.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!staging.secrets.required.includes("SCOPES"));
@@ -96,7 +96,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     production.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!production.secrets.required.includes("SCOPES"));
@@ -1420,11 +1420,12 @@ test("billing gate preserves embedded Shopify auth context", () => {
 
   assert.match(
     app,
-    /const \{ admin, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
+    /const \{ admin, scopes, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
   );
+  assert.match(app, /await scopes\.query\(\)/);
   assert.match(app, /return shopifyRedirect\("\/app\/plans"\)/);
   assert.doesNotMatch(app, /throw redirect\(/);
-  assert.doesNotMatch(app, /new URLSearchParams\(\)/);
+  assert.match(app, /for \(const key of \["shop", "host", "embedded"\]\)/);
 });
 
 
