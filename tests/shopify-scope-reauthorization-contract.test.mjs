@@ -28,12 +28,23 @@ test("app surfaces missing publication permissions and offers authorization", ()
   assert.match(layout, /missingPublicationScopes/);
   assert.match(layout, /Authorize Shopify access/);
   assert.match(layout, /reauthorizationAction/);
+  assert.match(layout, /method="post"[^>]*reloadDocument/);
+  assert.match(layout, /vsn-publication-permission-notice/);
   assert.match(action, /authenticate\.admin\(request\)/);
   assert.match(action, /scopes\.request\(\[\.\.\.PUBLICATION_SCOPES\]\)/);
   assert.match(action, /Never accept scope names or redirect targets/);
   assert.match(scopes, /read_publications/);
   assert.match(scopes, /write_publications/);
   assert.doesNotMatch(action, /formData\(\)/);
+});
+
+test("publication permission notice aligns with page content and leaves bottom spacing", () => {
+  const styles = read("app/styles/workspace.css");
+  assert.match(
+    styles,
+    /\.vsn-publication-permission-notice\s*\{[^}]*inline-size:\s*calc\(100% - min\(6vw, 96px\)\)[^}]*margin:\s*0 auto 24px/s,
+  );
+  assert.match(styles, /@media \(max-width: 900px\)[\s\S]*?\.vsn-publication-permission-notice\s*\{\s*inline-size:\s*calc\(100% - 20px\)/);
 });
 
 test("runtime required scopes exclude dynamically requested publication scopes", () => {
