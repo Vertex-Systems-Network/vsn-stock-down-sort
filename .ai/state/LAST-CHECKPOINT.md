@@ -1,35 +1,13 @@
 # Last Checkpoint
 
-## Staging Readiness accepted
+- Baseline development: `e432b567e1da0b6199f0db143bb229e2890e2822`.
+- App Validation #749 / run `37825036050`: PASS.
+- Local source `90a64ac`: accepted on 2026-10-08.
+- Staging Deploy #17 / run `37795028669`: completed for `90a64ac`.
+- Shopify Staging Release #12 / run `37806267585`: released the same source.
+- Signed current Staging acceptance: pending; old `bfd4a19` evidence is historical.
+- Active work: `ISSUE-197-WU-02`, repair auto-certification startup.
+- Fresh Local acceptance and Sort now/publication consent merchant retests: pending.
+- Live billing/review/final smoke gates remain open under Issue #154.
 
-Run: `36929608192` — Staging Readiness #6  
-Branch: `development`  
-Conclusion: **success**  
-Accepted source: `ca5851561ab7979712f11580ab951fda4650ef19`
-
-Passed:
-- Local/Dev acceptance and exact source verification
-- isolated staging secrets
-- cloud Prisma schema validation/generation
-- PostgreSQL staging migrate deploy
-- PostgreSQL migration status
-- lint/typecheck
-- staging runtime build
-- Cloudflare Worker dry-run
-- canonical four-plan / 10-day billing contract
-
-## Current active work
-
-`ISSUE-32-WU-04` — Manual Cloudflare Staging Deploy.
-
-Production remains blocked.
-
-
-## Current development runtime attempt
-
-- Development head: `12141d5284b52400298c52e081f973b024c94fc3`
-- App Validation #718 / run `37541533454`: passed.
-- Local acceptance on this SHA: pending; prior accepted Local/Staging source is `bfd4a19411fe6c133df65f054a9dae609b3639e8`.
-- Dev Admin app and `/healthz`: HTTP 502, `[Errno 111] Connection refused` on 2026-10-07.
-- Sort now runtime retest: pending under Issue #197.
-- Staging promotion remains blocked by exact-source Local acceptance policy.
+This checkpoint records verified baseline evidence, not acceptance of untested changes.

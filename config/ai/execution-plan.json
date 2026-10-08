@@ -308,7 +308,7 @@
       "dependencies": [
         "PHASE-09"
       ],
-      "status": "complete",
+      "status": "in_progress",
       "exit_criteria": [
         "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
         "Authenticated merchants can create and view only their own shop-scoped support requests.",
@@ -1725,6 +1725,31 @@
         "Merged to development as cc3a6879b7d685f6730dbe3e447caebd4e05c988.",
         "No environment runtime acceptance or production deployment was performed."
       ]
+    },
+    {
+      "id": "ISSUE-197-WU-02",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-LOCAL",
+      "title": "Repair Local auto-certification startup and reconcile runtime evidence",
+      "objective": "Use normal Shopify Dev tunnel and discover the actual loopback health endpoint without guessed ports or invalid localhost webhooks.",
+      "dependencies": [],
+      "priority": 110,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Keep normal public webhook tunnel and Dev identity",
+        "Reject unhealthy runtime contracts before delegating exact-source certification",
+        "Fail on Dev exit or startup timeout",
+        "Keep existing environment acceptance records unchanged",
+        "Merge only after App Validation passes; fresh merchant runtime acceptance remains separate"
+      ],
+      "required_checks": [
+        "Local auto-certification behavioral tests",
+        "All repository contract tests",
+        "Lint",
+        "App Validation"
+      ],
+      "completion_evidence": []
     }
   ],
   "status_values": [
@@ -1739,23 +1764,26 @@
     "deferred",
     "deprecated"
   ],
-  "last_reconciled_repository_ref": "12141d5284b52400298c52e081f973b024c94fc3",
-  "active_issue_status": "blocked",
-  "active_issue_note": "Issue #197: current development source 12141d5284b52400298c52e081f973b024c94fc3 passes App Validation #718 but Local/Dev acceptance and Sort now retest are blocked by HTTP 502 [Errno 111] Connection refused. Preserve exact Local→Staging gate.",
+  "last_reconciled_repository_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
+  "active_issue_status": "in_progress",
+  "active_issue_note": "Merge the tunnel-safe Local auto-certification runner after App Validation, certify the resulting exact development source, and retest Sort now plus publication consent in the Dev app. Staging currently deploys 90a64ac and still requires signed acceptance for that source; newer runtime changes require a fresh exact-source Local -> Staging cycle.",
   "runtime_track": {
     "issue": 197,
-    "status": "local_dev_verification_blocked",
+    "status": "local_runner_repair_and_staging_acceptance_pending",
     "repository_implementation": "complete",
     "selected_capabilities": "26/26",
     "scope_parity_baseline_ref": "6b3ac8681e6e6c4429c26da11a07909f1acb689a",
     "current_head_runtime_acceptance": "pending",
-    "next_gate": "Current Dev server/tunnel returned HTTP 502 [Errno 111] Connection refused. Restart Dev runtime; then run Local certification for exact development head 12141d5284b52400298c52e081f973b024c94fc3. The Staging workflow requires accepted_source_ref to equal this exact SHA; it must not be bypassed.",
-    "development_head": "12141d5284b52400298c52e081f973b024c94fc3",
+    "next_gate": "Merge the tunnel-safe Local auto-certification runner after App Validation, certify the resulting exact development source, and retest Sort now plus publication consent in the Dev app. Staging currently deploys 90a64ac and still requires signed acceptance for that source; newer runtime changes require a fresh exact-source Local -> Staging cycle.",
+    "development_head": "e432b567e1da0b6199f0db143bb229e2890e2822",
     "local_dev_attempt": {
+      "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
       "status": "blocked",
-      "http_status": 502,
-      "error": "[Errno 111] Connection refused",
-      "observed_at": "2026-10-07"
+      "observed_at": "2026-10-08",
+      "error": "Shopify --use-localhost preview rejects localhost webhook URLs; correction patch did not apply in the modified workspace.",
+      "scope": "local:certify:auto startup",
+      "evidence_source": "Latest project chat runtime report; runner source independently confirmed at e432b56",
+      "data_changed": false
     }
   }
 }
