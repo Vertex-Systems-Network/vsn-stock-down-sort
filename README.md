@@ -47,7 +47,7 @@ verification
 project-state update / next work unit
 ```
 
-Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work is a six-item development-only finalization track; no new Staging or Production promotion is allowed until all six items are complete. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work follows sequential finalization gates: exact-source Local acceptance, Staging deployment and signed acceptance, then Live prerequisites and separately authorized Production release. Final Production Merchant Smoke runs after release. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
 
@@ -147,6 +147,10 @@ npm run local:certify -- http://127.0.0.1:3000/healthz
 ```
 
 Use the actual Local health URL if the runtime uses another port.
+
+Alternatively, run `npm run local:certify:auto` from a clean `development` checkout. It starts normal Shopify Dev with the public webhook tunnel, discovers the actual loopback HTTP endpoint from Dev output, waits for development + test-billing + SQLite health, and runs the same exact-source certification. It keeps Dev running on success and stops it on failure. Shopify login may still be required. This health certification does not replace embedded merchant, consent, webhook, or Sort now runtime tests.
+
+Current recorded evidence: Local source `90a64ac` accepted; Staging Deploy #17 and Shopify Staging Release #12 completed for that source. Signed Staging acceptance remains pending. Newer development changes need fresh Local acceptance.
 
 Local certification requires the health contract to report:
 
@@ -256,7 +260,7 @@ Production Worker:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes remain on `development` until the six-item finalization track is complete.
+Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes require exact-source Local acceptance and signed Staging acceptance before release preparation; final Production Merchant Smoke remains a post-release closure gate.
 
 ## Environment secrets
 

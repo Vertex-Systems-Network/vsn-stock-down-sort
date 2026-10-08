@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { validateLocalSqliteEnv } from "../scripts/local-env.mjs";
+// The App Validation Local environment step also exercises auto startup.
+import "./local-auto-certification.cases.mjs";
 
 const ORIGINAL_ENV = { ...process.env };
 

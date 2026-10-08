@@ -8,11 +8,9 @@ repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-10
-current_module: support-fulfillment
-current_work_unit: ISSUE-128-WU-01
+current_module: local-development
+current_work_unit: ISSUE-197-WU-02
 note: >
-  Latest development source is 12141d5284b52400298c52e081f973b024c94fc3;
-  App Validation #718 / run 37541533454 passed. Local acceptance still points
-  to bfd4a19411fe6c133df65f054a9dae609b3639e8. Current Dev app and /healthz
-  returned 502 [Errno 111] Connection refused; Issue #197 runtime retest is blocked.
-  Do not promote to Staging until exact-source Local certification passes.
+  Baseline e432b56 passed App Validation 749. Local 90a64ac is accepted and
+  released to Staging; signed Staging acceptance remains pending. Repair the
+  auto-certification runner, then certify the exact merged development source.

@@ -3,11 +3,8 @@ compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
 active_issue: 197
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-128-WU-01
-status: blocked
+active_work_unit: ISSUE-197-WU-02
+status: in_progress
 note: >
-  Latest completed repository implementation remains ISSUE-128-WU-01. Current
-  runtime acceptance is tracked in Issue #197 for exact development head
-  12141d5284b52400298c52e081f973b024c94fc3. App Validation #718 passed, but
-  Local/Dev app and /healthz returned 502 [Errno 111] Connection refused.
-  Staging remains gated on current-source Local acceptance.
+  Repair Local auto-certification with the normal webhook tunnel and dynamic
+  health discovery. Preserve exact-source Local -> Staging -> Live gates.
