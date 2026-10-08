@@ -317,14 +317,14 @@
   },
   "cloud_dev": {
     "status": "accepted",
-    "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-    "accepted_at": "2026-10-08T19:28:28.392Z",
+    "accepted_source_ref": "1f760e7365ac6fa7af69a1fb9d8f99dff0574d27",
+    "accepted_at": "2026-10-08T20:12:48.103Z",
     "evidence_record": {
       "verification_mode": "github_actions_cloud_sqlite_runtime",
       "credential_mode": "synthetic_ci_only",
       "merchant_runtime_acceptance": "pending_staging",
       "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
-      "workflow_run_id": "37832010614",
+      "workflow_run_id": "37837566013",
       "workflow_run_attempt": "1",
       "database_provider": "sqlite",
       "prisma_validate": "passed",
@@ -336,7 +336,7 @@
       "billing_catalog": "passed",
       "contract_tests": "passed",
       "build": "passed",
-      "health_url": "http://127.0.0.1:45733/healthz",
+      "health_url": "http://127.0.0.1:39045/healthz",
       "shopify_dev_health": {
         "ok": true,
         "service": "vsn-stock-down-sort",
