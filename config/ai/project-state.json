@@ -2,15 +2,15 @@
   "schema_version": 1,
   "lifecycle_stage": "development-finalization",
   "current_phase": "PHASE-10",
-  "current_module": "local-development",
-  "current_work_unit": "ISSUE-197-WU-03",
+  "current_module": "sorting-controls",
+  "current_work_unit": "ISSUE-197-WU-04",
   "active_issue": 197,
   "last_verified_completion": "PR #217 merged; App Validation/Cloud Dev run 37869301990 passed. Signed Staging acceptance run 37869220731 passed for source e938eb843489777e2c7197e27d20e49a1e0b2fa3; Visibility Off saved in merchant UI.",
   "next_valid_work_unit": "Target the CollectionSetting deletion-during-sort race without recreating purged data. Keep Live untouched. Repository Staging gate remains verification_required pending accepted evidence on main.",
   "progress": {
-    "total_work_units": 46,
+    "total_work_units": 47,
     "complete": 45,
-    "in_progress": 0,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
@@ -114,7 +114,7 @@
     ],
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
-  "active_issue_status": "open_targeted_race_retest_pending",
+  "active_issue_status": "in_progress",
   "active_issue_note": "Cloud Dev and signed Staging runtime acceptance passed for exact source e938eb843489777e2c7197e27d20e49a1e0b2fa3. General Sort now no-op and publication rule persistence passed; the CollectionSetting deletion race in #197 still needs a targeted regression.",
   "runtime_track": {
     "issue": 197,
