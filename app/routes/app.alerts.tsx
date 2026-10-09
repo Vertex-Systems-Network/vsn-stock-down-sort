@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -141,7 +142,7 @@ export default function AlertsPage() {
       ) : null}
 
       <s-section heading="Alert rules">
-        <form method="post">
+        <Form method="post">
           <s-stack gap="large-200">
             <s-grid
               gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
@@ -256,7 +257,7 @@ export default function AlertsPage() {
               Save alert settings
             </BrandButton>
           </s-stack>
-        </form>
+        </Form>
       </s-section>
 
       <s-section heading="Delivery behavior">
