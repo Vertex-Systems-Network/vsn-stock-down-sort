@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -124,7 +125,7 @@ export default function VisibilityPage() {
             </BrandNotice>
           ) : null}
 
-          <form method="post">
+          <Form method="post">
             <s-stack gap="large-200">
               <s-select
                 label="Sold-out product behavior"
@@ -178,7 +179,7 @@ export default function VisibilityPage() {
                 Save visibility settings
               </BrandButton>
             </s-stack>
-          </form>
+          </Form>
         </s-stack>
       </s-section>
 
