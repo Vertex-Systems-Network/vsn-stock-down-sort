@@ -8,9 +8,8 @@ repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-10
-current_module: local-development
-current_work_unit: ISSUE-197-WU-03
+current_module: sorting-controls
+current_work_unit: ISSUE-197-WU-04
 note: >
-  Cloud Dev automation is merged and accepted on b598ada in run 37832010614.
-  Owner workstation commands are no longer needed for Dev verification.
-  Next: signed Staging acceptance and real Shopify merchant retests.
+  Cloud Dev and signed Staging acceptance passed for source e938eb843489777e2c7197e27d20e49a1e0b2fa3.
+  Issue #197 remains open for a targeted CollectionSetting deletion-during-sort race test.
