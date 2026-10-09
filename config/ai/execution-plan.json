@@ -308,7 +308,7 @@
       "dependencies": [
         "PHASE-09"
       ],
-      "status": "complete",
+      "status": "in_progress",
       "exit_criteria": [
         "SupportRequest persistence exists in Local SQLite and hosted PostgreSQL with additive migrations and schema parity.",
         "Authenticated merchants can create and view only their own shop-scoped support requests.",
