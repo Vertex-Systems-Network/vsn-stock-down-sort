@@ -103,7 +103,7 @@
         }
       ]
     },
-    "note": "Staging Worker run 20 and Shopify version 14/release 15 passed for Cloud Dev-accepted e938eb843489777e2c7197e27d20e49a1e0b2fa3. Signed merchant UI saved Visibility settings with behavior Off and showed success. Signed runtime acceptance for this source remains pending; no Live promotion authorized.",
+    "note": "Staging Worker run 20, Shopify version 14/release 15, signed runtime acceptance run 18, and merchant UI Visibility Off save passed for Cloud Dev-accepted e938eb843489777e2c7197e27d20e49a1e0b2fa3. Other embedded forms were changed to router submissions but not each individually submitted on Staging; Support was not sent. Repository gate remains verification_required until accepted evidence on main under the release process. No Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 20,
@@ -132,6 +132,31 @@
       "version": "stock-down-sort-staging-e938eb843489-14",
       "status": "released",
       "local_and_live_configs_untouched": true
+    },
+    "runtime_acceptance_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 18,
+      "run_id": 37869220731,
+      "branch": "development",
+      "control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
+      "source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+      "shop": "staging-oath3rth.myshopify.com",
+      "status": "passed",
+      "checks": {
+        "runtime_health": "passed",
+        "queue_readiness": "passed",
+        "four_plan_billing_contract": "passed",
+        "signed_shopify_session": "passed",
+        "admin_graphql_read": "passed",
+        "subscription_read": "passed"
+      },
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "merchant_ui": {
+        "visibility_off_save": "passed",
+        "note": "Embedded Visibility form returned success with mode Off; no visibility automation enabled."
+      }
     }
   },
   "live": {
