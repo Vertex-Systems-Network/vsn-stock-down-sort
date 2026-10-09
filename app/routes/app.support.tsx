@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -165,7 +166,7 @@ export default function SupportPage() {
       ) : null}
 
       <s-section heading="Open a support request">
-        <form method="post">
+        <Form method="post">
           <s-stack gap="base">
             <s-text-field
               label="Subject"
@@ -197,7 +198,7 @@ export default function SupportPage() {
               Submit support request
             </BrandButton>
           </s-stack>
-        </form>
+        </Form>
       </s-section>
 
       <s-section heading="Recent requests">
