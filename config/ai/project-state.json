@@ -5,8 +5,8 @@
   "current_module": "local-development",
   "current_work_unit": "ISSUE-197-WU-03",
   "active_issue": 197,
-  "last_verified_completion": "PR #204 merged; post-merge App Validation and Cloud Dev SQLite Runtime passed on b598ada3041891e2d38c1baa512cb23fee6c3470 in run 37832010614.",
-  "next_valid_work_unit": "Proceed with signed Staging acceptance and real Shopify merchant retests after exact-source Staging promotion. Preferred Dev verification is cloud-based; do not request owner workstation commands. Current Staging deployment 90a64ac remains separately verification_required.",
+  "last_verified_completion": "PR #217 merged; App Validation/Cloud Dev run 37869301990 passed. Signed Staging acceptance run 37869220731 passed for source e938eb843489777e2c7197e27d20e49a1e0b2fa3; Visibility Off saved in merchant UI.",
+  "next_valid_work_unit": "Target the CollectionSetting deletion-during-sort race without recreating purged data. Keep Live untouched. Repository Staging gate remains verification_required pending accepted evidence on main.",
   "progress": {
     "total_work_units": 46,
     "complete": 45,
@@ -18,8 +18,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Signed Staging acceptance for deployed source",
-    "Sort now and publication-consent runtime retests",
+    "Targeted CollectionSetting deletion-race runtime regression for #197",
+    "Record accepted Staging evidence on main only through guarded development-to-main release process",
     "Review dependency/Actions warnings",
     "Live pricing, Partner API, App Store review and final production smoke evidence"
   ],
@@ -29,9 +29,9 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "187 contracts, lint/typecheck, SQLite migrations/roundtrip, actual built server health and four-plan catalog verified. Synthetic cloud credentials are not Shopify merchant-session acceptance.",
+  "qa_readiness": "Full App Validation and Cloud Dev SQLite Runtime passed on source e938eb843489777e2c7197e27d20e49a1e0b2fa3. Signed Staging session, Admin GraphQL, Unlimited subscription, health, queue and billing run 37869220731 passed; specific #197 deletion race remains unverified.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+  "last_reconciled_repository_ref": "9973f28e729cdd546eec43ecc7314c41eed1a97e",
   "last_reconciled_at": "2026-10-08",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
@@ -87,10 +87,10 @@
     },
     "latest_development_validation": {
       "workflow": "App Validation",
-      "run_id": 37832010614,
+      "run_id": 37869301990,
       "status": "completed",
       "conclusion": "success",
-      "validated_head_sha": "b598ada3041891e2d38c1baa512cb23fee6c3470",
+      "validated_head_sha": "00303ff2323ed19fe1bfc33bde2f693b42a8b59d",
       "cloud_dev_runtime": "passed"
     }
   },
@@ -114,12 +114,12 @@
     ],
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
-  "active_issue_status": "blocked",
-  "active_issue_note": "Cloud Dev setup is implemented and accepted. Remaining runtime closure is signed Staging acceptance and Shopify merchant retests, not owner laptop setup.",
+  "active_issue_status": "open_targeted_race_retest_pending",
+  "active_issue_note": "Cloud Dev and signed Staging runtime acceptance passed for exact source e938eb843489777e2c7197e27d20e49a1e0b2fa3. General Sort now no-op and publication rule persistence passed; the CollectionSetting deletion race in #197 still needs a targeted regression.",
   "runtime_track": {
     "issue": 197,
     "issue_status": "open",
-    "status": "cloud_dev_accepted_staging_merchant_acceptance_pending",
+    "status": "staging_runtime_verified_targeted_race_pending",
     "repository_preparation": "complete",
     "previous_release_runtime_testing": "complete",
     "local_dev": {
@@ -127,10 +127,13 @@
       "status": "accepted_previous_source"
     },
     "staging": {
-      "deployed_source_ref": "90a64ac7359eadbc89de58b60d1d40c7a5cde9b9",
+      "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
       "status": "verification_required",
-      "deployment_run_id": 37795028669,
-      "shopify_release_run_id": 37806267585,
+      "deployment_run_id": 37868540742,
+      "shopify_release_run_id": 37868789225,
+      "runtime_acceptance_run_id": 37869220731,
+      "runtime_checks": "passed",
+      "merchant_visibility_off_save": "passed",
       "previous_accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8"
     },
     "live": {
@@ -139,8 +142,8 @@
       "production_version": "stock-down-sort-production-14227a5f2603-3",
       "release_run_id": 37379908862
     },
-    "next_gate": "Proceed with signed Staging acceptance and real Shopify merchant retests after exact-source Staging promotion. Preferred Dev verification is cloud-based; do not request owner workstation commands. Current Staging deployment 90a64ac remains separately verification_required.",
-    "development_head_resolution": "Accepted cloud Dev source b598ada3041891e2d38c1baa512cb23fee6c3470; subsequent state-only commits do not replace that exact-source evidence.",
+    "next_gate": "Target the CollectionSetting deletion-during-sort race without recreating purged data. Keep Live untouched. Repository Staging gate remains verification_required pending accepted evidence on main.",
+    "development_head_resolution": "Accepted cloud Dev code source e938eb843489777e2c7197e27d20e49a1e0b2fa3; subsequent state-only commits do not replace exact-source evidence.",
     "latest_local_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
       "status": "blocked",
@@ -152,14 +155,14 @@
     },
     "cloud_dev": {
       "status": "accepted",
-      "accepted_source_ref": "b598ada3041891e2d38c1baa512cb23fee6c3470",
-      "accepted_at": "2026-10-08T19:28:28.392Z",
+      "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+      "accepted_at": "2026-10-09T01:06:55.339Z",
       "evidence_record": {
         "verification_mode": "github_actions_cloud_sqlite_runtime",
         "credential_mode": "synthetic_ci_only",
         "merchant_runtime_acceptance": "pending_staging",
         "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
-        "workflow_run_id": "37832010614",
+        "workflow_run_id": "37868048021",
         "workflow_run_attempt": "1",
         "database_provider": "sqlite",
         "prisma_validate": "passed",
@@ -171,7 +174,7 @@
         "billing_catalog": "passed",
         "contract_tests": "passed",
         "build": "passed",
-        "health_url": "http://127.0.0.1:45733/healthz",
+        "health_url": "http://127.0.0.1:36237/healthz",
         "shopify_dev_health": {
           "ok": true,
           "service": "vsn-stock-down-sort",
@@ -268,12 +271,12 @@
     ],
     "last_repository_validation": {
       "workflow": "App Validation",
-      "run_number": 749,
-      "run_id": 37825036050,
+      "run_number": 778,
+      "run_id": 37869301990,
       "status": "completed",
       "conclusion": "success",
-      "validated_head_sha": "e432b567e1da0b6199f0db143bb229e2890e2822",
-      "evidence_source": "GitHub Actions run 37825036050"
+      "validated_head_sha": "00303ff2323ed19fe1bfc33bde2f693b42a8b59d",
+      "evidence_source": "GitHub Actions run 37869301990"
     },
     "tracking_issue": 154,
     "tracking_issue_url": "https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/154",
