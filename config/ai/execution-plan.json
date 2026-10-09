@@ -1788,6 +1788,31 @@
         "187 contracts plus actual SQLite database and built-server runtime verified",
         "Cloud Dev artifact/report explicitly records synthetic credentials and pending real Staging merchant acceptance"
       ]
+    },
+    {
+      "id": "ISSUE-197-WU-04",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Verify CollectionSetting deletion during an active sort",
+      "objective": "Reproduce issue #197 with deletion between sort selection and settings persistence; prove the job does not recreate a purged setting or report false success.",
+      "dependencies": [
+        "ISSUE-197-WU-03"
+      ],
+      "priority": 110,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "A deterministic test deletes the CollectionSetting while the sort is in flight.",
+        "The sort handles the missing setting safely without recreating purged data.",
+        "The merchant receives a truthful result; signed Staging behavior is checked if a merchant-visible path changes."
+      ],
+      "required_checks": [
+        "Targeted deletion-race regression",
+        "All repository contract tests",
+        "App Validation",
+        "Cloud Dev SQLite Runtime"
+      ],
+      "completion_evidence": []
     }
   ],
   "status_values": [
@@ -1803,7 +1828,7 @@
     "deprecated"
   ],
   "last_reconciled_repository_ref": "9973f28e729cdd546eec43ecc7314c41eed1a97e",
-  "active_issue_status": "open_targeted_race_retest_pending",
+  "active_issue_status": "in_progress",
   "active_issue_note": "Cloud Dev and signed Staging runtime acceptance passed for exact source e938eb843489777e2c7197e27d20e49a1e0b2fa3. General Sort now no-op and publication rule persistence passed; the CollectionSetting deletion race in #197 still needs a targeted regression.",
   "runtime_track": {
     "issue": 197,
