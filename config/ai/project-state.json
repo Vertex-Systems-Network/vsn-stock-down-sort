@@ -5,12 +5,12 @@
   "current_module": "staging",
   "current_work_unit": "ISSUE-197-WU-05",
   "active_issue": 197,
-  "last_verified_completion": "PR #221 merged to development as e38d650290492d47f3ac1982739aad7b0e1fd242; targeted issue #197 deletion-race regression, App Validation, and Cloud Dev SQLite Runtime passed for exact source 030a884b594944aa78d81bfe538dc2c69e042002 in run 38030101375.",
-  "next_valid_work_unit": "Deploy exact Cloud Dev-accepted issue #197 source 030a884b594944aa78d81bfe538dc2c69e042002 to isolated Staging, create/release the staging app version, and run signed Staging runtime acceptance. Keep Live untouched.",
+  "last_verified_completion": "Staging source 030a884b594944aa78d81bfe538dc2c69e042002 deployed by run 38030584316, released to Shopify Staging by run 38030978501, and signed-accepted by run 38031436557; all staged checks passed. Merchant Sort now retest remains pending; Live untouched.",
+  "next_valid_work_unit": "Run the merchant-facing Sort now regression on the accepted Staging build to verify the deletion-race result; keep Live untouched.",
   "progress": {
     "total_work_units": 48,
-    "complete": 46,
-    "in_progress": 1,
+    "complete": 47,
+    "in_progress": 0,
     "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
@@ -18,7 +18,7 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Exact-source Staging deployment and signed runtime acceptance for issue #197 regression",
+    "Merchant-facing Sort now and uninstall-race retest on accepted Staging build",
     "Record accepted Staging evidence on main only through guarded development-to-main release process",
     "Review dependency/Actions warnings",
     "Live pricing, Partner API, App Store review and final production smoke evidence"
@@ -29,9 +29,9 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Issue #197 deterministic deletion-race regression passed on exact source 030a884b594944aa78d81bfe538dc2c69e042002; App Validation and Cloud Dev SQLite Runtime run 38030101375 passed. Staging acceptance for this source is pending.",
+  "qa_readiness": "Issue #197 deterministic deletion-race regression passed on exact source 030a884b594944aa78d81bfe538dc2c69e042002; App Validation and Cloud Dev SQLite Runtime passed, then exact-source Staging deployment and signed Shopify acceptance passed. Merchant Sort now retest remains pending.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "e38d650290492d47f3ac1982739aad7b0e1fd242",
+  "last_reconciled_repository_ref": "7991a5f0647f7aab72da0d615b25c90e41d35858",
   "last_reconciled_at": "2026-10-10",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
@@ -103,6 +103,24 @@
       "app_validation": "passed",
       "cloud_dev_sqlite_runtime": "passed",
       "evidence_artifact": "cloud-dev-evidence-030a884b594944aa78d81bfe538dc2c69e042002"
+    },
+    "latest_staging_acceptance": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 20,
+      "run_id": 38031436557,
+      "conclusion": "success",
+      "control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
+      "validated_source_sha": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "shop": "staging-oath3rth.myshopify.com",
+      "runtime_health": "passed",
+      "queue_readiness": "passed",
+      "billing_catalog": "passed",
+      "signed_shopify_session": "passed",
+      "admin_graphql_read": "passed",
+      "subscription_read": "passed",
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited"
     }
   },
   "batch_06_09": {
@@ -126,11 +144,11 @@
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
   "active_issue_status": "in_progress",
-  "active_issue_note": "PR #221 merged and targeted deletion-after-settings-read regression passed; Cloud Dev exact-source acceptance recorded from run 38030101375. Next is exact-source Staging deployment and signed acceptance; Live remains untouched.",
+  "active_issue_note": "Exact-source Cloud Dev regression and signed Staging runtime acceptance passed (deploy #22, Shopify release #16, acceptance #20); issue #197 remains open until the merchant-facing Sort now deletion-race retest is recorded. Live remains untouched.",
   "runtime_track": {
     "issue": 197,
     "issue_status": "open",
-    "status": "cloud_dev_issue_197_race_regression_passed_staging_pending",
+    "status": "issue_197_cloud_dev_and_staging_accepted_merchant_sort_now_retest_pending",
     "repository_preparation": "complete",
     "previous_release_runtime_testing": "complete",
     "local_dev": {
@@ -138,14 +156,22 @@
       "status": "accepted_previous_source"
     },
     "staging": {
-      "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
-      "status": "verification_required",
-      "deployment_run_id": 37868540742,
-      "shopify_release_run_id": 37868789225,
-      "runtime_acceptance_run_id": 37869220731,
+      "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "status": "accepted",
+      "deployment_run_id": 38030584316,
+      "shopify_release_run_id": 38030978501,
+      "shopify_version_run_id": 38030873620,
+      "runtime_acceptance_run_id": 38031436557,
       "runtime_checks": "passed",
-      "merchant_visibility_off_save": "passed",
-      "previous_accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8"
+      "signed_shopify_session": "passed",
+      "admin_graphql_read": "passed",
+      "subscription_read": "passed",
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "merchant_sort_now_race_retest": "pending",
+      "previous_accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3"
     },
     "live": {
       "accepted_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
@@ -153,8 +179,8 @@
       "production_version": "stock-down-sort-production-14227a5f2603-3",
       "release_run_id": 37379908862
     },
-    "next_gate": "Deploy exact Cloud Dev-accepted issue #197 source 030a884b594944aa78d81bfe538dc2c69e042002 to isolated Staging, create/release the staging app version, and run signed Staging runtime acceptance. Keep Live untouched.",
-    "development_head_resolution": "Issue #197 race regression source 030a884b594944aa78d81bfe538dc2c69e042002 passed Cloud Dev and is merged to development as e38d650290492d47f3ac1982739aad7b0e1fd242; exact-source Staging acceptance is pending.",
+    "next_gate": "Run the merchant-facing Sort now deletion-race retest on accepted Staging source 030a884b594944aa78d81bfe538dc2c69e042002; keep Live untouched.",
+    "development_head_resolution": "Exact source 030a884b594944aa78d81bfe538dc2c69e042002 passed Cloud Dev and was signed-accepted on Staging (acceptance run 38031436557). The staging acceptance checks do not invoke Sort now; that merchant-facing race retest remains open.",
     "latest_local_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
       "status": "blocked",
@@ -191,7 +217,7 @@
         "note": "PR #221 exact head merged to development; its deterministic regression covers deletion after settings lookup and verifies neither success nor error metadata writes recreate the purged row. Cloud Dev uses synthetic credentials and SQLite; signed Shopify Staging acceptance remains required."
       }
     },
-    "current_head_runtime_acceptance": "cloud_dev_passed_staging_pending"
+    "current_head_runtime_acceptance": "cloud_dev_and_staging_signed_acceptance_passed_sort_now_retest_pending"
   },
   "finalization_track": {
     "promotion_lock": true,
