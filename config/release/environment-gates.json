@@ -280,7 +280,7 @@
     }
   },
   "live": {
-    "status": "verification_required",
+    "status": "accepted",
     "authorized_source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
     "authorization_record": {
       "workflow": "Shopify Production Candidate",
@@ -289,7 +289,7 @@
       "branch": "main",
       "source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
       "version": "stock-down-sort-production-2cf6adef43eb-4",
-      "candidate_status": "unreleased",
+      "candidate_status": "released",
       "production_worker_health": "passed",
       "billing_contract": "four_plans_10_day_trials",
       "billing_test_mode": false,
@@ -310,7 +310,7 @@
       "branch": "main",
       "source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
       "version": "stock-down-sort-production-2cf6adef43eb-4",
-      "candidate_status": "unreleased",
+      "candidate_status": "released",
       "production_worker_health": "passed",
       "billing_contract": "four_plans_10_day_trials",
       "billing_test_mode": false,
@@ -481,6 +481,22 @@
         "production_worker_health": "passed",
         "billing_contract": "four_plans_10_day_trials"
       }
+    },
+    "release_record": {
+      "workflow": "Shopify Production Release",
+      "run_number": 4,
+      "run_id": 38050210445,
+      "branch": "main",
+      "control_head_sha": "34eaca08f0796abbbc2fedbf10ebb2874cb0c2b8",
+      "version": "stock-down-sort-production-2cf6adef43eb-4",
+      "source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
+      "release_step": "passed",
+      "version_released_to_users": true,
+      "released_version_visibility": "passed",
+      "remote_app_name": "VSN | Stock Down Sort",
+      "app_name_output_observed": "passed",
+      "production_worker_health": "passed",
+      "billing_contract": "four_plans_10_day_trials"
     }
   },
   "rules": {
@@ -495,9 +511,9 @@
     "missing_or_failed_evidence_blocks_promotion": true
   },
   "accepted_release": {
-    "production_version": "stock-down-sort-production-14227a5f2603-3",
-    "production_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
-    "production_release_run_id": 37381556444
+    "production_version": "stock-down-sort-production-2cf6adef43eb-4",
+    "production_source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
+    "production_release_run_id": 38050210445
   },
   "development_promotion_lock": {
     "enabled": true,
