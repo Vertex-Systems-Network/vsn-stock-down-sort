@@ -113,7 +113,7 @@
         }
       ]
     },
-    "note": "Exact Cloud Dev-accepted issue #197 source 030a884b594944aa78d81bfe538dc2c69e042002 is deployed and signed-accepted on Staging; Worker health, PostgreSQL migration, queue/DLQ, billing, Shopify session, Admin GraphQL and subscription checks passed. Merchant Sort now race retest remains pending. No Live promotion authorized.",
+    "note": "Previous source 030a884b594944aa78d81bfe538dc2c69e042002 remains Staging accepted. New Dev source a078ae76f06178991d97d482133abe2edf444c5e passed Cloud Dev and requires exact-source Staging deployment and signed acceptance. Live untouched.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 22,
@@ -353,16 +353,16 @@
   },
   "cloud_dev": {
     "status": "accepted",
-    "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-    "accepted_at": "2026-10-10T06:13:04Z",
+    "accepted_source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
+    "accepted_at": "2026-10-10T11:07:59Z",
     "evidence_record": {
       "verification_mode": "github_actions_cloud_sqlite_runtime",
       "credential_mode": "synthetic_ci_only",
       "merchant_runtime_acceptance": "pending_staging",
       "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
-      "workflow_run_id": "38030101375",
+      "workflow_run_id": "38047235895",
       "workflow_run_attempt": "1",
-      "workflow_run_number": 790,
+      "workflow_run_number": 807,
       "database_provider": "sqlite",
       "prisma_validate": "passed",
       "prisma_generate": "passed",
@@ -373,21 +373,21 @@
       "billing_catalog": "passed",
       "contract_tests": "passed",
       "build": "passed",
-      "targeted_issue_197_deletion_race": "passed",
-      "evidence_artifact": "cloud-dev-evidence-030a884b594944aa78d81bfe538dc2c69e042002",
-      "note": "PR #221 exact head merged to development; its deterministic regression covers deletion after settings lookup and verifies neither success nor error metadata writes recreate the purged row. Cloud Dev uses synthetic credentials and SQLite; signed Shopify Staging acceptance remains required."
+      "evidence_artifact": "cloud-dev-evidence-a078ae76f06178991d97d482133abe2edf444c5e",
+      "note": "Post-merge development run #807 passed App Validation and actual SQLite runtime including the deleted-settings sort helpers. Staging source remains 030a884; no merchant deletion race is claimed."
     },
     "previous_acceptance": {
       "status": "accepted",
-      "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
-      "accepted_at": "2026-10-09T01:06:55.339Z",
+      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "accepted_at": "2026-10-10T06:13:04Z",
       "evidence_record": {
         "verification_mode": "github_actions_cloud_sqlite_runtime",
         "credential_mode": "synthetic_ci_only",
         "merchant_runtime_acceptance": "pending_staging",
         "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
-        "workflow_run_id": "37868048021",
+        "workflow_run_id": "38030101375",
         "workflow_run_attempt": "1",
+        "workflow_run_number": 790,
         "database_provider": "sqlite",
         "prisma_validate": "passed",
         "prisma_generate": "passed",
@@ -398,57 +398,83 @@
         "billing_catalog": "passed",
         "contract_tests": "passed",
         "build": "passed",
-        "health_url": "http://127.0.0.1:36237/healthz",
-        "shopify_dev_health": {
-          "ok": true,
-          "service": "vsn-stock-down-sort",
-          "environment": "development",
-          "billingTestMode": true,
-          "billingMethod": "manual_legacy",
-          "database": "sqlite",
-          "sortQueue": {
-            "required": false,
-            "configured": false,
-            "ready": true,
-            "mode": "local-fallback"
+        "targeted_issue_197_deletion_race": "passed",
+        "evidence_artifact": "cloud-dev-evidence-030a884b594944aa78d81bfe538dc2c69e042002",
+        "note": "PR #221 exact head merged to development; its deterministic regression covers deletion after settings lookup and verifies neither success nor error metadata writes recreate the purged row. Cloud Dev uses synthetic credentials and SQLite; signed Shopify Staging acceptance remains required."
+      },
+      "previous_acceptance": {
+        "status": "accepted",
+        "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+        "accepted_at": "2026-10-09T01:06:55.339Z",
+        "evidence_record": {
+          "verification_mode": "github_actions_cloud_sqlite_runtime",
+          "credential_mode": "synthetic_ci_only",
+          "merchant_runtime_acceptance": "pending_staging",
+          "repository": "Vertex-Systems-Network/vsn-stock-down-sort",
+          "workflow_run_id": "37868048021",
+          "workflow_run_attempt": "1",
+          "database_provider": "sqlite",
+          "prisma_validate": "passed",
+          "prisma_generate": "passed",
+          "prisma_migrate_deploy": "passed",
+          "sqlite_roundtrip": "passed",
+          "deletion_safe_write": "passed",
+          "runtime_health": "passed",
+          "billing_catalog": "passed",
+          "contract_tests": "passed",
+          "build": "passed",
+          "health_url": "http://127.0.0.1:36237/healthz",
+          "shopify_dev_health": {
+            "ok": true,
+            "service": "vsn-stock-down-sort",
+            "environment": "development",
+            "billingTestMode": true,
+            "billingMethod": "manual_legacy",
+            "database": "sqlite",
+            "sortQueue": {
+              "required": false,
+              "configured": false,
+              "ready": true,
+              "mode": "local-fallback"
+            },
+            "billingCatalog": {
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 10,
+              "plans": [
+                {
+                  "id": "starter",
+                  "amount": 10.99,
+                  "currencyCode": "USD",
+                  "interval": "EVERY_30_DAYS",
+                  "trialDays": 10
+                },
+                {
+                  "id": "growth",
+                  "amount": 19.99,
+                  "currencyCode": "USD",
+                  "interval": "EVERY_30_DAYS",
+                  "trialDays": 10
+                },
+                {
+                  "id": "pro",
+                  "amount": 34.99,
+                  "currencyCode": "USD",
+                  "interval": "EVERY_30_DAYS",
+                  "trialDays": 10
+                },
+                {
+                  "id": "unlimited",
+                  "amount": 70,
+                  "currencyCode": "USD",
+                  "interval": "EVERY_30_DAYS",
+                  "trialDays": 10
+                }
+              ]
+            }
           },
-          "billingCatalog": {
-            "currencyCode": "USD",
-            "interval": "EVERY_30_DAYS",
-            "trialDays": 10,
-            "plans": [
-              {
-                "id": "starter",
-                "amount": 10.99,
-                "currencyCode": "USD",
-                "interval": "EVERY_30_DAYS",
-                "trialDays": 10
-              },
-              {
-                "id": "growth",
-                "amount": 19.99,
-                "currencyCode": "USD",
-                "interval": "EVERY_30_DAYS",
-                "trialDays": 10
-              },
-              {
-                "id": "pro",
-                "amount": 34.99,
-                "currencyCode": "USD",
-                "interval": "EVERY_30_DAYS",
-                "trialDays": 10
-              },
-              {
-                "id": "unlimited",
-                "amount": 70,
-                "currencyCode": "USD",
-                "interval": "EVERY_30_DAYS",
-                "trialDays": 10
-              }
-            ]
-          }
-        },
-        "note": "Cloud Dev verifies actual application code and fresh SQLite runtime; it does not authenticate a Shopify store or authorize billing. Signed Shopify acceptance is required on Staging."
+          "note": "Cloud Dev verifies actual application code and fresh SQLite runtime; it does not authenticate a Shopify store or authorize billing. Signed Shopify acceptance is required on Staging."
+        }
       }
     }
   }
