@@ -36,9 +36,14 @@ test("a settings deletion during sort is reported without recreating the purged 
     recordSortSuccess(db, key),
     /Collection sorting settings disappeared during sorting/,
   );
-  await recordSortFailure(db, key, "Collection sorting settings disappeared during sorting.");
+  assert.equal(await recordSortFailure(db, key, "Collection sorting settings disappeared during sorting."), false);
 
   assert.equal(settings.has(key.collectionId), false, "deleted settings stay deleted");
   assert.equal(successfulMetadataWrites, 0, "success is not recorded for the deleted row");
   assert.equal(failureMetadataWrites, 0, "failure metadata cannot recreate the deleted row");
+});
+
+test("failure metadata reports an existing setting without recreating a row", async () => {
+  const db = { collectionSetting: { updateMany: async () => ({ count: 1 }) } };
+  assert.equal(await recordSortFailure(db, { shop: "fixture", collectionId: "fixture" }, "error"), true);
 });
