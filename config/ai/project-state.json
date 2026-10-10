@@ -2,15 +2,15 @@
   "schema_version": 1,
   "lifecycle_stage": "development-finalization",
   "current_phase": "PHASE-10",
-  "current_module": "staging",
-  "current_work_unit": "ISSUE-197-WU-05",
+  "current_module": "sorting-controls",
+  "current_work_unit": "ISSUE-197-WU-06",
   "active_issue": 197,
-  "last_verified_completion": "Staging source 030a884b594944aa78d81bfe538dc2c69e042002 deployed by run 38030584316, released to Shopify Staging by run 38030978501, and signed-accepted by run 38031436557; all staged checks passed. Merchant Sort now retest remains pending; Live untouched.",
-  "next_valid_work_unit": "Run the merchant-facing Sort now regression on the accepted Staging build to verify the deletion-race result; keep Live untouched.",
+  "last_verified_completion": "Staging source 030a884b594944aa78d81bfe538dc2c69e042002 deployed by run 38030584316, released to Shopify Staging by run 38030978501, and signed-accepted by run 38031436557; all staged checks passed. WU-06 tracks merchant Sort now retest; Live untouched.",
+  "next_valid_work_unit": "Exercise the merchant-facing Sort now path on Staging source 030a884b594944aa78d81bfe538dc2c69e042002 and record the deletion-safe result; keep Live untouched.",
   "progress": {
-    "total_work_units": 48,
+    "total_work_units": 49,
     "complete": 47,
-    "in_progress": 0,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "deprecated": 1,
@@ -144,7 +144,7 @@
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
   "active_issue_status": "in_progress",
-  "active_issue_note": "Exact-source Cloud Dev regression and signed Staging runtime acceptance passed (deploy #22, Shopify release #16, acceptance #20); issue #197 remains open until the merchant-facing Sort now deletion-race retest is recorded. Live remains untouched.",
+  "active_issue_note": "Exact-source Cloud Dev regression and signed Staging runtime acceptance passed (deploy #22, Shopify release #16, acceptance #20). WU-06 tracks the merchant-facing Sort now retest; issue #197 remains open until that result is recorded. Live remains untouched.",
   "runtime_track": {
     "issue": 197,
     "issue_status": "open",
@@ -179,7 +179,7 @@
       "production_version": "stock-down-sort-production-14227a5f2603-3",
       "release_run_id": 37379908862
     },
-    "next_gate": "Run the merchant-facing Sort now deletion-race retest on accepted Staging source 030a884b594944aa78d81bfe538dc2c69e042002; keep Live untouched.",
+    "next_gate": "Exercise the merchant-facing Sort now path on accepted Staging source 030a884b594944aa78d81bfe538dc2c69e042002 and record the deletion-safe result; keep Live untouched.",
     "development_head_resolution": "Exact source 030a884b594944aa78d81bfe538dc2c69e042002 passed Cloud Dev and was signed-accepted on Staging (acceptance run 38031436557). The staging acceptance checks do not invoke Sort now; that merchant-facing race retest remains open.",
     "latest_local_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
