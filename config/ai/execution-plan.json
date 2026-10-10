@@ -1799,7 +1799,7 @@
         "ISSUE-197-WU-03"
       ],
       "priority": 110,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "A deterministic test deletes the CollectionSetting while the sort is in flight.",
@@ -1811,6 +1811,36 @@
         "All repository contract tests",
         "App Validation",
         "Cloud Dev SQLite Runtime"
+      ],
+      "completion_evidence": [
+        "PR #221 merged to development as e38d650290492d47f3ac1982739aad7b0e1fd242.",
+        "Exact head 030a884b594944aa78d81bfe538dc2c69e042002 passed targeted deletion-race regression, all validation contracts, lint, typecheck, build, and Cloud Dev SQLite Runtime in run 38030101375.",
+        "Regression verifies a settings row deleted after initial read returns the missing-settings error and remains deleted after both success and failure metadata writes."
+      ]
+    },
+    {
+      "id": "ISSUE-197-WU-05",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-STAGING",
+      "title": "Accept the issue 197 race regression on exact Staging source",
+      "objective": "Deploy the Cloud Dev-accepted regression source to isolated Shopify Staging and record signed runtime acceptance without changing Live.",
+      "dependencies": [
+        "ISSUE-197-WU-04"
+      ],
+      "priority": 100,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Exact Cloud Dev-accepted source is deployed to the Staging Worker with PostgreSQL migrations and queues ready.",
+        "An unreleased Shopify Staging version is created and released for the exact source.",
+        "Signed Staging runtime acceptance passes health, queue, four-plan billing, session, Admin GraphQL, and subscription checks.",
+        "Live remains untouched."
+      ],
+      "required_checks": [
+        "Cloudflare Staging Deploy",
+        "Shopify Staging Version",
+        "Shopify Staging Release",
+        "Signed Staging Runtime Acceptance"
       ],
       "completion_evidence": []
     }
