@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "verification_required",
+    "status": "accepted",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -36,12 +36,22 @@
     "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
     "previous_acceptance": {
       "status": "accepted",
-      "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-      "accepted_at": "2026-10-06T14:44:32Z",
-      "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
-      "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-      "runtime_acceptance_run_id": 37481456571,
+      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "accepted_at": "2026-10-09T01:19:50Z",
+      "accepted_control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
+      "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "deployment_run_id": 37868540742,
+      "shopify_release_run_id": 37868789225,
+      "runtime_acceptance_run_id": 37869220731,
       "history": [
+        {
+          "status": "accepted",
+          "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+          "accepted_at": "2026-10-06T14:44:32Z",
+          "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
+          "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+          "runtime_acceptance_run_id": 37481456571
+        },
         {
           "status": "accepted",
           "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
@@ -103,7 +113,7 @@
         }
       ]
     },
-    "note": "Exact-source Cloud Dev-accepted issue #197 deletion-race fix 030a884b594944aa78d81bfe538dc2c69e042002 is deployed to Staging. Staging health, PostgreSQL migration state, queue/DLQ, and billing contract passed; signed Shopify acceptance is pending. No Live promotion authorized.",
+    "note": "Exact Cloud Dev-accepted issue #197 source 030a884b594944aa78d81bfe538dc2c69e042002 is deployed and signed-accepted on Staging; Worker health, PostgreSQL migration, queue/DLQ, billing, Shopify session, Admin GraphQL and subscription checks passed. Merchant Sort now race retest remains pending. No Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
       "run_number": 22,
@@ -120,7 +130,7 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "pending_staging_runtime_acceptance"
+      "shopify_acceptance": "passed"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
@@ -131,15 +141,16 @@
       "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
       "version": "stock-down-sort-staging-030a884b5949-15",
       "status": "released",
-      "local_and_live_configs_untouched": true
+      "local_and_live_configs_untouched": true,
+      "version_run_id": 38030873620
     },
     "runtime_acceptance_record": {
       "workflow": "Staging Runtime Acceptance",
-      "run_number": 18,
-      "run_id": 37869220731,
+      "run_number": 20,
+      "run_id": 38031436557,
       "branch": "development",
-      "control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
-      "source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+      "control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
+      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
       "shop": "staging-oath3rth.myshopify.com",
       "status": "passed",
       "checks": {
@@ -154,9 +165,24 @@
       "active_subscription_count": 1,
       "verified_plan": "unlimited",
       "merchant_ui": {
-        "visibility_off_save": "passed",
-        "note": "Embedded Visibility form returned success with mode Off; no visibility automation enabled."
+        "sort_now_race_retest": "pending",
+        "note": "Acceptance workflow verified health, queue readiness, billing catalog, signed session, Admin GraphQL and subscription reads. It did not invoke Sort now."
       }
+    },
+    "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+    "accepted_at": "2026-10-10T06:35:16Z",
+    "accepted_control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
+    "evidence_record": {
+      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "branch": "development",
+      "workflow_run_id": 38031436557,
+      "offline_shopify_session": "passed",
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "note": "Signed Shopify Staging runtime acceptance passed for the exact Cloud Dev-accepted source; no Sort now merchant action was performed in this run."
     }
   },
   "live": {
