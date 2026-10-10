@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "released",
-  "release_authorized": false,
+  "status": "candidate_authorized",
+  "release_authorized": true,
   "production_worker": {
     "name": "vsn-stock-down-sort-production",
     "url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
@@ -32,9 +32,9 @@
     "migrate_during_shopify_release": false,
     "require_migration_status_clean": true
   },
-  "authorized_version": "stock-down-sort-production-14227a5f2603-3",
-  "authorized_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
-  "authorization_record": "User explicitly requested Live deployment and App Store submission. Shopify Production Candidate #3 / run 37379908862 created exact unreleased version stock-down-sort-production-14227a5f2603-3 from source 14227a5f2603205aee3789b71494ee9380abb264 after Production Worker health, PostgreSQL migrations, production billing mode, four-plan catalog, and isolated Live Shopify identity checks passed. Cloudflare Production Prepare #6 / run 37379455736 deployed and verified the isolated production Worker. Shopify Production Release #3 / run 37381556444 released the exact version to users and verified that it remains visible under VSN | Stock Down Sort.",
+  "authorized_version": "stock-down-sort-production-2cf6adef43eb-4",
+  "authorized_source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
+  "authorization_record": "User explicitly authorized Live deployment of the Staging-accepted a078ae76f06178991d97d482133abe2edf444c5e application code, and specifically withheld authorization for Shopify App Store review submission. Main commit 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff differs from that source only in the environment-gates evidence file. Cloudflare Production Prepare #10 / run 38049376611 passed Worker upload, PostgreSQL migrations, queue and health. Production Readiness #11 / run 38049652143 passed. Shopify Production Candidate #4 / run 38049866420 created exact unreleased version stock-down-sort-production-2cf6adef43eb-4 after Live identity and Worker health checks. This record authorizes release of only that version to the existing Live app; it does not authorize a Shopify review submission.",
   "governance": {
     "promotion_order": [
       "local_dev",
@@ -48,20 +48,6 @@
     "explicit_release_authorization_required": true
   },
   "previous_release_record": {
-    "workflow": "Shopify Production Release",
-    "run_number": 2,
-    "run_id": 37151020224,
-    "branch": "main",
-    "control_head_sha": "f0f46b15998dfc3ce957422bbee07df4b5b037bb",
-    "version": "stock-down-sort-production-930bb2039244-2",
-    "source_ref": "930bb2039244ecafd0ae9d3bb538898094e86638",
-    "version_released_to_users": true,
-    "version_visible_after_release": true,
-    "remote_app_name": "VSN | Stock Down Sort",
-    "remote_name_verified_from_cli_output": true,
-    "workflow_conclusion": "success"
-  },
-  "release_record": {
     "workflow": "Shopify Production Release",
     "run_number": 3,
     "run_id": 37381556444,
