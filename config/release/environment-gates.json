@@ -36,10 +36,10 @@
     "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
     "previous_acceptance": {
       "status": "accepted",
-      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
       "accepted_at": "2026-10-09T01:19:50Z",
       "accepted_control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
-      "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
       "deployment_run_id": 37868540742,
       "shopify_release_run_id": 37868789225,
       "runtime_acceptance_run_id": 37869220731,
