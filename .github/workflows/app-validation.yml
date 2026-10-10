@@ -177,7 +177,7 @@ jobs:
       - name: Start and certify cloud Dev runtime
         run: node scripts/certify-cloud-dev.mjs
       - name: Preserve exact-source cloud Dev evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cloud-dev-evidence-${{ github.event.pull_request.head.sha || github.sha }}
           path: /tmp/stock-down-sort-cloud-dev/evidence.json
