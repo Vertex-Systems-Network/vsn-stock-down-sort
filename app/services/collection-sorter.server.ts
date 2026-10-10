@@ -2,6 +2,10 @@ import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
 import { recordActivityEventSafe } from "./analytics.server";
 import {
+  recordSortFailure,
+  recordSortSuccess,
+} from "./collection-setting-sort-state.server.mjs";
+import {
   assertCollectionRuleEntitlements,
   effectiveCollectionRules,
   normalizeCollectionRuleInput,
@@ -961,20 +965,9 @@ async function sortCollectionWithEntitlements(
       (product) => !product.inStock && product.pinnedRank === null,
     ).length;
 
-    const settingUpdate = await withPrismaClient((db) =>
-      db.collectionSetting.updateMany({
-        where: { shop, collectionId },
-        data: {
-          lastSortedAt: new Date(),
-          lastError: null,
-        },
-      }),
+    await withPrismaClient((db) =>
+      recordSortSuccess(db, { shop, collectionId }),
     );
-    if (settingUpdate.count !== 1) {
-      throw new Error(
-        "Collection sorting settings disappeared during sorting. Refresh the page and enable the collection before trying again.",
-      );
-    }
 
     const result = {
       collectionId,
@@ -1024,11 +1017,8 @@ async function sortCollectionWithEntitlements(
       error instanceof Error ? error.message : "Unknown sorting error";
 
     await withPrismaClient((db) =>
-      db.collectionSetting.updateMany({
-        where: { shop, collectionId },
-        data: { lastError: message },
-      }),
-    ).catch(() => undefined);
+      recordSortFailure(db, { shop, collectionId }, message),
+    );
 
     await recordActivityEventSafe({
       shop,

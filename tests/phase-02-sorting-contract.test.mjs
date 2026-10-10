@@ -215,15 +215,15 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
       "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
     ),
   );
-  assert.ok(sortImplementation.includes("settingUpdate.count !== 1"));
-  assert.equal(
-    sortImplementation.split("collectionSetting.updateMany(").length - 1,
-    2,
-    "success and failure metadata writes tolerate a missing row",
-  );
+  assert.ok(sortImplementation.includes("recordSortSuccess(db, { shop, collectionId })"));
+  assert.ok(sortImplementation.includes("recordSortFailure(db, { shop, collectionId }, message)"));
   assert.equal(
     sortImplementation.includes("collectionSetting.update("),
     false,
     "a missing row must not trigger Prisma P2025 from update()",
   );
+  const persistence = read("app/services/collection-setting-sort-state.server.mjs");
+  assert.match(persistence, /collectionSetting\.updateMany/);
+  assert.match(persistence, /result\.count !== 1/);
+  assert.match(persistence, /\.catch\(\(\) => undefined\)/);
 });
