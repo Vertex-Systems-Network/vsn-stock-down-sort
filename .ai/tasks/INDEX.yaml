@@ -3,8 +3,8 @@ compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
 active_issue: 197
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-197-WU-05
+active_work_unit: ISSUE-197-WU-06
 status: in_progress
 note: >
-  Issue #197 deletion-race regression and Cloud Dev passed on 030a884b594944aa78d81bfe538dc2c69e042002.
-  Deploy this exact source to Staging and complete signed runtime acceptance; Live remains untouched.
+  Cloud Dev and exact-source signed Staging acceptance passed for 030a884b594944aa78d81bfe538dc2c69e042002.
+  Retest merchant-facing Sort now on Staging; Live remains untouched.
