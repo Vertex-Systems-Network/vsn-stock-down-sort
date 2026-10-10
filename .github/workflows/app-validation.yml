@@ -40,6 +40,13 @@ jobs:
           node-version: "22.18.0"
           cache: npm
 
+      - name: Generate override lockfile candidate
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          echo 'LOCKFILE_DIFF_BEGIN'
+          git diff -- package-lock.json
+          echo 'LOCKFILE_DIFF_END'
+
       - name: Install dependencies
         timeout-minutes: 10
         env:
