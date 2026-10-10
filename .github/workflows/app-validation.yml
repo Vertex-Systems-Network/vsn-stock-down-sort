@@ -79,7 +79,7 @@ jobs:
         shell: bash
         run: |
           npm audit fix --package-lock-only --omit=dev --no-fund || true
-          git diff --stat -- package-lock.json
+          git diff -- package-lock.json
       - name: Preserve safe lockfile candidate
         if: github.event_name == 'pull_request' && github.head_ref == 'codex/dependency-safe-fix'
         uses: actions/upload-artifact@v6
@@ -88,15 +88,6 @@ jobs:
           path: package-lock.json
           if-no-files-found: error
           retention-days: 7
-
-      - name: Emit reviewable lockfile candidate
-        if: github.event_name == 'pull_request' && github.head_ref == 'codex/dependency-safe-fix'
-        shell: bash
-        run: |
-          echo LOCKFILE_CANDIDATE_BEGIN
-          base64 -w2000 package-lock.json
-          echo
-          echo LOCKFILE_CANDIDATE_END
 
       - name: Validate Local SQLite schema
         run: npm run prisma:validate:local
