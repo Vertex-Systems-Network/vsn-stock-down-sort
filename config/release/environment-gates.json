@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "accepted",
+    "status": "verification_required",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -33,96 +33,184 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+    "deployed_source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
     "previous_acceptance": {
       "status": "accepted",
-      "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
-      "accepted_at": "2026-10-09T01:19:50Z",
-      "accepted_control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
-      "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
-      "deployment_run_id": 37868540742,
-      "shopify_release_run_id": 37868789225,
-      "runtime_acceptance_run_id": 37869220731,
-      "history": [
-        {
-          "status": "accepted",
-          "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-          "accepted_at": "2026-10-06T14:44:32Z",
-          "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
-          "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-          "runtime_acceptance_run_id": 37481456571
+      "required_checks": [
+        "Staging runtime health",
+        "Staging queue/DLQ readiness",
+        "Signed Shopify staging acceptance",
+        "Staging Shopify subscription read",
+        "Four-plan billing catalog contract"
+      ],
+      "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "previous_acceptance": {
+        "status": "accepted",
+        "accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+        "accepted_at": "2026-10-09T01:19:50Z",
+        "accepted_control_head_sha": "8e5b152332e9d2ca2f203e95401c7c9981cca1ca",
+        "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+        "deployment_run_id": 37868540742,
+        "shopify_release_run_id": 37868789225,
+        "runtime_acceptance_run_id": 37869220731,
+        "history": [
+          {
+            "status": "accepted",
+            "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+            "accepted_at": "2026-10-06T14:44:32Z",
+            "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
+            "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+            "runtime_acceptance_run_id": 37481456571
+          },
+          {
+            "status": "accepted",
+            "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+            "accepted_at": "2026-10-06T14:44:32Z",
+            "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
+            "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
+            "runtime_acceptance_run_id": 37481456571
+          },
+          {
+            "status": "accepted",
+            "accepted_source_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
+            "accepted_at": "2026-10-06T11:57:54.203Z",
+            "accepted_main_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
+            "deployed_source_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
+            "deployment_run_id": 37456325918,
+            "shopify_release_run_id": 37457436596,
+            "runtime_acceptance_run_id": 37459892308
+          },
+          {
+            "status": "accepted",
+            "accepted_source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
+            "accepted_at": "2026-10-06T09:46:29.110Z",
+            "accepted_main_ref": "7413f00904f5afa314465c79cc8c558d06bfbca6",
+            "deployed_source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
+            "deployment_run_id": 37444145122,
+            "shopify_release_run_id": 37444961912,
+            "runtime_acceptance_run_id": 37445169425
+          },
+          {
+            "status": "accepted",
+            "accepted_source_ref": "bcdcd01428e37974a255d480bf48980aff345608",
+            "accepted_at": "2026-10-06T09:14:13.434Z",
+            "accepted_main_ref": "ff1fcf588fad4f73bbbb44bf0c5ba37b9fd8d860",
+            "deployed_source_ref": "bcdcd01428e37974a255d480bf48980aff345608",
+            "deployment_run_id": 37438451462,
+            "shopify_release_run_id": 37440219230,
+            "runtime_acceptance_run_id": 37441431684
+          },
+          {
+            "accepted_source_ref": "23a6c61cb5d54c201e1cc1fa85f0d3b9f1faa910",
+            "accepted_main_ref": "dc1fbabf99e046d2d7a9eabc5befda32f89aacd5",
+            "deployment_run_id": 37374145276,
+            "shopify_release_run_id": 37375476820,
+            "runtime_acceptance_run_id": 37376623204
+          },
+          {
+            "accepted_source_ref": "9e6c401b10ac4273de5aafb5079b5cc07b4b0220",
+            "accepted_main_ref": "4e35ece102a0ea8c0ef106d0af652ea410c103a5",
+            "deployment_run_id": 37306585720,
+            "shopify_release_run_id": 37307350485,
+            "runtime_acceptance_run_id": 37309242671
+          },
+          {
+            "accepted_source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
+            "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64",
+            "deployment_run_id": 37224929794,
+            "shopify_release_run_id": 37225725089,
+            "runtime_acceptance_run_id": 37225869369
+          }
+        ]
+      },
+      "note": "Previous source 030a884b594944aa78d81bfe538dc2c69e042002 remains Staging accepted. New Dev source a078ae76f06178991d97d482133abe2edf444c5e passed Cloud Dev and requires exact-source Staging deployment and signed acceptance. Live untouched.",
+      "deployment_record": {
+        "workflow": "Cloudflare Staging Deploy",
+        "run_number": 22,
+        "run_id": 38030584316,
+        "branch": "development",
+        "control_head_sha": "3feba422e8edce5a1389409d84547a6af3ad1eec",
+        "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+        "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
+        "worker_version_id": "ee0b005b-187a-4934-a2a9-5780e12f6378",
+        "database_provider": "postgresql",
+        "prisma_migrations": "passed_up_to_date",
+        "queue": "vsn-stock-down-sort-staging-sort-jobs",
+        "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
+        "runtime_health": "passed",
+        "queue_readiness": "passed",
+        "billing_contract": "four_plans_10_day_trials",
+        "shopify_acceptance": "passed"
+      },
+      "shopify_release_record": {
+        "workflow": "Shopify Staging Release",
+        "run_number": 16,
+        "run_id": 38030978501,
+        "branch": "development",
+        "control_head_sha": "3feba422e8edce5a1389409d84547a6af3ad1eec",
+        "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+        "version": "stock-down-sort-staging-030a884b5949-15",
+        "status": "released",
+        "local_and_live_configs_untouched": true,
+        "version_run_id": 38030873620
+      },
+      "runtime_acceptance_record": {
+        "workflow": "Staging Runtime Acceptance",
+        "run_number": 20,
+        "run_id": 38031436557,
+        "branch": "development",
+        "control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
+        "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+        "shop": "staging-oath3rth.myshopify.com",
+        "status": "passed",
+        "checks": {
+          "runtime_health": "passed",
+          "queue_readiness": "passed",
+          "four_plan_billing_contract": "passed",
+          "signed_shopify_session": "passed",
+          "admin_graphql_read": "passed",
+          "subscription_read": "passed"
         },
-        {
-          "status": "accepted",
-          "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-          "accepted_at": "2026-10-06T14:44:32Z",
-          "accepted_main_ref": "dcca033bed9977382043a5fc3d2b4c74ca56fa1d",
-          "deployed_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
-          "runtime_acceptance_run_id": 37481456571
-        },
-        {
-          "status": "accepted",
-          "accepted_source_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
-          "accepted_at": "2026-10-06T11:57:54.203Z",
-          "accepted_main_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
-          "deployed_source_ref": "08efc00b92082f40c33b3d87a2419d7eecb991a0",
-          "deployment_run_id": 37456325918,
-          "shopify_release_run_id": 37457436596,
-          "runtime_acceptance_run_id": 37459892308
-        },
-        {
-          "status": "accepted",
-          "accepted_source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
-          "accepted_at": "2026-10-06T09:46:29.110Z",
-          "accepted_main_ref": "7413f00904f5afa314465c79cc8c558d06bfbca6",
-          "deployed_source_ref": "e9be80573bfdf4d083b68f5e9ca834684c3edb71",
-          "deployment_run_id": 37444145122,
-          "shopify_release_run_id": 37444961912,
-          "runtime_acceptance_run_id": 37445169425
-        },
-        {
-          "status": "accepted",
-          "accepted_source_ref": "bcdcd01428e37974a255d480bf48980aff345608",
-          "accepted_at": "2026-10-06T09:14:13.434Z",
-          "accepted_main_ref": "ff1fcf588fad4f73bbbb44bf0c5ba37b9fd8d860",
-          "deployed_source_ref": "bcdcd01428e37974a255d480bf48980aff345608",
-          "deployment_run_id": 37438451462,
-          "shopify_release_run_id": 37440219230,
-          "runtime_acceptance_run_id": 37441431684
-        },
-        {
-          "accepted_source_ref": "23a6c61cb5d54c201e1cc1fa85f0d3b9f1faa910",
-          "accepted_main_ref": "dc1fbabf99e046d2d7a9eabc5befda32f89aacd5",
-          "deployment_run_id": 37374145276,
-          "shopify_release_run_id": 37375476820,
-          "runtime_acceptance_run_id": 37376623204
-        },
-        {
-          "accepted_source_ref": "9e6c401b10ac4273de5aafb5079b5cc07b4b0220",
-          "accepted_main_ref": "4e35ece102a0ea8c0ef106d0af652ea410c103a5",
-          "deployment_run_id": 37306585720,
-          "shopify_release_run_id": 37307350485,
-          "runtime_acceptance_run_id": 37309242671
-        },
-        {
-          "accepted_source_ref": "8121c3a66da31b31ddd230d87889a121dde596ab",
-          "accepted_main_ref": "54c66ab35734efdc929212eb4c676eb062086e64",
-          "deployment_run_id": 37224929794,
-          "shopify_release_run_id": 37225725089,
-          "runtime_acceptance_run_id": 37225869369
+        "stored_session_count": 2,
+        "active_subscription_count": 1,
+        "verified_plan": "unlimited",
+        "merchant_ui": {
+          "sort_now_race_retest": "pending",
+          "note": "Acceptance workflow verified health, queue readiness, billing catalog, signed session, Admin GraphQL and subscription reads. It did not invoke Sort now."
         }
-      ]
+      },
+      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "accepted_at": "2026-10-10T06:35:16Z",
+      "accepted_control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
+      "evidence_record": {
+        "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+        "branch": "development",
+        "workflow_run_id": 38031436557,
+        "offline_shopify_session": "passed",
+        "admin_graphql": "passed",
+        "subscription_read": "passed",
+        "stored_session_count": 2,
+        "active_subscription_count": 1,
+        "verified_plan": "unlimited",
+        "note": "Signed Shopify Staging runtime acceptance passed for the exact Cloud Dev-accepted source; no Sort now merchant action was performed in this run.",
+        "run_id": 38031436557,
+        "shop": "staging-oath3rth.myshopify.com",
+        "workflow": "Staging Runtime Acceptance",
+        "accepted_on_branch": "development"
+      },
+      "accepted_main_ref": "6ff9d9021b21b563ad72aebd17531fe1014f479f",
+      "accepted_on_branch": "development"
     },
-    "note": "Previous source 030a884b594944aa78d81bfe538dc2c69e042002 remains Staging accepted. New Dev source a078ae76f06178991d97d482133abe2edf444c5e passed Cloud Dev and requires exact-source Staging deployment and signed acceptance. Live untouched.",
+    "note": "Staging Worker and Shopify app release passed for exact Cloud Dev accepted source. Signed Shopify runtime acceptance and merchant deletion race retest remain pending; Live source remains unchanged.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 22,
-      "run_id": 38030584316,
+      "run_number": 23,
+      "run_id": 38047871804,
       "branch": "development",
-      "control_head_sha": "3feba422e8edce5a1389409d84547a6af3ad1eec",
-      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "control_head_sha": "a2304b91d159e9780500b7d0e2e235e2eca3974f",
+      "source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
-      "worker_version_id": "ee0b005b-187a-4934-a2a9-5780e12f6378",
+      "worker_version_id": "cb821c58-7135-4950-8ae6-e19caf4a4b90",
       "database_provider": "postgresql",
       "prisma_migrations": "passed_up_to_date",
       "queue": "vsn-stock-down-sort-staging-sort-jobs",
@@ -130,66 +218,20 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "passed"
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
     },
     "shopify_release_record": {
       "workflow": "Shopify Staging Release",
-      "run_number": 16,
-      "run_id": 38030978501,
+      "run_number": 17,
+      "run_id": 38048429795,
       "branch": "development",
-      "control_head_sha": "3feba422e8edce5a1389409d84547a6af3ad1eec",
-      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-      "version": "stock-down-sort-staging-030a884b5949-15",
+      "control_head_sha": "a2304b91d159e9780500b7d0e2e235e2eca3974f",
+      "source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
+      "version": "stock-down-sort-staging-a078ae76f061-16",
       "status": "released",
       "local_and_live_configs_untouched": true,
-      "version_run_id": 38030873620
-    },
-    "runtime_acceptance_record": {
-      "workflow": "Staging Runtime Acceptance",
-      "run_number": 20,
-      "run_id": 38031436557,
-      "branch": "development",
-      "control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
-      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-      "shop": "staging-oath3rth.myshopify.com",
-      "status": "passed",
-      "checks": {
-        "runtime_health": "passed",
-        "queue_readiness": "passed",
-        "four_plan_billing_contract": "passed",
-        "signed_shopify_session": "passed",
-        "admin_graphql_read": "passed",
-        "subscription_read": "passed"
-      },
-      "stored_session_count": 2,
-      "active_subscription_count": 1,
-      "verified_plan": "unlimited",
-      "merchant_ui": {
-        "sort_now_race_retest": "pending",
-        "note": "Acceptance workflow verified health, queue readiness, billing catalog, signed session, Admin GraphQL and subscription reads. It did not invoke Sort now."
-      }
-    },
-    "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-    "accepted_at": "2026-10-10T06:35:16Z",
-    "accepted_control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
-    "evidence_record": {
-      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-      "branch": "development",
-      "workflow_run_id": 38031436557,
-      "offline_shopify_session": "passed",
-      "admin_graphql": "passed",
-      "subscription_read": "passed",
-      "stored_session_count": 2,
-      "active_subscription_count": 1,
-      "verified_plan": "unlimited",
-      "note": "Signed Shopify Staging runtime acceptance passed for the exact Cloud Dev-accepted source; no Sort now merchant action was performed in this run.",
-      "run_id": 38031436557,
-      "shop": "staging-oath3rth.myshopify.com",
-      "workflow": "Staging Runtime Acceptance",
-      "accepted_on_branch": "development"
-    },
-    "accepted_main_ref": "6ff9d9021b21b563ad72aebd17531fe1014f479f",
-    "accepted_on_branch": "development"
+      "version_run_id": 38048282648
+    }
   },
   "live": {
     "status": "accepted",
