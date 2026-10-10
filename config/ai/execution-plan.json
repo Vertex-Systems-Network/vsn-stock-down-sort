@@ -1828,7 +1828,7 @@
         "ISSUE-197-WU-04"
       ],
       "priority": 100,
-      "status": "in_progress",
+      "status": "complete",
       "blockers": [],
       "acceptance_criteria": [
         "Exact Cloud Dev-accepted source is deployed to the Staging Worker with PostgreSQL migrations and queues ready.",
@@ -1841,6 +1841,36 @@
         "Shopify Staging Version",
         "Shopify Staging Release",
         "Signed Staging Runtime Acceptance"
+      ],
+      "completion_evidence": [
+        "Cloudflare Staging Deploy #22 / run 38030584316 passed on control head 3feba422e8edce5a1389409d84547a6af3ad1eec; exact source 030a884b594944aa78d81bfe538dc2c69e042002, PostgreSQL migrations up to date, queue/DLQ and runtime health passed.",
+        "Shopify Staging Version #15 / run 38030873620 and Release #16 / run 38030978501 passed for exact source 030a884b594944aa78d81bfe538dc2c69e042002; Local and Live app configs remained untouched.",
+        "Signed Staging Runtime Acceptance #20 / run 38031436557 passed on development control head 7991a5f0647f7aab72da0d615b25c90e41d35858: health, queue, four-plan billing, signed Shopify session, Admin GraphQL, and subscription read; two sessions, one active subscription, unlimited plan.",
+        "Live remains untouched. This acceptance did not invoke merchant Sort now; issue #197 stays open pending that specific Staging interaction retest."
+      ]
+    },
+    {
+      "id": "ISSUE-197-WU-06",
+      "phase_id": "PHASE-10",
+      "module_id": "MOD-SORTING-CONTROLS",
+      "title": "Retest merchant-facing Sort now on accepted Staging source",
+      "objective": "Verify the exact-source Staging Sort now experience handles unavailable/deleted collection settings truthfully and does not recreate purged data.",
+      "dependencies": [
+        "ISSUE-197-WU-05"
+      ],
+      "priority": 90,
+      "status": "in_progress",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Use the dedicated Staging Shopify test store on source 030a884b594944aa78d81bfe538dc2c69e042002.",
+        "Exercise the merchant-facing Sort now path when collection settings are unavailable and verify the truthful recoverable result.",
+        "Confirm the Staging runtime does not recreate purged collection settings.",
+        "Record the test evidence without changing Live."
+      ],
+      "required_checks": [
+        "Signed Staging merchant interaction",
+        "CollectionSetting deletion-safe behavior",
+        "Live remains untouched"
       ],
       "completion_evidence": []
     }
