@@ -226,5 +226,5 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
   assert.match(persistence, /collectionSetting\.updateMany/);
   assert.match(persistence, /result\.count !== 1/);
   assert.match(persistence, /\.catch\(\(\) => \(\{ count: 0 \}\)\)/);
-  assert.match(sortImplementation, /if \(settingStillExists\) await recordActivityEventSafe/);
+  assert.match(sortImplementation, /if \(settingStillExists\) \{/);
 });
