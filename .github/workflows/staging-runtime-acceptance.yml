@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout repository control state
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: development
           persist-credentials: false

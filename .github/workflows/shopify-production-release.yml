@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout protected main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           persist-credentials: false
@@ -66,7 +66,7 @@ jobs:
           print(f"staging_acceptance=accepted staging_source_ref={source_ref} main_ref={main_ref}")
           PY
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22.18.0"
 
