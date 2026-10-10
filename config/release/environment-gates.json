@@ -182,8 +182,14 @@
       "stored_session_count": 2,
       "active_subscription_count": 1,
       "verified_plan": "unlimited",
-      "note": "Signed Shopify Staging runtime acceptance passed for the exact Cloud Dev-accepted source; no Sort now merchant action was performed in this run."
-    }
+      "note": "Signed Shopify Staging runtime acceptance passed for the exact Cloud Dev-accepted source; no Sort now merchant action was performed in this run.",
+      "run_id": 38031436557,
+      "shop": "staging-oath3rth.myshopify.com",
+      "workflow": "Staging Runtime Acceptance",
+      "accepted_on_branch": "development"
+    },
+    "accepted_main_ref": "6ff9d9021b21b563ad72aebd17531fe1014f479f",
+    "accepted_on_branch": "development"
   },
   "live": {
     "status": "accepted",
