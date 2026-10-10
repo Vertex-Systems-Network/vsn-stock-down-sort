@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "candidate_authorized",
-  "release_authorized": true,
+  "status": "released",
+  "release_authorized": false,
   "production_worker": {
     "name": "vsn-stock-down-sort-production",
     "url": "https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev"
@@ -55,6 +55,21 @@
     "control_head_sha": "d9a0203043ecc95d0bab2977f6efd227ca8d0c9f",
     "version": "stock-down-sort-production-14227a5f2603-3",
     "source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
+    "release_step": "passed",
+    "version_released_to_users": true,
+    "version_visible_after_release": true,
+    "remote_app_name": "VSN | Stock Down Sort",
+    "remote_name_verified_from_cli_output": true,
+    "workflow_conclusion": "success"
+  },
+  "release_record": {
+    "workflow": "Shopify Production Release",
+    "run_number": 4,
+    "run_id": 38050210445,
+    "branch": "main",
+    "control_head_sha": "34eaca08f0796abbbc2fedbf10ebb2874cb0c2b8",
+    "version": "stock-down-sort-production-2cf6adef43eb-4",
+    "source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
     "release_step": "passed",
     "version_released_to_users": true,
     "version_visible_after_release": true,
