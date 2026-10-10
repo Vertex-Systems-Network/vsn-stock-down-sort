@@ -601,10 +601,16 @@ test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
   assert.match(sorter, /Shopify did not return a reorder job ID/);
 
   const waitIndex = sorter.indexOf("await waitForJob(admin, jobId)");
-  const successTimestampIndex = sorter.indexOf("lastSortedAt: new Date()");
+  const successWriteIndex = sorter.indexOf(
+    "recordSortSuccess(db, { shop, collectionId })",
+  );
+  const persistence = read(
+    "app/services/collection-setting-sort-state.server.mjs",
+  );
 
   assert.ok(waitIndex >= 0);
-  assert.ok(successTimestampIndex > waitIndex);
+  assert.ok(successWriteIndex > waitIndex);
+  assert.match(persistence, /lastSortedAt: new Date\(\)/);
 });
 
 test("Shopify update webhooks defer sorter work with Cloudflare waitUntil", () => {
