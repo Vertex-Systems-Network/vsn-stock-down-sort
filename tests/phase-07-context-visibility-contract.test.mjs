@@ -41,7 +41,7 @@ test("PHASE-07 publication scopes are explicit in all Shopify app configs", () =
   }
 });
 
-test("PHASE-07 publication scopes are propagated to Worker and CI runtime environments", () => {
+test("PHASE-07 publication scopes stay optional instead of entering runtime required scopes", () => {
   for (const path of [
     "wrangler.staging.jsonc",
     "wrangler.production.jsonc",
@@ -52,8 +52,7 @@ test("PHASE-07 publication scopes are propagated to Worker and CI runtime enviro
     ".github/workflows/cloudflare-production-prepare.yml",
   ]) {
     const source = read(path);
-    assert.ok(source.includes("read_publications"), path);
-    assert.ok(source.includes("write_publications"), path);
+    assert.doesNotMatch(source, /SCOPES[^\n]*(?:read_publications|write_publications)/, path);
   }
 });
 
@@ -102,7 +101,7 @@ test("context discovery uses existing Shopify publications and never creates cat
       'if (targetType === "COMPANY_LOCATION") return "COMPANY_LOCATION"',
     ),
   );
-  assert.ok(server.includes('return "NONE"'));
+  assert.ok(server.includes('return "APP"'));
   assert.ok(server.includes("publications(first: 100, catalogType: $catalogType)"));
   assert.ok(server.includes("channels(first: 10)"));
   assert.equal(server.includes("catalogCreate("), false);
@@ -174,7 +173,9 @@ test("Commerce Contexts UI is authenticated, plan-aware and exposes scope/runtim
   assert.ok(route.includes("deleteContextVisibilityRule"));
   assert.ok(route.includes("read_publications"));
   assert.ok(route.includes("write_publications"));
-  assert.ok(route.includes("require scope"));
+  assert.ok(route.includes("optional"));
+  assert.ok(route.includes("authorization action shown above"));
+  assert.ok(read("app/routes/app.tsx").includes("missingPublicationScopes"));
   assert.ok(route.includes("does not create Markets"));
   assert.ok(nav.includes("/app/contexts"));
 });

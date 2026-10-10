@@ -44,7 +44,7 @@ The product already has:
 - manual + explicitly authorized Production promotion;
 - Cloudflare Workers + Queues;
 - Prisma with Local SQLite and isolated Neon PostgreSQL for Staging/Production;
-- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 54.99 every 30 days, each with a 10-day trial;
+- current Shopify billing catalog: `starter` USD 10.99, `growth` USD 19.99, `pro` USD 34.99, and `unlimited` USD 70.00 every 30 days, each with a 10-day trial;
 - legacy USD 55 / 5-day subscriptions are compatibility-only and must not be treated as the current new-subscription catalog.
 
 Do not restart this project as greenfield.
@@ -106,7 +106,7 @@ The AI must treat environment promotion as a strict one-way evidence-gated seque
 
 Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
 
-- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Dev promotion evidence is authoritative only when `scripts/dev_acceptance.py` selects an accepted `local_dev` or `cloud_dev` record for the exact source. Cloud evidence must contain every required check and a verified GitHub run; it never substitutes for signed Shopify merchant acceptance on Staging.
 - Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
 - Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
 - A `verification_required` or `blocked` gate is a hard stop, not a suggestion.
@@ -126,3 +126,8 @@ The older `.ai/state/**`, `.ai/tasks/**`, and `.ai/ROADMAP.md` files are compati
 - active GitHub Issue(s)
 
 Requirements and assurance policies are not pass evidence by themselves.
+
+
+## Owner-authorized cloud Dev verification
+
+The owner requested that the AI run Dev verification in the cloud instead of requiring workstation commands. App Validation's `cloud-dev` job is the preferred first-stage execution route. It runs actual application/SQLite checks with synthetic CI credentials; it does not claim a Shopify Dev-store session or merchant acceptance. `cloud_dev` evidence is accepted only for its exact source after full validation, runtime startup, migrations, database roundtrip and billing-health checks pass. The shared `scripts/dev_acceptance.py` selector validates recorded cloud evidence; legacy `local_dev` remains available. Staging retains real credentials and signed Shopify acceptance. Live retains Staging acceptance on main and separate release authorization. This approved route changes the location of Dev verification, not the environment order or Shopify merchant acceptance requirements.

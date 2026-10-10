@@ -36,11 +36,11 @@ jobs:
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
+      SCOPES: read_products,write_products,read_inventory,read_locations
 
     steps:
       - name: Checkout protected main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           persist-credentials: false
@@ -72,7 +72,7 @@ jobs:
           print(f"staging_acceptance=accepted staging_source_ref={source_ref} main_ref={main_ref}")
           PY
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22.18.0"
           cache: npm
@@ -95,8 +95,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$SCOPES" != "read_products,write_products,read_inventory,read_locations,read_publications,write_publications" ]; then
-            echo "Unexpected production scopes." >&2
+          if [ "$SCOPES" != "read_products,write_products,read_inventory,read_locations" ]; then
+            echo "Unexpected production required scopes." >&2
             exit 1
           fi
 

@@ -47,15 +47,23 @@ export function BrandNotice({
   heading,
   children,
   role,
+  className,
 }: PropsWithChildren<{
   tone?: BrandTone;
   heading?: string;
   role?: "alert" | "status";
   dismissible?: boolean;
+  className?: string;
 }>) {
   return (
     <div
-      className={["vsn-brand-notice", tone].join(" ")}
+      className={[
+        "vsn-brand-notice",
+        tone,
+        className ?? "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       role={role ?? (tone === "critical" ? "alert" : "status")}
     >
       {heading ? <strong>{heading}</strong> : null}

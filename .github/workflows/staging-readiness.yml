@@ -36,12 +36,12 @@ jobs:
       ALERT_FROM_EMAIL: ${{ secrets.ALERT_FROM_EMAIL }}
       SUPPORT_INBOX_EMAIL: ${{ secrets.SUPPORT_INBOX_EMAIL }}
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
-      SCOPES: read_products,write_products,read_inventory,read_locations,read_publications,write_publications
+      SCOPES: read_products,write_products,read_inventory,read_locations
       SOURCE_REF: ${{ github.event.inputs.source_ref }}
 
     steps:
       - name: Checkout development source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: development
           persist-credentials: false
@@ -59,13 +59,16 @@ jobs:
           subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
           subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
           gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
-          local=gate.get("local_dev") or {}
+          import sys
+          sys.path.insert(0, "scripts")
+          from dev_acceptance import select_dev_gate
+          local=select_dev_gate(gate, source_ref)
           if local.get("status")!="accepted" or local.get("accepted_source_ref")!=source_ref or not local.get("evidence_record"):
               raise SystemExit("Local/Dev acceptance gate is not satisfied for this source_ref.")
           PY
           git checkout --detach "$SOURCE_REF"
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22.18.0"
           cache: npm

@@ -60,7 +60,7 @@ async function currentOptionIds(admin: AdminClient) {
 function catalogTypeForTarget(targetType: ContextTargetType) {
   if (targetType === "MARKET") return "MARKET";
   if (targetType === "COMPANY_LOCATION") return "COMPANY_LOCATION";
-  return "NONE";
+  return "APP";
 }
 
 export async function listPublicationTargets(

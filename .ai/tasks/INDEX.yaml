@@ -1,12 +1,10 @@
 schema_version: 1
 compatibility_mirror: true
 canonical_plan: config/ai/execution-plan.json
-active_issue: null
+active_issue: 197
 project: VSN Stock Down Sort
-active_work_unit: ISSUE-128-WU-01
-status: complete
+active_work_unit: ISSUE-197-WU-06
+status: in_progress
 note: >
-  ISSUE-128-WU-01 is the latest completed development checkpoint. PHASE-10
-  support fulfillment is merged and repository-certified. Runtime Issue #125
-  remains the separate final acceptance/promotion track; Local, Staging and Live
-  current-head runtime testing is intentionally deferred until the final cycle.
+  Cloud Dev and exact-source signed Staging acceptance passed for 030a884b594944aa78d81bfe538dc2c69e042002.
+  Retest merchant-facing Sort now on Staging; Live remains untouched.

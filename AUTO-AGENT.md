@@ -59,7 +59,7 @@ Before any deployment, release, environment migration, or environment-specific a
 
 Before selecting or executing any environment promotion, the AI must read `config/development-flow.json` and `config/release/environment-gates.json`.
 
-- Local/Dev promotion evidence is authoritative only when `local_dev.status` is `accepted` and its `accepted_source_ref` exactly identifies the source commit.
+- Dev promotion evidence is authoritative only when `scripts/dev_acceptance.py` selects an accepted `local_dev` or `cloud_dev` record for the exact source. Cloud evidence must contain every required check and a verified GitHub run; it never substitutes for signed Shopify merchant acceptance on Staging.
 - Staging promotion evidence is authoritative only when the source matches the Local/Dev accepted ref.
 - Live/Production operations are blocked until `staging.status` is `accepted` and the acceptance record is present on `main`.
 - A `verification_required` or `blocked` gate is a hard stop, not a suggestion.

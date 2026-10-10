@@ -1,25 +1,11 @@
 # Last Checkpoint
 
-## Staging Readiness accepted
-
-Run: `36929608192` — Staging Readiness #6  
-Branch: `development`  
-Conclusion: **success**  
-Accepted source: `ca5851561ab7979712f11580ab951fda4650ef19`
-
-Passed:
-- Local/Dev acceptance and exact source verification
-- isolated staging secrets
-- cloud Prisma schema validation/generation
-- PostgreSQL staging migrate deploy
-- PostgreSQL migration status
-- lint/typecheck
-- staging runtime build
-- Cloudflare Worker dry-run
-- canonical four-plan / 10-day billing contract
-
-## Current active work
-
-`ISSUE-32-WU-04` — Manual Cloudflare Staging Deploy.
-
-Production remains blocked.
+- Cloud Dev setup PR #204 is merged.
+- Accepted development source: `b598ada3041891e2d38c1baa512cb23fee6c3470`.
+- App Validation and Cloud Dev SQLite Runtime: PASS in run `37832010614`.
+- Fresh SQLite migrations, 187 contracts, database roundtrip/deletion-safe write, actual built server health and four-plan catalog: PASS.
+- Credentials: synthetic CI only; no Shopify merchant authentication is claimed.
+- Owner laptop commands: unnecessary for the preferred cloud verification route.
+- Staging currently deploys historical `90a64ac`; signed acceptance remains pending.
+- Next: exact accepted-source Staging promotion and real Shopify merchant retests.
+- Live finalization remains open under Issue #154.

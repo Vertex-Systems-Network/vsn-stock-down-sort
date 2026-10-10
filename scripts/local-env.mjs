@@ -6,8 +6,6 @@ const REQUIRED_SHOPIFY_SCOPES = [
   "write_products",
   "read_inventory",
   "read_locations",
-  "read_publications",
-  "write_publications",
 ];
 
 function fail(message) {

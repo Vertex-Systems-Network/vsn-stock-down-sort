@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -232,10 +233,11 @@ export default function CommerceContextsPage() {
           </s-stack>
 
           <BrandNotice tone="info">
-            This feature needs Shopify read_publications and
-            write_publications access. Existing installs may require scope
-            reauthorization, and the merchant user must have permission to
-            manage the relevant catalogs/publications.
+            Publication management uses Shopify&apos;s optional
+            read_publications and write_publications permissions. If this
+            install is missing them, use the authorization action shown above.
+            Your staff account must also be allowed to manage the relevant
+            catalogs and publications.
           </BrandNotice>
 
           <s-text color="subdued">
@@ -272,7 +274,7 @@ export default function CommerceContextsPage() {
               No existing Shopify publications were found for this context.
             </s-text>
           ) : (
-            <form method="post">
+            <Form method="post">
               <input type="hidden" name="intent" value="save" />
               <input type="hidden" name="targetType" value={group.type} />
 
@@ -293,14 +295,16 @@ export default function CommerceContextsPage() {
                   ))}
                 </s-select>
 
-                <s-checkbox
+                <s-switch
                   name="enabled"
+                  value="on"
                   label="Enable sold-out visibility automation"
                   defaultChecked
                 />
 
-                <s-checkbox
+                <s-switch
                   name="autoRestore"
+                  value="on"
                   label="Restore VSN-managed removals after restock"
                   defaultChecked
                 />
@@ -309,7 +313,7 @@ export default function CommerceContextsPage() {
                   Add {group.label} rule
                 </BrandButton>
               </s-stack>
-            </form>
+            </Form>
           )}
         </s-section>
       ))}
@@ -353,7 +357,7 @@ export default function CommerceContextsPage() {
                     </s-text>
 
                     <BrandButtonRow>
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="toggle" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <input
@@ -369,9 +373,9 @@ export default function CommerceContextsPage() {
                         >
                           {rule.enabled ? "Pause" : "Enable"}
                         </BrandButton>
-                      </form>
+                      </Form>
 
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <BrandButton
@@ -383,7 +387,7 @@ export default function CommerceContextsPage() {
                         >
                           Delete
                         </BrandButton>
-                      </form>
+                      </Form>
                     </BrandButtonRow>
 
                     <s-text color="subdued">

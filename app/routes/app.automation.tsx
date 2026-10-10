@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -280,8 +281,9 @@ function RuleFields({
         ))}
       </s-select>
 
-      <s-checkbox
+      <s-switch
         name="enabled"
+        value="on"
         label="Enable this rule"
         defaultChecked={defaults?.enabled ?? true}
       />
@@ -423,7 +425,7 @@ export default function AutomationPage() {
         </s-section>
       ) : (
         <s-section heading="Create automation rule">
-          <form method="post">
+          <Form method="post">
             <input type="hidden" name="intent" value="save" />
             <RuleFields
               collections={collections}
@@ -437,7 +439,7 @@ export default function AutomationPage() {
               >
                 Create rule
               </BrandButton>
-          </form>
+          </Form>
         </s-section>
       )}
 
@@ -486,7 +488,7 @@ export default function AutomationPage() {
                     ) : null}
 
                     {target && canSchedule ? (
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="save" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <RuleFields
@@ -510,7 +512,7 @@ export default function AutomationPage() {
                         >
                           Save changes
                         </BrandButton>
-                      </form>
+                      </Form>
                     ) : target ? null : (
                       <BrandNotice tone="warning">
                         This rule&apos;s collection is no longer enabled. Re-enable
@@ -519,7 +521,7 @@ export default function AutomationPage() {
                     )}
 
                     <BrandButtonRow>
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="run" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <BrandButton
@@ -530,9 +532,9 @@ export default function AutomationPage() {
                         >
                           Run now
                         </BrandButton>
-                      </form>
+                      </Form>
 
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="toggle" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <input
@@ -548,9 +550,9 @@ export default function AutomationPage() {
                         >
                           {rule.enabled ? "Pause" : "Enable"}
                         </BrandButton>
-                      </form>
+                      </Form>
 
-                      <form method="post">
+                      <Form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="ruleId" value={rule.id} />
                         <BrandButton
@@ -562,7 +564,7 @@ export default function AutomationPage() {
                         >
                           Delete
                         </BrandButton>
-                      </form>
+                      </Form>
                     </BrandButtonRow>
                   </s-stack>
                 </s-box>

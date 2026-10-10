@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -206,7 +207,7 @@ export default function IntegrationsPage() {
             no longer active.
           </s-text>
         ) : (
-          <form method="post">
+          <Form method="post">
             <input type="hidden" name="intent" value="create" />
             <s-stack gap="base">
               <s-text-field
@@ -240,7 +241,7 @@ export default function IntegrationsPage() {
                 Create credential
               </BrandButton>
             </s-stack>
-          </form>
+          </Form>
         )}
       </s-section>
 
@@ -290,7 +291,7 @@ export default function IntegrationsPage() {
 
                     {credential.enabled ? (
                       <BrandButtonRow>
-                        <form method="post">
+                        <Form method="post">
                           <input type="hidden" name="intent" value="rotate" />
                           <input
                             type="hidden"
@@ -305,9 +306,9 @@ export default function IntegrationsPage() {
                           >
                             Rotate secrets
                           </BrandButton>
-                        </form>
+                        </Form>
 
-                        <form method="post">
+                        <Form method="post">
                           <input type="hidden" name="intent" value="revoke" />
                           <input
                             type="hidden"
@@ -323,7 +324,7 @@ export default function IntegrationsPage() {
                           >
                             Revoke
                           </BrandButton>
-                        </form>
+                        </Form>
                       </BrandButtonRow>
                     ) : null}
                   </s-stack>

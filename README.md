@@ -47,7 +47,7 @@ verification
 project-state update / next work unit
 ```
 
-Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work is a six-item development-only finalization track; no new Staging or Production promotion is allowed until all six items are complete. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
+Capability implementation is complete through PHASE-10. Runtime Issue #125 is closed and the previous Local → Staging → Live release cycle is accepted. Current work follows sequential finalization gates: exact-source Local acceptance, Staging deployment and signed acceptance, then Live prerequisites and separately authorized Production release. Final Production Merchant Smoke runs after release. `config/ai/project-state.json` is the canonical current/next work snapshot. The older `.ai/state/**` and `.ai/tasks/**` files are compatibility mirrors only.
 
 The repository includes Supervisor, Worker, governance, risk, audit, release, operations and project-management protocols derived from the VSN Metafields management baseline. No persistent autonomous orchestrator is currently certified, so agents must reconcile live GitHub state on every invocation and must not claim background leases or continuous execution.
 
@@ -104,7 +104,7 @@ Database topology is also isolated:
 - Staging: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-staging`
 - Production: dedicated Neon PostgreSQL, GitHub Environment `cloudflare-production`
 
-Local must be completed and verified before Staging work begins.
+Dev verification (the preferred cloud route or optional Local route) must be completed before Staging promotion.
 
 Local, Staging, and Live must use different Shopify client IDs and secrets.
 
@@ -113,6 +113,16 @@ The Staging client ID remains a placeholder in git and is injected from `cloudfl
 ### Live App Pricing pre-submission test
 
 Do not copy the Live public pricing catalog into the Staging Shopify app. To test Shopify App Pricing, install the **Live app** on a Partner development store and select each Live plan there. Use `.github/workflows/shopify-live-app-pricing-audit.yml` to verify the selected handle, monthly interval and 10-day trial. On a same-Partner development store, the active subscription must show an effective USD 0.00 no-charge price while the historical plan event must still match the configured Live public catalog amount.
+
+## Cloud Dev verification
+
+The AI now runs the Dev verification stage on GitHub-hosted runners. **App Validation → Cloud Dev SQLite Runtime** runs automatically for PRs and every `development` push after validation passes. It creates a fresh SQLite database, validates/generates/applies Prisma migrations, runs all contracts, builds the actual React Router app, starts its HTTP server, verifies health and the four-plan catalog, and exercises SQLite read/write/delete behavior. Exact-source evidence is preserved as a workflow artifact and in the run log.
+
+The cloud job uses fixed synthetic CI credentials and never contacts a Shopify store, accepts a subscription, or deploys Staging/Live. Real Shopify session, consent, webhook and merchant-flow acceptance remains required on the isolated Staging app. A reviewed successful cloud record in `config/release/environment-gates.json.cloud_dev` can satisfy the first Dev runtime gate for its exact source; historical `local_dev` acceptance remains supported. Promotion still follows Dev → Staging → Live.
+
+Accepted cloud Dev source: `b598ada3041891e2d38c1baa512cb23fee6c3470`, [successful run 37832010614](https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/actions/runs/37832010614). The actual SQLite/app runtime passed; signed real Shopify merchant acceptance remains pending on Staging.
+
+The owner does not need to run Local commands for this cloud verification route. The following Local workflow remains optional for workstation development.
 
 ## Local development
 
@@ -147,6 +157,10 @@ npm run local:certify -- http://127.0.0.1:3000/healthz
 ```
 
 Use the actual Local health URL if the runtime uses another port.
+
+Alternatively, run `npm run local:certify:auto` from a clean `development` checkout. It starts normal Shopify Dev with the public webhook tunnel, discovers the actual loopback HTTP endpoint from Dev output, waits for development + test-billing + SQLite health, and runs the same exact-source certification. It keeps Dev running on success and stops it on failure. Shopify login may still be required. This health certification does not replace embedded merchant, consent, webhook, or Sort now runtime tests.
+
+Current recorded evidence: Local source `90a64ac` accepted; Staging Deploy #17 and Shopify Staging Release #12 completed for that source. Signed Staging acceptance remains pending. Newer development changes need fresh Local acceptance.
 
 Local certification requires the health contract to report:
 
@@ -256,7 +270,7 @@ Production Worker:
 
 `https://vsn-stock-down-sort-production.vertexsystemsnetwork.workers.dev`
 
-Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes remain on `development` until the six-item finalization track is complete.
+Production release is blocked unless the repository authorization record, version name, and source SHA match. New development changes require exact-source Local acceptance and signed Staging acceptance before release preparation; final Production Merchant Smoke remains a post-release closure gate.
 
 ## Environment secrets
 

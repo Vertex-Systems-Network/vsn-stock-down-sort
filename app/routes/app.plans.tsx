@@ -175,6 +175,15 @@ export default function PlansPage() {
         description="Every plan keeps product and collection counts unlimited. Upgrade capabilities as your merchandising workflow grows."
       />
 
+      {!activeSubscription ? (
+        <div className="vsn-notice">
+          <strong>No active subscription is attached to this installation.</strong>{" "}
+          Shopify automatically cancels an app subscription when the app is
+          uninstalled. If you reinstalled the app, choose a plan below and
+          approve it again to restore paid access.
+        </div>
+      ) : null}
+
       {billingMethod === "shopify_app_pricing" ? (
         <div className="vsn-notice">
           <strong>Shopify-hosted pricing is enabled.</strong> Plan selection,

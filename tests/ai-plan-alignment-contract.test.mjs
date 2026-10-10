@@ -14,8 +14,6 @@ const REQUIRED_SCOPES = [
   "write_products",
   "read_inventory",
   "read_locations",
-  "read_publications",
-  "write_publications",
 ];
 
 const OPTION_EVIDENCE = {
@@ -201,7 +199,7 @@ test("every runtime option has module ownership, billing ownership, documentatio
   }
 });
 
-test("all Shopify app identities and CI request the scopes required by implemented options", () => {
+test("Shopify app identities declare required and optional scopes consistently", () => {
   for (const path of [
     "shopify.app.local.toml",
     "shopify.app.staging.toml",
@@ -209,14 +207,23 @@ test("all Shopify app identities and CI request the scopes required by implement
   ]) {
     const config = read(path);
     for (const scope of REQUIRED_SCOPES) {
-      assert.ok(config.includes(scope), `${path} missing ${scope}`);
+      assert.ok(config.includes(scope), `${path} missing required ${scope}`);
     }
+    assert.match(
+      config,
+      /optional_scopes = \["read_publications", "write_publications"\]/,
+      `${path} missing optional publication scopes`,
+    );
   }
 
   const workflow = read(".github/workflows/app-validation.yml");
   for (const scope of REQUIRED_SCOPES) {
     assert.ok(workflow.includes(scope), `App Validation SCOPES missing ${scope}`);
   }
+  assert.doesNotMatch(
+    workflow,
+    /SCOPES:[^\n]*(?:read_publications|write_publications)/,
+  );
 });
 
 test("baseline plan options contain implementation and QA evidence in the AI option bank", () => {

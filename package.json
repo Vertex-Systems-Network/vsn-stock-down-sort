@@ -28,6 +28,7 @@
     "predev": "node scripts/local-dev-runner.mjs predev",
     "local:validate": "node scripts/validate-local-sqlite-env.mjs",
     "local:certify": "node scripts/certify-local-dev.mjs",
+    "local:certify:auto": "node scripts/certify-local-dev-auto.mjs",
     "local:prepare": "node scripts/prepare-local-dev.mjs",
     "prisma:validate:local": "prisma validate --schema prisma/schema.prisma",
     "prisma:generate:local": "prisma generate --schema prisma/schema.prisma",

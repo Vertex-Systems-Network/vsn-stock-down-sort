@@ -173,7 +173,9 @@ test("PHASE-02 completion remains repository-tracked after later phases advance"
   assert.equal(module.status, "complete");
 
   const expectedCurrentPhaseStatus =
-    state.active_issue === null ? "complete" : "in_progress";
+    state.active_issue === null || state.active_issue_status === "blocked"
+      ? "complete"
+      : "in_progress";
   assert.ok(
     plan.phases.some(
       (item) =>
@@ -197,4 +199,32 @@ test("PHASE-02 completion remains repository-tracked after later phases advance"
     assert.equal(workUnit.status, "complete");
     assert.match(workUnit.phase_id, /^PHASE-02$/);
   }
+});
+
+
+test("Sort now handles a missing collection-setting row without Prisma update failures", () => {
+  const sorter = read("app/services/collection-sorter.server.ts");
+  const start = sorter.indexOf('throw new Error("Collection sorting settings were not found.');
+  const end = sorter.indexOf("export async function sortCollection(", start);
+  assert.notEqual(start, -1, "missing-settings guard is present");
+  assert.notEqual(end, -1, "sorting entry point follows the implementation");
+  const sortImplementation = sorter.slice(start, end);
+
+  assert.ok(
+    sortImplementation.includes(
+      "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
+    ),
+  );
+  assert.ok(sortImplementation.includes("recordSortSuccess(db, { shop, collectionId })"));
+  assert.ok(sortImplementation.includes("recordSortFailure(db, { shop, collectionId }, message)"));
+  assert.equal(
+    sortImplementation.includes("collectionSetting.update("),
+    false,
+    "a missing row must not trigger Prisma P2025 from update()",
+  );
+  const persistence = read("app/services/collection-setting-sort-state.server.mjs");
+  assert.match(persistence, /collectionSetting\.updateMany/);
+  assert.match(persistence, /result\.count !== 1/);
+  assert.match(persistence, /\.catch\(\(\) => \(\{ count: 0 \}\)\)/);
+  assert.match(sortImplementation, /if \(settingStillExists\) \{/);
 });

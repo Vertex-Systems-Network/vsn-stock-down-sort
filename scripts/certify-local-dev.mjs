@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import https from "node:https";
 import process from "node:process";
 import { execFileSync, spawnSync } from "node:child_process";
 import { loadLocalEnv, validateLocalSqliteEnv } from "./local-env.mjs";
@@ -19,15 +20,49 @@ function run(command, args) {
 }
 
 async function checkHealth(url) {
-  const response = await fetch(url, {
-    headers: { "Cache-Control": "no-cache" },
-  });
+  const parsedUrl = new URL(url);
+  let statusCode;
+  let payload;
 
-  if (!response.ok) {
-    fail(`health endpoint returned HTTP ${response.status}`);
+  if (
+    parsedUrl.protocol === "https:" &&
+    ["localhost", "127.0.0.1", "::1"].includes(parsedUrl.hostname)
+  ) {
+    // Shopify CLI's localhost proxy uses a self-signed certificate. Keep this
+    // exception scoped to loopback health checks; remote HTTPS remains verified.
+    payload = await new Promise((resolve, reject) => {
+      const request = https.get(
+        parsedUrl,
+        { rejectUnauthorized: false, headers: { "Cache-Control": "no-cache" } },
+        (response) => {
+          statusCode = response.statusCode;
+          let body = "";
+          response.setEncoding("utf8");
+          response.on("data", (chunk) => (body += chunk));
+          response.on("end", () => {
+            try {
+              resolve(JSON.parse(body));
+            } catch {
+              reject(new Error("health endpoint returned invalid JSON"));
+            }
+          });
+        },
+      );
+      request.setTimeout(5000, () => request.destroy(new Error("health check timed out")));
+      request.on("error", reject);
+    });
+  } else {
+    const response = await fetch(parsedUrl, {
+      headers: { "Cache-Control": "no-cache" },
+    });
+    statusCode = response.status;
+    payload = await response.json();
   }
 
-  const payload = await response.json();
+  if (statusCode < 200 || statusCode >= 300) {
+    fail(`health endpoint returned HTTP ${statusCode}`);
+  }
+
   if (payload?.ok !== true) fail("health endpoint did not report ok=true");
   if (payload?.environment !== "development") {
     fail("health endpoint is not running with APP_ENV=development");
@@ -40,7 +75,7 @@ async function checkHealth(url) {
   }
 
   return {
-    status: response.status,
+    status: statusCode,
     environment: payload.environment,
     billingTestMode: payload.billingTestMode,
     database: payload.database,

@@ -2,6 +2,10 @@ import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
 import { recordActivityEventSafe } from "./analytics.server";
 import {
+  recordSortFailure,
+  recordSortSuccess,
+} from "./collection-setting-sort-state.server.mjs";
+import {
   assertCollectionRuleEntitlements,
   effectiveCollectionRules,
   normalizeCollectionRuleInput,
@@ -932,7 +936,7 @@ async function sortCollectionWithEntitlements(
     );
 
     if (!setting) {
-      throw new Error("Collection sorting settings were not found.");
+      throw new Error("Collection sorting settings were not found. Refresh the page and enable this collection before sorting.");
     }
 
     const rules = effectiveCollectionRules(setting, entitledOptionIds);
@@ -962,18 +966,7 @@ async function sortCollectionWithEntitlements(
     ).length;
 
     await withPrismaClient((db) =>
-      db.collectionSetting.update({
-        where: {
-          shop_collectionId: {
-            shop,
-            collectionId,
-          },
-        },
-        data: {
-          lastSortedAt: new Date(),
-          lastError: null,
-        },
-      }),
+      recordSortSuccess(db, { shop, collectionId }),
     );
 
     const result = {
@@ -1023,28 +1016,22 @@ async function sortCollectionWithEntitlements(
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
 
-    await withPrismaClient((db) =>
-      db.collectionSetting.update({
-        where: {
-          shop_collectionId: {
-            shop,
-            collectionId,
-          },
-        },
-        data: { lastError: message },
-      }),
-    ).catch(() => undefined);
+    const settingStillExists = await withPrismaClient((db) =>
+      recordSortFailure(db, { shop, collectionId }, message),
+    ).catch(() => false);
 
-    await recordActivityEventSafe({
-      shop,
-      category: "sorting",
-      action: "collection.sort_failed",
-      outcome: "ERROR",
-      source: "sorting-engine",
-      entityType: "collection",
-      entityId: collectionId,
-      summary: message,
-    });
+    if (settingStillExists) {
+      await recordActivityEventSafe({
+        shop,
+        category: "sorting",
+        action: "collection.sort_failed",
+        outcome: "ERROR",
+        source: "sorting-engine",
+        entityType: "collection",
+        entityId: collectionId,
+        summary: message,
+      });
+    }
 
     throw error;
   }

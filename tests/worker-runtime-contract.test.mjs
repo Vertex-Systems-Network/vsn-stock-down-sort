@@ -75,7 +75,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     staging.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!staging.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!staging.secrets.required.includes("SCOPES"));
@@ -96,7 +96,7 @@ test("Wrangler environments are isolated and declare required secrets", () => {
   );
   assert.equal(
     production.vars.SCOPES,
-    "read_products,write_products,read_inventory,read_locations,read_publications,write_publications",
+    "read_products,write_products,read_inventory,read_locations",
   );
   assert.ok(!production.secrets.required.includes("SHOPIFY_APP_URL"));
   assert.ok(!production.secrets.required.includes("SCOPES"));
@@ -601,10 +601,16 @@ test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
   assert.match(sorter, /Shopify did not return a reorder job ID/);
 
   const waitIndex = sorter.indexOf("await waitForJob(admin, jobId)");
-  const successTimestampIndex = sorter.indexOf("lastSortedAt: new Date()");
+  const successWriteIndex = sorter.indexOf(
+    "recordSortSuccess(db, { shop, collectionId })",
+  );
+  const persistence = read(
+    "app/services/collection-setting-sort-state.server.mjs",
+  );
 
   assert.ok(waitIndex >= 0);
-  assert.ok(successTimestampIndex > waitIndex);
+  assert.ok(successWriteIndex > waitIndex);
+  assert.match(persistence, /lastSortedAt: new Date\(\)/);
 });
 
 test("Shopify update webhooks defer sorter work with Cloudflare waitUntil", () => {
@@ -1075,12 +1081,20 @@ test("repository management follows the VSN Metafields-style canonical state cha
   assert.equal(plan.active_issue, state.active_issue);
   assert.equal(state.last_reconciled_repository_ref.length, 40);
 
+  const blockedRuntime = state.active_issue_status === "blocked";
   const expectedActiveStatus =
-    state.active_issue === null ? "complete" : "in_progress";
-  assert.equal(
-    plan.phases.find((phase) => phase.id === state.current_phase)?.status,
-    expectedActiveStatus,
-  );
+    state.active_issue === null || blockedRuntime ? "complete" : "in_progress";
+  const expectedSupportStatus = state.current_work_unit === "ISSUE-128-WU-01"
+    ? expectedActiveStatus : "complete";
+  // A runtime/maintenance follow-up can be active after phase implementation
+  // is complete. Validate the actual work graph rather than freeze an old task.
+  const phase = plan.phases.find((item) => item.id === state.current_phase);
+  const work = plan.work_units.find((item) => item.id === state.current_work_unit);
+  assert.ok(phase, "current phase must exist in the execution plan");
+  assert.ok(work, "current work unit must exist in the execution plan");
+  assert.equal(work.phase_id, phase.id);
+  assert.ok(modules.modules.some((module) => module.id === work.module_id));
+  assert.ok(["complete", "in_progress"].includes(phase.status));
   assert.equal(
     plan.work_units.find(
       (workUnit) => workUnit.id === state.current_work_unit,
@@ -1088,13 +1102,8 @@ test("repository management follows the VSN Metafields-style canonical state cha
     expectedActiveStatus,
   );
 
-  assert.equal(state.current_phase, "PHASE-10");
-  assert.equal(state.current_module, "support-fulfillment");
-  assert.equal(state.current_work_unit, "ISSUE-128-WU-01");
-  assert.equal(
-    state.active_issue_status,
-    state.active_issue === null ? "none" : "open",
-  );
+  assert.ok(state.current_module.length > 0);
+  assert.ok(["none", "open", "blocked", "in_progress"].includes(state.active_issue_status));
   if (state.active_issue === null) {
     assert.match(state.next_valid_work_unit, /repository development.*complete/i);
     assert.match(state.next_valid_work_unit, /final acceptance cycle/i);
@@ -1104,9 +1113,13 @@ test("repository management follows the VSN Metafields-style canonical state cha
       state.finalization_track.items.find((item) => item.id === 5)?.title,
       "Public-app billing verification and Unlimited USD 70 alignment",
     );
+  } else if (blockedRuntime) {
+    assert.match(state.next_valid_work_unit, /certify exact development head|signed Staging acceptance/i);
+    assert.match(state.next_valid_work_unit, /Staging/i);
   } else {
-    assert.match(state.next_valid_work_unit, /support request fulfillment/i);
-    assert.match(state.next_valid_work_unit, /runtime acceptance.*deferred/i);
+    assert.ok(state.next_valid_work_unit.length > 0);
+    assert.ok(work.acceptance_criteria.length > 0);
+    assert.ok(work.required_checks.length > 0);
   }
 
   assert.equal(plan.phases[0].id, "PHASE-01");
@@ -1155,7 +1168,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
     plan.work_units.find(
       (workUnit) => workUnit.id === "ISSUE-128-WU-01",
     )?.status,
-    expectedActiveStatus,
+    expectedSupportStatus,
   );
 
   for (const id of [
@@ -1182,7 +1195,7 @@ test("repository management follows the VSN Metafields-style canonical state cha
     modules.modules.find(
       (module) => module.id === "MOD-SUPPORT-FULFILLMENT",
     )?.status,
-    expectedActiveStatus,
+    expectedSupportStatus,
   );
 
   assert.equal(supervisor.supervisor.status, "unassigned");
@@ -1197,7 +1210,11 @@ test("legacy ai state is compatibility-only, not a competing source of truth", (
   const tasks = read(".ai/tasks/INDEX.yaml");
   const expectedActive = state.active_issue === null ? "null" : String(state.active_issue);
   const expectedTaskStatus =
-    state.active_issue === null ? "complete" : "in_progress";
+    state.active_issue_status === "blocked"
+      ? "blocked"
+      : state.active_issue === null
+        ? "complete"
+        : "in_progress";
 
   assert.match(current, /compatibility_mirror: true/);
   assert.match(current, /canonical_state: config\/ai\/project-state\.json/);
@@ -1414,11 +1431,12 @@ test("billing gate preserves embedded Shopify auth context", () => {
 
   assert.match(
     app,
-    /const \{ admin, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
+    /const \{ admin, scopes, redirect: shopifyRedirect \} = await authenticate\.admin\(request\)/,
   );
+  assert.match(app, /await scopes\.query\(\)/);
   assert.match(app, /return shopifyRedirect\("\/app\/plans"\)/);
   assert.doesNotMatch(app, /throw redirect\(/);
-  assert.doesNotMatch(app, /new URLSearchParams\(\)/);
+  assert.match(app, /for \(const key of \["shop", "host", "embedded"\]\)/);
 });
 
 
