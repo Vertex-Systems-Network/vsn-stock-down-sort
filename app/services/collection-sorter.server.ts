@@ -1016,20 +1016,22 @@ async function sortCollectionWithEntitlements(
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
 
-    await withPrismaClient((db) =>
+    const settingStillExists = await withPrismaClient((db) =>
       recordSortFailure(db, { shop, collectionId }, message),
-    );
+    ).catch(() => false);
 
-    await recordActivityEventSafe({
-      shop,
-      category: "sorting",
-      action: "collection.sort_failed",
-      outcome: "ERROR",
-      source: "sorting-engine",
-      entityType: "collection",
-      entityId: collectionId,
-      summary: message,
-    });
+    if (settingStillExists) {
+      await recordActivityEventSafe({
+        shop,
+        category: "sorting",
+        action: "collection.sort_failed",
+        outcome: "ERROR",
+        source: "sorting-engine",
+        entityType: "collection",
+        entityId: collectionId,
+        summary: message,
+      });
+    }
 
     throw error;
   }

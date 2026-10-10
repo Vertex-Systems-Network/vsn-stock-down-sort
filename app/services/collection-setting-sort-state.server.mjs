@@ -31,13 +31,16 @@ export async function recordSortSuccess(db, key) {
 /**
  * Persist an error without recreating a setting removed by a privacy purge.
  * Persistence failure is intentionally ignored so the original sort error is preserved.
+ * Returns whether the setting still existed, allowing callers to avoid recreating
+ * shop-scoped activity after a privacy purge.
  * @param {SortStateDatabase} db
  * @param {CollectionSettingKey} key
  * @param {string} message
  */
 export async function recordSortFailure(db, key, message) {
-  await db.collectionSetting.updateMany({
+  const result = await db.collectionSetting.updateMany({
     where: key,
     data: { lastError: message },
-  }).catch(() => undefined);
+  }).catch(() => ({ count: 0 }));
+  return result.count === 1;
 }

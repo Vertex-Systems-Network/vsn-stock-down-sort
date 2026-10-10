@@ -30,7 +30,7 @@ try {
   await prisma.collectionSetting.delete({ where: { id: setting.id } });
   const key = { shop, collectionId: setting.collectionId };
   await assert.rejects(recordSortSuccess(prisma, key), /settings disappeared during sorting/);
-  await recordSortFailure(prisma, key, "fixture missing settings");
+  assert.equal(await recordSortFailure(prisma, key, "fixture missing settings"), false);
   assert.equal((await prisma.collectionSetting.updateMany({ where: key, data: { lastError: "fixture" } })).count, 0);
   assert.equal(await prisma.collectionSetting.count({ where: { shop } }), 0);
 } finally {
