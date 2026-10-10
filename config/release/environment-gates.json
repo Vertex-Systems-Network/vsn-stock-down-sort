@@ -33,7 +33,7 @@
       "Staging Shopify subscription read",
       "Four-plan billing catalog contract"
     ],
-    "deployed_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+    "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
     "previous_acceptance": {
       "status": "accepted",
       "accepted_source_ref": "bfd4a19411fe6c133df65f054a9dae609b3639e8",
@@ -103,18 +103,18 @@
         }
       ]
     },
-    "note": "Existing e938 Staging acceptance remains historical. New issue #197 race regression source 030a884b594944aa78d81bfe538dc2c69e042002 is Cloud Dev accepted and awaits exact-source Staging deployment and signed acceptance. No Live promotion authorized.",
+    "note": "Exact-source Cloud Dev-accepted issue #197 deletion-race fix 030a884b594944aa78d81bfe538dc2c69e042002 is deployed to Staging. Staging health, PostgreSQL migration state, queue/DLQ, and billing contract passed; signed Shopify acceptance is pending. No Live promotion authorized.",
     "deployment_record": {
       "workflow": "Cloudflare Staging Deploy",
-      "run_number": 20,
-      "run_id": 37868540742,
+      "run_number": 22,
+      "run_id": 38030584316,
       "branch": "development",
-      "control_head_sha": "ed00fdd624988d77e6d89bb282d87ba6c9be87e9",
-      "source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3",
+      "control_head_sha": "3feba422e8edce5a1389409d84547a6af3ad1eec",
+      "source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
       "worker_url": "https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev",
-      "worker_version_id": "d62c1095-9e4d-40d9-a977-db7e268c453c",
+      "worker_version_id": "ee0b005b-187a-4934-a2a9-5780e12f6378",
       "database_provider": "postgresql",
-      "prisma_migrations": "passed",
+      "prisma_migrations": "passed_up_to_date",
       "queue": "vsn-stock-down-sort-staging-sort-jobs",
       "dlq": "vsn-stock-down-sort-staging-sort-jobs-dlq",
       "runtime_health": "passed",
