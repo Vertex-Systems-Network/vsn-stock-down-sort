@@ -8,8 +8,8 @@ repository: Vertex-Systems-Network/vsn-stock-down-sort
 protocol: ANPOS
 protocol_version: 1.4.0
 current_phase: PHASE-10
-current_module: staging
-current_work_unit: ISSUE-197-WU-05
+current_module: sorting-controls
+current_work_unit: ISSUE-197-WU-06
 note: >
-  Issue #197 deletion-race regression and Cloud Dev passed on 030a884b594944aa78d81bfe538dc2c69e042002.
-  Exact-source Staging deploy and signed runtime acceptance are the next work unit; Live stays untouched.
+  Exact-source Staging deploy, Shopify release, and signed runtime acceptance passed for 030a884b594944aa78d81bfe538dc2c69e042002.
+  WU-06 tracks the merchant-facing Sort now retest; Live stays untouched.
