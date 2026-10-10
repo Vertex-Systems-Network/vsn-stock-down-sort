@@ -5,6 +5,7 @@ import process from "node:process";
 import { execFileSync, spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { probeHealth, waitForHealth } from "./certify-local-dev-auto.mjs";
+import { recordSortFailure, recordSortSuccess } from "../app/services/collection-setting-sort-state.server.mjs";
 
 const sourceRef = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 assert.match(sourceRef, /^[0-9a-f]{40}$/);
@@ -25,8 +26,12 @@ const shop = "cloud-runtime-fixture.invalid";
 try {
   const setting = await prisma.collectionSetting.create({ data: { shop, collectionId: "fixture-collection", enabled: true } });
   assert.equal((await prisma.collectionSetting.findUnique({ where: { id: setting.id } })).enabled, true);
+  // Simulate a privacy purge after the sorter has loaded the setting.
   await prisma.collectionSetting.delete({ where: { id: setting.id } });
-  assert.equal((await prisma.collectionSetting.updateMany({ where: { id: setting.id }, data: { lastError: "fixture" } })).count, 0);
+  const key = { shop, collectionId: setting.collectionId };
+  await assert.rejects(recordSortSuccess(prisma, key), /settings disappeared during sorting/);
+  await recordSortFailure(prisma, key, "fixture missing settings");
+  assert.equal((await prisma.collectionSetting.updateMany({ where: key, data: { lastError: "fixture" } })).count, 0);
   assert.equal(await prisma.collectionSetting.count({ where: { shop } }), 0);
 } finally {
   await prisma.$disconnect();
