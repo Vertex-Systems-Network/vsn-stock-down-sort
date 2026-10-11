@@ -4,7 +4,7 @@
  *   collectionSetting: {
  *     updateMany(args: {
  *       where: CollectionSettingKey,
- *       data: { lastSortedAt?: Date, lastError?: string | null }
+ *       data: { enabled?: boolean, lastSortedAt?: Date, lastError?: string | null }
  *     }): Promise<{ count: number }>
  *   }
  * }} SortStateDatabase
