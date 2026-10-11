@@ -4,7 +4,7 @@
  *   collectionSetting: {
  *     updateMany(args: {
  *       where: CollectionSettingKey,
- *       data: { lastSortedAt?: Date, lastError?: string | null }
+ *       data: { enabled?: boolean, lastSortedAt?: Date, lastError?: string | null }
  *     }): Promise<{ count: number }>
  *   }
  * }} SortStateDatabase
@@ -42,5 +42,19 @@ export async function recordSortFailure(db, key, message) {
     where: key,
     data: { lastError: message },
   }).catch(() => ({ count: 0 }));
+  return result.count === 1;
+}
+
+/**
+ * Disable an existing setting without recreating it after a concurrent privacy purge.
+ * @param {SortStateDatabase} db
+ * @param {CollectionSettingKey} key
+ * @returns {Promise<boolean>} Whether the setting was still present.
+ */
+export async function recordCollectionDisabled(db, key) {
+  const result = await db.collectionSetting.updateMany({
+    where: key,
+    data: { enabled: false, lastError: null },
+  });
   return result.count === 1;
 }

@@ -2,6 +2,7 @@ import { withPrismaClient } from "../db.server";
 import { getCurrentSubscriptionPlan } from "./billing.server";
 import { recordActivityEventSafe } from "./analytics.server";
 import {
+  recordCollectionDisabled,
   recordSortFailure,
   recordSortSuccess,
 } from "./collection-setting-sort-state.server.mjs";
@@ -1262,15 +1263,12 @@ export async function disableCollection(
 
   if (!setting) return;
 
-  await withPrismaClient((db) =>
-    db.collectionSetting.update({
-      where: { shop_collectionId: { shop, collectionId } },
-      data: {
-        enabled: false,
-        lastError: null,
-      },
-    }),
+  const disabled = await withPrismaClient((db) =>
+    recordCollectionDisabled(db, { shop, collectionId }),
   );
+
+  // A privacy purge can remove the row after findUnique; avoid further shop writes.
+  if (!disabled) return;
 
   if (restorePreviousSort && setting.previousSortOrder) {
     await setCollectionSortOrder(
