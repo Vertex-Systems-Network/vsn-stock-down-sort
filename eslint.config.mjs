@@ -10,6 +10,6 @@ const compat = new FlatCompat({
 });
 
 export default [
-  { ignores: ["**/node_modules/**", "**/build/**", "**/dist/**", ".react-router/**", ".shopify/**", "**/.cache/**", "**/_dev/**", "**/.*"] },
+  { ignores: ["**/node_modules/**", "**/*.mjs", "**/build/**", "**/dist/**", ".react-router/**", ".shopify/**", "**/.cache/**", "**/_dev/**", "**/.*"] },
   ...compat.config(legacy),
 ];
