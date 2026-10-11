@@ -68,6 +68,12 @@ jobs:
               fixAvailable: finding.fixAvailable,
             }));
           }
+          if (!Number.isInteger(counts.total) || counts.total < 0) {
+            throw new Error("npm audit returned an invalid vulnerability count");
+          }
+          if (counts.total > 0) {
+            throw new Error(`Production dependencies contain ${counts.total} audit finding(s)`);
+          }
           NODE
           if [ "${audit_exit:-0}" -gt 1 ]; then
             echo "npm audit command failed with exit ${audit_exit}" >&2
