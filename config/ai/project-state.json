@@ -31,8 +31,8 @@
   "critical_defects": [],
   "qa_readiness": "Exact-source Cloud Dev regression and Staging signed acceptance passed for a078ae76f06178991d97d482133abe2edf444c5e; controlled merchant deletion-during-sort test remains pending. Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff does not prove the race.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "80c9d8afd1453a83f39996df85b6fc05fb77115d",
-  "last_reconciled_at": "2026-10-11",
+  "last_reconciled_repository_ref": "248ab04fef26ec55e8a3e6ff9ed97ce3093febf0",
+  "last_reconciled_at": "2026-10-12",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
     "workflow_run": 594,
@@ -87,10 +87,10 @@
     },
     "latest_development_validation": {
       "workflow": "App Validation",
-      "run_id": 37869301990,
+      "run_id": 38177429930,
       "status": "completed",
       "conclusion": "success",
-      "validated_head_sha": "00303ff2323ed19fe1bfc33bde2f693b42a8b59d",
+      "validated_head_sha": "248ab04fef26ec55e8a3e6ff9ed97ce3093febf0",
       "cloud_dev_runtime": "passed"
     },
     "issue_197_race_regression": {
