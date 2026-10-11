@@ -36,7 +36,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  // eslint-disable-next-line no-undef
   return {
     apiKey: process.env.SHOPIFY_API_KEY || "",
     environment: getAppEnvironment(),
