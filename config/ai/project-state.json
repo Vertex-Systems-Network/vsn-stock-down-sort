@@ -5,8 +5,8 @@
   "current_module": "sorting-controls",
   "current_work_unit": "ISSUE-197-WU-06",
   "active_issue": 197,
-  "last_verified_completion": "Staging source 030a884b594944aa78d81bfe538dc2c69e042002 deployed by run 38030584316, released to Shopify Staging by run 38030978501, and signed-accepted by run 38031436557; all staged checks passed. WU-06 tracks merchant Sort now retest; Live untouched.",
-  "next_valid_work_unit": "Exercise the merchant-facing Sort now path on Staging source 030a884b594944aa78d81bfe538dc2c69e042002 and record the deletion-safe result; keep Live untouched.",
+  "last_verified_completion": "Staging source a078ae76f06178991d97d482133abe2edf444c5e deployed (run 38047871804), Shopify version released (run 38048429795), and signed-accepted (run 38049016544). main released Live source 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff (run 38050210445). Controlled merchant deletion-during-Sort-now race remains pending for Issue #197.",
+  "next_valid_work_unit": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source a078ae76f06178991d97d482133abe2edf444c5e; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission.",
   "progress": {
     "total_work_units": 49,
     "complete": 47,
@@ -29,10 +29,10 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Issue #197 deterministic deletion-race regression passed on exact source 030a884b594944aa78d81bfe538dc2c69e042002; App Validation and Cloud Dev SQLite Runtime passed, then exact-source Staging deployment and signed Shopify acceptance passed. Merchant Sort now retest remains pending.",
+  "qa_readiness": "Exact-source Cloud Dev regression and Staging signed acceptance passed for a078ae76f06178991d97d482133abe2edf444c5e; controlled merchant deletion-during-sort test remains pending. Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff does not prove the race.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "7991a5f0647f7aab72da0d615b25c90e41d35858",
-  "last_reconciled_at": "2026-10-10",
+  "last_reconciled_repository_ref": "80c9d8afd1453a83f39996df85b6fc05fb77115d",
+  "last_reconciled_at": "2026-10-11",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
     "workflow_run": 594,
@@ -106,11 +106,11 @@
     },
     "latest_staging_acceptance": {
       "workflow": "Staging Runtime Acceptance",
-      "run_number": 20,
-      "run_id": 38031436557,
+      "run_number": 21,
+      "run_id": 38049016544,
       "conclusion": "success",
-      "control_head_sha": "7991a5f0647f7aab72da0d615b25c90e41d35858",
-      "validated_source_sha": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "control_head_sha": "3fc729aca67ec42e9086ef20eaed0da54f37c823",
+      "validated_source_sha": "a078ae76f06178991d97d482133abe2edf444c5e",
       "shop": "staging-oath3rth.myshopify.com",
       "runtime_health": "passed",
       "queue_readiness": "passed",
@@ -120,7 +120,8 @@
       "subscription_read": "passed",
       "stored_session_count": 2,
       "active_subscription_count": 1,
-      "verified_plan": "unlimited"
+      "verified_plan": "unlimited",
+      "merchant_sort_now_race_retest": "pending"
     }
   },
   "batch_06_09": {
@@ -144,11 +145,11 @@
     "truth_rule": "No environment or billing plan is marked accepted without live evidence."
   },
   "active_issue_status": "in_progress",
-  "active_issue_note": "Exact-source Cloud Dev regression and signed Staging runtime acceptance passed (deploy #22, Shopify release #16, acceptance #20). WU-06 tracks the merchant-facing Sort now retest; issue #197 remains open until that result is recorded. Live remains untouched.",
+  "active_issue_note": "Staging deploy #23, Shopify release #17 and signed acceptance #21 passed for a078ae76f06178991d97d482133abe2edf444c5e; ordinary Sort now and SQLite deletion regression passed, controlled Staging deletion race pending. Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff separately succeeded; Issue #197 stays open.",
   "runtime_track": {
     "issue": 197,
     "issue_status": "open",
-    "status": "issue_197_cloud_dev_and_staging_accepted_merchant_sort_now_retest_pending",
+    "status": "issue_197_staging_and_live_released_controlled_merchant_race_pending",
     "repository_preparation": "complete",
     "previous_release_runtime_testing": "complete",
     "local_dev": {
@@ -156,13 +157,13 @@
       "status": "accepted_previous_source"
     },
     "staging": {
-      "deployed_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
-      "accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002",
+      "deployed_source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
+      "accepted_source_ref": "a078ae76f06178991d97d482133abe2edf444c5e",
       "status": "accepted",
-      "deployment_run_id": 38030584316,
-      "shopify_release_run_id": 38030978501,
-      "shopify_version_run_id": 38030873620,
-      "runtime_acceptance_run_id": 38031436557,
+      "deployment_run_id": 38047871804,
+      "shopify_release_run_id": 38048429795,
+      "shopify_version_run_id": 38048282648,
+      "runtime_acceptance_run_id": 38049016544,
       "runtime_checks": "passed",
       "signed_shopify_session": "passed",
       "admin_graphql_read": "passed",
@@ -171,16 +172,17 @@
       "active_subscription_count": 1,
       "verified_plan": "unlimited",
       "merchant_sort_now_race_retest": "pending",
-      "previous_accepted_source_ref": "e938eb843489777e2c7197e27d20e49a1e0b2fa3"
+      "previous_accepted_source_ref": "030a884b594944aa78d81bfe538dc2c69e042002"
     },
     "live": {
-      "accepted_source_ref": "14227a5f2603205aee3789b71494ee9380abb264",
-      "status": "accepted_previous_release",
-      "production_version": "stock-down-sort-production-14227a5f2603-3",
-      "release_run_id": 37379908862
+      "accepted_source_ref": "2cf6adef43ebe3b1292fa0af1c3d5b692c73efff",
+      "status": "accepted_release",
+      "production_version": "stock-down-sort-production-2cf6adef43eb-4",
+      "release_run_id": 38050210445,
+      "previous_accepted_source_ref": "14227a5f2603205aee3789b71494ee9380abb264"
     },
-    "next_gate": "Exercise the merchant-facing Sort now path on accepted Staging source 030a884b594944aa78d81bfe538dc2c69e042002 and record the deletion-safe result; keep Live untouched.",
-    "development_head_resolution": "Exact source 030a884b594944aa78d81bfe538dc2c69e042002 passed Cloud Dev and was signed-accepted on Staging (acceptance run 38031436557). The staging acceptance checks do not invoke Sort now; that merchant-facing race retest remains open.",
+    "next_gate": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source a078ae76f06178991d97d482133abe2edf444c5e; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission.",
+    "development_head_resolution": "Cloud Dev accepted a078ae76f06178991d97d482133abe2edf444c5e; Staging signed acceptance run 38049016544 passed, but does not invoke merchant Sort now or force deletion. Controlled race pending.",
     "latest_local_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",
       "status": "blocked",
