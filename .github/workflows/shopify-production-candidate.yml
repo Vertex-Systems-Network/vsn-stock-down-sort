@@ -18,7 +18,7 @@ concurrency:
 jobs:
   create-production-candidate:
     if: github.event.inputs.confirm == 'CREATE_PRODUCTION_SHOPIFY_VERSION'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: cloudflare-production
     env:
