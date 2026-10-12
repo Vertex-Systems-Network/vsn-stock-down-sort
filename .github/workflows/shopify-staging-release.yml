@@ -26,7 +26,7 @@ concurrency:
 jobs:
   release-staging-version:
     if: github.event.inputs.confirm == 'RELEASE_STAGING_SHOPIFY_VERSION'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: cloudflare-staging
     env:
