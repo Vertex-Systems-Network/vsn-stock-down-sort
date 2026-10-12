@@ -203,6 +203,10 @@ jobs:
           if int(session.get("storedSessionCount", 0)) < 1:
               raise RuntimeError("no stored Shopify sessions were found")
 
+          admin = payload.get("adminGraphql") or {}
+          if admin.get("ok") is not True:
+              raise RuntimeError("Shopify Admin GraphQL read did not pass")
+
           subscriptions = payload.get("subscriptions") or {}
           if subscriptions.get("readOk") is not True:
               raise RuntimeError("subscription read did not pass")
