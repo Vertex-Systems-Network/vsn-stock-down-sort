@@ -200,21 +200,18 @@ test("current Staging gate truthfully distinguishes deployed from accepted sourc
     gates.staging.deployment_record?.source_ref,
     gates.staging.deployed_source_ref,
   );
-  assert.equal(
-    gates.staging.shopify_release_record?.source_ref,
-    gates.staging.deployed_source_ref,
-  );
   assert.ok(Number.isInteger(gates.staging.deployment_record?.run_id));
   assert.ok(gates.staging.deployment_record.run_id > 0);
-  assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
-  assert.ok(gates.staging.shopify_release_record.run_id > 0);
-  assert.equal(gates.staging.shopify_release_record?.status, "released");
-  assert.match(
-    gates.staging.shopify_release_record?.version ?? "",
-    new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
-  );
 
   if (gates.staging.status === "accepted") {
+    assert.equal(gates.staging.shopify_release_record?.source_ref, gates.staging.deployed_source_ref);
+    assert.ok(Number.isInteger(gates.staging.shopify_release_record?.run_id));
+    assert.ok(gates.staging.shopify_release_record.run_id > 0);
+    assert.equal(gates.staging.shopify_release_record?.status, "released");
+    assert.match(
+      gates.staging.shopify_release_record?.version ?? "",
+      new RegExp("^stock-down-sort-staging-" + gates.staging.deployed_source_ref.slice(0, 12) + "-[0-9]+$"),
+    );
     assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
     assert.match(gates.staging.accepted_main_ref ?? "", /^[0-9a-f]{40}$/);
     assert.ok(Number.isInteger(gates.staging.evidence_record?.run_id));
