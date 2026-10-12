@@ -49,7 +49,7 @@
       "runtime_health": "passed",
       "queue_readiness": "passed",
       "billing_contract": "four_plans_10_day_trials",
-      "shopify_acceptance": "pending_signed_runtime_workflow"
+      "shopify_acceptance": "pending_staging_runtime_acceptance"
     },
     "previous_acceptance": {
       "status": "accepted",
