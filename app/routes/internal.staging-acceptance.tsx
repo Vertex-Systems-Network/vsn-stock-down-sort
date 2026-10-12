@@ -110,6 +110,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const storedSessions = await sessionStorage.findSessionsByShop(shop);
     const { admin, session } = await unauthenticated.admin(shop);
+    const adminResponse = await admin.graphql(`#graphql
+      query AcceptanceShopIdentity {
+        shop {
+          id
+          myshopifyDomain
+        }
+      }
+    `);
+    const adminPayload = (await adminResponse.json()) as {
+      data?: { shop?: { id?: string; myshopifyDomain?: string } };
+      errors?: unknown[];
+    };
+    if (
+      !adminResponse.ok ||
+      adminPayload.errors?.length ||
+      !adminPayload.data?.shop?.id ||
+      adminPayload.data.shop.myshopifyDomain !== shop
+    ) {
+      throw new Error("Staging Admin GraphQL shop identity read failed.");
+    }
 
     const current = await getCurrentSubscriptionPlan(admin);
     const recognizedPlanIds = current ? [current.plan.id] : [];
