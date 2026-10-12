@@ -1,4 +1,5 @@
 import { withPrismaClient } from "../db.server";
+import type { Prisma } from "@prisma/client";
 import {
   PHASE4_OPTION_IDS,
   assertPhase4Entitlement,
@@ -108,26 +109,31 @@ function normalizeEvent(event: {
   };
 }
 
+export async function recordActivityEventOnClient(
+  db: Pick<Prisma.TransactionClient, "activityEvent">,
+  input: ActivityEventInput,
+) {
+  return db.activityEvent.create({
+    data: {
+      shop: input.shop,
+      category: input.category,
+      action: input.action,
+      outcome: input.outcome ?? "SUCCESS",
+      source: input.source?.trim() || "runtime",
+      entityType: input.entityType?.trim() || null,
+      entityId: input.entityId?.trim() || null,
+      summary: safeSummary(input.summary),
+      details: safeDetails(input.details),
+      totalProducts: boundedNumber(input.totalProducts),
+      soldOutProducts: boundedNumber(input.soldOutProducts),
+      movedProducts: boundedNumber(input.movedProducts),
+      occurredAt: input.occurredAt ?? new Date(),
+    },
+  });
+}
+
 export async function recordActivityEvent(input: ActivityEventInput) {
-  return withPrismaClient((db) =>
-    db.activityEvent.create({
-      data: {
-        shop: input.shop,
-        category: input.category,
-        action: input.action,
-        outcome: input.outcome ?? "SUCCESS",
-        source: input.source?.trim() || "runtime",
-        entityType: input.entityType?.trim() || null,
-        entityId: input.entityId?.trim() || null,
-        summary: safeSummary(input.summary),
-        details: safeDetails(input.details),
-        totalProducts: boundedNumber(input.totalProducts),
-        soldOutProducts: boundedNumber(input.soldOutProducts),
-        movedProducts: boundedNumber(input.movedProducts),
-        occurredAt: input.occurredAt ?? new Date(),
-      },
-    }),
-  );
+  return withPrismaClient((db) => recordActivityEventOnClient(db, input));
 }
 
 export async function recordActivityEventSafe(input: ActivityEventInput) {
