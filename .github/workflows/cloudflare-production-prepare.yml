@@ -23,7 +23,7 @@ concurrency:
 jobs:
   prepare:
     if: inputs.confirm == 'PREPARE_PRODUCTION_WORKER_ONLY'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     environment: cloudflare-production
     env:
