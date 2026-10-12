@@ -1268,7 +1268,7 @@ export async function disableCollection(
   if (!setting) return;
 
   const disabled = await withPrismaClient((db) =>
-    recordCollectionDisabled(db, { shop, collectionId }),
+    recordCollectionDisabled(db, { shop, collectionId, id: setting.id }),
   );
 
   // A privacy purge can remove the row after findUnique; avoid further shop writes.

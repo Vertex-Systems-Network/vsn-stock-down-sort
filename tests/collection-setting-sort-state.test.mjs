@@ -78,21 +78,43 @@ test("a stale sort cannot write metadata to a replacement setting", async () => 
 
 test("disabling a setting deleted by a concurrent privacy purge does not recreate it", async () => {
   const key = { shop: "race-test.myshopify.com", collectionId: "gid://shopify/Collection/2" };
-  const settings = new Map([[key.collectionId, { ...key, enabled: true }]]);
+  const settings = new Map([[key.collectionId, { ...key, id: "original", enabled: true }]]);
   const db = {
     collectionSetting: {
       async updateMany({ where, data }) {
         const existing = settings.get(where.collectionId);
-        if (!existing || existing.shop !== where.shop) return { count: 0 };
+        if (!existing || existing.shop !== where.shop || existing.id !== where.id) return { count: 0 };
         settings.set(where.collectionId, { ...existing, ...data });
         return { count: 1 };
       },
     },
   };
 
-  assert.equal(await recordCollectionDisabled(db, key), true);
+  assert.equal(await recordCollectionDisabled(db, { ...key, id: "original" }), true);
   assert.equal(settings.get(key.collectionId)?.enabled, false);
   settings.delete(key.collectionId);
-  assert.equal(await recordCollectionDisabled(db, key), false);
+  assert.equal(await recordCollectionDisabled(db, { ...key, id: "original" }), false);
   assert.equal(settings.has(key.collectionId), false);
+});
+
+test("a stale disable cannot change a replacement setting", async () => {
+  const key = { shop: "race-test.myshopify.com", collectionId: "gid://shopify/Collection/4" };
+  let row = { ...key, id: "replacement", enabled: true, lastError: null };
+  const db = {
+    collectionSetting: {
+      async updateMany({ where, data }) {
+        if (where.shop !== row.shop || where.collectionId !== row.collectionId || where.id !== row.id) {
+          return { count: 0 };
+        }
+        row = { ...row, ...data };
+        return { count: 1 };
+      },
+    },
+  };
+
+  assert.equal(await recordCollectionDisabled(db, { ...key, id: "purged-original" }), false);
+  assert.equal(row.enabled, true);
+  assert.equal(row.lastError, null);
+  assert.equal(await recordCollectionDisabled(db, { ...key, id: "replacement" }), true);
+  assert.equal(row.enabled, false);
 });
