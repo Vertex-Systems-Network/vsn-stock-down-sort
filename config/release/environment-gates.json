@@ -25,7 +25,7 @@
     }
   },
   "staging": {
-    "status": "verification_required",
+    "status": "accepted",
     "required_checks": [
       "Staging runtime health",
       "Staging queue/DLQ readiness",
@@ -306,7 +306,64 @@
         "accepted_on_branch": "development"
       }
     },
-    "note": "Worker deployment and health checks passed for the exact Cloud Dev accepted source. Signed Shopify Staging Runtime Acceptance and controlled merchant deletion-during-Sort-now race remain pending; no Live promotion is claimed."
+    "note": "Exact source passed Worker deploy, Shopify Staging version release, and signed runtime acceptance after release. Controlled merchant deletion-during-Sort-now race remains pending. No main/Live promotion claimed.",
+    "shopify_release_record": {
+      "workflow": "Shopify Staging Release",
+      "run_number": 18,
+      "run_id": 38284082761,
+      "branch": "development",
+      "control_head_sha": "978f9ddf2718347a6762645b59882f6e271b86ad",
+      "source_ref": "1f5e0723b1a844999db8f43ee4f368cad3574412",
+      "version": "stock-down-sort-staging-1f5e0723b1a8-17",
+      "status": "released",
+      "local_and_live_configs_untouched": true,
+      "version_run_id": 38283838318
+    },
+    "runtime_acceptance_record": {
+      "workflow": "Staging Runtime Acceptance",
+      "run_number": 22,
+      "run_id": 38283610600,
+      "run_attempt": 2,
+      "branch": "development",
+      "control_head_sha": "978f9ddf2718347a6762645b59882f6e271b86ad",
+      "source_ref": "1f5e0723b1a844999db8f43ee4f368cad3574412",
+      "shop": "staging-oath3rth.myshopify.com",
+      "status": "passed",
+      "checks": {
+        "runtime_health": "passed",
+        "queue_readiness": "passed",
+        "four_plan_billing_contract": "passed",
+        "signed_shopify_session": "passed",
+        "admin_graphql_read": "passed",
+        "subscription_read": "passed"
+      },
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "merchant_ui": {
+        "sort_now_race_retest": "pending",
+        "note": "Signed runtime workflow does not force deletion during Sort now."
+      }
+    },
+    "accepted_source_ref": "1f5e0723b1a844999db8f43ee4f368cad3574412",
+    "accepted_control_head_sha": "978f9ddf2718347a6762645b59882f6e271b86ad",
+    "accepted_on_branch": "development",
+    "evidence_record": {
+      "source_ref": "1f5e0723b1a844999db8f43ee4f368cad3574412",
+      "branch": "development",
+      "workflow_run_id": 38283610600,
+      "run_id": 38283610600,
+      "run_attempt": 2,
+      "shop": "staging-oath3rth.myshopify.com",
+      "workflow": "Staging Runtime Acceptance",
+      "offline_shopify_session": "passed",
+      "admin_graphql": "passed",
+      "subscription_read": "passed",
+      "stored_session_count": 2,
+      "active_subscription_count": 1,
+      "verified_plan": "unlimited",
+      "note": "Signed acceptance rerun after Shopify Staging version release; controlled merchant deletion race remains pending."
+    }
   },
   "live": {
     "status": "accepted",
