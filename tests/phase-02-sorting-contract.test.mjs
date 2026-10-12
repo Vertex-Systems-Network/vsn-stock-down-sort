@@ -215,8 +215,8 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
       "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
     ),
   );
-  assert.ok(sortImplementation.includes("recordSortSuccess(db, { shop, collectionId })"));
-  assert.ok(sortImplementation.includes("recordSortFailure(db, { shop, collectionId }, message)"));
+  assert.ok(sortImplementation.includes("recordSortSuccess(db, { shop, collectionId, id: settingId })"));
+  assert.ok(sortImplementation.includes("recordSortFailure(db, { shop, collectionId, id: settingId }, message)"));
   assert.equal(
     sortImplementation.includes("collectionSetting.update("),
     false,
