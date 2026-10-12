@@ -35,7 +35,7 @@ concurrency:
 jobs:
   certify-staging:
     if: github.event.inputs.confirm == 'CERTIFY_STAGING_RUNTIME'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: cloudflare-staging
     env:
