@@ -920,6 +920,7 @@ async function sortCollectionWithEntitlements(
   collectionId: string,
   entitledOptionIds: readonly string[],
 ) {
+  let settingId: string | undefined;
   try {
     const collection = await getCollection(admin, collectionId);
     if (!collection) throw new Error("Collection not found");
@@ -939,6 +940,7 @@ async function sortCollectionWithEntitlements(
     if (!setting) {
       throw new Error("Collection sorting settings were not found. Refresh the page and enable this collection before sorting.");
     }
+    settingId = setting.id;
 
     const rules = effectiveCollectionRules(setting, entitledOptionIds);
     const products = await listCollectionProducts(admin, collectionId);
@@ -967,7 +969,7 @@ async function sortCollectionWithEntitlements(
     ).length;
 
     await withPrismaClient((db) =>
-      recordSortSuccess(db, { shop, collectionId }),
+      recordSortSuccess(db, { shop, collectionId, id: settingId }),
     );
 
     const result = {
@@ -1017,9 +1019,11 @@ async function sortCollectionWithEntitlements(
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
 
-    const settingStillExists = await withPrismaClient((db) =>
-      recordSortFailure(db, { shop, collectionId }, message),
-    ).catch(() => false);
+    const settingStillExists = settingId
+      ? await withPrismaClient((db) =>
+          recordSortFailure(db, { shop, collectionId, id: settingId }, message),
+        ).catch(() => false)
+      : false;
 
     if (settingStillExists) {
       await recordActivityEventSafe({
