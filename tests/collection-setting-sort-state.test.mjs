@@ -49,6 +49,32 @@ test("failure metadata reports an existing setting without recreating a row", as
   assert.equal(await recordSortFailure(db, { shop: "fixture", collectionId: "fixture" }, "error"), true);
 });
 
+test("a stale sort cannot write metadata to a replacement setting", async () => {
+  const key = { shop: "race-test.myshopify.com", collectionId: "gid://shopify/Collection/3" };
+  let row = { ...key, id: "replacement", lastError: null, lastSortedAt: null };
+  const db = {
+    collectionSetting: {
+      async updateMany({ where, data }) {
+        if (where.shop !== row.shop || where.collectionId !== row.collectionId || where.id !== row.id) {
+          return { count: 0 };
+        }
+        row = { ...row, ...data };
+        return { count: 1 };
+      },
+    },
+  };
+
+  const staleKey = { ...key, id: "purged-original" };
+  await assert.rejects(recordSortSuccess(db, staleKey), /settings disappeared during sorting/);
+  assert.equal(await recordSortFailure(db, staleKey, "stale sort failed"), false);
+  assert.equal(row.id, "replacement");
+  assert.equal(row.lastError, null);
+  assert.equal(row.lastSortedAt, null);
+
+  await recordSortSuccess(db, { ...key, id: "replacement" });
+  assert.ok(row.lastSortedAt instanceof Date);
+});
+
 
 test("disabling a setting deleted by a concurrent privacy purge does not recreate it", async () => {
   const key = { shop: "race-test.myshopify.com", collectionId: "gid://shopify/Collection/2" };
