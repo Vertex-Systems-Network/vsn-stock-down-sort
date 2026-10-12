@@ -23,7 +23,7 @@ concurrency:
 jobs:
   bootstrap:
     if: github.event_name == 'push' || github.event.inputs.confirm == 'BOOTSTRAP_CLOUDFLARE_STAGING'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: cloudflare-staging
     env:
