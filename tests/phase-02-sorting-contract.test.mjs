@@ -215,8 +215,8 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
       "Collection sorting settings were not found. Refresh the page and enable this collection before sorting.",
     ),
   );
-  assert.ok(sortImplementation.includes("recordSortSuccess(db, { shop, collectionId, id: settingId })"));
-  assert.ok(sortImplementation.includes("recordSortFailure(db, { shop, collectionId, id: settingId }, message)"));
+  assert.ok(sortImplementation.includes("recordSortSuccessWithActivity(db, { shop, collectionId, id: settingId }"));
+  assert.ok(sortImplementation.includes("recordSortFailureWithActivity(db, { shop, collectionId, id: settingId }, message"));
   assert.equal(
     sortImplementation.includes("collectionSetting.update("),
     false,
@@ -226,5 +226,5 @@ test("Sort now handles a missing collection-setting row without Prisma update fa
   assert.match(persistence, /collectionSetting\.updateMany/);
   assert.match(persistence, /result\.count !== 1/);
   assert.match(persistence, /\.catch\(\(\) => \(\{ count: 0 \}\)\)/);
-  assert.match(sortImplementation, /if \(settingStillExists\) \{/);
+  assert.match(persistence, /if \(exists\) \{[\s\S]*?await createActivity\(tx\)/);
 });
