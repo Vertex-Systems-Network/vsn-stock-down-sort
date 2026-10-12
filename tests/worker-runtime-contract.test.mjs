@@ -602,7 +602,7 @@ test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
 
   const waitIndex = sorter.indexOf("await waitForJob(admin, jobId)");
   const successWriteIndex = sorter.indexOf(
-    "recordSortSuccess(db, { shop, collectionId })",
+    "recordSortSuccess(db, { shop, collectionId, id: settingId })",
   );
   const persistence = read(
     "app/services/collection-setting-sort-state.server.mjs",

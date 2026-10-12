@@ -1,5 +1,5 @@
 /**
- * @typedef {{ shop: string, collectionId: string }} CollectionSettingKey
+ * @typedef {{ shop: string, collectionId: string, id?: string }} CollectionSettingKey
  * @typedef {{
  *   collectionSetting: {
  *     updateMany(args: {
