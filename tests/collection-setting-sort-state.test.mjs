@@ -3,7 +3,9 @@ import test from "node:test";
 import {
   recordCollectionDisabled,
   recordSortFailure,
+  recordSortFailureWithActivity,
   recordSortSuccess,
+  recordSortSuccessWithActivity,
 } from "../app/services/collection-setting-sort-state.server.mjs";
 
 test("a settings deletion during sort is reported without recreating the purged row", async () => {
@@ -117,4 +119,71 @@ test("a stale disable cannot change a replacement setting", async () => {
   assert.equal(row.lastError, null);
   assert.equal(await recordCollectionDisabled(db, { ...key, id: "replacement" }), true);
   assert.equal(row.enabled, false);
+});
+
+test("sort metadata and activity commit together or not at all", async () => {
+  const key = { shop: "race-test.myshopify.com", collectionId: "gid://shopify/Collection/5", id: "original" };
+  let row = { ...key, lastSortedAt: null, lastError: null };
+  let activities = [];
+  const updateSetting = async ({ where, data }) => {
+    if (!row || where.id !== row.id) return { count: 0 };
+    row = { ...row, ...data };
+    return { count: 1 };
+  };
+  const db = {
+    collectionSetting: { updateMany: updateSetting },
+    async $transaction(operation) {
+      let nextRow = row;
+      const nextActivities = [...activities];
+      const tx = {
+        collectionSetting: {
+          async updateMany({ where, data }) {
+            if (!nextRow || where.id !== nextRow.id) return { count: 0 };
+            nextRow = { ...nextRow, ...data };
+            return { count: 1 };
+          },
+        },
+        activityEvent: {
+          async create({ data }) {
+            nextActivities.push(data);
+          },
+        },
+      };
+      const result = await operation(tx);
+      row = nextRow;
+      activities = nextActivities;
+      return result;
+    },
+  };
+  const createActivity = (tx) => tx.activityEvent.create({ data: { shop: key.shop } });
+
+  await recordSortSuccessWithActivity(db, key, createActivity);
+  assert.ok(row.lastSortedAt instanceof Date);
+  assert.equal(activities.length, 1);
+
+  row = null;
+  activities = [];
+  await assert.rejects(recordSortSuccessWithActivity(db, key, createActivity), /settings disappeared/);
+  assert.equal(await recordSortFailureWithActivity(db, key, "missing", createActivity), false);
+  assert.equal(row, null);
+  assert.equal(activities.length, 0);
+
+  row = { ...key, lastSortedAt: null, lastError: null };
+  await recordSortSuccessWithActivity(db, key, async () => { throw new Error("activity unavailable"); });
+  assert.ok(row.lastSortedAt instanceof Date, "activity failure falls back to metadata only");
+  assert.equal(activities.length, 0);
+
+  assert.equal(await recordSortFailureWithActivity(db, key, "sort failed", createActivity), true);
+  assert.equal(row.lastError, "sort failed");
+  assert.equal(activities.length, 1);
+
+  activities = [];
+  assert.equal(
+    await recordSortFailureWithActivity(db, key, "activity unavailable", async () => {
+      throw new Error("activity unavailable");
+    }),
+    true,
+  );
+  assert.equal(row.lastError, "activity unavailable");
+  assert.equal(activities.length, 0);
 });

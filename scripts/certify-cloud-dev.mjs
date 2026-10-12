@@ -5,7 +5,12 @@ import process from "node:process";
 import { execFileSync, spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { probeHealth, waitForHealth } from "./certify-local-dev-auto.mjs";
-import { recordSortFailure, recordSortSuccess } from "../app/services/collection-setting-sort-state.server.mjs";
+import {
+  recordSortFailure,
+  recordSortSuccess,
+  recordSortSuccessWithActivity,
+  recordSortFailureWithActivity,
+} from "../app/services/collection-setting-sort-state.server.mjs";
 
 const sourceRef = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 assert.match(sourceRef, /^[0-9a-f]{40}$/);
@@ -33,6 +38,32 @@ try {
   assert.equal(await recordSortFailure(prisma, key, "fixture missing settings"), false);
   assert.equal((await prisma.collectionSetting.updateMany({ where: key, data: { lastError: "fixture" } })).count, 0);
   assert.equal(await prisma.collectionSetting.count({ where: { shop } }), 0);
+
+  const replacement = await prisma.collectionSetting.create({
+    data: { shop, collectionId: setting.collectionId, enabled: true },
+  });
+  const staleKey = { ...key, id: setting.id };
+  const createActivity = (tx) => tx.activityEvent.create({
+    data: {
+      shop, category: "sorting", action: "collection.sorted",
+      outcome: "SUCCESS", source: "cloud-dev-fixture", details: "{}",
+    },
+  });
+  await assert.rejects(
+    recordSortSuccessWithActivity(prisma, staleKey, createActivity),
+    /settings disappeared during sorting/,
+  );
+  assert.equal(await recordSortFailureWithActivity(prisma, staleKey, "stale", createActivity), false);
+  assert.equal(await prisma.activityEvent.count({ where: { shop } }), 0);
+  assert.equal((await prisma.collectionSetting.findUnique({ where: { id: replacement.id } })).lastError, null);
+
+  await recordSortSuccessWithActivity(prisma, { ...key, id: replacement.id }, createActivity);
+  assert.equal(await prisma.activityEvent.count({ where: { shop } }), 1);
+  assert.ok((await prisma.collectionSetting.findUnique({ where: { id: replacement.id } })).lastSortedAt);
+  // Purge order: remove the setting before activity so this shop is empty.
+  await prisma.collectionSetting.deleteMany({ where: { shop } });
+  await prisma.activityEvent.deleteMany({ where: { shop } });
+  assert.equal(await prisma.activityEvent.count({ where: { shop } }), 0);
 } finally {
   await prisma.$disconnect();
 }

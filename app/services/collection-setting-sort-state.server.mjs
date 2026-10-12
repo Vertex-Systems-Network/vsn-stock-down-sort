@@ -28,6 +28,28 @@ export async function recordSortSuccess(db, key) {
   }
 }
 
+/** Commit sort metadata and its activity event under one short row lock. */
+export async function recordSortSuccessWithActivity(db, key, createActivity) {
+  let activityFailed = false;
+  try {
+    await db.$transaction(async (tx) => {
+      await recordSortSuccess(tx, key);
+      try {
+        await createActivity(tx);
+      } catch (error) {
+        activityFailed = true;
+        throw error;
+      }
+    });
+  } catch (error) {
+    if (!activityFailed) throw error;
+    console.error("activity event persistence failed", error instanceof Error ? error.message : "Unknown activity persistence error");
+    // Activity is best-effort. The transaction rolled back; persist only
+    // metadata, still bound to the original row ID.
+    await recordSortSuccess(db, key);
+  }
+}
+
 /**
  * Persist an error without recreating a setting removed by a privacy purge.
  * Persistence failure is intentionally ignored so the original sort error is preserved.
@@ -43,6 +65,30 @@ export async function recordSortFailure(db, key, message) {
     data: { lastError: message },
   }).catch(() => ({ count: 0 }));
   return result.count === 1;
+}
+
+/** Preserve the original sort error even if failure activity cannot be saved. */
+export async function recordSortFailureWithActivity(db, key, message, createActivity) {
+  let activityFailed = false;
+  try {
+    return await db.$transaction(async (tx) => {
+      const exists = await recordSortFailure(tx, key, message);
+      if (exists) {
+        try {
+          await createActivity(tx);
+        } catch (error) {
+          activityFailed = true;
+          throw error;
+        }
+      }
+      return exists;
+    });
+  } catch (error) {
+    if (activityFailed) {
+      console.error("activity event persistence failed", error instanceof Error ? error.message : "Unknown activity persistence error");
+    }
+    return activityFailed ? recordSortFailure(db, key, message) : false;
+  }
 }
 
 /**
