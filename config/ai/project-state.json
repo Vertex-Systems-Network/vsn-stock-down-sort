@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-197-WU-06",
   "active_issue": 197,
   "last_verified_completion": "Staging source a078ae76f06178991d97d482133abe2edf444c5e deployed (run 38047871804), Shopify version released (run 38048429795), and signed-accepted (run 38049016544). main released Live source 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff (run 38050210445). Controlled merchant deletion-during-Sort-now race remains pending for Issue #197.",
-  "next_valid_work_unit": "Promote exact Cloud Dev accepted development source 2eb0cd105711d429883d5d2deb64a105d460a033 to Staging through guarded manual workflow, obtain signed Staging acceptance, then perform controlled deletion-during-Sort-now merchant test and record evidence. No Shopify review submission.",
+  "next_valid_work_unit": "Promote exact Cloud Dev accepted development source 1f5e0723b1a844999db8f43ee4f368cad3574412 to Staging through guarded manual workflow, obtain signed Staging acceptance, then perform controlled deletion-during-Sort-now merchant test and record evidence. No Shopify review submission.",
   "progress": {
     "total_work_units": 49,
     "complete": 47,
@@ -29,9 +29,9 @@
     "No persistent ANPOS orchestrator runtime is configured; continuous background Supervisor/Worker leases must not be claimed."
   ],
   "critical_defects": [],
-  "qa_readiness": "Exact-source Cloud Dev validation passed for development source 2eb0cd105711d429883d5d2deb64a105d460a033. Signed Staging acceptance remains at a078ae76f06178991d97d482133abe2edf444c5e; controlled merchant deletion-during-Sort-now test remains pending. Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff does not prove the race.",
+  "qa_readiness": "Exact-source Cloud Dev validation passed for development source 1f5e0723b1a844999db8f43ee4f368cad3574412, including atomic Sort now metadata/activity SQLite fixture. Signed Staging acceptance remains at a078ae76f06178991d97d482133abe2edf444c5e; controlled merchant deletion-during-Sort-now test and hosted PostgreSQL runtime verification remain pending. Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff does not prove this race.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "2eb0cd105711d429883d5d2deb64a105d460a033",
+  "last_reconciled_repository_ref": "1f5e0723b1a844999db8f43ee4f368cad3574412",
   "last_reconciled_at": "2026-10-12",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
@@ -87,10 +87,10 @@
     },
     "latest_development_validation": {
       "workflow": "App Validation",
-      "run_id": 38189223011,
+      "run_id": 38241010236,
       "status": "completed",
       "conclusion": "success",
-      "validated_head_sha": "2eb0cd105711d429883d5d2deb64a105d460a033",
+      "validated_head_sha": "1f5e0723b1a844999db8f43ee4f368cad3574412",
       "cloud_dev_runtime": "passed"
     },
     "issue_197_race_regression": {
