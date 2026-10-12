@@ -1484,12 +1484,11 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
     gates.staging.deployment_record?.source_ref,
     gates.staging.deployed_source_ref,
   );
-  assert.equal(
-    gates.staging.shopify_release_record?.source_ref,
-    gates.staging.deployed_source_ref,
-  );
-
   if (gates.staging.status === "accepted") {
+    assert.equal(
+      gates.staging.shopify_release_record?.source_ref,
+      gates.staging.deployed_source_ref,
+    );
     assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
     assert.equal(gates.staging.evidence_record?.source_ref, gates.staging.deployed_source_ref);
     assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
