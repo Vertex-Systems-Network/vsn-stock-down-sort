@@ -5,8 +5,8 @@
   "current_module": "sorting-controls",
   "current_work_unit": "ISSUE-197-WU-06",
   "active_issue": 197,
-  "last_verified_completion": "Staging source 030a884b594944aa78d81bfe538dc2c69e042002 deployed by run 38030584316, released to Shopify Staging by run 38030978501, and signed-accepted by run 38031436557; all staged checks passed. WU-06 tracks merchant Sort now retest; Live untouched.",
-  "next_valid_work_unit": "Exercise the merchant-facing Sort now path on Staging source 030a884b594944aa78d81bfe538dc2c69e042002 and record the deletion-safe result; keep Live untouched.",
+  "last_verified_completion": "Live release accepted for main source 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff (Shopify Production Candidate run 38049866420, PR #231/#232). Staging accepted for development source a078ae76f06178991d97d482133abe2edf444c5e; Cloud Dev accepted for a078ae7.",
+  "next_valid_work_unit": "Exercise the merchant-facing Sort now path on the accepted Staging build and record the deletion-safe result. Staging now auto-deploys after App Validation passes on development; Live still requires explicit authorization.",
   "progress": {
     "total_work_units": 49,
     "complete": 47,
@@ -19,7 +19,6 @@
   },
   "outstanding_updates": [
     "Merchant-facing Sort now and uninstall-race retest on accepted Staging build",
-    "Record accepted Staging evidence on main only through guarded development-to-main release process",
     "Review dependency/Actions warnings",
     "Live pricing, Partner API, App Store review and final production smoke evidence"
   ],
@@ -31,8 +30,8 @@
   "critical_defects": [],
   "qa_readiness": "Issue #197 deterministic deletion-race regression passed on exact source 030a884b594944aa78d81bfe538dc2c69e042002; App Validation and Cloud Dev SQLite Runtime passed, then exact-source Staging deployment and signed Shopify acceptance passed. Merchant Sort now retest remains pending.",
   "security_readiness": "main_ruleset_validate_required; Local SQLite requires no hosted DB/Neon credentials; Staging/Production Neon credential isolation remains enforced",
-  "last_reconciled_repository_ref": "7991a5f0647f7aab72da0d615b25c90e41d35858",
-  "last_reconciled_at": "2026-10-10",
+  "last_reconciled_repository_ref": "00610d916edfa32b61519bc487c27659e9c241ee",
+  "last_reconciled_at": "2026-10-17",
   "notes": "Canonical billing topology: Local/Dev app = manual_legacy test billing; Staging app = manual_legacy test billing; Live/Production app = Shopify App Pricing. Only the Live app owns the App Store listing/public pricing catalog and Partner API subscription reads. The previous Staging Partner API/App Pricing audits are historical and superseded by PR #165. Live Partner organization ID is 4859256 and Live App GID is gid://shopify/App/405802811393.",
   "ci_evidence": {
     "workflow_run": 594,

@@ -6,5 +6,5 @@ project: VSN Stock Down Sort
 active_work_unit: ISSUE-197-WU-06
 status: in_progress
 note: >
-  Cloud Dev and exact-source signed Staging acceptance passed for 030a884b594944aa78d81bfe538dc2c69e042002.
-  Retest merchant-facing Sort now on Staging; Live remains untouched.
+  Live accepted for main 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff; Staging accepted for a078ae76f06178991d97d482133abe2edf444c5e.
+  WU-06 tracks the merchant-facing Sort now retest on Staging.
