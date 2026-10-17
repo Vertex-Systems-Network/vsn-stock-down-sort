@@ -11,5 +11,5 @@ current_phase: PHASE-10
 current_module: sorting-controls
 current_work_unit: ISSUE-197-WU-06
 note: >
-  Live accepted for main 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff; Staging accepted for a078ae76f06178991d97d482133abe2edf444c5e.
-  WU-06 tracks the merchant-facing Sort now retest on Staging.
+  Staging accepted for development source 1f5e0723b1a844999db8f43ee4f368cad3574412; Live runs earlier release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff.
+  WU-06 tracks the controlled deletion-during-Sort-now merchant test on Staging.

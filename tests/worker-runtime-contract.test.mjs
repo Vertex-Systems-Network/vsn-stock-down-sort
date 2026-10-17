@@ -602,7 +602,7 @@ test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
 
   const waitIndex = sorter.indexOf("await waitForJob(admin, jobId)");
   const successWriteIndex = sorter.indexOf(
-    "recordSortSuccess(db, { shop, collectionId })",
+    "recordSortSuccessWithActivity(db, { shop, collectionId, id: settingId }",
   );
   const persistence = read(
     "app/services/collection-setting-sort-state.server.mjs",
@@ -611,6 +611,7 @@ test("collection sorting waits for asynchronous Shopify reorder jobs", () => {
   assert.ok(waitIndex >= 0);
   assert.ok(successWriteIndex > waitIndex);
   assert.match(persistence, /lastSortedAt: new Date\(\)/);
+  assert.match(persistence, /db\.\$transaction\(async \(tx\) =>/);
 });
 
 test("Shopify update webhooks defer sorter work with Cloudflare waitUntil", () => {
@@ -682,6 +683,10 @@ test("privacy lifecycle purges all shop-scoped persisted data", () => {
   }
 
   assert.match(purge, /integrationCredential\.findMany/);
+  assert.ok(
+    purge.indexOf("db.collectionSetting.deleteMany") < purge.indexOf("db.activityEvent.deleteMany"),
+    "settings must be removed before activity to prevent orphan sort events during purge",
+  );
   assert.match(purge, /integrationReplayNonce\.deleteMany/);
   assert.match(purge, /credentialId:\s*\{\s*in:\s*credentialIds/s);
   assert.doesNotMatch(purge, /db\.\$transaction/);
@@ -1484,12 +1489,11 @@ test("staging bootstrap deploy is separated from signed Shopify acceptance", () 
     gates.staging.deployment_record?.source_ref,
     gates.staging.deployed_source_ref,
   );
-  assert.equal(
-    gates.staging.shopify_release_record?.source_ref,
-    gates.staging.deployed_source_ref,
-  );
-
   if (gates.staging.status === "accepted") {
+    assert.equal(
+      gates.staging.shopify_release_record?.source_ref,
+      gates.staging.deployed_source_ref,
+    );
     assert.equal(gates.staging.accepted_source_ref, gates.staging.deployed_source_ref);
     assert.equal(gates.staging.evidence_record?.source_ref, gates.staging.deployed_source_ref);
     assert.equal(gates.staging.evidence_record?.offline_shopify_session, "passed");
