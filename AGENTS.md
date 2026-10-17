@@ -6,17 +6,21 @@ Use the Shopify AI Toolkit for Shopify API/platform work. Do not commit local ag
 
 ## Canonical startup
 
-Before substantial work:
+Before substantial work, read only:
 
-1. Read `.ai/manifest.json`.
-2. Read `config/ai/project-state.json`.
-3. Read `config/ai/execution-plan.json`.
-4. Read `config/ai/modules-bank.json`.
-5. Read the active GitHub Issue referenced by project state.
-6. Reconcile current `main`, `development`, open PRs/issues, workflow/check results, and actual code.
-7. Load only the role-specific files from the manifest that apply to the requested work.
+1. `config/ai/project-state.json`.
+2. The active GitHub Issue referenced by project state.
+3. Current `development` head, open PRs for the work, and their check results.
 
-Repository/Git/CI/release evidence is canonical. Chat memory, PM mirrors, screenshots, and state files that disagree with live repository evidence must be reconciled before work continues.
+Read `.ai/manifest.json`, `config/ai/execution-plan.json`, `config/ai/modules-bank.json` and role-specific protocol files only when the current task actually needs them (planning a new phase/work unit, changing scope, or promoting an environment). Do not bulk-load the large registries for ordinary development work.
+
+Repository/Git/CI/release evidence is canonical. When a state file (project state, legacy mirrors, PM mirrors) is merely out of date relative to verified Git/CI evidence, update it as part of the current work and continue; this is not a stop condition. Stop only when code, deployments or gate evidence genuinely conflict and the correct reality cannot be established from the repository.
+
+## Development work: continue without pausing
+
+Normal development on a work branch that targets `development` (code, tests, docs, state updates, opening the PR, fixing CI, merging green PRs into `development` when the user has asked for the work) needs no extra confirmation. Do not stop to ask between these steps; carry the work through to a green PR.
+
+Pause for the user only for: a genuine product/scope decision, an environment promotion step (Staging/Live gates below are unchanged), missing credentials or access, or a real conflict that the repository cannot resolve. A merely stale state file, a long protocol document, or the absence of a Supervisor/Worker runtime is never a reason to stop.
 
 ## Authority and safety
 
@@ -114,6 +118,8 @@ Before selecting or executing any environment promotion, the AI must read `confi
 ## Supervisor / Worker runtime boundary
 
 The repository contains Supervisor/Worker protocols, but no persistent orchestrator runtime is currently certified. Do not claim continuous background execution, live leases, or distributed Worker authority merely because protocol files exist.
+
+Interactive single-agent sessions do not use the Supervisor/Worker claim, lease or slot protocol (`AUTO-AGENT.md`, `SUPERVISOR.md`, `MULTI-AGENT-ORCHESTRATION.md`); the referenced `scripts/claim_slot.py` and `scripts/lease_control.py` are not present. Work directly on a branch and PR instead of trying to acquire a slot.
 
 When operating interactively through an authenticated GitHub connector, reconcile repository reality each invocation and record durable project state through normal branch/PR/CI evidence.
 
