@@ -1024,7 +1024,7 @@ test("environment secrets audit checks required deployment credentials", () => {
 });
 
 
-test("manual development flow keeps development pushes away from staging and production", () => {
+test("development flow auto-promotes validated development to staging only, never production", () => {
   const flow = JSON.parse(read("config/development-flow.json"));
   const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
   const production = read(".github/workflows/cloudflare-production-prepare.yml");
@@ -1038,17 +1038,22 @@ test("manual development flow keeps development pushes away from staging and pro
     "npm run local:certify -- <local-health-url>/healthz",
   );
   assert.equal(flow.staging.source_branch, "development");
-  assert.equal(flow.staging.auto_deploy_runtime_changes, false);
-  assert.equal(flow.staging.deploy_mode, "manual_dispatch_from_development");
+  assert.equal(flow.staging.auto_deploy_runtime_changes, true);
+  assert.equal(flow.staging.deploy_mode, "automatic_after_development_validation_or_manual_dispatch");
   assert.equal(flow.staging.confirmation, "DEPLOY_DEVELOPMENT_TO_STAGING");
   assert.equal(flow.live.source_branch, "main");
   assert.equal(flow.live.auto_deploy, false);
-  assert.equal(flow.invariants.development_push_cannot_deploy_staging, true);
+  assert.equal(flow.invariants.development_push_cannot_deploy_staging, false);
+  assert.equal(flow.invariants.development_push_deploys_staging_only_after_cloud_dev_pass, true);
   assert.equal(flow.invariants.development_push_cannot_deploy_production, true);
   assert.equal(flow.invariants.main_push_cannot_deploy_production, true);
 
   assert.match(staging, /workflow_dispatch:/);
   assert.doesNotMatch(staging, /\npush:/);
+  assert.match(staging, /workflow_run:\n    workflows: \["App Validation"\]/);
+  assert.match(staging, /branches: \[development\]/);
+  assert.match(staging, /workflow_run\.conclusion == 'success'/);
+  assert.match(staging, /head_repository\.full_name == github\.repository/);
   assert.match(staging, /DEPLOY_DEVELOPMENT_TO_STAGING/);
   assert.match(staging, /ref: development/);
   assert.match(staging, /persist-credentials: false/);
