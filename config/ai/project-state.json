@@ -6,7 +6,7 @@
   "current_work_unit": "ISSUE-197-WU-06",
   "active_issue": 197,
   "last_verified_completion": "Staging exact source 1f5e0723b1a844999db8f43ee4f368cad3574412 deployed (run 38262241511), Shopify version released (run 38284082761), and signed runtime accepted after release (run 38283610600 attempt 2). Controlled merchant deletion-during-Sort-now race remains pending for Issue #197. Historical Live release 2cf6adef43ebe3b1292fa0af1c3d5b692c73efff is separate; no promotion of this latest source to Live.",
-  "next_valid_work_unit": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source 1f5e0723b1a844999db8f43ee4f368cad3574412; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission. Staging Worker now auto-deploys after App Validation passes on development; Live still requires explicit authorization.",
+  "next_valid_work_unit": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source 1f5e0723b1a844999db8f43ee4f368cad3574412; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission.",
   "progress": {
     "total_work_units": 49,
     "complete": 47,
@@ -182,7 +182,7 @@
       "release_run_id": 38050210445,
       "previous_accepted_source_ref": "14227a5f2603205aee3789b71494ee9380abb264"
     },
-    "next_gate": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source 1f5e0723b1a844999db8f43ee4f368cad3574412; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission. Staging Worker now auto-deploys after App Validation passes on development; Live still requires explicit authorization.",
+    "next_gate": "Run controlled deletion-during-Sort-now merchant test on accepted Staging source 1f5e0723b1a844999db8f43ee4f368cad3574412; verify missing-settings response and no recreated shop data, then record evidence. No Shopify review submission.",
     "development_head_resolution": "Cloud Dev accepted 1f5e0723b1a844999db8f43ee4f368cad3574412 in run 38241010236; Staging signed acceptance run 38283610600 attempt 2 passed after Shopify release, but did not invoke merchant Sort now or force deletion. Controlled race pending.",
     "latest_local_attempt": {
       "source_ref": "e432b567e1da0b6199f0db143bb229e2890e2822",

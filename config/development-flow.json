@@ -30,8 +30,8 @@
     "shopify_config": "shopify.app.staging.toml",
     "worker": "vsn-stock-down-sort-staging",
     "source_branch": "development",
-    "auto_deploy_runtime_changes": true,
-    "deploy_mode": "automatic_after_development_validation_or_manual_dispatch",
+    "auto_deploy_runtime_changes": false,
+    "deploy_mode": "manual_dispatch_from_development",
     "confirmation": "DEPLOY_DEVELOPMENT_TO_STAGING",
     "billing_test_mode": true,
     "production_identity_allowed": false,
@@ -57,7 +57,7 @@
     "secret_source": "cloudflare-production"
   },
   "invariants": {
-    "development_push_cannot_deploy_staging": false,
+    "development_push_cannot_deploy_staging": true,
     "development_push_cannot_deploy_production": true,
     "main_push_cannot_deploy_production": true,
     "staging_cannot_change_live_shopify_identity": true,
@@ -68,12 +68,11 @@
     "staging_source_ref_must_match_local_accepted_ref": true,
     "live_requires_staging_acceptance_record_on_main": true,
     "local_shopify_identity_must_match_committed_local_config": true,
-    "local_database_must_be_sqlite": true,
-    "development_push_deploys_staging_only_after_cloud_dev_pass": true
+    "local_database_must_be_sqlite": true
   },
   "development_ci": {
     "automatic_on_push": true,
-    "deploys_staging": true,
+    "deploys_staging": false,
     "deploys_production": false,
     "checks": [
       "App Validation"
@@ -94,9 +93,8 @@
       "source_branch": "development",
       "requires_local_dev_acceptance": true,
       "source_must_be_exact_verified_development_commit": true,
-      "manual_dispatch_only": false,
-      "billing_test_mode": true,
-      "automatic_trigger": "App Validation success on development push (workflow_run); the Cloud Dev evidence artifact of that exact run is the Dev gate"
+      "manual_dispatch_only": true,
+      "billing_test_mode": true
     },
     "live": {
       "source_branch": "main",
