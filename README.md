@@ -120,7 +120,7 @@ The AI now runs the Dev verification stage on GitHub-hosted runners. **App Valid
 
 The cloud job uses fixed synthetic CI credentials and never contacts a Shopify store, accepts a subscription, or deploys Staging/Live. Real Shopify session, consent, webhook and merchant-flow acceptance remains required on the isolated Staging app. A reviewed successful cloud record in `config/release/environment-gates.json.cloud_dev` can satisfy the first Dev runtime gate for its exact source; historical `local_dev` acceptance remains supported. Promotion still follows Dev → Staging → Live.
 
-Accepted cloud Dev source: `b598ada3041891e2d38c1baa512cb23fee6c3470`, [successful run 37832010614](https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/actions/runs/37832010614). The actual SQLite/app runtime passed; signed real Shopify merchant acceptance remains pending on Staging.
+Accepted Cloud Dev source for the last promoted release: `a078ae76f06178991d97d482133abe2edf444c5e`, [successful run 38047235895](https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/actions/runs/38047235895). It was subsequently deployed and signed-accepted on Staging. Controlled merchant deletion-during-sort remains pending in [Issue #197](https://github.com/Vertex-Systems-Network/vsn-stock-down-sort/issues/197). Newer `development` commits require their own exact-source promotion evidence.
 
 The owner does not need to run Local commands for this cloud verification route. The following Local workflow remains optional for workstation development.
 
@@ -160,7 +160,7 @@ Use the actual Local health URL if the runtime uses another port.
 
 Alternatively, run `npm run local:certify:auto` from a clean `development` checkout. It starts normal Shopify Dev with the public webhook tunnel, discovers the actual loopback HTTP endpoint from Dev output, waits for development + test-billing + SQLite health, and runs the same exact-source certification. It keeps Dev running on success and stops it on failure. Shopify login may still be required. This health certification does not replace embedded merchant, consent, webhook, or Sort now runtime tests.
 
-Current recorded evidence: Local source `90a64ac` accepted; Staging Deploy #17 and Shopify Staging Release #12 completed for that source. Signed Staging acceptance remains pending. Newer development changes need fresh Local acceptance.
+Current release evidence: Cloud Dev source `a078ae7` accepted; Staging Deploy #23, Shopify Staging Release #17 and signed Staging Runtime Acceptance #21 passed for it. `main` released Live source `2cf6ade` as `stock-down-sort-production-2cf6adef43eb-4`. Controlled merchant deletion-during-sort and final production merchant smoke remain pending. Later `development` changes are not deployed.
 
 Local certification requires the health contract to report:
 

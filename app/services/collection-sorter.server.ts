@@ -1,9 +1,11 @@
 import { withPrismaClient } from "../db.server";
+import type { Prisma } from "@prisma/client";
 import { getCurrentSubscriptionPlan } from "./billing.server";
-import { recordActivityEventSafe } from "./analytics.server";
+import { recordActivityEventOnClient, recordActivityEventSafe } from "./analytics.server";
 import {
-  recordSortFailure,
-  recordSortSuccess,
+  recordCollectionDisabled,
+  recordSortFailureWithActivity,
+  recordSortSuccessWithActivity,
 } from "./collection-setting-sort-state.server.mjs";
 import {
   assertCollectionRuleEntitlements,
@@ -919,6 +921,7 @@ async function sortCollectionWithEntitlements(
   collectionId: string,
   entitledOptionIds: readonly string[],
 ) {
+  let settingId: string | undefined;
   try {
     const collection = await getCollection(admin, collectionId);
     if (!collection) throw new Error("Collection not found");
@@ -938,6 +941,7 @@ async function sortCollectionWithEntitlements(
     if (!setting) {
       throw new Error("Collection sorting settings were not found. Refresh the page and enable this collection before sorting.");
     }
+    settingId = setting.id;
 
     const rules = effectiveCollectionRules(setting, entitledOptionIds);
     const products = await listCollectionProducts(admin, collectionId);
@@ -965,10 +969,6 @@ async function sortCollectionWithEntitlements(
       (product) => !product.inStock && product.pinnedRank === null,
     ).length;
 
-    await withPrismaClient((db) =>
-      recordSortSuccess(db, { shop, collectionId }),
-    );
-
     const result = {
       collectionId,
       totalProducts: products.length,
@@ -985,11 +985,11 @@ async function sortCollectionWithEntitlements(
       jobIds,
     };
 
-    await recordActivityEventSafe({
+    const successActivity = {
       shop,
-      category: "sorting",
+      category: "sorting" as const,
       action: "collection.sorted",
-      outcome: "SUCCESS",
+      outcome: "SUCCESS" as const,
       source: "sorting-engine",
       entityType: "collection",
       entityId: collectionId,
@@ -1009,28 +1009,33 @@ async function sortCollectionWithEntitlements(
       totalProducts: result.totalProducts,
       soldOutProducts: result.soldOutProducts,
       movedProducts: result.movedProducts,
-    });
+    };
+
+    await withPrismaClient((db) =>
+      recordSortSuccessWithActivity(db, { shop, collectionId, id: settingId },
+        (tx: Prisma.TransactionClient) => recordActivityEventOnClient(tx, successActivity)),
+    );
 
     return result;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown sorting error";
 
-    const settingStillExists = await withPrismaClient((db) =>
-      recordSortFailure(db, { shop, collectionId }, message),
-    ).catch(() => false);
-
-    if (settingStillExists) {
-      await recordActivityEventSafe({
+    if (settingId) {
+      const failureActivity = {
         shop,
-        category: "sorting",
+        category: "sorting" as const,
         action: "collection.sort_failed",
-        outcome: "ERROR",
+        outcome: "ERROR" as const,
         source: "sorting-engine",
         entityType: "collection",
         entityId: collectionId,
         summary: message,
-      });
+      };
+      await withPrismaClient((db) =>
+        recordSortFailureWithActivity(db, { shop, collectionId, id: settingId }, message,
+          (tx: Prisma.TransactionClient) => recordActivityEventOnClient(tx, failureActivity)),
+      ).catch(() => false);
     }
 
     throw error;
@@ -1262,15 +1267,12 @@ export async function disableCollection(
 
   if (!setting) return;
 
-  await withPrismaClient((db) =>
-    db.collectionSetting.update({
-      where: { shop_collectionId: { shop, collectionId } },
-      data: {
-        enabled: false,
-        lastError: null,
-      },
-    }),
+  const disabled = await withPrismaClient((db) =>
+    recordCollectionDisabled(db, { shop, collectionId, id: setting.id }),
   );
+
+  // A privacy purge can remove the row after findUnique; avoid further shop writes.
+  if (!disabled) return;
 
   if (restorePreviousSort && setting.previousSortOrder) {
     await setCollectionSortOrder(

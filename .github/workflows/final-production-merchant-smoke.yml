@@ -35,7 +35,7 @@ concurrency:
 jobs:
   certify-production-merchant:
     if: github.event.inputs.confirm == 'CERTIFY_PRODUCTION_MERCHANT'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: cloudflare-production
     env:
@@ -202,6 +202,10 @@ jobs:
               raise RuntimeError("offline Shopify session is unavailable")
           if int(session.get("storedSessionCount", 0)) < 1:
               raise RuntimeError("no stored Shopify sessions were found")
+
+          admin = payload.get("adminGraphql") or {}
+          if admin.get("ok") is not True:
+              raise RuntimeError("Shopify Admin GraphQL read did not pass")
 
           subscriptions = payload.get("subscriptions") or {}
           if subscriptions.get("readOk") is not True:

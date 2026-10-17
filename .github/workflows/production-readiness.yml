@@ -18,7 +18,7 @@ concurrency:
 jobs:
   validate-production:
     if: github.event.inputs.confirm == 'VALIDATE_PRODUCTION'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: cloudflare-production
     env:

@@ -70,10 +70,12 @@ export async function purgeShopData(shop: string): Promise<PurgeCounts> {
     const lowStockAlertStates = await db.lowStockAlertState.deleteMany({ where: { shop } });
     const alertSettings = await db.alertSetting.deleteMany({ where: { shop } });
     const automationRules = await db.automationRule.deleteMany({ where: { shop } });
-    const activityEvents = await db.activityEvent.deleteMany({ where: { shop } });
     const productVisibilityStates = await db.productVisibilityState.deleteMany({ where: { shop } });
     const visibilitySettings = await db.visibilitySetting.deleteMany({ where: { shop } });
     const collectionSettings = await db.collectionSetting.deleteMany({ where: { shop } });
+    // Sort metadata and activity commit together while locking the setting.
+    // Delete activity after settings so a sort event cannot survive the purge.
+    const activityEvents = await db.activityEvent.deleteMany({ where: { shop } });
     const supportRequests = await db.supportRequest.deleteMany({ where: { shop } });
     const integrationCredentialDeletes = await db.integrationCredential.deleteMany({ where: { shop } });
 

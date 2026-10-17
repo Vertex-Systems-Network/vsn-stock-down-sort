@@ -1,6 +1,12 @@
 name: Cloudflare Staging Deploy
 
 on:
+  # Automatic route: every development push whose App Validation (including the
+  # Cloud Dev SQLite Runtime job) succeeds is promoted to isolated Staging.
+  workflow_run:
+    workflows: ["App Validation"]
+    types: [completed]
+    branches: [development]
   workflow_dispatch:
     inputs:
       confirm:
@@ -14,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: stock-down-sort-cloudflare-staging
@@ -21,8 +28,14 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event.inputs.confirm == 'DEPLOY_DEVELOPMENT_TO_STAGING'
-    runs-on: ubuntu-latest
+    if: >-
+      github.event.inputs.confirm == 'DEPLOY_DEVELOPMENT_TO_STAGING' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'development' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     environment: cloudflare-staging
     env:
@@ -40,7 +53,8 @@ jobs:
       SHOPIFY_APP_URL: https://vsn-stock-down-sort-staging.vertexsystemsnetwork.workers.dev
       SCOPES: read_products,write_products,read_inventory,read_locations
       SORT_QUEUE_NAME: vsn-stock-down-sort-staging-sort-jobs
-      SOURCE_REF: ${{ github.event.inputs.source_ref }}
+      SOURCE_REF: ${{ github.event.inputs.source_ref || github.event.workflow_run.head_sha }}
+      AUTO_RUN_ID: ${{ github.event.workflow_run.id }}
 
     steps:
       - name: Checkout development source
@@ -48,6 +62,15 @@ jobs:
         with:
           ref: development
           persist-credentials: false
+
+      - name: Download exact-source Cloud Dev evidence
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v6
+        with:
+          name: cloud-dev-evidence-${{ github.event.workflow_run.head_sha }}
+          path: /tmp/auto-cloud-dev
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
 
       - name: Verify Local/Dev acceptance and exact source ref
         shell: bash
@@ -62,6 +85,13 @@ jobs:
           subprocess.run(["git","fetch","origin",source_ref,"--depth=1"],check=True)
           subprocess.run(["git","merge-base","--is-ancestor",source_ref,"origin/development"],check=True)
           gate=json.loads(subprocess.check_output(["git","show","origin/development:config/release/environment-gates.json"],text=True))
+          auto_run_id=os.environ.get("AUTO_RUN_ID") or ""
+          if auto_run_id:
+              # Automatic route: the triggering App Validation run is the Dev gate.
+              evidence=json.load(open("/tmp/auto-cloud-dev/evidence.json"))
+              if str(evidence.get("workflow_run_id"))!=auto_run_id:
+                  raise SystemExit("Cloud Dev evidence does not belong to the triggering run.")
+              gate={"cloud_dev":{"status":"accepted","accepted_source_ref":source_ref,"evidence_record":evidence}}
           import sys
           sys.path.insert(0, "scripts")
           from dev_acceptance import select_dev_gate

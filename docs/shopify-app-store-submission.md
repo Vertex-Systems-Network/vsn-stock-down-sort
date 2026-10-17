@@ -2,7 +2,7 @@
 
 ## Repository readiness
 
-Repository development is prepared for Shopify App Pricing and final App Store submission. This document separates repository evidence from Partner Dashboard / Shopify review actions that cannot be completed from source control.
+Repository development is prepared for Shopify App Pricing. Shopify emails confirm the Live app was submitted on 2026-10-05 and is in review under reference 138632. An issues notice followed on 2026-10-05 at 23:52 UTC. The email does not include the detailed feedback; inspect it in Partner Dashboard and respond within 14 days. No response or resubmission is verified. This document separates repository evidence from Partner Dashboard / Shopify review actions that cannot be completed from source control.
 
 Canonical records:
 
@@ -53,7 +53,7 @@ The legacy USD 55 / 5-day subscription remains Unlimited-compatible until migrat
 
 The English listing copy, reviewer walkthrough, screenshot capture plan, and demo screencast outline are prepared in `config/shopify/app-store-listing-pack.json` and `docs/shopify-app-store-listing-pack.md`.
 
-Repository readiness does **not** mean the Shopify dashboard gate is complete. Actual Live-app screenshots, feature media, demo-store URL, screencast upload, contacts, protected-data declaration, automated checks, and final submission still require real external evidence.
+Repository readiness does **not** mean the Shopify dashboard gate is complete. Actual Live-app screenshots, feature media, demo-store URL, screencast upload, contacts, protected-data declaration, and automated checks still require real external evidence. The existing submission is email-confirmed; its detailed feedback and any reviewer response remain unverified.
 
 ## Listing and review checklist
 
@@ -66,7 +66,7 @@ The following are external Shopify/Partner Dashboard gates and must have real ev
 - Protected customer data declarations are completed as required by the submission form.
 - Reviewer instructions explain installation, no-charge development-store plan selection, collection enable/disable, sorting, restore behavior, plan changes, and required test data. The canonical prepared instructions are in `docs/shopify-app-store-listing-pack.md`.
 - Shopify automated submission checks pass.
-- The app is submitted for review only after the listing and runtime are complete.
+- Existing submission was confirmed by Shopify email on 2026-10-05. Review feedback details and a response remain pending Partner Dashboard verification; do not resubmit without owner approval.
 - After the accepted production release, run **Final Production Merchant Smoke** and preserve the successful workflow run as final evidence.
 
 ## Final merchant smoke

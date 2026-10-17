@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "repository_ready_external_dashboard_and_submission_pending",
+  "status": "submitted_review_feedback_pending",
   "pricing_method": "shopify_app_pricing",
   "default_billing_frequency": "monthly",
   "primary_language": "English",
@@ -101,8 +101,8 @@
     },
     {
       "id": "submit_for_review",
-      "status": "pending",
-      "requirement": "Submit the completed app for Shopify review."
+      "status": "submitted_2026_10_05_review_feedback_pending",
+      "requirement": "Existing Live app submission confirmed by Shopify email; inspect detailed Partner Dashboard feedback and respond within 14 days of 2026-10-05. Do not resubmit without owner approval."
     },
     {
       "id": "final_merchant_smoke",
@@ -128,7 +128,7 @@
   "test_strategy": {
     "local_dev": "Use Dev app with Billing API test subscriptions.",
     "staging": "Use Staging app with Billing API test subscriptions.",
-    "live_app_pricing": "Install the Live app on a Partner development store and select each public Shopify App Pricing plan at no charge before submission."
+    "live_app_pricing": "Install the Live app on a Partner development store and verify each public Shopify App Pricing plan at no charge; live plan-by-plan verification remains pending."
   },
   "repository_preparation": {
     "english_listing_copy": "ready",
@@ -137,5 +137,15 @@
     "demo_screencast_script": "ready_external_recording_pending",
     "live_app_pricing_audit": "ready",
     "listing_pack_source": "config/shopify/app-store-listing-pack.json"
+  },
+  "review_evidence": {
+    "reference": "138632",
+    "app_name": "VSN | Stock Down Sort",
+    "submission_confirmation_utc": "2026-10-05T22:21:16Z",
+    "issues_notice_utc": "2026-10-05T23:52:14Z",
+    "email_status": "In review",
+    "feedback_details": "pending_partner_dashboard_verification",
+    "response_status": "not_verified",
+    "resubmission_authorized": false
   }
 }
